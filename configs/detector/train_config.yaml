@@ -1,0 +1,33 @@
+# Cấu hình huấn luyện chung cho 3 detector (§2, §5.1 trong KE_HOACH_V4)
+# YOLOv5su, YOLOv8s, YOLO11s dùng CHUNG file config này
+
+# === Chung ===
+seed: 42
+imgsz: 640                    # ⏳ Thử 640 trước, rồi 960/1280 nếu VRAM cho phép, chốt trên V
+epochs: 100
+patience: 15                  # Early stopping trên V
+batch: 16                     # Điều chỉnh theo VRAM (RTX 5060 8GB)
+workers: 4
+
+# === Pretrained ===
+pretrained: true              # Từ trọng số COCO
+
+# === Augmentation (giữ mặc định Ultralytics) ===
+# Không custom augmentation để đảm bảo công bằng giữa 3 detector
+
+# === NMS ===
+nms_conf: 0.001               # Confidence threshold cho NMS (thấp, lọc sau)
+nms_iou: 0.7                  # IoU threshold cho NMS
+
+# === Conf threshold (chốt trên V) ===
+conf_threshold: null           # ⏳ Sẽ chọn bằng F1 tối đa trên V, dùng chung cho cả 3
+
+# === Classes ===
+classes:
+  - Car
+  # - Van                     # Tùy chọn, báo cáo riêng
+  # - Truck                   # Tùy chọn, báo cáo riêng
+
+# === Hardware ===
+device: 0                     # GPU 0 (RTX 5060)
+amp: true                     # Mixed precision (FP16)
