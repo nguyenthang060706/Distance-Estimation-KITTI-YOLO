@@ -72,8 +72,9 @@ Loader hiện chỉ được kiểm tra bằng 6 test đơn vị trên **dữ li
 - [ ] Tạo log thí nghiệm (seed, hash split, phiên bản code, cấu hình detector)
 
 ### Tuần 1
-- [~] **Ngày 1:** loader viết xong + 6 test đơn vị (dữ liệu giả lập); chưa chạy trên KITTI thật
-- [ ] **Ngày 2:** dựng split A/V/B/C/T theo drive, kiểm tra rò rỉ và phân bố Z/class, đóng băng, chuyển A/V sang định dạng YOLO
+- [x] **Ngày 1:** loader viết xong, chạy thành công trên KITTI thật (7,481 frames, 141 drives)
+- [x] **Ngày 2:** split A/V/B/C/T theo drive đã tạo, đóng băng (seed=42, hash trong split_metadata.json)
+- [ ] **Ngày 2 (tiếp):** chuyển A/V sang định dạng YOLO
 - [ ] **Ngày 3:** khởi động hàng đợi fine-tune YOLOv8s → YOLO11s → YOLOv5su; thống kê prior W_eff, H_obj, H_cam, y_horizon từ nhãn A
 - [ ] **Ngày 4:** cài 3 cue (a)(b)(c) + hợp nhất log-space (d)
 - [ ] **Ngày 5:** `eval.py` + test đơn vị
@@ -83,6 +84,22 @@ Loader hiện chỉ được kiểm tra bằng 6 test đơn vị trên **dữ li
 ---
 
 ## 6. Nhật ký theo phiên
+
+### 02/10/2026: Loader + Split trên dữ liệu thật
+- Viết `src/utils/kitti_loader.py`: loader KITTI đọc image/label/calib/drive mapping, chạy thành công trên 7,481 frames.
+- Viết `src/utils/split_builder.py`: tạo split theo drive, phân tầng theo median depth.
+- Viết `scripts/create_splits.py`: script tạo + validate splits.
+- **Kết quả split (seed=42):**
+  - A: 3,679 frames (49.2%), 83 drives — detector train
+  - V: 287 frames (3.8%), 6 drives — detector val
+  - B: 1,767 frames (23.6%), 20 drives — residual train
+  - C: 707 frames (9.5%), 6 drives — CQR calibration
+  - T: 1,041 frames (13.9%), 26 drives — final test
+- ✓ Không rò rỉ drive giữa các tập.
+- ⚠️ V nhỏ hơn target (3.8% vs 5%) do chia theo drive → 287 frames vẫn đủ cho early stopping.
+- ⚠️ C >50m: 87 samples (< 100) → cần lưu ý khi phân tích CQR ở dải xa.
+- Dọn dẹp dữ liệu: xóa ảnh/calib testing (không có nhãn), xóa devkit/cpp và devkit/matlab.
+- **Bước tiếp theo:** chuyển A/V sang định dạng YOLO; thống kê prior; bắt đầu fine-tune.
 
 ### 01/10/2026 (tối): Dựng cấu trúc thư mục
 - Tạo cấu trúc thư mục hoàn chỉnh theo §8.0: `data/`, `splits/`, `configs/`, `runs/`, `results/`, `notebooks/`, `src/`, `tests/`, `docs/`, `scripts/`.
@@ -97,3 +114,4 @@ Loader hiện chỉ được kiểm tra bằng 6 test đơn vị trên **dữ li
 - Phát hiện chat mới không thấy kế hoạch trong Context (file `.docx` trong repo có thể chưa đồng bộ hoặc không đọc được) → chuyển kế hoạch sang `KE_HOACH_V4.md` và tạo file nhật ký này.
 - Viết `kitti_loader.py` + `test_kitti_loader.py` (6 test pass trên dữ liệu giả lập).
 - **Bước tiếp theo:** tải KITTI + devkit, chạy kiểm tra mapping trên dữ liệu thật; sau đó viết script tạo split A/V/B/C/T theo drive kèm hash.
+
