@@ -114,6 +114,7 @@ class KITTIFrame:
     frame_id: str                          # e.g. "000000"
     calib: KITTICalib
     objects: list                           # list of KITTIObject
+    dontcare_boxes: list = field(default_factory=list)  # list of np.ndarray [x1,y1,x2,y2]
     image_path: Optional[str] = None
     image_size: Optional[tuple] = None     # (width, height)
     drive: Optional[str] = None            # e.g. "2011_09_26_drive_0005_sync"
@@ -184,28 +185,65 @@ def parse_label(label_path: str, vehicle_only: bool = True) -> list:
     return objects
 
 
-def read_drive_mapping(mapping_path: str) -> dict:
+def parse_dontcare(label_path: str) -> list:
     """
-    Read train_mapping.txt to get frame_id -> drive mapping.
+    Parse DontCare regions from a KITTI label file.
 
-    Each line: "date drive_name raw_frame_id"
-    Line number (0-indexed) corresponds to the KITTI Object frame ID
-    after applying train_rand.txt permutation.
+    Needed for §5.1: detections matched to DontCare are ignored
+    (neither true positive nor false positive).
 
-    However, train_mapping.txt is already in KITTI Object order
-    (line i = info for KITTI Object frame i), so we read directly.
+    Returns:
+        List of np.ndarray [x1, y1, x2, y2] for each DontCare region.
+    """
+    boxes = []
+    with open(label_path, "r") as f:
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) >= 8 and parts[0] == "DontCare":
+                bbox = np.array([float(parts[4]), float(parts[5]),
+                                 float(parts[6]), float(parts[7])])
+                boxes.append(bbox)
+    return boxes
+
+
+def read_drive_mapping(mapping_path: str, rand_path: str) -> dict:
+    """
+    Read train_mapping.txt + train_rand.txt to get frame_id -> drive mapping.
+
+    KITTI Object frame i corresponds to mapping line rand[i] (1-indexed),
+    NOT line i directly. Verified by P2 intrinsic consistency test:
+    H0 (line i) = 0.81, H1 (line rand[i]-1) = 1.00.
+
+    Args:
+        mapping_path: Path to train_mapping.txt
+        rand_path: Path to train_rand.txt
 
     Returns:
         dict: {frame_id_str: drive_name}  e.g. {"000000": "2011_09_26_drive_0005_sync"}
     """
-    mapping = {}
+    # Read mapping lines
     with open(mapping_path, "r") as f:
-        for idx, line in enumerate(f):
-            parts = line.strip().split()
-            if len(parts) >= 2:
-                frame_id = f"{idx:06d}"
-                drive = parts[1]  # e.g. "2011_09_26_drive_0005_sync"
-                mapping[frame_id] = drive
+        mapping_lines = [line.strip().split() for line in f if line.strip()]
+
+    # Read permutation: train_rand.txt is a single line of comma-separated
+    # 1-indexed integers
+    with open(rand_path, "r") as f:
+        content = f.read().replace("\n", "")
+        rand_indices = [int(x) for x in content.split(",") if x.strip()]
+
+    assert len(mapping_lines) == len(rand_indices), (
+        f"mapping has {len(mapping_lines)} lines but rand has "
+        f"{len(rand_indices)} entries"
+    )
+
+    mapping = {}
+    for frame_idx, rand_idx in enumerate(rand_indices):
+        row = mapping_lines[rand_idx - 1]  # rand is 1-indexed
+        if len(row) >= 2:
+            frame_id = f"{frame_idx:06d}"
+            drive = row[1]  # e.g. "2011_09_26_drive_0005_sync"
+            mapping[frame_id] = drive
+
     return mapping
 
 
@@ -231,20 +269,22 @@ class KITTILoader:
         self.label_dir = self.data_root / "label_2"
         self.calib_dir = self.data_root / "calib"
         self.mapping_path = self.data_root / "devkit" / "mapping" / "train_mapping.txt"
+        self.rand_path = self.data_root / "devkit" / "mapping" / "train_rand.txt"
 
         # Validate directories exist
         for d in [self.image_dir, self.label_dir, self.calib_dir]:
             if not d.exists():
                 raise FileNotFoundError(f"Directory not found: {d}")
 
-        # Load drive mapping
-        if self.mapping_path.exists():
-            self._drive_mapping = read_drive_mapping(str(self.mapping_path))
-        else:
-            raise FileNotFoundError(
-                f"Drive mapping not found: {self.mapping_path}. "
-                "Download devkit from KITTI website."
-            )
+        # Load drive mapping (using train_rand.txt permutation)
+        for p in [self.mapping_path, self.rand_path]:
+            if not p.exists():
+                raise FileNotFoundError(
+                    f"File not found: {p}. Download devkit from KITTI website."
+                )
+        self._drive_mapping = read_drive_mapping(
+            str(self.mapping_path), str(self.rand_path)
+        )
 
         # All available frame IDs
         self._all_frame_ids = sorted([
@@ -291,9 +331,12 @@ class KITTILoader:
         calib_path = self.calib_dir / f"{frame_id}.txt"
         calib = parse_calib(str(calib_path))
 
-        # Labels
+        # Labels (vehicles only)
         label_path = self.label_dir / f"{frame_id}.txt"
         objects = parse_label(str(label_path), vehicle_only=True)
+
+        # DontCare regions (for detection matching, §5.1)
+        dontcare_boxes = parse_dontcare(str(label_path))
 
         # Image path & size
         image_path = str(self.image_dir / f"{frame_id}.png")
@@ -310,6 +353,7 @@ class KITTILoader:
             frame_id=frame_id,
             calib=calib,
             objects=objects,
+            dontcare_boxes=dontcare_boxes,
             image_path=image_path,
             image_size=image_size,
             drive=drive,

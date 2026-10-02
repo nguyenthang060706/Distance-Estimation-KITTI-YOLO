@@ -128,19 +128,27 @@ def build_splits(
     print("Computing per-drive statistics for stratification...")
     drive_stats = _compute_drive_stats(loader, drive_frames)
 
-    # Sort drives by median depth for stratification
-    drives_sorted = sorted(
+    # Assignment strategy:
+    # 1. Sort drives by frame count DESCENDING so large drives are assigned
+    #    first (when all splits still have room and the deficit is close to
+    #    the target ratio). This prevents a 500-frame drive from being
+    #    dumped into V (target 5%) late in the process.
+    # 2. Within similar-size groups, shuffle for randomness.
+    # 3. Greedy: assign each drive to the split with the largest deficit.
+
+    drives_by_size = sorted(
         drive_frames.keys(),
-        key=lambda d: drive_stats[d]["median_depth"]
+        key=lambda d: len(drive_frames[d]),
+        reverse=True,
     )
 
-    # Create strata (groups of ~5 drives each)
-    n_strata = max(1, len(drives_sorted) // 5)
-    strata = [[] for _ in range(n_strata)]
-    for i, drive in enumerate(drives_sorted):
-        strata[i % n_strata].append(drive)
+    # Shuffle within size-based blocks (blocks of 5 drives with similar sizes)
+    block_size = 5
+    for start in range(0, len(drives_by_size), block_size):
+        block = drives_by_size[start:start + block_size]
+        rng.shuffle(block)
+        drives_by_size[start:start + block_size] = block
 
-    # Assign drives to splits within each stratum
     split_names = list(ratios.keys())
     split_ratios = np.array([ratios[s] for s in split_names])
 
@@ -149,21 +157,25 @@ def build_splits(
 
     total_frames = sum(len(v) for v in drive_frames.values())
 
-    for stratum in strata:
-        rng.shuffle(stratum)
+    for drive in drives_by_size:
+        n_drive = len(drive_frames[drive])
 
-        for drive in stratum:
-            # Assign to the split that is most below its target ratio
-            current_ratios = np.array([
-                split_frame_counts[s] / max(total_frames, 1)
-                for s in split_names
-            ])
-            deficit = split_ratios - current_ratios
-            best_split_idx = np.argmax(deficit)
-            best_split = split_names[best_split_idx]
+        # Compute how far each split would be from target AFTER adding this drive
+        best_split_idx = None
+        best_overshoot = float("inf")
 
-            splits[best_split].extend(drive_frames[drive])
-            split_frame_counts[best_split] += len(drive_frames[drive])
+        for idx, s in enumerate(split_names):
+            would_be = (split_frame_counts[s] + n_drive) / total_frames
+            overshoot = would_be - split_ratios[idx]
+            # Prefer the split that would still be most below target,
+            # or least above target if all would overshoot
+            if overshoot < best_overshoot:
+                best_overshoot = overshoot
+                best_split_idx = idx
+
+        best_split = split_names[best_split_idx]
+        splits[best_split].extend(drive_frames[drive])
+        split_frame_counts[best_split] += n_drive
 
     # Sort frame IDs within each split
     for name in splits:

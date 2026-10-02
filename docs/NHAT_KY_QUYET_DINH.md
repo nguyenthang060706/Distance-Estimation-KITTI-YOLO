@@ -38,26 +38,29 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 
 ---
 
-## 3. Quyết định về code (phiên "Writing KITTI data loader")
+## 3. Quyết định về code
 
 - ✅ Loader **trung lập về split**: nhận danh sách frame ID từ bên ngoài, không chứa logic split.
-- ✅ Bỏ `DontCare` và các lớp không phải xe khi đọc nhãn.
-- ✅ Hash split = SHA-256 của danh sách ID đã sắp xếp. Mỗi lần chạy ghi `seed`, tên split, `n_frames` và hash vào file JSONL.
-- ✅ Kiểm tra rò rỉ theo drive bằng `assert_split_disjoint_by_drive` (báo lỗi nếu một drive nằm ở hai tập). Gọi ngay sau khi tạo split.
+- ✅ Bỏ `DontCare` khi đọc nhãn xe; **thêm `parse_dontcare()`** trả về bbox DontCare riêng (cần cho §5.1 khớp Hungarian).
+- ✅ Hash split = SHA-256 của danh sách ID đã sắp xếp. Metadata ghi `seed`, tên split, `n_frames` và hash vào `split_metadata.json`.
+- ✅ Kiểm tra rò rỉ theo drive bằng `assert_split_disjoint_by_drive`.
 - ✅ Loader cung cấp cả `depth` (Z) và `distance` (Euclid); **dùng `depth` cho mọi tính toán AbsRel/MAE**.
-- ⚠️ **Cần chỉnh cho khớp kế hoạch:** loader đặt mặc định `VEHICLE_CLASSES = Car/Van/Truck`. Theo v4, Car là chính và Van/Truck phải báo cáo riêng. Giữ nguyên danh sách nhưng đảm bảo mọi bảng kết quả tách theo class.
-- ⏳ **Guard khóa tập T:** thêm cơ chế chỉ cho load T khi cờ `frozen=True` (T chạy một lần). Đang chờ thêm vào code.
+- ✅ **Mapping fix (02/10):** `read_drive_mapping` giờ dùng `train_rand.txt`. Frame `i` → dòng `rand[i]-1` của `train_mapping.txt`. Xác nhận bằng P2 consistency: H0=0.81, H1=1.00.
+- ✅ **3 lớp huấn luyện:** Car/Van/Truck. Car là chính, Van/Truck báo cáo riêng. Pedestrian/Cyclist là nền.
+- ✅ **Nhãn huấn luyện:** lấy mọi Car/Van/Truck (không lọc Hard). Hard chỉ áp cho evaluation trên B/C/T.
+- ⏳ **Guard khóa tập T:** thêm cơ chế chỉ cho load T khi cờ `frozen=True` (T chạy một lần).
+- ⏳ **Log JSONL (seed, hash):** chưa có. Hiện ghi vào `split_metadata.json`.
 
 ---
 
-## 4. Việc cần kiểm chứng trên dữ liệu thật ⚠️
+## 4. Việc cần kiểm chứng trên dữ liệu thật
 
-Loader hiện chỉ được kiểm tra bằng 6 test đơn vị trên **dữ liệu giả lập**, chưa chạy trên KITTI thật.
-
-- [ ] Tải KITTI Object: `image_2`, `label_2`, `calib`, devkit (`devkit_object` có `train_mapping.txt`, `train_rand.txt`).
-- [ ] Chạy `read_drive_mapping`, kiểm tra: đủ **7.481 frame**; số drive hợp lý; các frame cùng drive có chỉ số raw liên tiếp.
-- [ ] Xác minh cách ghép `train_rand` với `train_mapping` (code hiện viết theo trí nhớ, cần đối chiếu dữ liệu thật).
-- [ ] Ghi lại **số drive thực tế** và số xe theo dải khoảng cách, để biết có đủ mẫu chia 5 tập. Nếu một dải có dưới ~100 xe ở C hoặc T thì gộp dải hoặc báo cáo kèm cảnh báo.
+- [x] Tải KITTI Object: `image_2`, `label_2`, `calib`, devkit. Đã xác nhận 7,481 frames, 141 drives.
+- [x] Xác minh mapping: **`train_rand.txt` phải dùng.** P2 consistency: H0 (dòng i) = 0.81, H1 (dòng rand[i]-1) = **1.00**. Đã sửa `read_drive_mapping`.
+- [x] Chạy KS test Z và chi-square class giữa các tập (02/10). Kết quả:
+  - KS depth: stat 0.03–0.09 (nhỏ), p < 0.05 do sample lớn, nhưng mean/median rất gần (26–28m). **C vs T: KS=0.03, p=0.13 — OK** (quan trọng nhất cho CQR).
+  - Chi-square class: Truck lệch (A=5.2%, T=0.8%) — hệ quả không tránh được khi chia theo drive với Truck tập trung ở vài drive. **Ghi vào Limitations.**
+- [x] ⚠️ C >50m: 77 mẫu, T >50m: 84 mẫu (< 100) → gộp dải hoặc cảnh báo khi phân tích.
 
 ---
 
@@ -85,21 +88,25 @@ Loader hiện chỉ được kiểm tra bằng 6 test đơn vị trên **dữ li
 
 ## 6. Nhật ký theo phiên
 
-### 02/10/2026: Loader + Split trên dữ liệu thật
-- Viết `src/utils/kitti_loader.py`: loader KITTI đọc image/label/calib/drive mapping, chạy thành công trên 7,481 frames.
-- Viết `src/utils/split_builder.py`: tạo split theo drive, phân tầng theo median depth.
-- Viết `scripts/create_splits.py`: script tạo + validate splits.
-- **Kết quả split (seed=42):**
-  - A: 3,679 frames (49.2%), 83 drives — detector train
-  - V: 287 frames (3.8%), 6 drives — detector val
-  - B: 1,767 frames (23.6%), 20 drives — residual train
-  - C: 707 frames (9.5%), 6 drives — CQR calibration
-  - T: 1,041 frames (13.9%), 26 drives — final test
-- ✓ Không rò rỉ drive giữa các tập.
-- ⚠️ V nhỏ hơn target (3.8% vs 5%) do chia theo drive → 287 frames vẫn đủ cho early stopping.
-- ⚠️ C >50m: 87 samples (< 100) → cần lưu ý khi phân tích CQR ở dải xa.
-- Dọn dẹp dữ liệu: xóa ảnh/calib testing (không có nhãn), xóa devkit/cpp và devkit/matlab.
-- **Bước tiếp theo:** chuyển A/V sang định dạng YOLO; thống kê prior; bắt đầu fine-tune.
+### 02/10/2026 (sáng): Sửa mapping, rebuild split, KS test
+- **BUG NGHIÊM TRỌNG:** `read_drive_mapping` đọc dòng `i` thay vì `rand[i]-1`. Xác nhận bằng P2 consistency test: H0=0.81 (sai), H1=1.00 (đúng). Đã sửa.
+- Thêm `parse_dontcare()` vào loader.
+- Sửa `split_builder.py`: greedy assignment xử lý drive lớn trước (sort by frame count desc) để tránh drives lớn dồn vào split nhỏ.
+- Rebuild split với mapping đúng (seed=42):
+  - A: 3,740 frames (50.0%), 35 drives
+  - V: 374 frames (5.0%), 25 drives
+  - B: 1,496 frames (20.0%), 28 drives
+  - C: 749 frames (10.0%), 25 drives
+  - T: 1,122 frames (15.0%), 28 drives
+- ✓ Tỉ lệ gần hoàn hảo. Không rò rỉ drive.
+- KS test depth: C vs T p=0.13 (OK). Các cặp khác p < 0.05 nhưng KS stat nhỏ (0.03–0.09), mean/median rất gần.
+- Chi-square class: Truck lệch giữa các tập (A=5.2%, T=0.8%). Không sửa được hoàn toàn khi chia theo drive — ghi Limitations.
+- Sửa `.gitignore` (`data/*` thay `data/`), `requirements.txt` (CUDA 12.8, ultralytics>=8.3), config detector (3 lớp Car/Van/Truck).
+- **Chưa chốt:** đang chờ kết quả KS test cuối để quyết định có cần rebuild.
+
+### 02/10/2026 (đêm qua): Loader + Split lần đầu (đã bị thay thế)
+- Viết loader và split ban đầu — **mapping sai** (không dùng train_rand.txt).
+- Dọn dẹp dữ liệu: xóa ảnh/calib testing, devkit/cpp, devkit/matlab.
 
 ### 01/10/2026 (tối): Dựng cấu trúc thư mục
 - Tạo cấu trúc thư mục hoàn chỉnh theo §8.0: `data/`, `splits/`, `configs/`, `runs/`, `results/`, `notebooks/`, `src/`, `tests/`, `docs/`, `scripts/`.

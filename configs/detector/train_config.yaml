@@ -23,10 +23,13 @@ nms_iou: 0.7                  # IoU threshold cho NMS
 conf_threshold: null           # ⏳ Sẽ chọn bằng F1 tối đa trên V, dùng chung cho cả 3
 
 # === Classes ===
+# Train all 3 vehicle classes; Car is primary, Van/Truck reported separately.
+# Pedestrian/Cyclist become background (excluded from YOLO labels).
+# Hard filter applies to evaluation (B/C/T) only, NOT to training labels.
 classes:
   - Car
-  # - Van                     # Tùy chọn, báo cáo riêng
-  # - Truck                   # Tùy chọn, báo cáo riêng
+  - Van
+  - Truck
 
 # === Hardware ===
 device: 0                     # GPU 0 (RTX 5060)
