@@ -1,0 +1,23 @@
+[
+  {
+    "model": "yolov8s.pt",
+    "run_name": "yolov8s_640",
+    "status": "SUCCESS",
+    "duration_minutes": 22.93473476666667,
+    "save_dir": "D:\\T\u00e0i li\u1ec7u h\u1ecdc\\FALL2026\\DSR301m\\Distance-Estimation-KITTI-YOLO\\runs\\detector\\yolov8s_640"
+  },
+  {
+    "model": "yolo11s.pt",
+    "run_name": "yolo11s_640",
+    "status": "SUCCESS",
+    "duration_minutes": 22.89485696666667,
+    "save_dir": "D:\\T\u00e0i li\u1ec7u h\u1ecdc\\FALL2026\\DSR301m\\Distance-Estimation-KITTI-YOLO\\runs\\detector\\yolo11s_640"
+  },
+  {
+    "model": "yolov5su.pt",
+    "run_name": "yolov5su_640",
+    "status": "SUCCESS",
+    "duration_minutes": 18.436396116666668,
+    "save_dir": "D:\\T\u00e0i li\u1ec7u h\u1ecdc\\FALL2026\\DSR301m\\Distance-Estimation-KITTI-YOLO\\runs\\detector\\yolov5su_640"
+  }
+]

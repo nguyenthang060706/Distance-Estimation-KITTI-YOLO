@@ -1,0 +1,18 @@
+yolov8s:
+  conf_threshold: 0.43
+  max_f1: 0.8052
+  precision: 0.7921
+  recall: 0.8187
+  n_gt: 833
+yolo11s:
+  conf_threshold: 0.6
+  max_f1: 0.7957
+  precision: 0.8469
+  recall: 0.7503
+  n_gt: 833
+yolov5su:
+  conf_threshold: 0.65
+  max_f1: 0.7798
+  precision: 0.8586
+  recall: 0.7143
+  n_gt: 833
