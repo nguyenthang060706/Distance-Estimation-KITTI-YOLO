@@ -42,6 +42,19 @@ def get_git_commit() -> str:
         return "unknown"
 
 
+def get_git_dirty() -> bool:
+    """Check if working tree has uncommitted changes."""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--quiet"],
+            cwd=str(PROJECT_ROOT),
+            stderr=subprocess.DEVNULL,
+        )
+        return result.returncode != 0
+    except Exception:
+        return False
+
+
 def get_split_hashes(splits_meta_path: Path) -> dict:
     """Read split hashes from split_metadata.json."""
     if not splits_meta_path.exists():
@@ -163,6 +176,7 @@ def train_detector():
     train_args = prepare_ultralytics_args(raw_config, args)
 
     git_commit = get_git_commit()
+    git_dirty = get_git_dirty()
     split_hashes = get_split_hashes(Path("splits/split_metadata.json"))
 
     print("\n" + "=" * 60)
@@ -196,6 +210,7 @@ def train_detector():
         "model": args.model,
         "run_name": train_args.get("name"),
         "git_commit": git_commit,
+        "git_dirty": git_dirty,
         "split_hashes": split_hashes,
         "duration_seconds": duration_sec,
         "train_args": {k: v for k, v in train_args.items() if k not in ["data"]},

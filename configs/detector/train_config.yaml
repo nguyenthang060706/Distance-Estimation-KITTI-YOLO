@@ -3,9 +3,9 @@
 
 # === Chung ===
 seed: 42
-imgsz: 640                    # ✅ Đã chốt theo D5 và Pilot (Car mAP@0.5:0.95 = 0.526, 36s/epoch, VRAM 3.66GB)
+imgsz: 640                    # ✅ D5: chọn do VRAM 8GB (960 chạm trần 8.02GB); 960 chưa so mAP. Limitation: xe xa.
 epochs: 100
-patience: 15                  # Early stopping trên V
+patience: 100                 # D7: tắt early stopping (chạy hết 100 epoch). Best.pt theo fitness mặc định.
 batch: 16                     # Điều chỉnh theo VRAM (RTX 5060 8GB)
 workers: 4
 

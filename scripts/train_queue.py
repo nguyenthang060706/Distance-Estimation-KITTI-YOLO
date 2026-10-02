@@ -57,11 +57,20 @@ def run_queue():
     args = parse_args()
     summary = []
 
+    # Read patience from config so the printed value is accurate
+    config_path = Path("configs/detector/train_config.yaml")
+    patience_val = "?"
+    if config_path.exists():
+        with open(config_path, "r", encoding="utf-8") as f:
+            import yaml
+            _cfg = yaml.safe_load(f)
+            patience_val = _cfg.get("patience", "?")
+
     print("\n" + "=" * 70)
-    print("STARTING DETECTOR FINE-TUNING QUEUE (WEEK 1, DAY 3)")
+    print("STARTING DETECTOR FINE-TUNING QUEUE (D7: patience=%s)" % patience_val)
     print(f"Models:   {args.models}")
     print(f"imgsz:    {args.imgsz}")
-    print(f"Epochs:   {args.epochs} (patience=15)")
+    print(f"Epochs:   {args.epochs} (patience={patience_val})")
     print(f"Batch:    {args.batch}")
     print(f"Device:   {args.device}")
     print("=" * 70 + "\n")

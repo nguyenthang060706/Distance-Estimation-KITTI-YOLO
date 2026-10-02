@@ -29,11 +29,14 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Phạm vi lớp (D2):** Residual, CQR và CI chỉ làm cho **Car**. Van chỉ chạy (a)–(d) với prior riêng, báo cáo mô tả. Truck chỉ báo cáo ở mức detector (P/R) và số lượng.
 - ✅ **Dải khoảng cách (D3):** 5 dải thống nhất (0–10, 10–20, 20–30, 30–50, >50 m) kèm n và cờ `*` nếu n < 100, thêm một hàng gộp ">30 m" cho phân tích coverage có điều kiện.
 - ✅ **Quy ước chạy T (D4):** Tuần 2 chỉ suy luận trên B, C (và A để chẩn đoán). T chỉ chạy một lần duy nhất trong script cuối tuần 3.
-- ✅ **imgsz (D5):** Pilot trên YOLOv8s (640 vs 960, ~30 epoch) chốt theo mAP@0,5:0,95 của Car trên V (hòa chọn nhỏ hơn). Dùng chung cho cả 3 detector.
-- ✅ **Ngưỡng conf (D6):** Cùng quy tắc F1 tối đa của Car trên V, nhưng áp riêng cho từng detector (do thang điểm tin cậy khác nhau).
+- ✅ **imgsz (D5, sửa lời):** Chốt 640 do giới hạn phần cứng VRAM 8 GB (RTX 5060 Laptop GPU). 960 không được so sánh bằng mAP do chạm trần VRAM ở batch 16 gây thrashing bộ nhớ chia sẻ. Dùng 640 chung cho cả 3 detector. Thử 960 (batch 8) chỉ là ablation tùy chọn trên YOLOv8s, không chặn tiến độ. Ghi Limitations về khả năng phát hiện xe ở xa.
+- ✅ **Ngưỡng conf (D6):** Cùng quy tắc F1 tối đa của Car trên V, nhưng áp riêng cho từng detector (do thang điểm tin cậy khác nhau). Chạy lại sau khi hoàn tất huấn luyện lại D7.
+- ✅ **Recipe detector (D7):** epochs=100, patience=100 (tắt early stopping) cho cả 3 detector, giữ best.pt theo fitness mặc định và ghi lại epoch được chọn. Lý do: các checkpoint pilot/cũ dừng sớm ở epoch 14–17 là đỉnh nhiễu (winner's curse trên tập V 374 ảnh), LR chưa annealing (còn ~0.0010) và close_mosaic chưa kích hoạt. Các run cũ đổi tên thành `prelim_*` (superseded), không dùng cho B/C/T.
+- ✅ **Quần thể khớp (D8):** GT là Car thỏa mức lọc Hard. Khớp GT Hard trước; nếu không khớp, kiểm tra GT ngoài Hard và DontCare. Detection khớp GT ngoài Hard hoặc DontCare bị bỏ qua, không tính TP/FP và không ranging. Áp dụng cho cả chọn ngưỡng D6 và pipeline ranging.
 - ✅ **Đặc trưng của mô hình chỉ dùng thông tin có lúc suy luận.** Không dùng nhãn truncated/occluded/alpha của KITTI làm đặc trưng; chỉ dùng để nhóm phân tích lỗi.
 - ✅ **Calibration:** dùng P2 (và R0_rect) riêng từng ảnh; bbox của YOLO phải map về tọa độ ảnh gốc.
 - ✅ **T chỉ chạy một lần**, với cấu hình đã đóng băng (git tag). Ablation chạy trên dự đoán out-of-fold của B∪C.
+- ✅ **Số liệu tập V:** Chỉ dùng chọn checkpoint và ngưỡng conf; không dùng báo cáo hiệu năng detector trong paper (hiệu năng tính trên B∪C và T). Số FPS từ Ultralytics val không dùng làm latency end-to-end (sẽ đo riêng ở Tier 1).
 
 ---
 
@@ -91,14 +94,35 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 2 (tiếp):** chuyển A/V sang định dạng YOLO (`scripts/make_yolo_dataset.py` xong: Train A=3,740 frames, Val V=374 frames, `dataset.yaml`, `SPLIT_HASH.json`).
 - [x] **Ngày 3 (sớm):** tính prior W_eff, H_obj, H_cam, y_horizon từ nhãn A (`scripts/compute_priors.py`, `configs/geometry_priors.yaml`).
 - [x] **Ngày 3:** Chốt `imgsz = 640` (D5), chạy hoàn tất hàng đợi fine-tune YOLOv8s → YOLO11s → YOLOv5su, chốt ngưỡng conf theo F1 max Car trên V (D6).
-- [ ] **Ngày 4:** cài 3 cue (a)(b)(c) + hợp nhất log-space (d).
-- [ ] **Ngày 5:** `eval.py` + test đơn vị.
+- [x] **Ngày 4:** cài 3 cue (a)(b)(c) + hợp nhất log-space (d), kiểm thử đơn vị pass 23/23, đánh giá trên Split B GT bbox vượt điều kiện Tuần 2 (4/5 dải pass, AbsRel 0.0635).
+- [x] **Ngày 5:** `eval.py` + test đơn vị (`tests/test_geometry.py` 23 tests pass, `src/evaluation/metrics.py`).
 - [ ] **Ngày 6:** chạy (a)–(d) trên GT bbox, vẽ sai số theo khoảng cách và theo alpha.
 - [ ] **Ngày 7:** đệm.
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### 02/10/2026 (chiều muộn): Chốt D7, D8, hoàn thành Day 4 & kiểm thử hình học
+- **Cập nhật Quyết định D7 & Chạy lại hàng đợi detector:**
+  - Đổi tên các checkpoint cũ thành `runs/detector/prelim_*_640` (superseded).
+  - Cấu hình `patience: 100`, `epochs: 100` trong `train_config.yaml` để detector hoàn tất annealing LR và close_mosaic.
+  - Chạy `scripts/train_queue.py` ở nền trên GPU RTX 5060.
+- **Cập nhật Quyết định D8:**
+  - Chuẩn hóa quần thể khớp: GT là Car thỏa Hard filter. Khớp GT Hard trước; detection khớp GT ngoài Hard hoặc DontCare bị bỏ qua, không tính TP/FP và không ranging.
+  - Cập nhật `scripts/find_conf_thresholds.py` đọc `imgsz` từ config, ghi nhận commit git và cờ `git_dirty`.
+- **Hoàn thành Ngày 4 (Hình học & Hợp nhất log-space trên GT bbox tập B):**
+  - Prior Split A: $W_{eff}$ median = 2.6184 m (std rel = 35.5%), $H_{obj}$ median = 1.6797 m (std rel = 10.7%).
+  - Hồi quy Huber mặt đất trên A: $\delta = -4.678$ px, $H_{cam} = 2.042$ m (giải thích chênh lệch so với 1.65m do Z lấy tại tâm xe thay vì góc gần nhất).
+  - Masking biên ($\epsilon = 2$ px) trên B (4,210 Car Hard): $Z_w$ 2.26%, $Z_h$ 2.45%, $Z_g$ 2.64%.
+  - Hợp nhất log-space: Ước lượng $\Sigma$ bằng grouped CV theo drive (10 drive, 4,038 mẫu), co shrinkage Ledoit-Wolf ($\alpha \approx 0.0009$). Trọng số tối ưu: $w_w = 0.0691$, $w_h = 0.6500$, $w_g = 0.2809$ (tất cả dương, tổng bằng 1.0).
+  - Kết quả độ chính xác:
+    - (a) $Z_w$: AbsRel = 0.2755 (cue yếu nhất, khớp giả thuyết H1)
+    - (b) $Z_h$: AbsRel = 0.0719
+    - (c*) $Z_g$ (fitted): AbsRel = 0.0975
+    - (d*) Fused: AbsRel = **0.0635**, MAE = **1.50 m**, $\delta < 1.25$ = **98.0%**.
+  - **Điều kiện sang Tuần 2 (§8.1):** ĐẠT CHUẨN! (d) thắng đơn cue tốt nhất ở 4/5 dải (10–20m, 20–30m, 30–50m, >30m).
+  - Bộ kiểm thử `tests/test_geometry.py`: 23/23 tests pass 100%.
 
 ### 02/10/2026 (tối): Hoàn thành hàng đợi 3 detector & Chốt ngưỡng conf (D6)
 - **Huấn luyện thành công hàng đợi 3 detector (imgsz=640, batch=16, epochs=100, patience=15, seed=42):**
