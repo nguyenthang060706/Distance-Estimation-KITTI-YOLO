@@ -20,7 +20,9 @@ nms_conf: 0.001               # Confidence threshold cho NMS (thấp, lọc sau)
 nms_iou: 0.7                  # IoU threshold cho NMS
 
 # === Conf threshold (chốt trên V) ===
-conf_threshold: null           # ⏳ Sẽ chọn bằng F1 tối đa trên V, dùng chung cho cả 3
+# D6: Cùng quy tắc F1 tối đa của Car trên V, nhưng áp riêng cho từng detector
+# (do điểm tin cậy của các detector không cùng thang).
+conf_threshold: null           # ⏳ Sẽ xác định riêng cho từng detector theo F1 max (Car trên V)
 
 # === Classes ===
 # Train all 3 vehicle classes; Car is primary, Van/Truck reported separately.

@@ -24,17 +24,16 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Target khoảng cách:** độ sâu **Z = `location_z`** trong nhãn KITTI, không dùng khoảng cách Euclid.
 - ✅ **Quần thể đánh giá:** bỏ DontCare; GT thỏa mức lọc **Hard** của KITTI (chiều cao bbox ≥ 25 px, occluded ≤ 2, truncated ≤ 0,5). Áp dụng đồng nhất cho B, C, T. Easy ⊂ Moderate ⊂ Hard báo cáo như tập con.
 - ✅ **Detector:** YOLOv5su (Ultralytics, anchor-free), YOLOv8s, YOLO11s; cùng công thức huấn luyện (cùng trọng số COCO, imgsz, epoch, patience, augmentation, NMS). Mỗi detector 1 seed, ghi rõ trong bài.
-- ✅ **Chia dữ liệu theo drive**, 5 tập: A (50%) / V (5%) / B (20%) / C (10%) / T (15%). Gán drive phân tầng theo Z và class.
+- ✅ **Chia dữ liệu theo drive**, 5 tập: A (50%) / V (5%) / B (20%) / C (10%) / T (15%). Gán drive greedy theo kích thước để khớp tỉ lệ frame, kiểm tra bằng KS stat Z và chi-square class.
+- ✅ **Đóng băng split (D1):** Đã gắn tag git `splits-v1` (seed=42). Split cũ (hash `fd3c...`, V = 6 drive) là **superseded** do bug mapping.
+- ✅ **Phạm vi lớp (D2):** Residual, CQR và CI chỉ làm cho **Car**. Van chỉ chạy (a)–(d) với prior riêng, báo cáo mô tả. Truck chỉ báo cáo ở mức detector (P/R) và số lượng.
+- ✅ **Dải khoảng cách (D3):** 5 dải thống nhất (0–10, 10–20, 20–30, 30–50, >50 m) kèm n và cờ `*` nếu n < 100, thêm một hàng gộp ">30 m" cho phân tích coverage có điều kiện.
+- ✅ **Quy ước chạy T (D4):** Tuần 2 chỉ suy luận trên B, C (và A để chẩn đoán). T chỉ chạy một lần duy nhất trong script cuối tuần 3.
+- ✅ **imgsz (D5):** Pilot trên YOLOv8s (640 vs 960, ~30 epoch) chốt theo mAP@0,5:0,95 của Car trên V (hòa chọn nhỏ hơn). Dùng chung cho cả 3 detector.
+- ✅ **Ngưỡng conf (D6):** Cùng quy tắc F1 tối đa của Car trên V, nhưng áp riêng cho từng detector (do thang điểm tin cậy khác nhau).
 - ✅ **Đặc trưng của mô hình chỉ dùng thông tin có lúc suy luận.** Không dùng nhãn truncated/occluded/alpha của KITTI làm đặc trưng; chỉ dùng để nhóm phân tích lỗi.
 - ✅ **Calibration:** dùng P2 (và R0_rect) riêng từng ảnh; bbox của YOLO phải map về tọa độ ảnh gốc.
-- ✅ **Dải khoảng cách thống nhất:** 0–10, 10–20, 20–30, 30–50, >50 m.
 - ✅ **T chỉ chạy một lần**, với cấu hình đã đóng băng (git tag). Ablation chạy trên dự đoán out-of-fold của B∪C.
-
-### Chưa chốt (cần quyết định trước khi chạy thật)
-
-- ⏳ **imgsz** cho detector: thử 640, rồi 960/1280 nếu VRAM cho phép, chốt trên V.
-- ⏳ **Quy tắc chọn ngưỡng conf:** ví dụ F1 tối đa trên V, dùng chung cho cả 3 detector.
-- ⏳ **Split công bố (Chen et al.):** chỉ dùng nếu kiểm chứng bằng mapping không có drive chung; mặc định là tự chia theo drive.
 
 ---
 
@@ -43,50 +42,84 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ Loader **trung lập về split**: nhận danh sách frame ID từ bên ngoài, không chứa logic split.
 - ✅ Bỏ `DontCare` khi đọc nhãn xe; **thêm `parse_dontcare()`** trả về bbox DontCare riêng (cần cho §5.1 khớp Hungarian).
 - ✅ Hash split = SHA-256 của danh sách ID đã sắp xếp. Metadata ghi `seed`, tên split, `n_frames` và hash vào `split_metadata.json`.
-- ✅ Kiểm tra rò rỉ theo drive bằng `assert_split_disjoint_by_drive`.
+- ✅ Kiểm tra rò rỉ theo drive bằng `assert_split_disjoint_by_drive` và script `scripts/verify_data.py`.
 - ✅ Loader cung cấp cả `depth` (Z) và `distance` (Euclid); **dùng `depth` cho mọi tính toán AbsRel/MAE**.
-- ✅ **Mapping fix (02/10):** `read_drive_mapping` giờ dùng `train_rand.txt`. Frame `i` → dòng `rand[i]-1` của `train_mapping.txt`. Xác nhận bằng P2 consistency: H0=0.81, H1=1.00.
-- ✅ **3 lớp huấn luyện:** Car/Van/Truck. Car là chính, Van/Truck báo cáo riêng. Pedestrian/Cyclist là nền.
-- ✅ **Nhãn huấn luyện:** lấy mọi Car/Van/Truck (không lọc Hard). Hard chỉ áp cho evaluation trên B/C/T.
-- ⏳ **Guard khóa tập T:** thêm cơ chế chỉ cho load T khi cờ `frozen=True` (T chạy một lần).
-- ⏳ **Log JSONL (seed, hash):** chưa có. Hiện ghi vào `split_metadata.json`.
+- ✅ **Mapping fix (02/10):** `read_drive_mapping` dùng `train_rand.txt`. Frame `i` → dòng `rand[i]-1` của `train_mapping.txt`. Xác nhận bằng P2 consistency: H0=0.81, H1=1.0000.
+- ✅ **3 lớp huấn luyện YOLO:** Car (0), Van (1), Truck (2). Không áp lọc Hard cho nhãn train.
+- ✅ **Guard khóa tập T:** Hàm `load_split(splits_dir, 'T', allow_test=False)` trong `src/utils/split_builder.py` chặn load T nếu chưa bật `allow_test=True` hoặc `ALLOW_TEST_SPLIT=1`. Đã có unit test.
+- ✅ **Log JSONL:** `runs/detector/train_log.jsonl` tự động ghi seed, split hashes, git commit, thời gian chạy và metrics.
+- ✅ **Prior hình học:** `scripts/compute_priors.py` tính W_eff, H_obj, H_cam, y_horizon chỉ từ nhãn Split A, lưu vào `configs/geometry_priors.yaml`.
 
 ---
 
 ## 4. Việc cần kiểm chứng trên dữ liệu thật
 
 - [x] Tải KITTI Object: `image_2`, `label_2`, `calib`, devkit. Đã xác nhận 7,481 frames, 141 drives.
-- [x] Xác minh mapping: **`train_rand.txt` phải dùng.** P2 consistency: H0 (dòng i) = 0.81, H1 (dòng rand[i]-1) = **1.00**. Đã sửa `read_drive_mapping`.
-- [x] Chạy KS test Z và chi-square class giữa các tập (02/10). Kết quả:
-  - KS depth: stat 0.03–0.09 (nhỏ), p < 0.05 do sample lớn, nhưng mean/median rất gần (26–28m). **C vs T: KS=0.03, p=0.13 — OK** (quan trọng nhất cho CQR).
-  - Chi-square class: Truck lệch (A=5.2%, T=0.8%) — hệ quả không tránh được khi chia theo drive với Truck tập trung ở vài drive. **Ghi vào Limitations.**
-- [x] ⚠️ C >50m: 77 mẫu, T >50m: 84 mẫu (< 100) → gộp dải hoặc cảnh báo khi phân tích.
+- [x] Xác minh mapping: `train_rand.txt` kiểm chứng bằng P2 consistency = **1.0000** (141/141 drives).
+- [x] Chạy KS test Car-only (Hard-filtered) làm decision gate D1:
+  - **C vs T:** KS stat = **0.0391** (≤ 0.07) → **ĐẠT CHUẨN ĐÓNG BĂNG D1!**
+  - **B vs C:** KS stat = 0.0527 (≤ 0.07)
+  - **B vs T:** KS stat = 0.0723
+  - Độ sâu Car Hard: B (mean 25.5, median 24.1), C (mean 25.6, median 25.4), T (mean 26.2, median 26.2).
+- [x] Đếm mẫu Car-only dải >50 m (Hard): B=9*, C=8*, T=35* (đều < 100 → đánh cờ `*` và thêm hàng gộp >30 m theo D3).
+- [x] Phép thử P2 consistency và split disjointness chuyển thành `scripts/verify_data.py` (chạy tự động trước mỗi khâu).
+- [x] Viết `tests/test_splits.py` (5 tests pass: regression mapping H0 vs H1, hash metadata, drive disjoint, frame counts, test split guard).
+
+### 📝 Limitations cần nêu trong paper
+1. **Lệch phân bố Truck:** Truck tập trung ở một số drive lớn (A=5.2%, T=0.8%), không thể khắc phục hoàn toàn khi split theo drive với 141 drive.
+2. **Split theo drive ≠ theo địa điểm:** Một số drive cùng ngày có thể quay ở cùng khu vực địa lý, nhưng split theo drive là chuẩn cao nhất khả thi trên KITTI raw mapping.
+3. **Mẫu dải xa (>50 m) thấp:** Car Hard >50 m chỉ có 8 xe ở C và 35 xe ở T; khoảng tin cậy ở dải này rộng và cần phân tích thận trọng.
 
 ---
 
 ## 5. Tiến độ (theo §8 của kế hoạch)
 
 ### Chuẩn bị (§8.0)
-- [x] Tạo project Claude và repo GitHub `Distance-Estimation-KITTI-YOLO`
+- [x] Tạo project và repo GitHub `Distance-Estimation-KITTI-YOLO`
 - [ ] Gửi 4 câu hỏi cho thầy
-- [ ] Cài PyTorch hỗ trợ RTX 5060 (thường cần CUDA ≥ 12.8; kiểm tra trang chính thức PyTorch) + ultralytics, xgboost, scikit-learn, onnxruntime
+- [x] Đóng băng split và tag git `splits-v1`
+- [x] Tạo script kiểm định dữ liệu `scripts/verify_data.py`
+- [x] Tạo bộ test `tests/test_splits.py`
+- [ ] Cài PyTorch hỗ trợ RTX 5060 (CUDA 12.8 wheel)
 - [ ] Chạy thử 1 epoch fine-tune, ghi thời gian/epoch và VRAM: ______
 - [x] Dựng thư mục `data/ splits/ configs/ runs/ results/ notebooks/ src/ tests/ docs/ scripts/`
-- [ ] Tạo log thí nghiệm (seed, hash split, phiên bản code, cấu hình detector)
+- [x] Tạo log thí nghiệm JSONL (`runs/detector/train_log.jsonl`)
 
 ### Tuần 1
-- [x] **Ngày 1:** loader viết xong, chạy thành công trên KITTI thật (7,481 frames, 141 drives)
-- [x] **Ngày 2:** split A/V/B/C/T theo drive đã tạo, đóng băng (seed=42, hash trong split_metadata.json)
-- [ ] **Ngày 2 (tiếp):** chuyển A/V sang định dạng YOLO
-- [ ] **Ngày 3:** khởi động hàng đợi fine-tune YOLOv8s → YOLO11s → YOLOv5su; thống kê prior W_eff, H_obj, H_cam, y_horizon từ nhãn A
-- [ ] **Ngày 4:** cài 3 cue (a)(b)(c) + hợp nhất log-space (d)
-- [ ] **Ngày 5:** `eval.py` + test đơn vị
-- [ ] **Ngày 6:** chạy (a)–(d) trên GT bbox, vẽ sai số theo khoảng cách và theo alpha
-- [ ] **Ngày 7:** đệm
+- [x] **Ngày 1:** loader viết xong, mapping rand sửa xong, P2 consistency = 1.0000.
+- [x] **Ngày 2:** split A/V/B/C/T theo drive đã tạo, KS Car-only đạt D1, đóng băng `splits-v1`.
+- [x] **Ngày 2 (tiếp):** chuyển A/V sang định dạng YOLO (`scripts/make_yolo_dataset.py` xong: Train A=3,740 frames, Val V=374 frames, `dataset.yaml`, `SPLIT_HASH.json`).
+- [x] **Ngày 3 (sớm):** tính prior W_eff, H_obj, H_cam, y_horizon từ nhãn A (`scripts/compute_priors.py`, `configs/geometry_priors.yaml`).
+- [ ] **Ngày 3:** Chạy pilot imgsz (640 vs 960) trên YOLOv8s → khởi động hàng đợi YOLOv8s → YOLO11s → YOLOv5su.
+- [ ] **Ngày 4:** cài 3 cue (a)(b)(c) + hợp nhất log-space (d).
+- [ ] **Ngày 5:** `eval.py` + test đơn vị.
+- [ ] **Ngày 6:** chạy (a)–(d) trên GT bbox, vẽ sai số theo khoảng cách và theo alpha.
+- [ ] **Ngày 7:** đệm.
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### 02/10/2026 (trưa): Chốt D1–D6, đóng băng splits-v1, YOLO dataset, priors, guard
+- **Chốt D1:** Chạy KS test Car-only (Hard). C vs T có KS stat = 0.0391 ≤ 0.07 → Đạt chuẩn đóng băng split!
+- Đã gắn tag git `splits-v1`. Split cũ (hash `fd3c...`, V=6 drive) chính thức superseded.
+- **Chốt D2–D6:**
+  - D2: Residual/CQR/CI chỉ cho Car; Van chạy mô tả; Truck chỉ ở mức detector.
+  - D3: 5 dải khoảng cách thống nhất kèm cờ `*` nếu n<100, thêm hàng gộp >30 m.
+  - D4: Tuần 2 không suy luận trên T; T khóa bằng guard.
+  - D5: imgsz chốt bằng pilot YOLOv8s (640 vs 960, ~30 epoch).
+  - D6: Ngưỡng conf F1 max Car trên V áp riêng từng detector. Đã sửa comment trong `train_config.yaml`.
+- **Tạo `scripts/verify_data.py`:** Kiểm tra cấu trúc KITTI, P2 consistency = 1.0000, split hash & drive disjoint. Chạy pass 100%.
+- **Tạo `tests/test_splits.py`:** 5 tests pass (kèm regression test H0 vs H1 và test guard Split T).
+- **Tạo `scripts/make_yolo_dataset.py`:** Chuyển đổi thành công:
+  - Train (A): 3,740 frames, 17,243 xe (Car: 14,902, Van: 1,519, Truck: 822).
+  - Val (V): 374 frames, 1,051 xe (Car: 833, Van: 178, Truck: 40).
+  - Tạo `data/yolo_kitti/dataset.yaml` và `SPLIT_HASH.json`.
+- **Tạo `scripts/compute_priors.py`:** Tính prior hình học chỉ từ A:
+  - $H_{cam}$ median = 1.886 m, $y_{horizon}$ cy = 174.8 px.
+  - Car: $W_{eff}$ median = 2.618 m, $H_{obj}$ median = 1.680 m. Lưu vào `configs/geometry_priors.yaml`.
+- **Cài đặt guard khóa tập T:** `load_split` chặn load T khi `allow_test=False` (bảo vệ exchangeability).
+- **Tạo `src/detection/train_detector.py`:** Chuẩn hóa tham số Ultralytics, ghi commit git, split hashes và metrics vào JSONL.
 
 ### 02/10/2026 (sáng): Sửa mapping, rebuild split, KS test
 - **BUG NGHIÊM TRỌNG:** `read_drive_mapping` đọc dòng `i` thay vì `rand[i]-1`. Xác nhận bằng P2 consistency test: H0=0.81 (sai), H1=1.00 (đúng). Đã sửa.
@@ -102,7 +135,6 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - KS test depth: C vs T p=0.13 (OK). Các cặp khác p < 0.05 nhưng KS stat nhỏ (0.03–0.09), mean/median rất gần.
 - Chi-square class: Truck lệch giữa các tập (A=5.2%, T=0.8%). Không sửa được hoàn toàn khi chia theo drive — ghi Limitations.
 - Sửa `.gitignore` (`data/*` thay `data/`), `requirements.txt` (CUDA 12.8, ultralytics>=8.3), config detector (3 lớp Car/Van/Truck).
-- **Chưa chốt:** đang chờ kết quả KS test cuối để quyết định có cần rebuild.
 
 ### 02/10/2026 (đêm qua): Loader + Split lần đầu (đã bị thay thế)
 - Viết loader và split ban đầu — **mapping sai** (không dùng train_rand.txt).

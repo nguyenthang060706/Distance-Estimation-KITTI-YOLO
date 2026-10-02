@@ -248,6 +248,33 @@ def save_splits(splits: dict, output_dir: str, seed: int, drive_mapping: dict):
     print(f"  Metadata: {meta_file}")
 
 
+def load_split(splits_dir: str, split_name: str, allow_test: bool = False) -> list:
+    """
+    Load a single split by name ('A', 'V', 'B', 'C', 'T').
+
+    Guard (§4.2, D4):
+    Split T is strictly FROZEN during development. Any attempt to load T
+    without allow_test=True or ALLOW_TEST_SPLIT=1 environment variable
+    raises a PermissionError.
+    """
+    if split_name == "T" and not allow_test and os.environ.get("ALLOW_TEST_SPLIT") != "1":
+        raise PermissionError(
+            "Access to Split T is FROZEN (§4.2, D4). Inference on T is strictly "
+            "prohibited during development (Weeks 1 & 2). T will only be evaluated "
+            "ONCE in Week 3 with frozen weights and configurations. "
+            "To unfreeze for final evaluation, pass allow_test=True or set ALLOW_TEST_SPLIT=1."
+        )
+
+    split_file = Path(splits_dir) / f"{split_name}.txt"
+    if not split_file.exists():
+        raise FileNotFoundError(f"Split file not found: {split_file}")
+
+    with open(split_file, "r", encoding="utf-8") as f:
+        frame_ids = [line.strip() for line in f if line.strip()]
+
+    return frame_ids
+
+
 def load_splits(splits_dir: str) -> dict:
     """
     Load splits from saved files.
@@ -264,7 +291,7 @@ def load_splits(splits_dir: str) -> dict:
     for split_file in sorted(splits_dir.glob("*.txt")):
         name = split_file.stem
         if name in ["A", "V", "B", "C", "T"]:
-            with open(split_file, "r") as f:
+            with open(split_file, "r", encoding="utf-8") as f:
                 frame_ids = [line.strip() for line in f if line.strip()]
             splits[name] = frame_ids
 

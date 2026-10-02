@@ -1,0 +1,42 @@
+metadata:
+  source_split: A
+  n_frames: 3740
+  split_A_hash: 4402edf8e460fe787721bb7f6cf4a570d94373bb9382113c1ec1fc13017ae87d
+  y_horizon_cy_mean: 174.77426839572192
+  H_cam_mean: 1.857689554587893
+  H_cam_median: 1.885901471260614
+  H_cam_std: 0.43887794644235145
+classes:
+  Car:
+    n_samples: 9619
+    W_eff_mean: 2.8750336058602146
+    W_eff_median: 2.6184078808356097
+    W_eff_std: 0.9305336967258202
+    H_obj_mean: 1.7020163714490673
+    H_obj_median: 1.679745909326706
+    H_obj_std: 0.17923871766165192
+    dim_h_mean: 1.5240991787088056
+    dim_w_mean: 1.6397120282773678
+    dim_l_mean: 3.869528017465433
+  Van:
+    n_samples: 676
+    W_eff_mean: 3.2494075824646087
+    W_eff_median: 3.0494409621689957
+    W_eff_std: 0.9696755206730376
+    H_obj_mean: 2.5035241592914286
+    H_obj_median: 2.4135891305471637
+    H_obj_std: 0.4423862888471169
+    dim_h_mean: 2.2134319526627215
+    dim_w_mean: 1.8866715976331359
+    dim_l_mean: 5.0433136094674555
+  Truck:
+    n_samples: 599
+    W_eff_mean: 3.917967927440108
+    W_eff_median: 3.4047575592329995
+    W_eff_std: 1.2413502454740408
+    H_obj_mean: 3.6938282117110988
+    H_obj_median: 3.426101782346231
+    H_obj_std: 0.6663705332177697
+    dim_h_mean: 3.204791318864775
+    dim_w_mean: 2.640534223706177
+    dim_l_mean: 11.122186978297163
