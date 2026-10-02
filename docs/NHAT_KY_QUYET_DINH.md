@@ -100,6 +100,23 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 
 ## 6. Nhật ký theo phiên
 
+### 02/10/2026 (chiều): Chạy Pilot D5 YOLOv8s (imgsz = 640)
+- **Kết quả Pilot YOLOv8s (imgsz=640, 30 epochs, batch=16, seed=42):**
+  - Thời gian: 17.02 phút (24 epochs hoàn thành, Early Stopping kích hoạt tại epoch 24 vì đỉnh rơi vào epoch 9 với patience=15).
+  - VRAM sử dụng: 3.66 GB / 8.15 GB (~45% VRAM, chạy mượt mà không bị thrashing).
+  - **Chỉ số trên tập V (Val):**
+    - **Toàn bộ (all):** P = 0.652, R = 0.507, mAP50 = 0.555, mAP@0.5:0.95 = 0.376
+    - **Lớp Car (trọng tâm bài toán):**
+      - **mAP@0.5:0.95 = 0.526**
+      - **mAP@0.5 = 0.760**
+      - **Recall = 0.826**
+      - **Precision = 0.647**
+    - **Van:** mAP50 = 0.354, mAP@0.5:0.95 = 0.256
+    - **Truck:** mAP50 = 0.551, mAP@0.5:0.95 = 0.347
+  - Tốc độ suy luận: **1.0 ms/ảnh (~1,000 FPS)** trên GPU RTX 5060!
+  - Trọng số tốt nhất đã lưu tại `runs/detector/pilot_yolov8s_640/weights/best.pt`.
+- **Đánh giá phần cứng imgsz = 960:** Thử nghiệm trước đó cho thấy 960 đẩy VRAM lên 8.02 GB (chạm trần 8GB VRAM của RTX 5060 Laptop GPU), kích hoạt cơ chế shared memory paging của Windows và làm chậm tốc độ huấn luyện xuống ~3 phút 50 giây/epoch (chậm hơn 6.5 lần so với 36s/epoch ở 640).
+
 ### 02/10/2026 (trưa): Chốt D1–D6, đóng băng splits-v1, YOLO dataset, priors, guard
 - **Chốt D1:** Chạy KS test Car-only (Hard). C vs T có KS stat = 0.0391 ≤ 0.07 → Đạt chuẩn đóng băng split!
 - Đã gắn tag git `splits-v1`. Split cũ (hash `fd3c...`, V=6 drive) chính thức superseded.
