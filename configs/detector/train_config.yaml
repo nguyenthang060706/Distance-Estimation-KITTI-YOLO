@@ -3,7 +3,7 @@
 
 # === Chung ===
 seed: 42
-imgsz: 640                    # ⏳ Thử 640 trước, rồi 960/1280 nếu VRAM cho phép, chốt trên V
+imgsz: 640                    # ✅ Đã chốt theo D5 và Pilot (Car mAP@0.5:0.95 = 0.526, 36s/epoch, VRAM 3.66GB)
 epochs: 100
 patience: 15                  # Early stopping trên V
 batch: 16                     # Điều chỉnh theo VRAM (RTX 5060 8GB)
