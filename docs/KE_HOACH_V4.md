@@ -116,7 +116,7 @@ Paper tham chiếu (Ni et al., 2026) tích hợp YOLOv5 với hình học phối
 
 - Ngưỡng conf chốt trên V bằng một quy tắc duy nhất (ví dụ F1 tối đa) và dùng cho cả 3 detector.
 
-- **Khớp Hungarian** theo IoU ≥ 0,5 trong từng class; detection khớp với vùng DontCare bị bỏ qua. Ranging chỉ đánh giá trên detection khớp, nhưng **luôn báo cáo kèm** precision, recall, mAP@0,5 và mAP@0,7 (giao thức KITTI) để người đọc thấy phần bị loại.
+- **Khớp Greedy** theo confidence giảm dần với IoU ≥ 0,5 (Quyết định D15, thay cho Hungarian): ưu tiên GT Hard, kiểm tra trùng lặp (duplicate -> FP), detection khớp với non-Hard hoặc DontCare bị bỏ qua. Ranging chỉ đánh giá trên detection khớp, nhưng **luôn báo cáo kèm** precision, recall, mAP@0,5 và mAP@0,7 (giao thức KITTI) để người đọc thấy phần bị loại.
 
 - Khi so sánh detector, dùng thêm **tập khớp chung** (những GT mà cả 3 detector đều bắt được) để tránh thiên lệch do recall khác nhau.
 

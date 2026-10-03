@@ -333,6 +333,7 @@ def run_inference_for_model(
         "splits_version": splits_version,
         "n_frames": len(frame_ids),
         "split_hash": split_hash,
+        "checkpoint_path": str(checkpoint_path.relative_to(PROJECT_ROOT)),
         "checkpoint_sha256": actual_sha,
         "conf_min": conf_min,
         "conf_threshold": model_conf_thr,
