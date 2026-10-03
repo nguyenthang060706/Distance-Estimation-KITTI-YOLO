@@ -3,8 +3,8 @@ metadata:
     & DontCare)'
   split: V
   imgsz: 640
-  git_commit: 058158d55f6ecf27bcdaf2824db813c7e54a6f2d
-  git_dirty: true
+  git_commit: 783c0de76d126d7e2afce9d3a72dda5888b51b66
+  git_dirty: false
 detectors:
   yolov8s:
     conf_threshold: 0.79

@@ -1,0 +1,34 @@
+{
+  "n_objects": 4776,
+  "n_drives": 12,
+  "mean_oof_weights_centered": [
+    0.0701,
+    0.668,
+    0.2619
+  ],
+  "mean_oof_weights_uncentered": [
+    0.0692,
+    0.6725,
+    0.2583
+  ],
+  "overall_absrel": {
+    "in_sample": 0.0605,
+    "oof_centered": 0.0609,
+    "oof_uncentered": 0.061,
+    "z_h": 0.0688
+  },
+  "sign_count_vs_zh": {
+    "wins": 9,
+    "losses": 3,
+    "ties": 0,
+    "total_drives": 12
+  },
+  "bootstrap_vs_zh": {
+    "diff": -0.0095,
+    "ci": [
+      -0.0123,
+      -0.0062
+    ],
+    "excludes_zero": true
+  }
+}
