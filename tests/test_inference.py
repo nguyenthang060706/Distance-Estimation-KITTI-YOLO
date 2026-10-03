@@ -60,7 +60,7 @@ def test_detections_artifact_feature_guard():
     """
     allowed_cols = {
         "frame_id", "drive", "pred_idx", "x1", "y1", "x2", "y2",
-        "conf", "pass_thr", "fx", "fy", "cx", "cy", "img_w", "img_h",
+        "confidence", "class_id", "pass_thr", "fx", "fy", "cx", "cy", "img_w", "img_h",
     }
     forbidden_terms = ["gt", "depth", "distance", "alpha", "occluded", "truncated", "target"]
 

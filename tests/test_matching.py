@@ -2,18 +2,18 @@
 tests/test_matching.py: Unit tests for src/detection/matching.py (Decision D8, D15).
 """
 
+from __future__ import annotations
 import numpy as np
 import pytest
 from src.detection.matching import (
     MatchStatus,
-    MatchedDetection,
     box_iou,
     box_intersection_over_pred_area,
     match_detections_frame,
 )
 
 
-def test_box_iou_computation():
+def test_box_iou_computation() -> None:
     box1 = [0, 0, 10, 10]
     box2 = [5, 0, 15, 10]
     # Intersection = 5 * 10 = 50. Union = 100 + 100 - 50 = 150. IoU = 50 / 150 = 1/3
@@ -24,14 +24,14 @@ def test_box_iou_computation():
     assert box_iou(box1, box3) == 0.0
 
 
-def test_box_intersection_over_pred_area():
+def test_box_intersection_over_pred_area() -> None:
     pred_box = [0, 0, 10, 10]      # area = 100
     target_box = [5, 0, 25, 10]    # target box larger, intersection = 5 * 10 = 50
     # inter / area(pred) = 50 / 100 = 0.5
     assert abs(box_intersection_over_pred_area(pred_box, target_box) - 0.5) < 1e-6
 
 
-def test_priority_and_single_gt_two_detections():
+def test_priority_and_single_gt_two_detections() -> None:
     """
     Mandatory test:
     If 1 GT is matched by 2 detections, the higher-confidence detection is TP,
@@ -58,12 +58,12 @@ def test_priority_and_single_gt_two_detections():
     assert matches[1].matched_gt_idx is None
 
 
-def test_gt_non_hard_ignored():
+def test_gt_non_hard_ignored() -> None:
     """
     Mandatory test:
     Matching a non-Hard GT vehicle must result in IGNORED_NONHARD.
     """
-    gt_hard = np.array([[100, 100, 150, 150]])
+    gt_hard = np.empty((0, 4))
     gt_non_hard = np.array([[10, 10, 50, 50]])  # Non-hard GT
     pred_boxes = np.array([
         [11, 11, 49, 49],   # matches non-hard
@@ -82,7 +82,7 @@ def test_gt_non_hard_ignored():
     assert matches[0].status == MatchStatus.IGNORED_NONHARD
 
 
-def test_dontcare_ignored_both_modes():
+def test_dontcare_ignored_both_modes() -> None:
     """
     Mandatory test:
     Detection matching DontCare must result in IGNORED_DONTCARE in both iou and area_pred modes.
@@ -120,7 +120,7 @@ def test_dontcare_ignored_both_modes():
     assert matches_iou[0].status == MatchStatus.IGNORED_DONTCARE
 
 
-def test_priority_ordering():
+def test_priority_ordering() -> None:
     """
     Verify full priority hierarchy:
     GT Hard > GT non-Hard > DontCare > FP.
@@ -152,3 +152,55 @@ def test_priority_ordering():
         iou_threshold=0.7,
     )
     assert matches_unmatched[0].status == MatchStatus.FP
+
+
+def test_results_follow_original_prediction_order() -> None:
+    """
+    Mandatory test:
+    Verify that match results strictly preserve the original prediction index order,
+    even when input predictions are NOT sorted by confidence descending.
+    """
+    gt = np.array([[10.0, 10.0, 50.0, 50.0]])
+    # pred 0: conf 0.3 (FP), pred 1: conf 0.9 (TP) -> input confidence is ASCENDING
+    preds = np.array([[300.0, 300.0, 350.0, 350.0], [10.0, 10.0, 50.0, 50.0]])
+    res = match_detections_frame(preds, np.array([0.3, 0.9]), gt, iou_threshold=0.7)
+    assert [m.pred_idx for m in res] == [0, 1]
+    assert [m.status for m in res] == [MatchStatus.FP, MatchStatus.TP]
+
+
+def test_iou_threshold_parameter_is_respected() -> None:
+    """
+    Mandatory test:
+    Verify that iou_threshold parameter controls matching threshold (0.5 vs 0.7).
+    """
+    gt = np.array([[0.0, 0.0, 10.0, 10.0]])
+    pred = np.array([[0.0, 0.0, 10.0, 6.0]])  # IoU = 60 / 100 = 0.6
+    assert match_detections_frame(pred, np.array([0.9]), gt, iou_threshold=0.5)[0].status == MatchStatus.TP
+    assert match_detections_frame(pred, np.array([0.9]), gt, iou_threshold=0.7)[0].status == MatchStatus.FP
+
+
+def test_duplicate_inside_dontcare_is_fp_not_ignored() -> None:
+    """
+    Mandatory test:
+    A duplicate detection for an already-matched GT Hard that also overlaps a DontCare
+    MUST be evaluated as FP (duplicate detection penalty), NOT ignored as DontCare!
+    """
+    box = np.array([[10.0, 10.0, 50.0, 50.0]])
+    res = match_detections_frame(
+        np.vstack([box, box]),
+        np.array([0.9, 0.8]),
+        box,
+        dontcare_boxes=box,
+    )
+    assert [m.status for m in res] == [MatchStatus.TP, MatchStatus.FP]
+
+
+def test_empty_predictions_and_no_gt() -> None:
+    """
+    Mandatory test:
+    Handle empty predictions and empty GT without crashing.
+    """
+    assert match_detections_frame(np.empty((0, 4)), np.empty(0), np.empty((0, 4))) == []
+    res = match_detections_frame(np.array([[0.0, 0.0, 5.0, 5.0]]), np.array([0.9]), np.empty((0, 4)))
+    assert len(res) == 1
+    assert res[0].status == MatchStatus.FP

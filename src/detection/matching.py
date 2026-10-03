@@ -88,7 +88,7 @@ def match_detections_frame(
     gt_hard_boxes: np.ndarray,
     gt_non_hard_boxes: Optional[np.ndarray] = None,
     dontcare_boxes: Optional[np.ndarray] = None,
-    iou_threshold: float = 0.7,
+    iou_threshold: float = 0.5,
     dontcare_mode: str = "iou",
     dontcare_threshold: float = 0.5,
 ) -> list[MatchedDetection]:
@@ -101,7 +101,7 @@ def match_detections_frame(
         gt_hard_boxes: (M_hard, 4) array of GT Car boxes passing Hard filter
         gt_non_hard_boxes: (M_nh, 4) array of GT Car boxes failing Hard filter (optional)
         dontcare_boxes: (M_dc, 4) array of DontCare boxes (optional)
-        iou_threshold: IoU threshold for matching GT (default 0.7 for KITTI Car)
+        iou_threshold: IoU threshold for matching GT (default 0.5 per v4 §5.1 and Decision D6)
         dontcare_mode: 'iou' or 'area_pred' (default 'iou')
         dontcare_threshold: threshold for DontCare overlap (default 0.5)
 

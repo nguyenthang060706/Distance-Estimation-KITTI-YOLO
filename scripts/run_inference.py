@@ -4,13 +4,16 @@ scripts/run_inference.py: Batch inference pipeline for trained YOLO detectors on
 Implements Decision D4, D6, D11, D12, D15, D22:
 - Supports splits: A (diagnostic), B (residual fitting), C (conformal calibration).
 - Hard guard: Split T is strictly forbidden and raises PermissionError.
+- Verifies split hash against splits/split_metadata.json.
 - Verifies checkpoint SHA-256 against configs/detector/checkpoints.yaml before running.
-- Runs inference in FP32 (half=False) at imgsz=640, conf=0.05, iou=0.7.
+- Runs inference in FP32 (half=False) at imgsz=640, conf=0.05, iou_nms=0.7.
+- Matching IoU default is 0.5 per v4 §5.1 and Decision D6.
 - Flags predictions with pass_thr (Decision D6 threshold from conf_thresholds.yaml)
   to enable full recall-confidence analysis without re-running.
-- Strictly separates outputs into two artifacts (Decision D11 & D22):
+- Strictly separates outputs into three artifacts (Decision D11 & D22):
     1. {model}_{split}_detections.parquet: Test-time observable features only (no GT).
     2. {model}_{split}_matches.parquet: Evaluation-only match results (TP/FP/IGNORED).
+    3. {model}_{split}_gt.parquet: Evaluation-only GT Car Hard objects (recall, FN, residual target).
 - Appends run metadata to runs/inference_log.jsonl.
 """
 
@@ -18,17 +21,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence
 
 import numpy as np
 import pandas as pd
 import torch
+import ultralytics
 import yaml
 from PIL import Image
 from tqdm import tqdm
@@ -114,14 +116,18 @@ def run_inference_for_model(
     conf_thresholds_cfg: str = "configs/detector/conf_thresholds.yaml",
     conf_min: float = 0.05,
     iou_nms: float = 0.7,
+    iou_match: float = 0.5,
     imgsz: int = 640,
     device: str | None = None,
     dontcare_mode: str = "iou",
-) -> tuple[Path, Path]:
+) -> tuple[Path, Path, Path]:
     """
     Run full inference and matching for a single model on a single split.
+
+    Returns:
+        (detections_path, matches_path, gt_path)
     """
-    # 1. Hard Guard against Split T
+    # 1. Hard Guard against Split T (Decision D4, D22)
     if split.upper() == "T":
         raise PermissionError(
             "Access to Split T is strictly forbidden during Week 2 development (Decision D4, D22)! "
@@ -153,10 +159,25 @@ def run_inference_for_model(
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"[{model_key}] Target device: {device} (FP32)")
 
-    # 5. Load Split frame IDs
+    # 5. Load Split frame IDs and verify against split_metadata.json
     frame_ids = load_split(splits_dir, split, allow_test=False)
     split_hash = compute_split_hash(frame_ids)
-    print(f"[{model_key}] Running on Split {split} ({len(frame_ids)} frames, hash {split_hash[:12]}...)")
+
+    meta_path = Path(splits_dir) / "split_metadata.json"
+    if meta_path.exists():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        expected_split_hash = meta["splits"][split]["hash"]
+        if split_hash != expected_split_hash:
+            raise ValueError(
+                f"Split {split} hash mismatch!\n"
+                f"  Calculated from frames: {split_hash}\n"
+                f"  In split_metadata.json: {expected_split_hash}"
+            )
+        splits_version = meta.get("version", "v2")
+    else:
+        splits_version = "unknown"
+
+    print(f"[{model_key}] Running on Split {split} ({len(frame_ids)} frames, hash {split_hash[:12]}..., version {splits_version})")
 
     # 6. Initialize Loader and YOLO model
     loader = KITTILoader(data_root)
@@ -164,6 +185,7 @@ def run_inference_for_model(
 
     detection_records = []
     match_records = []
+    gt_records = []
 
     out_dir = PROJECT_ROOT / output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -180,13 +202,12 @@ def run_inference_for_model(
         fx, fy = float(calib.fx), float(calib.fy)
         cx, cy = float(calib.cx), float(calib.cy)
 
-        # Predict with FP32, conf=0.05, iou=0.7, imgsz=640
+        # Predict with FP32, conf=0.05, iou_nms=0.7, imgsz=640
         res = model.predict(
             source=img_path,
             imgsz=imgsz,
             conf=conf_min,
             iou=iou_nms,
-            half=False,
             device=device,
             verbose=False,
         )[0]
@@ -224,8 +245,9 @@ def run_inference_for_model(
                 "y1": round(float(b[1]), 2),
                 "x2": round(float(b[2]), 2),
                 "y2": round(float(b[3]), 2),
-                "conf": round(float(s), 4),
-                "pass_thr": bool(s >= model_conf_threshold),
+                "confidence": round(float(s), 4),
+                "class_id": 0,
+                "pass_thr": bool(s >= model_conf_thr),
                 "fx": round(fx, 4),
                 "fy": round(fy, 4),
                 "cx": round(cx, 4),
@@ -234,18 +256,36 @@ def run_inference_for_model(
                 "img_h": int(img_h),
             })
 
-        # 8. Evaluation matching against GT (Decision D8, D15)
-        gt_hard = [o.bbox for o in frame.objects if o.obj_class == "Car" and o.passes_hard_filter()]
+        # 8. Record GT Car Hard objects (Evaluation only, for recall & residual target)
+        hard_objs = [o for o in frame.objects if o.obj_class == "Car" and o.passes_hard_filter()]
+        gt_hard = [o.bbox for o in hard_objs]
         gt_non_hard = [o.bbox for o in frame.objects if o.obj_class == "Car" and not o.passes_hard_filter()]
         dontcares = frame.dontcare_boxes
 
+        for g_idx, o in enumerate(hard_objs):
+            gt_records.append({
+                "frame_id": fid,
+                "drive": frame.drive,
+                "gt_idx": g_idx,
+                "z_gt": round(float(o.depth), 4),
+                "x1": round(float(o.bbox[0]), 2),
+                "y1": round(float(o.bbox[1]), 2),
+                "x2": round(float(o.bbox[2]), 2),
+                "y2": round(float(o.bbox[3]), 2),
+                "difficulty": o.get_difficulty(),
+                "truncated": round(float(o.truncated), 4),
+                "occluded": int(o.occluded),
+                "alpha": round(float(o.alpha), 4),
+            })
+
+        # 9. Evaluation matching against GT (Decision D8, D15)
         matches = match_detections_frame(
             pred_boxes=pred_boxes_arr,
             pred_scores=pred_scores_arr,
             gt_hard_boxes=np.array(gt_hard) if gt_hard else np.empty((0, 4)),
             gt_non_hard_boxes=np.array(gt_non_hard) if gt_non_hard else np.empty((0, 4)),
             dontcare_boxes=np.array(dontcares) if len(dontcares) > 0 else np.empty((0, 4)),
-            iou_threshold=0.7,
+            iou_threshold=iou_match,
             dontcare_mode=dontcare_mode,
             dontcare_threshold=0.5,
         )
@@ -260,21 +300,26 @@ def run_inference_for_model(
             })
 
     elapsed = time.time() - start_time
-    print(f"[{model_key}] Completed inference in {elapsed:.1f}s ({len(frame_ids)/elapsed:.1f} FPS)")
+    fps = len(frame_ids) / elapsed if elapsed > 0 else 0
+    print(f"[{model_key}] Completed inference in {elapsed:.1f}s ({fps:.1f} FPS)")
 
     df_dets = pd.DataFrame(detection_records)
     df_matches = pd.DataFrame(match_records)
+    df_gt = pd.DataFrame(gt_records)
 
-    # 9. Save two distinct artifacts
+    # 10. Save three distinct artifacts (Decision D11 & D22)
     det_out = out_dir / f"{model_key}_{split}_detections.parquet"
     match_out = out_dir / f"{model_key}_{split}_matches.parquet"
+    gt_out = out_dir / f"{model_key}_{split}_gt.parquet"
 
     df_dets.to_parquet(det_out, index=False)
     df_matches.to_parquet(match_out, index=False)
+    df_gt.to_parquet(gt_out, index=False)
     print(f"[{model_key}] Saved detections to: {det_out} ({len(df_dets)} rows)")
     print(f"[{model_key}] Saved matches to:    {match_out} ({len(df_matches)} rows)")
+    print(f"[{model_key}] Saved GT objects to:  {gt_out} ({len(df_gt)} rows)")
 
-    # 10. Append to inference log JSONL
+    # 11. Append to inference log JSONL
     log_file = PROJECT_ROOT / "runs" / "inference_log.jsonl"
     log_file.parent.mkdir(parents=True, exist_ok=True)
     git_commit, git_dirty = get_git_info()
@@ -282,30 +327,36 @@ def run_inference_for_model(
     n_pass = int(df_dets["pass_thr"].sum()) if len(df_dets) > 0 else 0
     log_entry = {
         "timestamp": datetime.now().isoformat(),
+        "seed": 42,
         "model": model_key,
         "split": split,
+        "splits_version": splits_version,
         "n_frames": len(frame_ids),
         "split_hash": split_hash,
         "checkpoint_sha256": actual_sha,
         "conf_min": conf_min,
-        "conf_threshold": model_conf_threshold,
+        "conf_threshold": model_conf_thr,
         "iou_nms": iou_nms,
+        "iou_match": iou_match,
+        "dontcare_mode": dontcare_mode,
         "imgsz": imgsz,
         "half": False,
         "device": device,
-        "ultralytics_version": "8.4.171",
+        "ultralytics_version": ultralytics.__version__,
         "torch_version": torch.__version__,
         "git_commit": git_commit,
         "git_dirty": git_dirty,
         "total_detections": len(df_dets),
         "detections_passed_threshold": n_pass,
+        "total_gt_hard": len(df_gt),
         "detections_file": str(det_out.relative_to(PROJECT_ROOT)),
         "matches_file": str(match_out.relative_to(PROJECT_ROOT)),
+        "gt_file": str(gt_out.relative_to(PROJECT_ROOT)),
     }
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
-    return det_out, match_out
+    return det_out, match_out, gt_out
 
 
 def main():
@@ -314,13 +365,14 @@ def main():
     parser.add_argument("--split", required=True, choices=["A", "B", "C"], help="Split to infer: A, B, or C (T is forbidden)")
     parser.add_argument("--conf", type=float, default=0.05, help="Minimum confidence threshold (default 0.05)")
     parser.add_argument("--iou", type=float, default=0.7, help="NMS IoU threshold (default 0.7)")
+    parser.add_argument("--iou-match", type=float, default=0.5, help="GT matching IoU threshold (default 0.5 per v4 §5.1, D6)")
     parser.add_argument("--imgsz", type=int, default=640, help="Inference image size (default 640)")
     parser.add_argument("--device", default=None, help="Device to run inference on (default cuda:0 if available)")
     parser.add_argument("--dontcare-mode", default="iou", choices=["iou", "area_pred"], help="DontCare overlap criterion")
 
     args = parser.parse_args()
 
-    # Guard on Split T
+    # Guard on Split T (Decision D4, D22)
     if args.split.upper() == "T":
         raise PermissionError(
             "Access to Split T is strictly forbidden during Week 2 development (Decision D4, D22)!"
@@ -330,6 +382,7 @@ def main():
 
     print("=" * 80)
     print(f"RUNNING INFERENCE ON SPLIT {args.split} FOR MODELS: {models_to_run}")
+    print(f"Settings: imgsz={args.imgsz}, conf_min={args.conf}, iou_nms={args.iou}, iou_match={args.iou_match}")
     print("=" * 80)
 
     for m in models_to_run:
@@ -338,6 +391,7 @@ def main():
             split=args.split,
             conf_min=args.conf,
             iou_nms=args.iou,
+            iou_match=args.iou_match,
             imgsz=args.imgsz,
             device=args.device,
             dontcare_mode=args.dontcare_mode,
