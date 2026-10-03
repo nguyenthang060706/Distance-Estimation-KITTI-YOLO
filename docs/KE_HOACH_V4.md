@@ -15,7 +15,7 @@ Bảng sắp theo mức ảnh hưởng đến tính đúng đắn của kết qu
 | 2 | **Rò rỉ nhãn GT vào đặc trưng.** Đặc trưng “cờ truncated” lấy từ nhãn KITTI, không có sẵn lúc suy luận thực tế. | Thay bằng cờ “bbox chạm biên ảnh” (tính từ bbox) và độ tin cậy detector. Nhãn truncated/occluded chỉ dùng để nhóm phân tích lỗi. | 5.3 |
 | 3 | **Cue chiều rộng thiên lệch theo hướng xe.** Xe nhìn ngang có bbox rộng ≈ chiều dài xe (~4 m), không phải chiều rộng (~1,8 m); W trung bình theo class gây sai số hệ thống lớn. | Thêm cue **chiều cao Z_h** (ít phụ thuộc yaw); thêm tỉ lệ khung hình làm đặc trưng; báo cáo sai số theo hướng (alpha) để đo tác động. | 5.2 |
 | 4 | **Split “theo cảnh” mâu thuẫn với “ưu tiên split Chen”.** Split Chen thường được biết là chia theo ảnh, không theo chuỗi gốc (⚠️ cần tự kiểm chứng). | Tự dựng split theo drive bằng file mapping của devkit. Chỉ dùng split công bố nếu kiểm chứng không có drive nằm ở hai tập. | 4 |
-| 5 | **Ghép detection (IoU ≥ 0.5) loại FP/FN** làm kết quả đẹp hơn thực tế; detector recall thấp còn được lợi vì chỉ bị đánh giá trên ca dễ. | Ghép Hungarian, ngưỡng conf chốt trên V; báo cáo P/R/mAP riêng; so sánh detector trên **tập khớp chung** của cả 3 detector. | 5.1, 6 |
+| 5 | **Ghép detection (IoU ≥ 0.5) loại FP/FN** làm kết quả đẹp hơn thực tế; detector recall thấp còn được lợi vì chỉ bị đánh giá trên ca dễ. | Ghép Greedy theo confidence giảm dần (Quyết định D16), ngưỡng conf chốt trên V; báo cáo P/R/mAP riêng; so sánh detector trên **tập khớp chung** của cả 3 detector. | 5.1, 6 |
 | 6 | **Bộ lọc mẫu chưa định lượng** (“quá nhỏ”, “che nặng”) trong khi calibration và test phải cùng phân bố thì CQR mới có bảo đảm. | Dùng mức lọc **Hard** của KITTI làm quần thể đánh giá cho B, C, T; Easy ⊂ Moderate ⊂ Hard báo cáo như tập con. | 4 |
 | 7 | **Hợp nhất nghịch phương sai** giả định các cue độc lập và phương sai không đổi theo Z, nhưng chúng dùng chung nhiễu bbox và sai số tăng theo Z. | Hợp nhất trong không gian log, trọng số theo **hiệp phương sai** sai số log; residual dự đoán log-tỉ lệ nên khoảng CQR co giãn tự nhiên theo Z. | 5.2–5.4 |
 | 8 | **Dùng một tiêu cự f** cho mọi cue; bbox từ YOLO (letterbox) chưa nói phải map về ảnh gốc; ảnh KITTI có nhiều kích thước. | fx cho cue ngang, fy cho cue dọc; map bbox về tọa độ ảnh gốc; cue không hợp lệ (bbox chạm biên) bị mask thay vì dùng bừa. | 5.2 |
@@ -116,7 +116,7 @@ Paper tham chiếu (Ni et al., 2026) tích hợp YOLOv5 với hình học phối
 
 - Ngưỡng conf chốt trên V bằng một quy tắc duy nhất (ví dụ F1 tối đa) và dùng cho cả 3 detector.
 
-- **Khớp Greedy** theo confidence giảm dần với IoU ≥ 0,5 (Quyết định D15, thay cho Hungarian): ưu tiên GT Hard, kiểm tra trùng lặp (duplicate -> FP), detection khớp với non-Hard hoặc DontCare bị bỏ qua. Ranging chỉ đánh giá trên detection khớp, nhưng **luôn báo cáo kèm** precision, recall, mAP@0,5 và mAP@0,7 (giao thức KITTI) để người đọc thấy phần bị loại.
+- **Khớp Greedy** theo confidence giảm dần với IoU ≥ 0,5 (Quyết định D15 & D16, thay cho Hungarian): ưu tiên GT Hard, kiểm tra trùng lặp (duplicate -> FP), detection khớp với non-Hard hoặc DontCare bị bỏ qua. Ranging chỉ đánh giá trên detection khớp, nhưng **luôn báo cáo kèm** precision, recall, mAP@0,5 và mAP@0,7 (giao thức KITTI) để người đọc thấy phần bị loại.
 
 - Khi so sánh detector, dùng thêm **tập khớp chung** (những GT mà cả 3 detector đều bắt được) để tránh thiên lệch do recall khác nhau.
 
@@ -233,7 +233,7 @@ Lý do chọn CQR (Romano, Patterson, Candès, NeurIPS 2019): có lý thuyết b
 
 | **Ngày** | **Việc** | **Kết quả** |
 | --- | --- | --- |
-| 1 | Kiểm tra checkpoint và mAP trên V. Chạy suy luận trên B, C, T (và A để chẩn đoán); áp ngưỡng conf, khớp Hungarian, map bbox về ảnh gốc, trích đặc trưng. | File đặc trưng theo detector; P/R/mAP. |
+| 1 | Kiểm tra checkpoint và mAP trên V. Chạy suy luận trên B, C (và A để chẩn đoán); áp ngưỡng conf, khớp Greedy (D16), map bbox về ảnh gốc, trích đặc trưng. | File đặc trưng theo detector; P/R/mAP. |
 | 2 | Chạy (a)–(d) trên bbox detector; so với GT bbox để phân rã sai số. Chẩn đoán lệch bbox giữa A và B. | Bảng phân rã hình học vs detector. |
 | 3 | Fit residual XGBoost trên B (log-tỉ lệ), tuning bằng grouped CV; baseline trực tiếp (e). | Mô hình (f), (e); sai số out-of-fold. |
 | 4 | MLP nhỏ; ablation nhóm đặc trưng, bỏ cue, jitter. | Bảng ablation (điểm). |

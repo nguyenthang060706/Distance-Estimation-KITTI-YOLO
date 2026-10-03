@@ -83,7 +83,7 @@ def test_splits_disjoint_by_drive():
 
 
 def test_splits_frame_counts():
-    """Verify exact frame counts for frozen splits-v1."""
+    """Verify exact frame counts for frozen splits-v2 (Decision D14)."""
     splits = load_splits("splits")
     expected_counts = {
         "A": 3740,

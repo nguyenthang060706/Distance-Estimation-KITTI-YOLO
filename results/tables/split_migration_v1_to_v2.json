@@ -1,0 +1,662 @@
+{
+  "metadata": {
+    "v1_tag": "splits-v1",
+    "v2_tag": "splits-v2",
+    "decision": "D14",
+    "ks_depth": {
+      "B_C": 0.04603016910033919,
+      "B_T": 0.058837671128577684,
+      "C_T": 0.055645996188990104
+    }
+  },
+  "rows": [
+    {
+      "drive": "2011_09_26_drive_0002_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 2,
+      "frames": 6
+    },
+    {
+      "drive": "2011_09_26_drive_0005_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 60,
+      "frames": 10
+    },
+    {
+      "drive": "2011_09_26_drive_0011_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 141,
+      "frames": 89
+    },
+    {
+      "drive": "2011_09_26_drive_0014_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 536,
+      "frames": 235
+    },
+    {
+      "drive": "2011_09_26_drive_0015_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 663,
+      "frames": 215
+    },
+    {
+      "drive": "2011_09_26_drive_0017_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 41,
+      "frames": 38
+    },
+    {
+      "drive": "2011_09_26_drive_0019_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 253,
+      "frames": 132
+    },
+    {
+      "drive": "2011_09_26_drive_0027_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 25,
+      "frames": 25
+    },
+    {
+      "drive": "2011_09_26_drive_0028_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 92,
+      "frames": 131
+    },
+    {
+      "drive": "2011_09_26_drive_0035_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 344,
+      "frames": 57
+    },
+    {
+      "drive": "2011_09_26_drive_0039_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 628,
+      "frames": 192
+    },
+    {
+      "drive": "2011_09_26_drive_0048_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 43,
+      "frames": 10
+    },
+    {
+      "drive": "2011_09_26_drive_0052_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 12,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_26_drive_0056_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 364,
+      "frames": 197
+    },
+    {
+      "drive": "2011_09_26_drive_0057_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 277,
+      "frames": 80
+    },
+    {
+      "drive": "2011_09_26_drive_0059_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 1185,
+      "frames": 178
+    },
+    {
+      "drive": "2011_09_26_drive_0060_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 25,
+      "frames": 18
+    },
+    {
+      "drive": "2011_09_26_drive_0070_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 23,
+      "frames": 72
+    },
+    {
+      "drive": "2011_09_26_drive_0079_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 9,
+      "frames": 5
+    },
+    {
+      "drive": "2011_09_26_drive_0084_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 845,
+      "frames": 175
+    },
+    {
+      "drive": "2011_09_26_drive_0086_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 63,
+      "frames": 68
+    },
+    {
+      "drive": "2011_09_26_drive_0087_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 70,
+      "frames": 96
+    },
+    {
+      "drive": "2011_09_26_drive_0095_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 747,
+      "frames": 166
+    },
+    {
+      "drive": "2011_09_26_drive_0096_sync",
+      "v1_split": "B",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 524,
+      "frames": 243
+    },
+    {
+      "drive": "2011_09_26_drive_0104_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 1282,
+      "frames": 152
+    },
+    {
+      "drive": "2011_09_26_drive_0106_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 346,
+      "frames": 88
+    },
+    {
+      "drive": "2011_09_26_drive_0113_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 9,
+      "frames": 5
+    },
+    {
+      "drive": "2011_09_26_drive_0117_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 689,
+      "frames": 198
+    },
+    {
+      "drive": "2011_09_28_drive_0034_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 6,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0037_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 21
+    },
+    {
+      "drive": "2011_09_28_drive_0039_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 24
+    },
+    {
+      "drive": "2011_09_28_drive_0043_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 17
+    },
+    {
+      "drive": "2011_09_28_drive_0047_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 12,
+      "frames": 10
+    },
+    {
+      "drive": "2011_09_28_drive_0053_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0065_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 1
+    },
+    {
+      "drive": "2011_09_28_drive_0068_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 6
+    },
+    {
+      "drive": "2011_09_28_drive_0071_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 2
+    },
+    {
+      "drive": "2011_09_28_drive_0075_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 5
+    },
+    {
+      "drive": "2011_09_28_drive_0077_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 2
+    },
+    {
+      "drive": "2011_09_28_drive_0078_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 2
+    },
+    {
+      "drive": "2011_09_28_drive_0082_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0086_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0087_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 10
+    },
+    {
+      "drive": "2011_09_28_drive_0098_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0100_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0103_sync",
+      "v1_split": "C",
+      "v2_split": "C",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0104_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0106_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0108_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0117_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0119_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0121_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0128_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0134_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0136_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0138_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 2
+    },
+    {
+      "drive": "2011_09_28_drive_0141_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 9
+    },
+    {
+      "drive": "2011_09_28_drive_0146_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0149_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0153_sync",
+      "v1_split": "B",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 13
+    },
+    {
+      "drive": "2011_09_28_drive_0155_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0161_sync",
+      "v1_split": "B",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0162_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0167_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 5
+    },
+    {
+      "drive": "2011_09_28_drive_0168_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 6
+    },
+    {
+      "drive": "2011_09_28_drive_0179_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0183_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0184_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 12
+    },
+    {
+      "drive": "2011_09_28_drive_0186_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0187_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0191_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 4
+    },
+    {
+      "drive": "2011_09_28_drive_0192_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0195_sync",
+      "v1_split": "C",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0198_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 6
+    },
+    {
+      "drive": "2011_09_28_drive_0201_sync",
+      "v1_split": "B",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 11
+    },
+    {
+      "drive": "2011_09_28_drive_0204_sync",
+      "v1_split": "B",
+      "v2_split": "B",
+      "moved": false,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0205_sync",
+      "v1_split": "T",
+      "v2_split": "B",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0208_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 3
+    },
+    {
+      "drive": "2011_09_28_drive_0216_sync",
+      "v1_split": "C",
+      "v2_split": "T",
+      "moved": true,
+      "car_hard": 0,
+      "frames": 5
+    },
+    {
+      "drive": "2011_09_29_drive_0004_sync",
+      "v1_split": "T",
+      "v2_split": "C",
+      "moved": true,
+      "car_hard": 364,
+      "frames": 103
+    },
+    {
+      "drive": "2011_09_29_drive_0026_sync",
+      "v1_split": "T",
+      "v2_split": "T",
+      "moved": false,
+      "car_hard": 134,
+      "frames": 47
+    }
+  ]
+}

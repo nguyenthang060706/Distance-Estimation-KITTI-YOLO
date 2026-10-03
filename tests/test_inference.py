@@ -27,6 +27,25 @@ def test_split_t_hard_guard():
         )
 
 
+def test_split_t_cli_guard():
+    """
+    CLI test:
+    Running 'python scripts/run_inference.py --split T' must fail with non-zero exit code.
+    """
+    import subprocess
+    import sys
+    res = subprocess.run(
+        [sys.executable, "scripts/run_inference.py", "--split", "T"],
+        cwd=str(PROJECT_ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert res.returncode != 0
+    # Either caught by argparse choices or by runtime PermissionError
+    assert "invalid choice" in res.stderr.lower() or "permissionerror" in res.stderr.lower()
+
+
+
 def test_checkpoint_sha_verification_valid():
     """
     Verify that existing checkpoint matches SHA recorded in checkpoints.yaml.
