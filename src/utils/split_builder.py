@@ -92,6 +92,7 @@ def build_splits(
     seed: int = 42,
     ratios: Optional[dict] = None,
     output_dir: Optional[str] = None,
+    force: bool = False,
 ) -> dict:
     """
     Build A/V/B/C/T splits by drive with stratification.
@@ -195,12 +196,12 @@ def build_splits(
 
     # Save if output_dir provided
     if output_dir is not None:
-        save_splits(splits, output_dir, seed, loader._drive_mapping)
+        save_splits(splits, output_dir, seed, loader._drive_mapping, force=force)
 
     return splits
 
 
-def save_splits(splits: dict, output_dir: str, seed: int, drive_mapping: dict):
+def save_splits(splits: dict, output_dir: str, seed: int, drive_mapping: dict, force: bool = False):
     """
     Save splits to files with metadata.
 
@@ -210,6 +211,22 @@ def save_splits(splits: dict, output_dir: str, seed: int, drive_mapping: dict):
     """
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
+
+    meta_file = out / "split_metadata.json"
+    if meta_file.exists() and not force:
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                existing_meta = json.load(f)
+            if existing_meta.get("version") == "v2":
+                raise RuntimeError(
+                    "Refusing to overwrite frozen splits-v2 (Decision D14). "
+                    "Splits-v2 are frozen and tied to git tag 'splits-v2'. "
+                    "Pass force=True if intentional."
+                )
+        except RuntimeError:
+            raise
+        except Exception:
+            pass
 
     metadata = {
         "seed": seed,

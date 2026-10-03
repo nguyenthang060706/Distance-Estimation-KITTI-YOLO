@@ -19,6 +19,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.utils.kitti_loader import KITTILoader
 from src.utils.split_builder import load_split
+from src.detection.matching import match_detections_frame, MatchStatus
 
 
 def box_iou(box1, box2):
@@ -77,52 +78,27 @@ def find_best_conf_threshold(model_path: str, model_name: str, val_frame_ids: li
                 if c == 0:  # Car
                     pred_cars.append((score, b))
 
-        # Sort predictions by confidence desc
-        pred_cars.sort(key=lambda x: x[0], reverse=True)
+        # Use centralized matching module (Decision D8, D15)
+        pred_boxes_arr = np.array([p[1] for p in pred_cars]) if pred_cars else np.empty((0, 4))
+        pred_scores_arr = np.array([p[0] for p in pred_cars]) if pred_cars else np.empty(0)
 
-        # Greedy match IoU >= 0.5 according to D8 protocol:
-        # Step 1: Match GT Hard first
-        # Step 2: If not matched to GT Hard, check GT non-Hard -> Ignore (neither TP nor FP)
-        # Step 3: Check DontCare -> Ignore (neither TP nor FP)
-        # Step 4: Otherwise False Positive
-        matched_gt_hard = set()
-        for score, pred_box in pred_cars:
-            # 1. Check match with GT Hard
-            best_iou = 0.0
-            best_idx = -1
-            for g_idx, gt_box in enumerate(gt_hard_cars):
-                if g_idx in matched_gt_hard:
-                    continue
-                iou = box_iou(pred_box, gt_box)
-                if iou > best_iou:
-                    best_iou = iou
-                    best_idx = g_idx
+        matches = match_detections_frame(
+            pred_boxes=pred_boxes_arr,
+            pred_scores=pred_scores_arr,
+            gt_hard_boxes=np.array(gt_hard_cars) if gt_hard_cars else np.empty((0, 4)),
+            gt_non_hard_boxes=np.array(gt_non_hard_cars) if gt_non_hard_cars else np.empty((0, 4)),
+            dontcare_boxes=np.array(dontcares) if dontcares else np.empty((0, 4)),
+            iou_threshold=0.5,
+            dontcare_mode="iou",
+            dontcare_threshold=0.5,
+        )
 
-            if best_iou >= 0.5:
-                matched_gt_hard.add(best_idx)
-                predictions.append((score, True))  # True Positive
-                continue
-
-            # 2. Check match with non-Hard GT cars (D8: ignored)
-            is_non_hard = False
-            for nh_box in gt_non_hard_cars:
-                if box_iou(pred_box, nh_box) >= 0.5:
-                    is_non_hard = True
-                    break
-            if is_non_hard:
-                continue
-
-            # 3. Check match with DontCare (D8: ignored)
-            is_dc = False
-            for dc_box in dontcares:
-                if box_iou(pred_box, dc_box) >= 0.5:
-                    is_dc = True
-                    break
-            if is_dc:
-                continue
-
-            # 4. Unmatched detection outside GT Hard, non-Hard, and DontCare -> False Positive
-            predictions.append((score, False))
+        for m in matches:
+            if m.status == MatchStatus.TP:
+                predictions.append((m.score, True))
+            elif m.status == MatchStatus.FP:
+                predictions.append((m.score, False))
+            # IGNORED_NONHARD and IGNORED_DONTCARE are neither TP nor FP
 
     # 2. Sweep thresholds from 0.05 to 0.90
     thresholds = np.linspace(0.05, 0.90, 86)

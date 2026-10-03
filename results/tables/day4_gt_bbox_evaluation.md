@@ -1,6 +1,6 @@
 # Day 4 Results: Geometric Depth Cues & Log-Space Fusion on Split B (GT Bbox)
 
-- **Split:** B (1,496 frames, 4776 Car Hard objects)
+- **Split:** B (1499 frames, 4776 Car Hard objects)
 - **Priors from Split A:** W_eff = 2.6184m, H_obj = 1.6797m, H_cam_fit = 2.0422m, delta_h = -4.6782px
 - **Fusion weights (Z_w, Z_h, Z_g):** [0.0807, 0.6634, 0.256]
 - **Covariance shrinkage alpha:** 0.0008

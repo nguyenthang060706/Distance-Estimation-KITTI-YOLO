@@ -11,17 +11,28 @@
     0.6725,
     0.2583
   ],
-  "overall_absrel": {
+  "pooled_absrel": {
     "in_sample": 0.0605,
     "oof_centered": 0.0609,
     "oof_uncentered": 0.061,
     "z_h": 0.0688
   },
+  "macro_absrel_12_drives": {
+    "oof_centered": 0.0646,
+    "z_h": 0.0628,
+    "z_g": 0.1602
+  },
+  "macro_absrel_drives_ge_30": {
+    "oof_centered": 0.0608,
+    "z_h": 0.0651,
+    "n_drives": 8
+  },
   "sign_count_vs_zh": {
     "wins": 9,
     "losses": 3,
     "ties": 0,
-    "total_drives": 12
+    "total_drives": 12,
+    "p_value_one_sided": 0.073
   },
   "bootstrap_vs_zh": {
     "diff": -0.0095,
@@ -30,5 +41,34 @@
       -0.0062
     ],
     "excludes_zero": true
-  }
+  },
+  "viewing_angle_stratification": {
+    "<30 deg (Side / Ngang)": {
+      "n": 183,
+      "z_w": 0.4241,
+      "z_h": 0.0482,
+      "z_g": 0.2091,
+      "z_d_oof": 0.08
+    },
+    "30-60 deg (Diagonal / Ch\u00e9o)": {
+      "n": 1043,
+      "z_w": 0.308,
+      "z_h": 0.0715,
+      "z_g": 0.1125,
+      "z_d_oof": 0.0568
+    },
+    ">60 deg (Front/Rear / \u0110\u1ea7u-\u0110u\u00f4i)": {
+      "n": 3550,
+      "z_w": 0.2611,
+      "z_h": 0.0691,
+      "z_g": 0.0876,
+      "z_d_oof": 0.0612
+    }
+  },
+  "decisions_applied": [
+    "D18",
+    "D19",
+    "D20",
+    "D21"
+  ]
 }

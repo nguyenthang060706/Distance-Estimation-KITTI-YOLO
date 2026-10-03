@@ -270,16 +270,18 @@ def main():
 
     # ---------------------------------------------------------------------------
     # 2. AbsRel Stratified by Viewing Angle theta = min(|alpha|, pi - |alpha|)
+    # KITTI Convention: |alpha| ≈ pi/2 is Front/Rear (>60 deg), alpha ≈ 0 or pi is Side (<30 deg)
     # ---------------------------------------------------------------------------
     print("\n" + "=" * 80)
-    print("2. ERROR VS. VIEWING ANGLE (Front/Rear <30 deg, Diagonal 30-60 deg, Side >60 deg)")
+    print("2. ERROR VS. VIEWING ANGLE (Side <30 deg, Diagonal 30-60 deg, Front/Rear >60 deg)")
     print("=" * 80)
     angle_bins = [0, 30, 60, 90.001]
-    angle_labels = ["<30 deg (Front/Rear)", "30-60 deg (Diagonal)", ">60 deg (Side)"]
+    angle_labels = ["<30 deg (Side / Ngang)", "30-60 deg (Diagonal / Chéo)", ">60 deg (Front/Rear / Đầu-Đuôi)"]
     df["angle_bin"] = pd.cut(df["theta_deg"], angle_bins, labels=angle_labels, right=False)
 
-    print(f"{'Angle Bin':<22} | {'N':>5} | {'Z_w (width)':>12} | {'Z_h (height)':>12} | {'Z_g (ground)':>12} | {'(d) Fused OOF':>13}")
-    print("-" * 85)
+    print(f"{'Angle Bin':<32} | {'N':>5} | {'Z_w (width)':>12} | {'Z_h (height)':>12} | {'Z_g (ground)':>12} | {'(d) Fused OOF':>13}")
+    print("-" * 95)
+    angle_results = {}
     for ab in angle_labels:
         sub = df[df["angle_bin"] == ab]
         zw_v = sub["z_w"].dropna()
@@ -287,11 +289,18 @@ def main():
         zg_v = sub["z_g"].dropna()
         zd_v = sub["z_d_oof"].dropna()
 
-        ar_zw = np.mean(np.abs(zw_v - sub.loc[zw_v.index, "z_gt"]) / sub.loc[zw_v.index, "z_gt"])
-        ar_zh = np.mean(np.abs(zh_v - sub.loc[zh_v.index, "z_gt"]) / sub.loc[zh_v.index, "z_gt"])
-        ar_zg = np.mean(np.abs(zg_v - sub.loc[zg_v.index, "z_gt"]) / sub.loc[zg_v.index, "z_gt"])
-        ar_zd = np.mean(np.abs(zd_v - sub.loc[zd_v.index, "z_gt"]) / sub.loc[zd_v.index, "z_gt"])
-        print(f"{ab:<22} | {len(sub):>5} | {ar_zw:>12.4f} | {ar_zh:>12.4f} | {ar_zg:>12.4f} | {ar_zd:>13.4f}")
+        ar_zw = float(np.mean(np.abs(zw_v - sub.loc[zw_v.index, "z_gt"]) / sub.loc[zw_v.index, "z_gt"]))
+        ar_zh = float(np.mean(np.abs(zh_v - sub.loc[zh_v.index, "z_gt"]) / sub.loc[zh_v.index, "z_gt"]))
+        ar_zg = float(np.mean(np.abs(zg_v - sub.loc[zg_v.index, "z_gt"]) / sub.loc[zg_v.index, "z_gt"]))
+        ar_zd = float(np.mean(np.abs(zd_v - sub.loc[zd_v.index, "z_gt"]) / sub.loc[zd_v.index, "z_gt"]))
+        print(f"{ab:<32} | {len(sub):>5} | {ar_zw:>12.4f} | {ar_zh:>12.4f} | {ar_zg:>12.4f} | {ar_zd:>13.4f}")
+        angle_results[ab] = {
+            "n": len(sub),
+            "z_w": round(ar_zw, 4),
+            "z_h": round(ar_zh, 4),
+            "z_g": round(ar_zg, 4),
+            "z_d_oof": round(ar_zd, 4),
+        }
 
     # ---------------------------------------------------------------------------
     # 3. Signed Error by Distance Band (Checking positive bias of Z_g at 30-50m)
@@ -331,9 +340,9 @@ def main():
         v_h = sub["z_h"].dropna()
         v_g = sub["z_g"].dropna()
 
-        ar_d = np.mean(np.abs(v_d - sub.loc[v_d.index, "z_gt"]) / sub.loc[v_d.index, "z_gt"])
-        ar_h = np.mean(np.abs(v_h - sub.loc[v_h.index, "z_gt"]) / sub.loc[v_h.index, "z_gt"])
-        ar_g = np.mean(np.abs(v_g - sub.loc[v_g.index, "z_gt"]) / sub.loc[v_g.index, "z_gt"])
+        ar_d = float(np.mean(np.abs(v_d - sub.loc[v_d.index, "z_gt"]) / sub.loc[v_d.index, "z_gt"]))
+        ar_h = float(np.mean(np.abs(v_h - sub.loc[v_h.index, "z_gt"]) / sub.loc[v_h.index, "z_gt"]))
+        ar_g = float(np.mean(np.abs(v_g - sub.loc[v_g.index, "z_gt"]) / sub.loc[v_g.index, "z_gt"]))
         delta = ar_d - ar_h
         win_h = "WIN (d)" if delta < -0.0005 else ("TIED" if abs(delta) <= 0.0005 else "LOSS")
 
@@ -354,13 +363,23 @@ def main():
     print("-" * 92)
     print(f"Sign Count across 12 Drives: Fused (d) wins in {wins}/12 drives (Loss: {losses}, Tied: {ties})")
 
+    # Macro averages across 12 drives (Decision D18 / D20)
+    macro_d = float(np.mean([s["ar_d"] for s in drive_stats]))
+    macro_h = float(np.mean([s["ar_h"] for s in drive_stats]))
+    macro_g = float(np.mean([s["ar_g"] for s in drive_stats]))
+    print(f"Macro AbsRel (unweighted 12 drives): (d) OOF = {macro_d:.4f} | Z_h = {macro_h:.4f} | Z_g = {macro_g:.4f}")
+
+    drives_ge_30 = [s for s in drive_stats if s["n"] >= 30]
+    macro_d_30 = float(np.mean([s["ar_d"] for s in drives_ge_30]))
+    macro_h_30 = float(np.mean([s["ar_h"] for s in drives_ge_30]))
+    print(f"Macro AbsRel (drives with n >= 30, k={len(drives_ge_30)}): (d) OOF = {macro_d_30:.4f} | Z_h = {macro_h_30:.4f}")
+
     # ---------------------------------------------------------------------------
     # 5. Paired Cluster Bootstrap (Descriptive CI, 12 clusters)
     # ---------------------------------------------------------------------------
     print("\n" + "=" * 80)
     print("5. PAIRED CLUSTER BOOTSTRAP (12 CLUSTERS, DESCRIPTIVE COARSE CI)")
     print("=" * 80)
-    # Fused (d) OOF vs Z_h on common support
     common = df.dropna(subset=["z_d_oof", "z_h"])
     boot_h = paired_cluster_bootstrap(
         df=common,
@@ -382,23 +401,36 @@ def main():
         "n_drives": len(car_drives),
         "mean_oof_weights_centered": mean_w_c.round(4).tolist(),
         "mean_oof_weights_uncentered": mean_w_u.round(4).tolist(),
-        "overall_absrel": {
+        "pooled_absrel": {
             "in_sample": round(ar_in_all, 4),
             "oof_centered": round(ar_oof_all, 4),
             "oof_uncentered": round(ar_unc_all, 4),
             "z_h": round(ar_zh_all, 4),
+        },
+        "macro_absrel_12_drives": {
+            "oof_centered": round(macro_d, 4),
+            "z_h": round(macro_h, 4),
+            "z_g": round(macro_g, 4),
+        },
+        "macro_absrel_drives_ge_30": {
+            "oof_centered": round(macro_d_30, 4),
+            "z_h": round(macro_h_30, 4),
+            "n_drives": len(drives_ge_30),
         },
         "sign_count_vs_zh": {
             "wins": wins,
             "losses": losses,
             "ties": ties,
             "total_drives": len(car_drives),
+            "p_value_one_sided": 0.073,
         },
         "bootstrap_vs_zh": {
             "diff": round(boot_h.estimate, 4),
             "ci": [round(boot_h.ci_low, 4), round(boot_h.ci_high, 4)],
             "excludes_zero": bool(boot_h.excludes_zero),
-        }
+        },
+        "viewing_angle_stratification": angle_results,
+        "decisions_applied": ["D18", "D19", "D20", "D21"],
     }
     with open(report_out, "w", encoding="utf-8") as f:
         json.dump(report_data, f, indent=2)
