@@ -39,7 +39,9 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Số liệu tập V:** Chỉ dùng chọn checkpoint và ngưỡng conf; không dùng báo cáo hiệu năng detector trong paper (hiệu năng tính trên B∪C và T). Số FPS từ Ultralytics val không dùng làm latency end-to-end (sẽ đo riêng ở Tier 1).
 - ✅ **Gate §8.1 & Đánh giá công bằng (D9):** Gate tính trên các dải $n \ge 100$ không chồng lấn (4 dải: 0–10, 10–20, 20–30, 30–50 m; không tính hàng gộp ">30 m"). Báo cáo thêm so sánh cặp trên tập chung (common support) và bảng phân rã theo tổ hợp cue (pattern breakdown).
 - ✅ **Đóng băng hình học & Tham số hiệu dụng (D10):** $\delta = -4.6782$ px và $H_{\text{cam}} = 2.0422$ m là tham số hiệu dụng (effective ground-plane parameters) fit trên A để bù chênh lệch giữa góc tiếp đất gần nhất ($Z_{\text{closest}}$) và tâm xe ($Z_{\text{center}}$). Trọng số hợp nhất $[w_w, w_h, w_g] = [0.0691, 0.6500, 0.2809]$ fit trên B (in-sample trên 10 drive có Car Hard). Đóng băng vào `configs/geometry_params.yaml` kèm hash A và B, gắn tag `geometry-v1`.
-- ✅ **Phân tách đặc trưng suy luận khỏi GT (D11):** Pipeline suy luận tuyệt đối tách biệt các cột đặc trưng khỏi các trường nhãn ground truth (`gt_*`, `alpha`, `truncated`, `occluded`, `depth`/`location_z`). Phải có unit test chặn và bảo đảm bộ trích đặc trưng không được đọc `gt_*`.
+- ✅ **Phân tách đặc trưng suy luận khỏi GT (D11):** Pipeline suy luận tuyệt đối tách biệt các cột đặc trưng khỏi các trường nhãn ground truth (`gt_*`, `alpha`, `truncated`, `occluded`, `depth`/`location_z`). Phải có unit test chặn và bảo đảm bộ trích đặc trưng không được đọc `gt_*` (đã có trong `tests/test_feature_guard.py`).
+- ✅ **Chốt checkpoint detector bằng `last.pt` (D12):** Dùng `last.pt` (epoch 100) cho cả 3 detector, chốt trước khi xem kết quả huấn luyện lại, và ghi epoch của `best.pt` vào log để đối chứng. Lý do: Split V chỉ có 6 drive chứa Car Hard (trong đó 1 drive chiếm 41%), việc chọn `best.pt` theo đỉnh fitness trên V dễ rơi vào winner's curse / đỉnh nhiễu của vài cụm; `last.pt` tại epoch 100 bảo đảm LR annealing hoàn tất và close_mosaic đã kích hoạt đầy đủ trên toàn bộ Split A.
+- ✅ **Xử lý xe suy giảm cue & pattern 000 (D13):** Toàn bộ xe thỏa Car Hard (kể cả 13.5% mang pattern `000` ở 0–10m không có cue hình học nào) đều thuộc quần thể đánh giá ranging và được dự đoán bằng mô hình direct ranging (e) làm fallback kèm cờ `fallback_flag=True`. C và T đều đi qua đúng pipeline fallback này để bảo toàn tính exchangeability, không loại bỏ ca khó khỏi bảng tổng hợp.
 
 ---
 
@@ -75,6 +77,13 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 1. **Lệch phân bố Truck:** Truck tập trung ở một số drive lớn (A=5.2%, T=0.8%), không thể khắc phục hoàn toàn khi split theo drive với 141 drive.
 2. **Split theo drive ≠ theo địa điểm:** Một số drive cùng ngày có thể quay ở cùng khu vực địa lý, nhưng split theo drive là chuẩn cao nhất khả thi trên KITTI raw mapping.
 3. **Mẫu dải xa (>50 m) thấp:** Car Hard >50 m chỉ có 8 xe ở C và 35 xe ở T; khoảng tin cậy ở dải này rộng và cần phân tích thận trọng.
+4. **Tập trung Car Hard theo ít cụm drive (Drive Concentration):** Nhiều drive trong KITTI không có xe hơi (quay trong khuôn viên/người đi bộ). Kết quả audit cho thấy:
+   - Split A: 35 drives, chỉ 18 drives có Car Hard ($N=11,291$, top 1 drive chiếm 16%).
+   - Split B: 28 drives, chỉ 10 drives có Car Hard ($N=4,210$, top 1 drive chiếm 30%).
+   - Split C: 25 drives, chỉ 11 drives có Car Hard ($N=2,331$, top 1 drive chiếm **51%**!).
+   - Split T: 28 drives, chỉ 11 drives có Car Hard ($N=3,273$, top 1 drive chiếm 26%).
+   - Split V: 25 drives, chỉ 6 drives có Car Hard ($N=611$, top 1 drive chiếm **41%**!).
+   *Hệ quả:* Cluster bootstrap trên T chỉ có $\le 11$ cụm độc lập (khoảng tin cậy thô, cần cảnh báo khi $<20$ cụm theo quy ước `eval.py`), grouped CV trên B tối đa 10 fold, và việc chia lại B∪C xoay quanh ~21 cụm. Đây là căn cứ khoa học vững chắc để chốt **Quyết định D12** (chọn checkpoint detector `last.pt` epoch 100 thay vì dựa vào đỉnh fitness dễ ăn may trên 6 cụm của V).
 
 ---
 

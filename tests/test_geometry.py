@@ -205,6 +205,38 @@ class TestBoundaryMask:
         assert not result.valid_g[0]
         assert np.all(np.isnan([result.Z_w[0], result.Z_h[0], result.Z_g[0]]))
 
+    def test_non_square_resolution_1224_370(self, intrinsics, priors):
+        """Verify boundary masking behaves correctly on 1224x370 KITTI images."""
+        w_img, h_img = 1224, 370
+        # 1. Bbox ending at x2=1222 touches right border of 1224 (1224 - 1 - 2 = 1221)
+        bbox_touch_right = np.array([[1000.0, 50.0, 1222.0, 200.0]])
+        res_right = compute_cues_batch(bbox_touch_right, intrinsics, priors, w_img, h_img)
+        assert not res_right.valid_w[0], "x2=1222 must be masked on 1224-wide image"
+
+        # On a 1242-wide image, x2=1222 is well within bounds (1242 - 1 - 2 = 1239)
+        res_wide = compute_cues_batch(bbox_touch_right, intrinsics, priors, 1242, 375)
+        assert res_wide.valid_w[0], "x2=1222 must be valid on 1242-wide image"
+
+        # 2. Bbox ending at y2=368 touches bottom border of 370 (370 - 1 - 2 = 367)
+        bbox_touch_bottom = np.array([[500.0, 100.0, 700.0, 368.0]])
+        res_bottom = compute_cues_batch(bbox_touch_bottom, intrinsics, priors, w_img, h_img)
+        assert not res_bottom.valid_h[0], "y2=368 must be masked on 370-tall image"
+        assert not res_bottom.valid_g[0], "y2=368 must mask Z_g on 370-tall image"
+
+        # On a 375-tall image, y2=368 is valid (375 - 1 - 2 = 372)
+        res_tall = compute_cues_batch(bbox_touch_bottom, intrinsics, priors, 1242, 375)
+        assert res_tall.valid_h[0], "y2=368 must be valid on 375-tall image"
+        assert res_tall.valid_g[0], "y2=368 must be valid on 375-tall image"
+
+    def test_non_square_resolution_1242_375(self, intrinsics, priors):
+        """Verify boundary masking behaves correctly on 1242x375 KITTI images."""
+        w_img, h_img = 1242, 375
+        bbox_border = np.array([[1000.0, 50.0, 1240.5, 373.5]])
+        res = compute_cues_batch(bbox_border, intrinsics, priors, w_img, h_img)
+        assert not res.valid_w[0], "Touches right border on 1242"
+        assert not res.valid_h[0], "Touches bottom border on 375"
+        assert not res.valid_g[0], "Touches bottom border on 375"
+
 
 # ---------------------------------------------------------------------------
 # 3. Fusion weight tests

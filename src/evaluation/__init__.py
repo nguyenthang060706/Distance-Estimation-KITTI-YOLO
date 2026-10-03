@@ -9,6 +9,14 @@ from src.evaluation.metrics import (
     format_metrics_table,
     DEPTH_BINS,
 )
+from src.evaluation.eval import (
+    evaluate_report,
+    evaluate_groups,
+    depth_metrics,
+    cluster_bootstrap,
+    paired_cluster_bootstrap,
+    BootstrapResult,
+)
 
 __all__ = [
     "DepthMetrics",
@@ -16,4 +24,11 @@ __all__ = [
     "compute_metrics_by_range",
     "format_metrics_table",
     "DEPTH_BINS",
+    "evaluate_report",
+    "evaluate_groups",
+    "depth_metrics",
+    "cluster_bootstrap",
+    "paired_cluster_bootstrap",
+    "BootstrapResult",
 ]
+
