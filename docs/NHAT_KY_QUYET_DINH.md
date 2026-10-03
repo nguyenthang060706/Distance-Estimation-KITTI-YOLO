@@ -37,6 +37,9 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Calibration:** dùng P2 (và R0_rect) riêng từng ảnh; bbox của YOLO phải map về tọa độ ảnh gốc.
 - ✅ **T chỉ chạy một lần**, với cấu hình đã đóng băng (git tag). Ablation chạy trên dự đoán out-of-fold của B∪C.
 - ✅ **Số liệu tập V:** Chỉ dùng chọn checkpoint và ngưỡng conf; không dùng báo cáo hiệu năng detector trong paper (hiệu năng tính trên B∪C và T). Số FPS từ Ultralytics val không dùng làm latency end-to-end (sẽ đo riêng ở Tier 1).
+- ✅ **Gate §8.1 & Đánh giá công bằng (D9):** Gate tính trên các dải $n \ge 100$ không chồng lấn (4 dải: 0–10, 10–20, 20–30, 30–50 m; không tính hàng gộp ">30 m"). Báo cáo thêm so sánh cặp trên tập chung (common support) và bảng phân rã theo tổ hợp cue (pattern breakdown).
+- ✅ **Đóng băng hình học & Tham số hiệu dụng (D10):** $\delta = -4.6782$ px và $H_{\text{cam}} = 2.0422$ m là tham số hiệu dụng (effective ground-plane parameters) fit trên A để bù chênh lệch giữa góc tiếp đất gần nhất ($Z_{\text{closest}}$) và tâm xe ($Z_{\text{center}}$). Trọng số hợp nhất $[w_w, w_h, w_g] = [0.0691, 0.6500, 0.2809]$ fit trên B (in-sample trên 10 drive có Car Hard). Đóng băng vào `configs/geometry_params.yaml` kèm hash A và B, gắn tag `geometry-v1`.
+- ✅ **Phân tách đặc trưng suy luận khỏi GT (D11):** Pipeline suy luận tuyệt đối tách biệt các cột đặc trưng khỏi các trường nhãn ground truth (`gt_*`, `alpha`, `truncated`, `occluded`, `depth`/`location_z`). Phải có unit test chặn và bảo đảm bộ trích đặc trưng không được đọc `gt_*`.
 
 ---
 
@@ -102,6 +105,29 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ---
 
 ## 6. Nhật ký theo phiên
+
+### 03/10/2026 (sáng): Xác minh Day 4 (Mục 2.1–2.4), Chốt D9–D11, Đóng băng geometry-v1
+- **Xác minh 2.1 (Sửa cách tính Gate §8.1 - Quyết định D9):**
+  - Gate chỉ tính trên các dải $n \ge 100$ độc lập: 0–10, 10–20, 20–30, 30–50 m (4 dải; không tính dải gộp `>30 m`, dải `>50 m` có $n=9 < 100$).
+  - (d) thắng ở 3/4 dải và thua ở dải 0–10 m (AbsRel 0.1572 so với $Z_g$ 0.0651 và $Z_h$ 0.1463).
+  - Gate ($\ge 3/4$) vẫn **ĐẠT CHUẨN**, nhưng tỷ lệ chính xác là **3/4 dải**, không phải 4/5. Đã nêu rõ dải thua 0–10 m trong báo cáo.
+- **Xác minh 2.2 (Giải mã dải 0–10 m: So sánh tập chung & tổ hợp pattern):**
+  - Đã chạy phân rã theo pattern: Đúng chính xác **69 xe** chênh lệch ở 0–10 m mang pattern `100` (chỉ còn $Z_w$ hợp lệ do xe gần chạm viền trên/dưới ảnh làm mask $Z_h$ và $Z_g$).
+  - Ở nhóm `100`, AbsRel của (d) là **0.2284** (thoái hóa 100% về cue yếu nhất $Z_w$), kéo AbsRel chung từ 0.1238 lên 0.1572.
+  - Trên tập chung (Common Support, 145 xe đủ 3 cue): (d) đạt AbsRel = **0.1238**, thắng $Z_w$ (0.1793) và $Z_h$ (0.1460).
+  - Kết luận: Sai số 0–10 m là do thoái hóa cue khi bị cắt mép ảnh, không phải do trọng số hợp nhất sai. Sẽ được xử lý bằng validity flags trong mạng residual ở Tuần 2.
+- **Xác minh 2.3 (Bản chất $H_{\text{cam}}$: Tham số hiệu dụng vs Chiều cao camera - Quyết định D10):**
+  - Đã thực hiện phép thử nghiệm hồi quy Huber trên Split A:
+    - Khi fit với khoảng cách tâm xe ($Z_{\text{center}}$): $H_{\text{cam}} = 2.0101$ m (hoặc 2.0422 m), $\delta = -4.985$ px.
+    - Khi fit với khoảng cách góc tiếp đất gần nhất ($Z_{\text{closest}}$): $H_{\text{cam}} = \mathbf{1.7217}$ m, $\delta = \mathbf{0.5225}$ px $\approx 0$.
+  - Kết luận: Mép đáy 2D ($y_{\text{bottom}}$) là góc tiếp đất gần nhất ($Z_{\text{closest}}$). Vì GT lấy tại tâm xe ($Z_{\text{center}} > Z_{\text{closest}}$), $H_{\text{cam}}$ bị nâng lên ~2.04 m để bù trừ. Đây là **effective ground-plane parameters**, đã quy ước chuẩn hóa trong bài báo.
+- **Xác minh 2.4 (Bốn chi tiết kỹ thuật):**
+  - (1) Mask biên: Đọc kích thước thực tế $(W, H)$ từng ảnh KITTI qua header PIL, dung sai $\epsilon = 2$ px.
+  - (2) In-sample vs OOF: Bảng (d) là in-sample trên Split B (suy luận trên 10 drive có Car Hard của B).
+  - (3) Prior: Sử dụng **median** ($W_{\text{eff}} = 2.6184$ m, $H_{\text{obj}} = 1.6797$ m).
+  - (4) $n_{\text{gt}}$ trên V: Đã xác nhận $N_{\text{Car, Hard}} = 611$ trên Split V (thay cho con số 833 tổng Car chưa lọc Hard).
+- **Đóng băng tham số hình học (D10):** Tạo file `configs/geometry_params.yaml` chứa toàn bộ tham số, trọng số và hash của Split A (`4402...`) và Split B (`1242...`). Đóng băng tag `geometry-v1`.
+- **Chốt Quyết định D11:** Yêu cầu tách triệt để cột `gt_*` khỏi feature extractor và có test chặn.
 
 ### 02/10/2026 (chiều muộn): Chốt D7, D8, hoàn thành Day 4 & kiểm thử hình học
 - **Cập nhật Quyết định D7 & Chạy lại hàng đợi detector:**

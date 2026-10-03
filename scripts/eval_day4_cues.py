@@ -34,6 +34,7 @@ import yaml
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
+from PIL import Image
 
 # Ensure UTF-8 output on Windows
 if hasattr(sys.stdout, "reconfigure"):
@@ -101,17 +102,9 @@ def run_day4_evaluation():
         frame = loader.load_frame(fid)
         calib = frame.calib
         drive = frame.drive
-        # KITTI image height/width typical: 375x1242, or from image if needed
-        # We can read image size or standard KITTI bounds
-        # For precision, read from calib or frame
-        img_w = 1242
-        img_h = 375
-        if frame.image_size is not None:
-            img_w, img_h = frame.image_size
-        else:
-            # Calib cx is ~609 -> width ~1242; cy is ~173 -> height ~375
-            # We can also check actual image dimensions
-            pass
+        # Exact image dimensions from file header
+        with Image.open(frame.image_path) as img:
+            img_w, img_h = img.size
 
         intrinsics = CameraIntrinsics(
             fx=calib.fx,
@@ -303,13 +296,15 @@ def run_day4_evaluation():
     single_cues = ["(a) Z_w (width)", "(b) Z_h (height)", "(c*) Z_g (ground, fit)"]
     fused_cue = "(d*) Fused (with fitted Z_g)"
 
-    check_ranges = ["0-10m", "10-20m", "20-30m", "30-50m", ">30m"]
+    # Independent ranges with n >= 100 for Gate §8.1 (Decision D9)
+    # Note: '>30m' is an aggregated range (overlaps 30-50m and >50m) so it is excluded from gate denominator.
+    check_ranges = ["0-10m", "10-20m", "20-30m", "30-50m"]
     evaluated_ranges = []
     wins = 0
 
     for r_name in check_ranges:
         n_samples = all_metrics[fused_cue][r_name].n
-        if n_samples < 100 and r_name != ">30m":
+        if n_samples < 100:
             continue
 
         evaluated_ranges.append(r_name)
@@ -330,13 +325,14 @@ def run_day4_evaluation():
             wins += 1
             verdict = "PASSED (Win / Tied)"
         else:
-            verdict = "MARGINAL"
+            verdict = "LOSS (Thua)"
 
         print(f"  Range {r_name:<7s} (n={n_samples:<4d}): Fused AbsRel = {fused_abs_rel:.4f} | Best single ({best_single_cue}) = {best_single_abs_rel:.4f} -> {verdict}")
 
     passed_gate = wins >= 3
     print("-" * 70)
-    print(f"Gate Summary: {wins}/{len(evaluated_ranges)} ranges passed. Status: {'PASS -> READY FOR WEEK 2' if passed_gate else 'NEEDS INVESTIGATION'}")
+    print(f"Gate Summary (§8.1, D9): {wins}/{len(evaluated_ranges)} independent ranges passed (>=3/4 required).")
+    print(f"Status: {'PASS -> READY FOR WEEK 2' if passed_gate else 'NEEDS INVESTIGATION'}")
     print("=" * 70 + "\n")
 
     # 7. Save results
