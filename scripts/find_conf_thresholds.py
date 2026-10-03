@@ -264,7 +264,7 @@ def main():
     print(f"{'Detector':<12} | {'Conf Thresh':>12} | {'Max F1':>8} | {'Precision':>10} | {'Recall':>8}")
     print("-" * 65)
     for name, r in results["detectors"].items():
-        print(f"{name:<12} | {r['conf_threshold']:>12.3f} | {r['max_f1']:>8.4f} | {r['precision']:>10.4f} | {r['recall']:>8.4f}")
+        print(f"{name:<12} | {r['conf_threshold']:>12.3f} | {r['smoothed_f1']:>8.4f} | {r['precision']:>10.4f} | {r['recall']:>8.4f}")
     print("=" * 65)
     print(f"Saved thresholds to: {output_path}\n")
 

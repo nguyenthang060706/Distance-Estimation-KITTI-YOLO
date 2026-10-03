@@ -41,7 +41,8 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Đóng băng hình học & Tham số hiệu dụng (D10):** $\delta = -4.6782$ px và $H_{\text{cam}} = 2.0422$ m là tham số hiệu dụng (effective ground-plane parameters) fit trên A để bù chênh lệch giữa góc tiếp đất gần nhất ($Z_{\text{closest}}$) và tâm xe ($Z_{\text{center}}$). Trọng số hợp nhất $[w_w, w_h, w_g] = [0.0691, 0.6500, 0.2809]$ fit trên B (in-sample trên 10 drive có Car Hard). Đóng băng vào `configs/geometry_params.yaml` kèm hash A và B, gắn tag `geometry-v1`.
 - ✅ **Phân tách đặc trưng suy luận khỏi GT (D11):** Pipeline suy luận tuyệt đối tách biệt các cột đặc trưng khỏi các trường nhãn ground truth (`gt_*`, `alpha`, `truncated`, `occluded`, `depth`/`location_z`). Phải có unit test chặn và bảo đảm bộ trích đặc trưng không được đọc `gt_*` (đã có trong `tests/test_feature_guard.py`).
 - ✅ **Chốt checkpoint detector bằng `last.pt` (D12):** Dùng `last.pt` (epoch 100) cho cả 3 detector, chốt trước khi xem kết quả huấn luyện lại, và ghi epoch của `best.pt` vào log để đối chứng. Lý do: Split V chỉ có 6 drive chứa Car Hard (trong đó 1 drive chiếm 41%), việc chọn `best.pt` theo đỉnh fitness trên V dễ rơi vào winner's curse / đỉnh nhiễu của vài cụm; `last.pt` tại epoch 100 bảo đảm LR annealing hoàn tất và close_mosaic đã kích hoạt đầy đủ trên toàn bộ Split A.
-- ✅ **Xử lý xe suy giảm cue & pattern 000 (D13):** Toàn bộ xe thỏa Car Hard (kể cả 13.5% mang pattern `000` ở 0–10m không có cue hình học nào) đều thuộc quần thể đánh giá ranging và được dự đoán bằng mô hình direct ranging (e) làm fallback kèm cờ `fallback_flag=True`. C và T đều đi qua đúng pipeline fallback này để bảo toàn tính exchangeability, không loại bỏ ca khó khỏi bảng tổng hợp.
+- ✅ **Xử lý xe suy giảm cue & pattern 000 (D13):** Toàn bộ xe thỏa Car Hard (kể cả 13.5% mang pattern `000` ở 0–10m không có cue hình học nào) đều thuộc quần thể đánh giá ranging và được dự đoán bằng mô hình direct ranging (e) làm fallback kèm cờ `fallback_flag=True`. C và T đều đi qua đúng pipeline fallback này để bảo toàn tính exchangeability, không loại bỏ ca khó khỏi bảng tổng hợp. $Z_{\text{base}} = Z_d$ nếu $\ge 1$ cue hợp lệ, ngược lại là $Z_e$. Mô hình (e) fit trên toàn bộ B. Target $r = \ln Z_{gt} - \ln Z_{\text{base}}$. Conformalize chung trên C; coverage theo cờ dùng làm chẩn đoán.
+- ✅ **Phân bổ lại drive cho B/C/T, giữ nguyên A và V (D14):** Audit concentration phát hiện Split C cũ bị `drive_0059` chi phối 50.8% ($n_{\text{eff}} = 3.2$), gây rủi ro sập coverage CQR cho RQ3. Quyết định D14: phân bổ lại drive giữa B, C, T qua tìm kiếm tối đa 200 seed simulated annealing, chỉ đọc nhãn (Car Hard count và Z depth), không dùng kết quả mô hình. Giữ nguyên 100% Split A và V. Tiêu chí: $\text{top1\_share} \le 0.35$; $\ge 10$ drive Car Hard mỗi tập; KS $\le 0.07$ cả 3 cặp; frame ratio lệch $\le 3$ điểm % so với 20/10/15. Seed 85 được chọn tối ưu: $n_{\text{eff}}$ cân bằng ở mức 5.28 cho cả 3 tập, top1 C giảm xuống 28.7%, KS B-C=0.0460, B-T=0.0588, C-T=0.0556. Đóng băng `splits-v2` và refit trọng số hình học fit trên B mới thành `geometry-v2`.
 
 ---
 
@@ -115,7 +116,38 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 
 ## 6. Nhật ký theo phiên
 
-### 03/10/2026 (sáng): Xác minh Day 4 (Mục 2.1–2.4), Chốt D9–D11, Đóng băng geometry-v1
+### 03/10/2026 (chiều): Queue 100 epochs hoàn tất, Đánh giá last.pt (D12), Chốt conf thresholds (D6), Phân bổ B/C/T (D14) đóng băng splits-v2 & geometry-v2
+- **Hoàn thành hàng đợi huấn luyện 3 detector (D7, 100 epochs, patience=100):**
+  - Cả 3 detector đã hoàn thành 100 epochs trên GPU RTX 5060:
+    - `yolov8s_640`: 70.56 phút (best.pt tại epoch 16, last.pt tại epoch 100).
+    - `yolo11s_640`: 69.31 phút (best.pt tại epoch 15, last.pt tại epoch 100).
+    - `yolov5su_640`: 65.22 phút (best.pt tại epoch 30, last.pt tại epoch 100).
+- **Đánh giá trên Split V theo Quyết định D12 (chốt last.pt):**
+  - Chạy `scripts/eval_detectors_val.py` trên Split V:
+    - YOLOv8s (last): Car P = 0.6476, R = 0.8607, mAP50 = 0.8084, mAP50-95 = 0.5778.
+    - YOLO11s (last): Car P = 0.6026, R = 0.8463, mAP50 = 0.8057, mAP50-95 = 0.5800.
+    - YOLOv5su (last): Car P = 0.5353, R = 0.8511, mAP50 = 0.7727, mAP50-95 = 0.5495.
+  - Toàn bộ 3 mô hình đều đạt mAP50 Car > 0.77 và Recall Car > 0.84 trên `last.pt`.
+- **Chốt ngưỡng Confidence theo F1 làm trơn moving average 0.05 (D6):**
+  - `yolov8s`: conf = 0.790 (smoothed F1 = 0.8355, raw F1 = 0.8368, P = 0.8807, R = 0.7971).
+  - `yolo11s`: conf = 0.700 (smoothed F1 = 0.8370, raw F1 = 0.8363, P = 0.8283, R = 0.8445).
+  - `yolov5su`: conf = 0.740 (smoothed F1 = 0.8240, raw F1 = 0.8227, P = 0.8254, R = 0.8200).
+  - Đã lưu vào `configs/detector/conf_thresholds.yaml`.
+- **Thực thi D14: Phân chia lại B/C/T, giữ nguyên 100% A và V:**
+  - Chạy `scripts/repartition_bct.py` với 200 seed simulated annealing: 137/200 seed pass toàn bộ tiêu chí khắt khe.
+  - Seed 85 được chọn theo đúng luật đăng ký trước (max min n_eff, lowest max KS):
+    - B (1,499 frames, 4,776 Car Hard, 12 drives): top1 = 0.268, $n_{\text{eff}} = 5.29$.
+    - C (766 frames, 1,826 Car Hard, 10 drives): top1 = 0.287, $n_{\text{eff}} = 5.28$ (giảm ngoạn mục từ 50.8% của drive 0059).
+    - T (1,102 frames, 3,212 Car Hard, 10 drives): top1 = 0.233, $n_{\text{eff}} = 5.28$.
+    - KS depth: B-C = 0.0460, B-T = 0.0588, C-T = 0.0556 (tất cả đều $\le 0.07$).
+  - Ghi đóng băng `splits-v2` (`splits/split_metadata.json`, version v2).
+  - Cập nhật frame counts trong `tests/test_splits.py`. Toàn bộ 84/84 test pass 100%.
+- **Refit tham số hình học trên Split B mới (geometry-v2):**
+  - Chạy lại `scripts/eval_day4_cues.py` trên Split B mới (1,499 frames, 4,776 Car Hard, 12 drives có xe):
+    - Trọng số hợp nhất $[w_w, w_h, w_g] = [0.0807, 0.6634, 0.2560]$ (tất cả đều dương, tổng = 1.0).
+    - Shrinkage alpha = 0.0008.
+    - Gate §8.1: Thắng 3/4 dải độc lập $n \ge 100$ (10–20m: 0.0594 vs 0.0704, 20–30m: 0.0564 vs 0.0645, 30–50m: 0.0553 vs 0.0638; thua 0–10m: 0.1283 vs 0.0619).
+    - Đóng băng vào `configs/geometry_params.yaml` với tag `geometry-v2`.
 - **Xác minh 2.1 (Sửa cách tính Gate §8.1 - Quyết định D9):**
   - Gate chỉ tính trên các dải $n \ge 100$ độc lập: 0–10, 10–20, 20–30, 30–50 m (4 dải; không tính dải gộp `>30 m`, dải `>50 m` có $n=9 < 100$).
   - (d) thắng ở 3/4 dải và thua ở dải 0–10 m (AbsRel 0.1572 so với $Z_g$ 0.0651 và $Z_h$ 0.1463).

@@ -5,6 +5,7 @@ data/*
 # ===== Model checkpoints & training logs =====
 runs/*/weights/
 runs/*/train*/
+runs/detect/
 *.pt
 *.onnx
 *.engine

@@ -1,24 +1,24 @@
 # configs/geometry_params.yaml
-# Frozen geometric priors and log-space fusion parameters (Decision D10, git tag: geometry-v1)
+# Frozen geometric priors and log-space fusion parameters (Decision D14, git tag: geometry-v2)
 # 
 # Parameter derivation:
-# - Priors (W_eff, H_obj, H_cam, delta_horizon): Estimated strictly from Split A.
+# - Priors (W_eff, H_obj, H_cam, delta_horizon): Estimated strictly from Split A (frozen).
 #   - H_cam (2.0422m) and delta_horizon (-4.6782px) are EFFECTIVE ground-plane parameters
 #     mapping 2D bottom bbox contact to 3D center location (Decision D10).
 #   - Diagnostic physical test: when fitting to closest bottom corner Z, H_cam=1.72m and delta=0.52px.
-# - Log-space Fusion weights (Z_w, Z_h, Z_g): Estimated strictly from Split B
-#   using Ledoit-Wolf covariance shrinkage on leave-one-drive-out residuals (10 drives with Car Hard).
+# - Log-space Fusion weights (Z_w, Z_h, Z_g): Estimated strictly from Split B (splits-v2)
+#   using Ledoit-Wolf covariance shrinkage on leave-one-drive-out residuals (12 drives with Car Hard).
 # - Split T is strictly guarded and never touched during calibration or fitting.
 
 metadata:
-  tag: "geometry-v1"
-  decisions: ["D9", "D10"]
+  tag: "geometry-v2"
+  decisions: ["D9", "D10", "D14"]
   target_class: "Car"
   filter_level: "Hard"
   split_A_hash: "4402edf8e460fe787721bb7f6cf4a570d94373bb9382113c1ec1fc13017ae87d"
-  split_B_hash: "1242dd3521f1b561b7a8adcfa5a412b8517ba3fa6da7a571115fecdf482db0a3"
+  split_B_hash: "0f83c3547188c8a6ab29a389f27524a5e09d5e7f96fcaff5f7a4f1328c2aef92"
   split_A_frames: 3740
-  split_B_frames: 1496
+  split_B_frames: 1499
 
 priors_split_A:
   W_eff: 2.6184078808356097      # Median effective width (m)
@@ -41,10 +41,10 @@ masking:
 
 fusion_split_B:
   cue_order: ["Z_w", "Z_h", "Z_g"]
-  weights: [0.0691, 0.6500, 0.2809]
-  shrinkage_alpha: 0.0009
-  evaluation_mode: "in-sample"   # Evaluated in-sample on Split B (10 drives with Car Hard)
+  weights: [0.0807, 0.6634, 0.2560]
+  shrinkage_alpha: 0.0008
+  evaluation_mode: "in-sample"   # Evaluated in-sample on Split B (12 drives with Car Hard)
   covariance_shrunk:
-    - [0.12648, 0.01524, 0.01138]
-    - [0.01524, 0.00977, 0.00392]
-    - [0.01138, 0.00392, 0.02419]
+    - [0.10449, -0.00135, -0.00532]
+    - [-0.00135, 0.00837, 0.00284]
+    - [-0.00532, 0.00284, 0.01843]

@@ -2,22 +2,22 @@
   {
     "model": "yolov8s.pt",
     "run_name": "yolov8s_640",
-    "status": "FAILED: No module named 'ultralytics'",
-    "duration_minutes": 0.0061287500000000005,
-    "save_dir": ""
+    "status": "SUCCESS",
+    "duration_minutes": 70.56405244999999,
+    "save_dir": "D:\\T\u00e0i li\u1ec7u h\u1ecdc\\FALL2026\\DSR301m\\Distance-Estimation-KITTI-YOLO\\runs\\detector\\yolov8s_640"
   },
   {
     "model": "yolo11s.pt",
     "run_name": "yolo11s_640",
-    "status": "FAILED: No module named 'ultralytics'",
-    "duration_minutes": 0.005459116666666666,
-    "save_dir": ""
+    "status": "SUCCESS",
+    "duration_minutes": 69.31340086666667,
+    "save_dir": "D:\\T\u00e0i li\u1ec7u h\u1ecdc\\FALL2026\\DSR301m\\Distance-Estimation-KITTI-YOLO\\runs\\detector\\yolo11s_640"
   },
   {
     "model": "yolov5su.pt",
     "run_name": "yolov5su_640",
-    "status": "FAILED: No module named 'ultralytics'",
-    "duration_minutes": 0.005480066666666667,
-    "save_dir": ""
+    "status": "SUCCESS",
+    "duration_minutes": 65.22184648333334,
+    "save_dir": "D:\\T\u00e0i li\u1ec7u h\u1ecdc\\FALL2026\\DSR301m\\Distance-Estimation-KITTI-YOLO\\runs\\detector\\yolov5su_640"
   }
 ]

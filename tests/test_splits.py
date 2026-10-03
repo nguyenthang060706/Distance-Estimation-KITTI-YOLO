@@ -88,9 +88,9 @@ def test_splits_frame_counts():
     expected_counts = {
         "A": 3740,
         "V": 374,
-        "B": 1496,
-        "C": 749,
-        "T": 1122,
+        "B": 1499,
+        "C": 766,
+        "T": 1102,
     }
     for name, expected in expected_counts.items():
         assert len(splits[name]) == expected, f"Split {name} has {len(splits[name])} frames, expected {expected}"
@@ -116,12 +116,12 @@ def test_load_split_guard():
 
         # Split T with allow_test=True must succeed
         frames_t = load_split("splits", "T", allow_test=True)
-        assert len(frames_t) == 1122
+        assert len(frames_t) == 1102
 
         # Split T with ALLOW_TEST_SPLIT=1 must succeed
         os.environ["ALLOW_TEST_SPLIT"] = "1"
         frames_t_env = load_split("splits", "T")
-        assert len(frames_t_env) == 1122
+        assert len(frames_t_env) == 1102
     finally:
         if old_env is not None:
             os.environ["ALLOW_TEST_SPLIT"] = old_env
