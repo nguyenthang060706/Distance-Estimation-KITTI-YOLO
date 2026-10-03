@@ -1,0 +1,430 @@
+{
+  "metadata": {
+    "splits_version": "v2",
+    "matching_iou": 0.5,
+    "matching_algorithm": "Greedy (Decision D15 & D16)",
+    "models": [
+      "yolov8s",
+      "yolo11s",
+      "yolov5su"
+    ]
+  },
+  "Split_B": {
+    "split": "B",
+    "models": {
+      "yolov8s": {
+        "total_gt": 4776,
+        "total_preds_floor": 5919,
+        "preds_passed_thr": 4141,
+        "tp": 3427,
+        "fp": 195,
+        "ign_nonhard": 500,
+        "ign_dontcare": 19,
+        "precision": 0.9462,
+        "recall": 0.7175,
+        "f1": 0.8161,
+        "recall_floor_005": 0.8346,
+        "bands": {
+          "0-10m": {
+            "n_gt": 288,
+            "n_matched": 284,
+            "recall": 0.9861
+          },
+          "10-20m": {
+            "n_gt": 1218,
+            "n_matched": 1089,
+            "recall": 0.8941
+          },
+          "20-30m": {
+            "n_gt": 1546,
+            "n_matched": 1204,
+            "recall": 0.7788
+          },
+          "30-50m": {
+            "n_gt": 1705,
+            "n_matched": 848,
+            "recall": 0.4974
+          },
+          ">50m": {
+            "n_gt": 19,
+            "n_matched": 2,
+            "recall": 0.1053
+          }
+        },
+        "difficulty": {
+          "Easy": {
+            "n_gt": 1311,
+            "n_matched": 1299,
+            "recall": 0.9908
+          },
+          "Moderate": {
+            "n_gt": 3248,
+            "n_matched": 2819,
+            "recall": 0.8679
+          },
+          "Hard": {
+            "n_gt": 4776,
+            "n_matched": 3427,
+            "recall": 0.7175
+          }
+        }
+      },
+      "yolo11s": {
+        "total_gt": 4776,
+        "total_preds_floor": 5863,
+        "preds_passed_thr": 4339,
+        "tp": 3523,
+        "fp": 200,
+        "ign_nonhard": 599,
+        "ign_dontcare": 17,
+        "precision": 0.9463,
+        "recall": 0.7376,
+        "f1": 0.829,
+        "recall_floor_005": 0.8245,
+        "bands": {
+          "0-10m": {
+            "n_gt": 288,
+            "n_matched": 279,
+            "recall": 0.9688
+          },
+          "10-20m": {
+            "n_gt": 1218,
+            "n_matched": 1089,
+            "recall": 0.8941
+          },
+          "20-30m": {
+            "n_gt": 1546,
+            "n_matched": 1225,
+            "recall": 0.7924
+          },
+          "30-50m": {
+            "n_gt": 1705,
+            "n_matched": 924,
+            "recall": 0.5419
+          },
+          ">50m": {
+            "n_gt": 19,
+            "n_matched": 6,
+            "recall": 0.3158
+          }
+        },
+        "difficulty": {
+          "Easy": {
+            "n_gt": 1311,
+            "n_matched": 1290,
+            "recall": 0.984
+          },
+          "Moderate": {
+            "n_gt": 3248,
+            "n_matched": 2919,
+            "recall": 0.8987
+          },
+          "Hard": {
+            "n_gt": 4776,
+            "n_matched": 3523,
+            "recall": 0.7376
+          }
+        }
+      },
+      "yolov5su": {
+        "total_gt": 4776,
+        "total_preds_floor": 6172,
+        "preds_passed_thr": 4275,
+        "tp": 3496,
+        "fp": 204,
+        "ign_nonhard": 563,
+        "ign_dontcare": 12,
+        "precision": 0.9449,
+        "recall": 0.732,
+        "f1": 0.8249,
+        "recall_floor_005": 0.8356,
+        "bands": {
+          "0-10m": {
+            "n_gt": 288,
+            "n_matched": 280,
+            "recall": 0.9722
+          },
+          "10-20m": {
+            "n_gt": 1218,
+            "n_matched": 1083,
+            "recall": 0.8892
+          },
+          "20-30m": {
+            "n_gt": 1546,
+            "n_matched": 1198,
+            "recall": 0.7749
+          },
+          "30-50m": {
+            "n_gt": 1705,
+            "n_matched": 931,
+            "recall": 0.546
+          },
+          ">50m": {
+            "n_gt": 19,
+            "n_matched": 4,
+            "recall": 0.2105
+          }
+        },
+        "difficulty": {
+          "Easy": {
+            "n_gt": 1311,
+            "n_matched": 1303,
+            "recall": 0.9939
+          },
+          "Moderate": {
+            "n_gt": 3248,
+            "n_matched": 2896,
+            "recall": 0.8916
+          },
+          "Hard": {
+            "n_gt": 4776,
+            "n_matched": 3496,
+            "recall": 0.732
+          }
+        }
+      }
+    },
+    "common_support": {
+      "n_common_gt": 3181,
+      "pct_of_total_gt": 66.6,
+      "n_union_gt": 3772,
+      "pct_union_of_total_gt": 78.98,
+      "bands": {
+        "0-10m": {
+          "n_gt": 288,
+          "n_common": 277,
+          "common_frac": 0.9618
+        },
+        "10-20m": {
+          "n_gt": 1218,
+          "n_common": 1046,
+          "common_frac": 0.8588
+        },
+        "20-30m": {
+          "n_gt": 1546,
+          "n_common": 1123,
+          "common_frac": 0.7264
+        },
+        "30-50m": {
+          "n_gt": 1705,
+          "n_common": 733,
+          "common_frac": 0.4299
+        },
+        ">50m": {
+          "n_gt": 19,
+          "n_common": 2,
+          "common_frac": 0.1053
+        }
+      }
+    }
+  },
+  "Split_C": {
+    "split": "C",
+    "models": {
+      "yolov8s": {
+        "total_gt": 1826,
+        "total_preds_floor": 2830,
+        "preds_passed_thr": 1880,
+        "tp": 1445,
+        "fp": 137,
+        "ign_nonhard": 264,
+        "ign_dontcare": 34,
+        "precision": 0.9134,
+        "recall": 0.7913,
+        "f1": 0.848,
+        "recall_floor_005": 0.8888,
+        "bands": {
+          "0-10m": {
+            "n_gt": 138,
+            "n_matched": 135,
+            "recall": 0.9783
+          },
+          "10-20m": {
+            "n_gt": 472,
+            "n_matched": 429,
+            "recall": 0.9089
+          },
+          "20-30m": {
+            "n_gt": 559,
+            "n_matched": 459,
+            "recall": 0.8211
+          },
+          "30-50m": {
+            "n_gt": 657,
+            "n_matched": 422,
+            "recall": 0.6423
+          },
+          ">50m": {
+            "n_gt": 0,
+            "n_matched": 0,
+            "recall": 0.0
+          }
+        },
+        "difficulty": {
+          "Easy": {
+            "n_gt": 605,
+            "n_matched": 588,
+            "recall": 0.9719
+          },
+          "Moderate": {
+            "n_gt": 1441,
+            "n_matched": 1277,
+            "recall": 0.8862
+          },
+          "Hard": {
+            "n_gt": 1826,
+            "n_matched": 1445,
+            "recall": 0.7913
+          }
+        }
+      },
+      "yolo11s": {
+        "total_gt": 1826,
+        "total_preds_floor": 3124,
+        "preds_passed_thr": 2065,
+        "tp": 1489,
+        "fp": 165,
+        "ign_nonhard": 376,
+        "ign_dontcare": 35,
+        "precision": 0.9002,
+        "recall": 0.8154,
+        "f1": 0.8557,
+        "recall_floor_005": 0.8927,
+        "bands": {
+          "0-10m": {
+            "n_gt": 138,
+            "n_matched": 136,
+            "recall": 0.9855
+          },
+          "10-20m": {
+            "n_gt": 472,
+            "n_matched": 430,
+            "recall": 0.911
+          },
+          "20-30m": {
+            "n_gt": 559,
+            "n_matched": 457,
+            "recall": 0.8175
+          },
+          "30-50m": {
+            "n_gt": 657,
+            "n_matched": 466,
+            "recall": 0.7093
+          },
+          ">50m": {
+            "n_gt": 0,
+            "n_matched": 0,
+            "recall": 0.0
+          }
+        },
+        "difficulty": {
+          "Easy": {
+            "n_gt": 605,
+            "n_matched": 583,
+            "recall": 0.9636
+          },
+          "Moderate": {
+            "n_gt": 1441,
+            "n_matched": 1299,
+            "recall": 0.9015
+          },
+          "Hard": {
+            "n_gt": 1826,
+            "n_matched": 1489,
+            "recall": 0.8154
+          }
+        }
+      },
+      "yolov5su": {
+        "total_gt": 1826,
+        "total_preds_floor": 2895,
+        "preds_passed_thr": 1883,
+        "tp": 1430,
+        "fp": 156,
+        "ign_nonhard": 276,
+        "ign_dontcare": 21,
+        "precision": 0.9016,
+        "recall": 0.7831,
+        "f1": 0.8382,
+        "recall_floor_005": 0.8888,
+        "bands": {
+          "0-10m": {
+            "n_gt": 138,
+            "n_matched": 135,
+            "recall": 0.9783
+          },
+          "10-20m": {
+            "n_gt": 472,
+            "n_matched": 423,
+            "recall": 0.8962
+          },
+          "20-30m": {
+            "n_gt": 559,
+            "n_matched": 453,
+            "recall": 0.8104
+          },
+          "30-50m": {
+            "n_gt": 657,
+            "n_matched": 419,
+            "recall": 0.6377
+          },
+          ">50m": {
+            "n_gt": 0,
+            "n_matched": 0,
+            "recall": 0.0
+          }
+        },
+        "difficulty": {
+          "Easy": {
+            "n_gt": 605,
+            "n_matched": 576,
+            "recall": 0.9521
+          },
+          "Moderate": {
+            "n_gt": 1441,
+            "n_matched": 1256,
+            "recall": 0.8716
+          },
+          "Hard": {
+            "n_gt": 1826,
+            "n_matched": 1430,
+            "recall": 0.7831
+          }
+        }
+      }
+    },
+    "common_support": {
+      "n_common_gt": 1359,
+      "pct_of_total_gt": 74.42,
+      "n_union_gt": 1543,
+      "pct_union_of_total_gt": 84.5,
+      "bands": {
+        "0-10m": {
+          "n_gt": 138,
+          "n_common": 134,
+          "common_frac": 0.971
+        },
+        "10-20m": {
+          "n_gt": 472,
+          "n_common": 418,
+          "common_frac": 0.8856
+        },
+        "20-30m": {
+          "n_gt": 559,
+          "n_common": 433,
+          "common_frac": 0.7746
+        },
+        "30-50m": {
+          "n_gt": 657,
+          "n_common": 374,
+          "common_frac": 0.5693
+        },
+        ">50m": {
+          "n_gt": 0,
+          "n_common": 0,
+          "common_frac": 0.0
+        }
+      }
+    }
+  }
+}
