@@ -31,6 +31,27 @@ FORBIDDEN_GT_EXACT = {
 
 FORBIDDEN_GT_PREFIX = "gt_"
 
+# Approved inference feature whitelist (derived from configs/residual/residual_config.yaml)
+DEFAULT_FEATURE_WHITELIST = {
+    "w",
+    "h",
+    "w_h_ratio",
+    "y_bottom_minus_cy",
+    "cx_offset_norm",
+    "touch_left",
+    "touch_right",
+    "touch_top",
+    "touch_bottom",
+    "confidence",
+    "class_id",
+    "valid_w",
+    "valid_h",
+    "valid_g",
+    "ln_z_w",
+    "ln_z_h",
+    "ln_z_g",
+}
+
 
 def check_no_gt_leakage(columns: List[str] | Set[str]) -> None:
     """
@@ -50,6 +71,23 @@ def check_no_gt_leakage(columns: List[str] | Set[str]) -> None:
             raise ValueError(
                 f"Data leakage violation (Decision D11): Column '{col}' with forbidden prefix "
                 f"'{FORBIDDEN_GT_PREFIX}' detected in feature matrix."
+            )
+
+
+def validate_feature_columns_against_whitelist(
+    columns: List[str] | Set[str],
+    whitelist: Set[str] = DEFAULT_FEATURE_WHITELIST,
+) -> None:
+    """
+    Validates that every feature column is strictly in the allowed whitelist (Decision D11).
+    Raises ValueError if any unknown column (e.g. dist, y3d, etc.) is found.
+    """
+    check_no_gt_leakage(columns)
+    for col in columns:
+        if col not in whitelist:
+            raise ValueError(
+                f"Feature whitelist violation (Decision D11): Column '{col}' is not in the "
+                f"approved inference feature whitelist."
             )
 
 
@@ -114,6 +152,7 @@ def extract_inference_features(df: pd.DataFrame) -> pd.DataFrame:
             log_val[mask] = np.log(df.loc[mask, cue_col].astype(float))
             feats[f"ln_{cue_col}"] = log_val
 
-    # Strict check before returning
-    check_no_gt_leakage(feats.columns)
+    # Strict check before returning (blacklist + whitelist, Decision D11)
+    validate_feature_columns_against_whitelist(feats.columns)
     return feats
+

@@ -13,11 +13,16 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 def main():
+    # Decision D12: Target checkpoint is last.pt (epoch 100)
     models = [
-        ("YOLOv8s", "runs/detector/yolov8s_640/weights/best.pt"),
-        ("YOLO11s", "runs/detector/yolo11s_640/weights/best.pt"),
-        ("YOLOv5su", "runs/detector/yolov5su_640/weights/best.pt"),
+        ("YOLOv8s (last)", "runs/detector/yolov8s_640/weights/last.pt"),
+        ("YOLOv8s (best)", "runs/detector/yolov8s_640/weights/best.pt"),
+        ("YOLO11s (last)", "runs/detector/yolo11s_640/weights/last.pt"),
+        ("YOLO11s (best)", "runs/detector/yolo11s_640/weights/best.pt"),
+        ("YOLOv5su (last)", "runs/detector/yolov5su_640/weights/last.pt"),
+        ("YOLOv5su (best)", "runs/detector/yolov5su_640/weights/best.pt"),
     ]
+
 
     print(f"\n{'Model':<10} | {'Class':<8} | {'P':>7} | {'R':>7} | {'mAP50':>7} | {'mAP50-95':>9}")
     print("-" * 62)

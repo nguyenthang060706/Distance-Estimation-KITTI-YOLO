@@ -134,29 +134,65 @@ def find_best_conf_threshold(model_path: str, model_name: str, val_frame_ids: li
     print(f"Total GT Hard Cars on V: {n_gt_hard_cars}")
     print(f"Total Evaluated Predictions on V: {len(predictions)}")
 
-    for t in thresholds:
+    raw_f1 = np.zeros(len(thresholds))
+    precisions = np.zeros(len(thresholds))
+    recalls = np.zeros(len(thresholds))
+
+    for idx, t in enumerate(thresholds):
         tp = sum(1 for score, is_tp in predictions if score >= t and is_tp)
         fp = sum(1 for score, is_tp in predictions if score >= t and not is_tp)
         p = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         r = tp / n_gt_hard_cars if n_gt_hard_cars > 0 else 0.0
         f1 = (2 * p * r) / (p + r) if (p + r) > 0 else 0.0
+        precisions[idx] = p
+        recalls[idx] = r
+        raw_f1[idx] = f1
 
-        if f1 > best_f1:
-            best_f1 = f1
-            best_thresh = float(t)
-            best_p = float(p)
-            best_r = float(r)
+    # Decision D6: Smooth F1 curve using moving average window of 0.05 (±0.025)
+    window_half = 0.025
+    smoothed_f1 = np.zeros_like(raw_f1)
+    for i, t in enumerate(thresholds):
+        mask = (thresholds >= t - window_half) & (thresholds <= t + window_half)
+        smoothed_f1[i] = np.mean(raw_f1[mask])
 
-    print(f"Optimal Threshold for {model_name}: {best_thresh:.3f}")
-    print(f"  Max F1: {best_f1:.4f} | Precision: {best_p:.4f} | Recall: {best_r:.4f}")
+    best_idx = int(np.argmax(smoothed_f1))
+    best_thresh = float(thresholds[best_idx])
+    best_f1_smooth = float(smoothed_f1[best_idx])
+    best_f1_raw = float(raw_f1[best_idx])
+    best_p = float(precisions[best_idx])
+    best_r = float(recalls[best_idx])
+
+    # Retrieve best.pt epoch from results.csv if available
+    best_epoch = None
+    results_csv = Path(model_path).parent.parent / "results.csv"
+    if results_csv.exists():
+        try:
+            import pandas as pd
+            rdf = pd.read_csv(results_csv)
+            rdf.columns = [c.strip() for c in rdf.columns]
+            if "fitness" in rdf.columns:
+                best_epoch = int(rdf["fitness"].idxmax())
+            elif "metrics/mAP50-95(B)" in rdf.columns:
+                best_epoch = int(rdf["metrics/mAP50-95(B)"].idxmax())
+        except Exception:
+            pass
+
+    print(f"Optimal Threshold for {model_name} (D6 smoothed argmax): {best_thresh:.3f}")
+    print(f"  Smoothed F1: {best_f1_smooth:.4f} | Raw F1: {best_f1_raw:.4f} | Precision: {best_p:.4f} | Recall: {best_r:.4f}")
+    if best_epoch is not None:
+        print(f"  Note: best.pt occurred at epoch {best_epoch} (D12 uses last.pt at epoch 100)")
 
     return {
         "conf_threshold": round(best_thresh, 3),
-        "max_f1": round(best_f1, 4),
+        "smoothed_f1": round(best_f1_smooth, 4),
+        "raw_f1": round(best_f1_raw, 4),
         "precision": round(best_p, 4),
         "recall": round(best_r, 4),
         "n_gt_hard": n_gt_hard_cars,
+        "checkpoint_used": "last.pt (Decision D12)",
+        "best_epoch_reference": best_epoch,
     }
+
 
 
 def get_git_info():
@@ -194,11 +230,13 @@ def main():
             imgsz = tcfg.get("imgsz", 640)
     print(f"Using imgsz={imgsz} from config.")
 
+    # Decision D12: Target checkpoint is last.pt (epoch 100)
     models = {
-        "yolov8s": f"runs/detector/yolov8s_{imgsz}/weights/best.pt",
-        "yolo11s": f"runs/detector/yolo11s_{imgsz}/weights/best.pt",
-        "yolov5su": f"runs/detector/yolov5su_{imgsz}/weights/best.pt",
+        "yolov8s": f"runs/detector/yolov8s_{imgsz}/weights/last.pt",
+        "yolo11s": f"runs/detector/yolo11s_{imgsz}/weights/last.pt",
+        "yolov5su": f"runs/detector/yolov5su_{imgsz}/weights/last.pt",
     }
+
 
     git_commit, git_dirty = get_git_info()
 

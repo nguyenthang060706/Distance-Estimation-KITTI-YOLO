@@ -8,7 +8,13 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.residual.feature_extractor import check_no_gt_leakage, extract_inference_features
+from src.residual.feature_extractor import (
+    check_no_gt_leakage,
+    extract_inference_features,
+    validate_feature_columns_against_whitelist,
+    DEFAULT_FEATURE_WHITELIST,
+)
+
 
 
 def test_clean_features_pass():
@@ -66,8 +72,16 @@ def test_extract_inference_features_clean_output():
     # Verify check_no_gt_leakage passes on output columns
     check_no_gt_leakage(feats.columns)
 
-    # Verify expected feature columns exist
-    assert "w" in feats.columns
-    assert "h" in feats.columns
-    assert "touch_left" in feats.columns
-    assert "ln_z_w" in feats.columns
+    # Verify expected feature columns match whitelist exactly
+    assert set(feats.columns) == DEFAULT_FEATURE_WHITELIST
+
+
+@pytest.mark.parametrize("unapproved_col", [
+    "dist", "y3d", "z_true", "pseudo_depth", "car_speed", "weather",
+])
+def test_unapproved_columns_rejected_by_whitelist(unapproved_col):
+    """Any unapproved column not in the whitelist must raise ValueError."""
+    cols = ["w", "h", "confidence", unapproved_col]
+    with pytest.raises(ValueError, match="Feature whitelist violation"):
+        validate_feature_columns_against_whitelist(cols)
+
