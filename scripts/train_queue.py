@@ -10,7 +10,7 @@ All detectors train under identical conditions (§2, train_config.yaml):
 - Dataset: KITTI Split A (train) + Split V (val)
 - Resolution: imgsz=640 (locked per Decision D5)
 - Batch: 16 (FP16 AMP enabled)
-- Epochs: 100 (patience=15 early stopping on V)
+- Epochs: 100 (patience=100, no early stopping per Decision D7)
 - Seed: 42
 """
 

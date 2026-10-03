@@ -74,21 +74,26 @@ def run_day4_evaluation():
     split_b_ids = load_split("splits", "B", allow_test=False)
     print(f"Loaded Split B: {len(split_b_ids)} frames.")
 
-    # 1. Priors from Split A
+    # 1. Priors and effective ground-plane parameters from configs/geometry_params.yaml (Decision D10/D14)
+    geom_yaml = PROJECT_ROOT / "configs" / "geometry_params.yaml"
+    with open(geom_yaml, "r", encoding="utf-8") as f:
+        geom_cfg = yaml.safe_load(f)
+
+    priors_a = geom_cfg["priors_split_A"]
+    w_eff = float(priors_a["W_eff"])
+    h_obj = float(priors_a["H_obj"])
+    h_cam_fitted = float(priors_a["effective_ground_plane"]["H_cam_effective"])
+    delta_fitted = float(priors_a["effective_ground_plane"]["delta_horizon"])
+
+    # Raw baseline median H_cam from geometry_priors.yaml if present
+    h_cam_raw = 1.8845
     priors_yaml = PROJECT_ROOT / "configs" / "geometry_priors.yaml"
-    with open(priors_yaml, "r", encoding="utf-8") as f:
-        priors_cfg = yaml.safe_load(f)
+    if priors_yaml.exists():
+        with open(priors_yaml, "r", encoding="utf-8") as f:
+            priors_cfg = yaml.safe_load(f)
+            h_cam_raw = float(priors_cfg.get("metadata", {}).get("H_cam_median", 1.8845))
 
-    w_eff = priors_cfg["classes"]["Car"]["W_eff_median"]
-    h_obj = priors_cfg["classes"]["Car"]["H_obj_median"]
-    h_cam_raw = priors_cfg["metadata"]["H_cam_median"]
-
-    # Huber fitted ground parameters from Split A
-    # Fitted: (y_bot - cy) = delta + H_cam * (fy / Z) => delta = -4.6782 px, H_cam = 2.0422 m
-    delta_fitted = -4.6782
-    h_cam_fitted = 2.0422
-
-    print(f"\nPrior values (Split A):")
+    print(f"\nPrior values (from {geom_yaml}):")
     print(f"  W_eff (median):  {w_eff:.4f} m")
     print(f"  H_obj (median):  {h_obj:.4f} m")
     print(f"  H_cam (raw med): {h_cam_raw:.4f} m (y_h = cy)")
@@ -342,7 +347,7 @@ def run_day4_evaluation():
     report_path = output_dir / "day4_gt_bbox_evaluation.md"
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("# Day 4 Results: Geometric Depth Cues & Log-Space Fusion on Split B (GT Bbox)\n\n")
-        f.write(f"- **Split:** B (1,496 frames, {n_objects} Car Hard objects)\n")
+        f.write(f"- **Split:** B ({len(split_b_ids)} frames, {n_objects} Car Hard objects)\n")
         f.write(f"- **Priors from Split A:** W_eff = {w_eff:.4f}m, H_obj = {h_obj:.4f}m, H_cam_fit = {h_cam_fitted:.4f}m, delta_h = {delta_fitted:.4f}px\n")
         f.write(f"- **Fusion weights (Z_w, Z_h, Z_g):** {fusion_weights_fit.weights.round(4).tolist()}\n")
         f.write(f"- **Covariance shrinkage alpha:** {fusion_weights_fit.shrinkage_alpha:.4f}\n\n")

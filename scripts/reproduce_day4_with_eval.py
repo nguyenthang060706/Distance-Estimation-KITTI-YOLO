@@ -43,14 +43,15 @@ def main():
     loader = KITTILoader("data/kitti")
     split_b_ids = load_split("splits", "B", allow_test=False)
 
-    priors_yaml = PROJECT_ROOT / "configs" / "geometry_priors.yaml"
-    with open(priors_yaml, "r", encoding="utf-8") as f:
-        priors_cfg = yaml.safe_load(f)
+    geom_yaml = PROJECT_ROOT / "configs" / "geometry_params.yaml"
+    with open(geom_yaml, "r", encoding="utf-8") as f:
+        geom_cfg = yaml.safe_load(f)
 
-    w_eff = priors_cfg["classes"]["Car"]["W_eff_median"]
-    h_obj = priors_cfg["classes"]["Car"]["H_obj_median"]
-    delta_fitted = -4.6782
-    h_cam_fitted = 2.0422
+    priors_a = geom_cfg["priors_split_A"]
+    w_eff = float(priors_a["W_eff"])
+    h_obj = float(priors_a["H_obj"])
+    h_cam_fitted = float(priors_a["effective_ground_plane"]["H_cam_effective"])
+    delta_fitted = float(priors_a["effective_ground_plane"]["delta_horizon"])
 
     priors_fit = GeometricPriors(
         W_eff=w_eff,

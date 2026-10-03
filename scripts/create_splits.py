@@ -20,6 +20,12 @@ import numpy as np
 from pathlib import Path
 from collections import defaultdict
 
+# UTF-8 stdout/stderr for Windows console
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -112,6 +118,8 @@ def main():
                         help="Output directory for split files")
     parser.add_argument("--validate-only", action="store_true",
                         help="Only validate existing splits, don't create new ones")
+    parser.add_argument("--force", action="store_true",
+                        help="Force overwrite existing splits even if version is v2 (breaks D14 protocol)")
     args = parser.parse_args()
 
     # Resolve paths relative to project root
@@ -140,6 +148,20 @@ def main():
             print("\n✗ Validation failed!")
             sys.exit(1)
     else:
+        # Guard against accidental overwriting of frozen splits-v2 (Decision D14)
+        meta_path = output_dir / "split_metadata.json"
+        if meta_path.exists():
+            try:
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                if meta.get("version") == "v2" and not args.force:
+                    print("\n[ERROR] Refusing to overwrite frozen splits-v2 (Decision D14).")
+                    print("Splits-v2 are frozen and tied to git tag 'splits-v2'.")
+                    print("If you really intend to overwrite, pass --force.")
+                    sys.exit(1)
+            except Exception:
+                pass
+
         # Build new splits
         print("\n--- Building splits ---")
         splits = build_splits(

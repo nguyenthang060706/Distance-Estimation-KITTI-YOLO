@@ -1,0 +1,26 @@
+tag: detectors-v1
+epochs: 100
+patience: 100
+imgsz: 640
+checkpoints:
+  yolov8s_640:
+    last.pt:
+      sha256: 9c7cf571eace5558590b20748d79917c44cad9127692f5694fe14b9d6a420875
+      size_bytes: 22510193
+    best.pt:
+      sha256: 3686bc9b52435c9564f6f3c1f0382670da8b4faacf5102e1c92f24dac3398529
+      size_bytes: 22510193
+  yolo11s_640:
+    last.pt:
+      sha256: fbcaf900de1a8723b0982188ffcc239a74b2c3739cb728c2dbe47147123d52dd
+      size_bytes: 19178257
+    best.pt:
+      sha256: 6b8d0809fbe223099540559bd478f80b9e00c60ca35efee36b879b57eaf656ac
+      size_bytes: 19178257
+  yolov5su_640:
+    last.pt:
+      sha256: 119dd46137af4851edf27e4be49e99393c79fd1ed53fe3c005b15a107b679790
+      size_bytes: 18515809
+    best.pt:
+      sha256: 6a850990706e39d6d78820fea81c91e08722a87fe2223c2be350b8dd7e10ab1e
+      size_bytes: 18515809
