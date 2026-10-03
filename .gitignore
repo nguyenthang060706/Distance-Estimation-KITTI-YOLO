@@ -48,5 +48,6 @@ env/
 .venv/
 
 # ===== Misc =====
+scratch/
 *.log
 wandb/

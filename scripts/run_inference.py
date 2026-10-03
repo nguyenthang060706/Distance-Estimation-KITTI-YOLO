@@ -76,7 +76,7 @@ def get_git_info() -> tuple[str, bool]:
             ["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, stderr=subprocess.DEVNULL
         ).decode("ascii").strip()
         status = subprocess.check_output(
-            ["git", "status", "--porcelain"], cwd=PROJECT_ROOT, stderr=subprocess.DEVNULL
+            ["git", "status", "--porcelain", "-uno"], cwd=PROJECT_ROOT, stderr=subprocess.DEVNULL
         ).decode("ascii").strip()
         is_dirty = len(status) > 0
         return commit, is_dirty
