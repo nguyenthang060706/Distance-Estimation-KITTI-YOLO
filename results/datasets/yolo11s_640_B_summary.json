@@ -1,0 +1,19 @@
+{
+  "model_key": "yolo11s_640",
+  "split": "B",
+  "population": "pass_thr",
+  "n_gt": 4776,
+  "n_TP": 3523,
+  "n_FN": 1253,
+  "n_FP": 200,
+  "n_ignored_nonhard": 599,
+  "n_ignored_dontcare": 17,
+  "n_ignored": 616,
+  "total_preds_considered": 4339,
+  "split_hash": "0f83c3547188c8a6ab29a389f27524a5e09d5e7f96fcaff5f7a4f1328c2aef92",
+  "source_files_sha": {
+    "detections": "070f0f5005b5746fa17da2588738bc363dae807edaa561c3ea4e4cc189766151",
+    "matches": "e61d51eda220f87789a8b13e69a6edd8ff7adf8ad83e51f2ceff1911188a5ddf",
+    "gt": "df53a2067f18e92c13b79b52ce58916e5e9cd2fc6268e1ca7f7ba9bc8d388354"
+  }
+}

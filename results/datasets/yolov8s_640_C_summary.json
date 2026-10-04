@@ -1,0 +1,19 @@
+{
+  "model_key": "yolov8s_640",
+  "split": "C",
+  "population": "pass_thr",
+  "n_gt": 1826,
+  "n_TP": 1445,
+  "n_FN": 381,
+  "n_FP": 137,
+  "n_ignored_nonhard": 264,
+  "n_ignored_dontcare": 34,
+  "n_ignored": 298,
+  "total_preds_considered": 1880,
+  "split_hash": "b24db22e7d7bb295c3ce1e41b256597e068597e50cc9d98ea3d7da12d50aa615",
+  "source_files_sha": {
+    "detections": "983aec08a1d986e1c829eb1acc4681879df9824f28f794919a3e1104a1d58957",
+    "matches": "5186e2f6c3054ae19166b9a72e0ca6739e36f3d3b29682fe1a173cb771828915",
+    "gt": "315946bf67bfcaf923f53da5db6faa9e93d6fbe5cfd96a43052b12abeb6c0fad"
+  }
+}

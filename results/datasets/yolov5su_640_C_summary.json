@@ -1,0 +1,19 @@
+{
+  "model_key": "yolov5su_640",
+  "split": "C",
+  "population": "pass_thr",
+  "n_gt": 1826,
+  "n_TP": 1430,
+  "n_FN": 396,
+  "n_FP": 156,
+  "n_ignored_nonhard": 276,
+  "n_ignored_dontcare": 21,
+  "n_ignored": 297,
+  "total_preds_considered": 1883,
+  "split_hash": "b24db22e7d7bb295c3ce1e41b256597e068597e50cc9d98ea3d7da12d50aa615",
+  "source_files_sha": {
+    "detections": "b54939a49d95bf1952aefa153bf1e55e1ce9e086a659a1b802b34f19bb613816",
+    "matches": "f62988db193756a4854193e5ed223b57a041e3ce186650389e58a5725b66725f",
+    "gt": "315946bf67bfcaf923f53da5db6faa9e93d6fbe5cfd96a43052b12abeb6c0fad"
+  }
+}
