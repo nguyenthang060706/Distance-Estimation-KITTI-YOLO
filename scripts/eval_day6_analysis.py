@@ -44,6 +44,7 @@ from src.geometry.fusion import (
 from src.evaluation.eval import (
     paired_cluster_bootstrap,
     cluster_bootstrap,
+    sign_test_one_sided,
 )
 
 BINS = [0, 10, 20, 30, 50, np.inf]
@@ -363,8 +364,7 @@ def main():
     losses = sum(1 for s in drive_stats if s["win_h"] == "LOSS")
     ties = sum(1 for s in drive_stats if s["win_h"] == "TIED")
     print("-" * 92)
-    from scipy.stats import binomtest
-    p_val_sign = float(binomtest(k=wins, n=len(car_drives), p=0.5, alternative="greater").pvalue)
+    p_val_sign = sign_test_one_sided(wins=wins, losses=losses)
     print(f"Sign Count across 12 Drives: Fused (d) wins in {wins}/12 drives (Loss: {losses}, Tied: {ties}, p-value: {p_val_sign:.4f})")
 
     # Macro averages across 12 drives (Decision D18 / D20)

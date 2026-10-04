@@ -21,6 +21,7 @@ from src.evaluation.eval import (
     iter_cluster_resamples,
     make_log_record,
     paired_cluster_bootstrap,
+    sign_test_one_sided,
 )
 
 
@@ -208,3 +209,27 @@ def test_no_warning_with_enough_clusters() -> None:
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         cluster_bootstrap(synthetic(n_drives=25), "absrel", seed=0, n_boot=50)
+
+
+# -------------------------------------------------------------------- sign test
+def test_sign_test_one_sided() -> None:
+    # 9 wins, 3 losses -> 299/4096 ≈ 0.072998... ≈ 0.0730
+    p = sign_test_one_sided(9, 3)
+    assert p == pytest.approx(299 / 4096, rel=1e-5)
+    assert round(p, 4) == 0.0730
+
+    # 12 wins, 0 losses -> 1/4096 ≈ 0.000244
+    assert sign_test_one_sided(12, 0) == pytest.approx(1 / 4096, rel=1e-5)
+
+    # 6 wins, 6 losses -> p > 0.5 (specifically 0.6128)
+    assert sign_test_one_sided(6, 6) > 0.5
+
+    # 0 wins, 0 losses (empty / ties only)
+    assert sign_test_one_sided(0, 0) == 1.0
+
+    # Invalid negative values
+    with pytest.raises(ValueError):
+        sign_test_one_sided(-1, 5)
+    with pytest.raises(ValueError):
+        sign_test_one_sided(5, -1)
+

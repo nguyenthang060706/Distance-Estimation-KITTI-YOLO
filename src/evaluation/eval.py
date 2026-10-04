@@ -342,3 +342,23 @@ def append_jsonl(path: str | Path, record: Mapping[str, Any]) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, default=str) + "\n")
+
+
+# ---------------------------------------------------------------------------
+# Sign test (exact binomial test, one-sided)
+# ---------------------------------------------------------------------------
+def sign_test_one_sided(wins: int, losses: int) -> float:
+    """
+    One-sided sign test (H1: wins > losses) ignoring ties, using exact binomial test:
+    scipy.stats.binomtest(wins, wins + losses, 0.5, alternative="greater").
+    """
+    if wins < 0 or losses < 0:
+        raise ValueError(f"wins and losses must be non-negative, got wins={wins}, losses={losses}")
+    n = wins + losses
+    if n == 0:
+        return 1.0
+    from scipy.stats import binomtest
+
+    res = binomtest(wins, n, p=0.5, alternative="greater")
+    return float(res.pvalue)
+

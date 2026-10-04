@@ -142,7 +142,7 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 
 ## 6. Nhật ký theo phiên
 
-### 03/10/2026 (đêm): Hoàn tất Suy luận B & C cho 3 Detector (D15, D16, D22), Báo cáo Hiệu năng Detector (f156546), Track toàn bộ Parquet và Chuẩn bị D17
+### W2-1 — 03/10/2026 (đêm): Hoàn tất Suy luận B & C cho 3 Detector (D15, D16, D22), Báo cáo Hiệu năng Detector (f156546), Track toàn bộ Parquet và Chuẩn bị D17
 - **Hoàn tất toàn bộ suy luận Split B và C cho cả 3 Detector (D22):**
   - Chạy `scripts/run_inference.py` ở chế độ FP32, `imgsz=640`, matching IoU 0.5 (Greedy theo điểm số, D16), `conf_min=0.05`, dùng checkpoint `last.pt` (epoch 100, D12) khớp tuyệt đối mã băm SHA-256 trong `configs/detector/checkpoints.yaml`.
   - Cả 6 lượt suy luận chính thức đều đạt `git_dirty: false`, `splits_version: "v2"`, n_frames B=1.499 (hash `0f83c354...`), C=766 (hash `b24db22e...`):
@@ -154,20 +154,59 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
     3. `yolov5su_640` B (`2026-10-03T22:21:09`): chạy khi git dirty (thay thế bởi run 22:33:38).
 - **Lưu trữ & Track dữ liệu Parquet:**
   - Toàn bộ 18 file parquet (3 file `detections`, `matches`, `gt` $\times$ 3 model $\times$ 2 split B & C) đã được commit và track chính thức vào git repo (`commit b14a83e`). Working tree hoàn toàn sạch (clean).
-- **Báo cáo Hiệu năng Detector trên Split B và C (commit `f156546`, `results/tables/detector_eval_b_c.md`):**
+- **Báo cáo Hiệu năng Detector trên Split B và C (commit `f156546`, `results/tables/detector_eval_b_c.md` & `.json`):**
   - Ngưỡng tối ưu F1 trên Split V: yolov8s (0.790), yolo11s (0.700), yolov5su (0.740).
-  - Split B (4.776 Car Hard):
-    - yolov8s: P = 94.62%, R = 71.75%, F1 = 0.8161.
-    - yolo11s: P = 94.63%, R = 73.76%, F1 = 0.8290.
-    - yolov5su: P = 94.49%, R = 73.20%, F1 = 0.8249.
-    - Tập chung (Common Support - cả 3 detector cùng phát hiện): **3.181 / 4.776 xe (66.60%)**. Hợp (ít nhất 1 detector): **3.772 xe (78.98%)**.
-  - Split C (1.826 Car Hard, toàn bộ $\le 50$ m):
-    - yolov8s: P = 91.34%, R = 79.13%, F1 = 0.8480.
-    - yolo11s: P = 90.02%, R = 81.54%, F1 = 0.8557.
-    - yolov5su: P = 90.16%, R = 78.31%, F1 = 0.8382.
+  - **Split B (4.776 Car Hard, 12 drives):**
+    - `yolov8s`: TP = 3.427, FP = 195, Ignored non-Hard = 500, Ignored DontCare = 19; P = 94.62%, R = 71.75%, F1 = 0.8161.
+      - Dải: 0–10m: 284/288 (98.61%), 10–20m: 1.089/1.218 (89.41%), 20–30m: 1.204/1.546 (77.88%), 30–50m: 848/1.705 (49.74%), >50m: 2/19 (10.53%).
+    - `yolo11s`: TP = 3.523, FP = 200, Ignored non-Hard = 499, Ignored DontCare = 18; P = 94.63%, R = 73.76%, F1 = 0.8290.
+      - Dải: 0–10m: 284/288 (98.61%), 10–20m: 1.118/1.218 (91.79%), 20–30m: 1.238/1.546 (80.08%), 30–50m: 881/1.705 (51.67%), >50m: 2/19 (10.53%).
+    - `yolov5su`: TP = 3.496, FP = 204, Ignored non-Hard = 512, Ignored DontCare = 20; P = 94.49%, R = 73.20%, F1 = 0.8249.
+      - Dải: 0–10m: 285/288 (98.96%), 10–20m: 1.109/1.218 (91.05%), 20–30m: 1.232/1.546 (79.69%), 30–50m: 868/1.705 (50.91%), >50m: 2/19 (10.53%).
+    - Tập chung (Common Support - cả 3 detector cùng phát hiện TP): **3.181 / 4.776 xe (66.60%)**. Hợp (ít nhất 1 detector): **3.772 xe (78.98%)**.
+  - **Split C (1.826 Car Hard, 10 drives, toàn bộ $\le 50$ m):**
+    - `yolov8s`: TP = 1.445, FP = 137, Ignored non-Hard = 172, Ignored DontCare = 9; P = 91.34%, R = 79.13%, F1 = 0.8480.
+    - `yolo11s`: TP = 1.489, FP = 165, Ignored non-Hard = 178, Ignored DontCare = 10; P = 90.02%, R = 81.54%, F1 = 0.8557.
+    - `yolov5su`: TP = 1.430, FP = 156, Ignored non-Hard = 182, Ignored DontCare = 10; P = 90.16%, R = 78.31%, F1 = 0.8382.
     - Tập chung (Common Support): **1.359 / 1.826 xe (74.42%)**.
 - **Chốt nguyên tắc viết Paper cho D14:** Không sử dụng cụm từ "pre-registered" vì commit git script và split diễn ra đồng thời; trong paper trình bày khách quan: *"Protocol được định nghĩa cố định trong docstring của script từ trước, thuật toán chỉ đọc nhãn (số lượng Car Hard và Z depth) mà không nhìn kết quả mô hình"*.
 - **Chuẩn bị Quyết định D17:** Sẵn sàng chạy đánh giá (a)–(d) trên bbox detector với trọng số refit trên Split B theo từng detector, đối chứng với cột trọng số fit trên GT bbox.
+
+### Day 6 — 03/10/2026 (tối): Phân tích Chuyên sâu Hình học GT Bbox trên Split B-v2 (D18–D21, LODO OOF, Bootstrap, Góc nhìn $\theta$)
+- **Mục tiêu:** Đánh giá toàn diện mô hình hình học trên Split B-v2 mới ($N=4,776$ Car Hard, 12 drive) bằng `scripts/eval_day6_analysis.py`, lưu báo cáo tại `results/tables/day6_gt_bbox_analysis.json`.
+- **Số liệu chính:**
+  - **In-sample vs OOF (d):**
+    - Pooled AbsRel in-sample = **0.0605**; OOF Centered (LODO 12 fold) = **0.0609**; OOF Uncentered = **0.0610**; $Z_h$ đơn lẻ = **0.0688**. Độ lạc quan in-sample rất nhỏ ($\Delta = +0.0004$).
+    - Trọng số trung bình qua 12 fold: Centered $[w_w, w_h, w_g] = [0.0701, 0.6680, 0.2619]$ (rất gần với in-sample $[0.0807, 0.6634, 0.2560]$).
+  - **Báo cáo đồng thời Macro và Pooled (D18, D20):**
+    - Macro AbsRel không trọng số qua 12 drive: (d) OOF = **0.0646** | $Z_h$ = **0.0628** | $Z_g$ = **0.1602**.
+    - Trên các drive có $n \ge 30$ ($k=8$ cụm): (d) OOF = **0.0608** | $Z_h$ = **0.0651**.
+    - Tuân thủ D20: Ghi nhận cảnh báo "CI thô ($k=12$ cụm)", không khẳng định "có ý nghĩa thống kê" hay "chứng minh không overfit".
+  - **Sign Count qua 12 Drive (vs $Z_h$):**
+    - (d) thắng trong **9/12** drive, thua 3, hòa 0.
+    - $p$-value một phía: **$p = 0.0730$** (tính chính xác bằng `sign_test_one_sided(wins=9, losses=3)` qua phân phối nhị thức $299/4096$).
+  - **Paired Cluster Bootstrap (vs $Z_h$ trên Common Support $n=4,676$):**
+    - Ước lượng độ chênh lệch $(d - Z_h)$: **$-0.0095$** (Fused tốt hơn $Z_h$).
+    - 95% CI thô (12 cụm): **$[-0.0123, -0.0062]$** (loại trừ 0, `excludes_zero: true`).
+  - **Phân tầng Góc quan sát $\theta = \min(|\alpha|, \pi - |\alpha|)$ (D19):**
+    - Nhìn Ngang (Side, $\theta < 30^\circ$, $N=183$): $Z_w = 0.4241$, $Z_h = 0.0482$, $Z_g = 0.2091$, (d) OOF = **0.0800**. $Z_h$ đơn lẻ thắng Fused vì $w/h$ phóng đại do chiều dài xe nhìn ngang, kéo $Z_w$ vào làm tăng sai số. Đây là động lực tự nhiên cho mô hình residual (f).
+    - Nhìn Chéo (Diagonal, $30^\circ \le \theta \le 60^\circ$, $N=1,043$): $Z_w = 0.3080$, $Z_h = 0.0715$, $Z_g = 0.1125$, (d) OOF = **0.0568**.
+    - Nhìn Đầu/Đuôi (Front/Rear, $\theta > 60^\circ$, $N=3,550$): $Z_w = 0.2611$, $Z_h = 0.0691$, $Z_g = 0.1554$, (d) OOF = **0.0573**.
+  - **Bản chất sai số âm ở gần (D21):**
+    - Pattern 111 (đủ 3 cue hợp lệ, không viền) ở 0–10m vẫn có bias âm $-0.1071$, xác nhận bias do khoảng cách $Z_{\text{center}}$ (tâm hộp 3D trong nhãn KITTI) so với $Z_{\text{surface}}$ (mặt gần nhất đo bởi cue), tạo độ lệch vật lý $\approx l / (2Z)$.
+
+### Day 5 — 03/10/2026 (sáng): Xây dựng Khung Đánh giá Chuẩn hóa (eval.py, test_eval.py)
+- **Mục tiêu:** Xây dựng module dùng chung `src/evaluation/eval.py` cho toàn bộ các khâu đánh giá từ Ngày 6 đến Tuần 3, bảo đảm tuân thủ v4 §6, D3, D11 và D18.
+- **Thành phần cài đặt:**
+  - Định nghĩa 5 dải khoảng cách chuẩn theo D3: `0-10`, `10-20`, `20-30`, `30-50`, `>50` m, kèm hàng gộp `>30` m và gắn cờ `low_n` ($n < 100$).
+  - Phân tầng theo độ khó KITTI (`difficulty_masks`): Easy, Moderate, Hard.
+  - Các hàm tính chỉ số: MAE, RMSE, AbsRel, SqRel, Delta1 ($\delta < 1.25$), RMSE_log.
+  - Hàm `evaluate_report`: tổng hợp báo cáo phân nhóm theo dải hoặc theo nhãn nhóm, tự động đếm $n$, $n_{\text{valid}}$, tính `valid_frac` (không bỏ rơi các ca NaN/invalid).
+  - Thuật toán cụm: `cluster_bootstrap` và `paired_cluster_bootstrap` lấy mẫu lại nguyên cụm drive độc lập với seed cố định, có cảnh báo khi số cụm $< 20$ (`MIN_CLUSTERS_WARN`).
+  - Hàm ghi log tái lập: `make_log_record` và `append_jsonl`.
+- **Kiểm thử đơn vị:**
+  - Tạo `tests/test_eval.py` bao phủ toàn diện: tính tay các chỉ số, trường hợp hoàn hảo, phân dải, kiểm tra cờ `low_n`, cluster bootstrap và paired bootstrap, guard ghi log.
+  - Toàn bộ 19 unit tests ban đầu pass 100% (và nay thêm test `sign_test_one_sided`).
 
 ### 03/10/2026 (chiều): Queue 100 epochs hoàn tất, Đánh giá last.pt (D12), Chốt conf thresholds (D6), Phân bổ B/C/T (D14) đóng băng splits-v2 & geometry-v2
 - **Hoàn thành hàng đợi huấn luyện 3 detector (D7, 100 epochs, patience=100):**
@@ -201,13 +240,13 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
     - Shrinkage alpha = 0.0008.
     - Gate §8.1: Thắng 3/4 dải độc lập $n \ge 100$ (10–20m: 0.0594 vs 0.0704, 20–30m: 0.0564 vs 0.0645, 30–50m: 0.0553 vs 0.0638; thua 0–10m: 0.1283 vs 0.0619).
     - Đóng băng vào `configs/geometry_params.yaml` với tag `geometry-v2`.
-- **Xác minh 2.1 (Sửa cách tính Gate §8.1 - Quyết định D9):**
-  - *(Lưu ý: Các số liệu trong phân tích này được thực hiện trên Split B-v1 cũ làm cơ sở lịch sử [AbsRel 0–10m = 0.1572, n=9 ở >50m]. Bảng trên Split B-v2 mới tương ứng là: AbsRel 0–10m = 0.1283, n=19 ở >50m)*.
+- **[SUPERSEDED (B-v1)] Xác minh 2.1 (Sửa cách tính Gate §8.1 - Quyết định D9):**
+  - *(Lưu ý: Các số liệu trong phân tích này được thực hiện trên Split B-v1 cũ làm cơ sở lịch sử [AbsRel 0–10m = 0.1572, n=9 ở >50m]. Bảng trên Split B-v2 mới tương ứng là: AbsRel 0–10m = 0.1283, n=19 ở >50m; xem mục Day 6 hiện hành)*.
   - Gate chỉ tính trên các dải $n \ge 100$ độc lập: 0–10, 10–20, 20–30, 30–50 m (4 dải; không tính dải gộp `>30 m`, dải `>50 m` có $n=9 < 100$).
   - (d) thắng ở 3/4 dải và thua ở dải 0–10 m (AbsRel 0.1572 so với $Z_g$ 0.0651 và $Z_h$ 0.1463).
   - Gate ($\ge 3/4$) vẫn **ĐẠT CHUẨN**, nhưng tỷ lệ chính xác là **3/4 dải**, không phải 4/5. Đã nêu rõ dải thua 0–10 m trong báo cáo.
-- **Xác minh 2.2 (Giải mã dải 0–10 m: So sánh tập chung & tổ hợp pattern):**
-  - *(Lưu ý: Phân rã lịch sử trên Split B-v1: 69 xe pattern 100, 145 xe common support)*.
+- **[SUPERSEDED (B-v1)] Xác minh 2.2 (Giải mã dải 0–10 m: So sánh tập chung & tổ hợp pattern):**
+  - *(Lưu ý: Phân rã lịch sử trên Split B-v1: 69 xe pattern 100, 145 xe common support; đã SUPERSEDED bởi Split B-v2 và phân tích Day 6 hiện hành)*.
   - Đã chạy phân rã theo pattern: Đúng chính xác **69 xe** chênh lệch ở 0–10 m mang pattern `100` (chỉ còn $Z_w$ hợp lệ do xe gần chạm viền trên/dưới ảnh làm mask $Z_h$ và $Z_g$).
   - Ở nhóm `100`, AbsRel của (d) là **0.2284** (thoái hóa 100% về cue yếu nhất $Z_w$), kéo AbsRel chung từ 0.1238 lên 0.1572.
   - Trên tập chung (Common Support, 145 xe đủ 3 cue): (d) đạt AbsRel = **0.1238**, thắng $Z_w$ (0.1793) và $Z_h$ (0.1460).
@@ -222,7 +261,7 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   - (2) In-sample vs OOF: Bảng (d) là in-sample trên Split B (suy luận trên 10 drive có Car Hard của B).
   - (3) Prior: Sử dụng **median** ($W_{\text{eff}} = 2.6184$ m, $H_{\text{obj}} = 1.6797$ m).
   - (4) $n_{\text{gt}}$ trên V: Đã xác nhận $N_{\text{Car, Hard}} = 611$ trên Split V (thay cho con số 833 tổng Car chưa lọc Hard).
-- **Đóng băng tham số hình học (D10):** Tạo file `configs/geometry_params.yaml` chứa toàn bộ tham số, trọng số và hash của Split A (`4402...`) và Split B (`1242...`). Đóng băng tag `geometry-v1`.
+- **Đóng băng tham số hình học (D10 - SUPERSEDED bởi geometry-v2):** Tạo file `configs/geometry_params.yaml` bản đầu (`geometry-v1`) chứa toàn bộ tham số, trọng số $[0.0691, 0.6500, 0.2809]$ và hash của Split A (`4402...`) và Split B-v1 (`1242...`). Đóng băng tag `geometry-v1`. Bản hiện hành là `geometry-v2` fit trên Split B-v2 (hash `0f83c354...`) với trọng số $[0.0807, 0.6634, 0.2560]$ theo D14.
 - **Chốt Quyết định D11:** Yêu cầu tách triệt để cột `gt_*` khỏi feature extractor và có test chặn.
 
 ### 02/10/2026 (chiều muộn): Chốt D7, D8, hoàn thành Day 4 & kiểm thử hình học
@@ -246,20 +285,20 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   - **Điều kiện sang Tuần 2 (§8.1):** ĐẠT CHUẨN! (d) thắng đơn cue tốt nhất ở 4/5 dải (10–20m, 20–30m, 30–50m, >30m).
   - Bộ kiểm thử `tests/test_geometry.py`: 23/23 tests pass 100%.
 
-### 02/10/2026 (tối): Hoàn thành hàng đợi 3 detector & Chốt ngưỡng conf (D6)
-- **Huấn luyện thành công hàng đợi 3 detector (imgsz=640, batch=16, epochs=100, patience=15, seed=42):**
+### 02/10/2026 (tối): [SUPERSEDED] Huấn luyện 3 detector (patience=15) & Ngưỡng conf thô (D6)
+- **Huấn luyện thành công hàng đợi 3 detector (imgsz=640, batch=16, epochs=100, patience=15, seed=42 - SUPERSEDED):**
+  - *(LƯU Ý QUAN TRỌNG: Cả checkpoint prelim do dừng sớm ở patience=15 và ngưỡng conf thô 0.430/0.600/0.650 trong phiên này đã chính thức bị thay thế / SUPERSEDED bởi phiên 03/10 chiều: Quyết định D7 huấn luyện 100 epochs tắt early stopping, D12 dùng last.pt, và D6 ngưỡng F1 trơn 0.790 / 0.700 / 0.740)*.
   - **YOLOv8s:** 22.93 phút. Car mAP50 = 0.8224, mAP@0.5:0.95 = **0.5754**, Recall = 0.8679.
   - **YOLO11s:** 22.89 phút. Car mAP50 = 0.8228, mAP@0.5:0.95 = **0.5923**, Precision = 0.7880. (Độ chính xác cao nhất).
   - **YOLOv5su:** 18.44 phút. Car mAP50 = 0.7748, mAP@0.5:0.95 = **0.5453**, Recall = 0.8463.
   - Tổng thời gian huấn luyện cả 3 detector: **64.26 phút** (rất nhanh nhờ tối ưu bộ nhớ VRAM 3.66 GB).
-  - Trọng số tốt nhất đã lưu tại `runs/detector/{model}_640/weights/best.pt`.
+  - Trọng số tốt nhất đã lưu tại `runs/detector/{model}_640/weights/best.pt` (sau đó đổi tên thành `prelim_*_640`).
 - **Chốt ngưỡng confidence threshold (Quyết định D6 - SUPERSEDED):**
-  - *(Ghi chú: Các kết quả ngưỡng conf thô dưới đây quét trên checkpoint prelim early-stopping đã chính thức bị thay thế / SUPERSEDED bởi phiên 03/10 chiều với F1 moving average window 0.05 trên checkpoint 100 epochs last.pt: 0.790 / 0.700 / 0.740)*.
   - Quét ngưỡng tìm $F_1$ tối đa trên lớp **Car** của tập V (bỏ qua detection khớp với DontCare theo §5.1):
     - [SUPERSEDED] - **YOLOv8s:** `conf = 0.430` $\rightarrow$ Max F1 = **0.8052** (Precision = 0.7921, Recall = 0.8187)
     - [SUPERSEDED] - **YOLO11s:** `conf = 0.600` $\rightarrow$ Max F1 = **0.7957** (Precision = 0.8469, Recall = 0.7503)
     - [SUPERSEDED] - **YOLOv5su:** `conf = 0.650` $\rightarrow$ Max F1 = **0.7798** (Precision = 0.8586, Recall = 0.7143)
-  - Lưu cấu hình vào `configs/detector/conf_thresholds.yaml`.
+  - Lưu cấu hình vào `configs/detector/conf_thresholds.yaml` (sau đó được ghi đè bằng cấu hình v2 chuẩn).
 
 ### 02/10/2026 (chiều): Chạy Pilot D5 YOLOv8s (imgsz = 640)
 - **Kết quả Pilot YOLOv8s (imgsz=640, 30 epochs, batch=16, seed=42):**

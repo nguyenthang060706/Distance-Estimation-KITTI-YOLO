@@ -78,7 +78,7 @@ Distance-Estimation-KITTI-YOLO/
 | Split | Ratio | Detector sees? | Role |
 |-------|-------|----------------|------|
 | **A** | 50%   | Yes            | Fine-tune detectors, estimate priors |
-| **V** | 5%    | Yes (early stop)| Validation, choose imgsz & conf threshold |
+| **V** | 5%    | Yes (chọn checkpoint và ngưỡng conf, D7: không early stopping) | Validation, choose imgsz & conf threshold |
 | **B** | 20%   | No             | Fit fusion weights, residual, quantile functions |
 | **C** | 10%   | No             | Conformalize CQR only |
 | **T** | 15%   | No             | Final test (run once, frozen config) |
