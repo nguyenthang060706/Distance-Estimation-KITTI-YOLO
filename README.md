@@ -18,7 +18,7 @@ Distance-Estimation-KITTI-YOLO/
 │   │   ├── label_2/              # Nhãn 2D/3D
 │   │   ├── calib/                # File calibration (P2, R0_rect)
 │   │   └── devkit/               # Devkit: train_mapping.txt, train_rand.txt
-│   └── yolo_format/              # Dữ liệu đã chuyển sang định dạng YOLO
+│   └── yolo_kitti/               # Dữ liệu đã chuyển sang định dạng YOLO
 │
 ├── splits/                        # Split A/V/B/C/T đóng băng (có hash)
 │

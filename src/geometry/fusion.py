@@ -17,9 +17,10 @@ Design decisions (user instructions):
     - NaN in one cue must not contaminate others.
 """
 
-import numpy as np
-from typing import Optional
+import warnings
 from dataclasses import dataclass
+from typing import Optional
+import numpy as np
 
 
 CUE_NAMES = ["Z_w", "Z_h", "Z_g"]
@@ -39,9 +40,13 @@ class FusionWeights:
     n_drives: int               # number of drives in grouped CV
 
 
-def _ledoit_wolf_shrinkage(S: np.ndarray, n: int) -> tuple:
+def _oas_shrinkage(S: np.ndarray, n: int) -> tuple:
     """
-    Ledoit-Wolf linear shrinkage towards diagonal target.
+    Oracle Approximating Shrinkage (OAS, Chen et al. 2010) linear shrinkage towards diagonal target.
+
+    Note: This computes linear shrinkage towards a scaled identity target F = (Tr(S)/K)*I.
+    For large N (e.g. N > 4000), alpha is very small (alpha < 0.001) and essentially identical
+    to standard Ledoit-Wolf (2004).
 
     Args:
         S: (K, K) sample covariance matrix
@@ -59,8 +64,7 @@ def _ledoit_wolf_shrinkage(S: np.ndarray, n: int) -> tuple:
     delta = S - F
     frobenius_sq = np.sum(delta ** 2)
 
-    # Simple shrinkage intensity: alpha = K / (n * frobenius_sq / mu^2 + K)
-    # Using the Ledoit-Wolf (2004) OAS estimator for simplicity
+    # OAS shrinkage intensity (Chen et al. 2010)
     rho_num = (1 - 2.0 / K) * np.sum(S ** 2) + np.trace(S) ** 2
     rho_denom = (n + 1 - 2.0 / K) * (np.sum(S ** 2) - np.trace(S) ** 2 / K)
 
@@ -71,6 +75,10 @@ def _ledoit_wolf_shrinkage(S: np.ndarray, n: int) -> tuple:
 
     S_shrunk = (1 - alpha) * S + alpha * F
     return S_shrunk, float(alpha)
+
+
+# Alias for backward compatibility
+_ledoit_wolf_shrinkage = _oas_shrinkage
 
 
 def _optimal_weights(sigma: np.ndarray) -> np.ndarray:
@@ -174,7 +182,12 @@ def estimate_covariance_grouped_cv(
     n_complete = complete_errors.shape[0]
 
     if n_complete < K + 1:
-        # Not enough data: return identity
+        warnings.warn(
+            f"Insufficient complete cases for covariance estimation: n_complete={n_complete} < K+1={K+1}. "
+            f"Falling back to identity matrix (equal weights across {K} cues).",
+            UserWarning,
+            stacklevel=2,
+        )
         return np.eye(K), n_complete, n_drives
 
     # Leave-one-drive-out residuals

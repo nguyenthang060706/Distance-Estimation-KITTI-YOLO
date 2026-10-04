@@ -25,6 +25,7 @@ from src.geometry.geometric_cues import (
     compute_cues_batch,
     GeometricPriors, CameraIntrinsics, CueResult,
     BORDER_EPS,
+    load_geometry_v2, load_priors_from_yaml,
 )
 from src.geometry.fusion import (
     fit_fusion_weights, fuse_depths, fuse_depths_vectorised,
@@ -516,5 +517,27 @@ class TestVectorisedConsistency:
         np.testing.assert_array_equal(np.isnan(Z_d_loop), np.isnan(Z_d_vec))
 
 
+class TestGeometryLoaders:
+    """Tests for geometry configuration loaders (Decision D10/D14)."""
+
+    def test_load_geometry_v2(self):
+        """load_geometry_v2 must load calibrated effective parameters from geometry_params.yaml."""
+        priors, cfg = load_geometry_v2("configs/geometry_params.yaml")
+        assert cfg["metadata"]["tag"] == "geometry-v2"
+        assert priors.W_eff == pytest.approx(2.6184, rel=1e-3)
+        assert priors.H_obj == pytest.approx(1.6797, rel=1e-3)
+        assert priors.H_cam == pytest.approx(2.0422, rel=1e-3)
+        assert priors.delta_horizon == pytest.approx(-4.6782, rel=1e-3)
+        assert "fusion_split_B" in cfg
+        assert cfg["fusion_split_B"]["weights"] == [0.0807, 0.6634, 0.2560]
+
+    def test_load_priors_from_yaml_deprecated_warning(self):
+        """load_priors_from_yaml should trigger a DeprecationWarning."""
+        with pytest.deprecated_call():
+            priors, meta = load_priors_from_yaml("configs/geometry_priors.yaml")
+            assert priors.H_cam == pytest.approx(1.886, rel=1e-3)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

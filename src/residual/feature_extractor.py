@@ -15,6 +15,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from typing import List, Set
+from src.geometry.geometric_cues import BORDER_EPS
 
 # Strictly forbidden ground truth columns that must never leak into features (Decision D11)
 FORBIDDEN_GT_EXACT = {
@@ -121,15 +122,18 @@ def extract_inference_features(df: pd.DataFrame) -> pd.DataFrame:
     feats["h"] = h
     feats["w_h_ratio"] = w / h
 
-    # Normalised center offset from optical center
+    # Normalised center offset from optical center (§5.3: (cx - cx0) / fx or img_w)
     cx = df["cx"] if "cx" in df.columns else df["img_w"] / 2.0
     cy = df["cy"] if "cy" in df.columns else df["img_h"] / 2.0
     box_cx = (x1 + x2) / 2.0
-    feats["cx_offset_norm"] = (box_cx - cx) / df["img_w"]
+    if "fx" in df.columns:
+        feats["cx_offset_norm"] = (box_cx - cx) / df["fx"]
+    else:
+        feats["cx_offset_norm"] = (box_cx - cx) / df["img_w"]
     feats["y_bottom_minus_cy"] = y2 - cy
 
-    # 2. Boundary contact flags (eps = 2px)
-    eps = 2.0
+    # 2. Boundary contact flags (using canonical BORDER_EPS = 2.0 px)
+    eps = BORDER_EPS
     feats["touch_left"] = (x1 <= eps).astype(int)
     feats["touch_right"] = (x2 >= (df["img_w"] - 1 - eps)).astype(int)
     feats["touch_top"] = (y1 <= eps).astype(int)
@@ -139,6 +143,7 @@ def extract_inference_features(df: pd.DataFrame) -> pd.DataFrame:
     if "confidence" in df.columns:
         feats["confidence"] = df["confidence"].astype(float)
     if "class_id" in df.columns:
+        # Note: In single-class Car detection, class_id is constant (0)
         feats["class_id"] = df["class_id"].astype(int)
 
     # 4. Geometric depth cues in log-space (with safe NaN replacement + validity flags)

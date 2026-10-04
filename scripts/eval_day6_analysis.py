@@ -5,8 +5,10 @@ Implements:
 1. Leave-one-drive-out (LODO) OOF cross-validation for fusion (d) on Split B (12 folds).
    - Centered covariance shrinkage (standard) vs. Uncentered second-moment matrix M = E[e e^T].
 2. AbsRel stratified by viewing angle theta = min(|alpha|, pi - |alpha|) with 3 bins:
-   - Front/rear (<30 deg), Diagonal (30-60 deg), Side (>60 deg) to test Hypothesis H1 on Z_w.
+   - Side (<30 deg), Diagonal (30-60 deg), Front/Rear (>60 deg) to test Hypothesis H1 on Z_w (Decision D19).
 3. Per-drive error table, per-drive delta, and sign count (d vs Z_h, d vs Z_g).
+   - Note on support: Bins report marginal valid support per cue (Z_h n=4676, (d) n=4729);
+     paired bootstrap reports exact common support (n=4676).
 4. Descriptive cluster bootstrap CI (coarse, 12 clusters).
 """
 

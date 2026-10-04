@@ -21,9 +21,10 @@ Design decisions:
     - Image size (W, H) needed for border checks; loaded lazily if not provided.
 """
 
-import numpy as np
+import warnings
 from dataclasses import dataclass
 from typing import Optional
+import numpy as np
 
 # Default border tolerance (pixels)
 BORDER_EPS = 2
@@ -259,13 +260,63 @@ def compute_cues_batch(
     )
 
 
-def load_priors_from_yaml(yaml_path: str, obj_class: str = "Car") -> tuple:
+def load_geometry_v2(yaml_path: str = "configs/geometry_params.yaml") -> tuple[GeometricPriors, dict]:
     """
-    Load GeometricPriors from configs/geometry_priors.yaml.
+    Load calibrated geometry-v2 GeometricPriors and configuration metadata from configs/geometry_params.yaml.
+
+    Calibrated parameters (estimated strictly from Split A, Decision D10/D14):
+      - W_eff: Median effective width (2.6184 m)
+      - H_obj: Median object height (1.6797 m)
+      - H_cam: Effective camera height for 3D center Z (2.0422 m)
+      - delta_horizon: Effective horizon offset from per-image cy: y_h = cy + delta (-4.6782 px)
+
+    Args:
+        yaml_path: Path to geometry_params.yaml (default: 'configs/geometry_params.yaml')
+
+    Returns:
+        (GeometricPriors, full_cfg_dict)
+    """
+    import yaml
+    from pathlib import Path
+
+    p = Path(yaml_path)
+    if not p.is_file():
+        raise FileNotFoundError(f"Geometry config file not found: {p.resolve()}")
+
+    with open(p, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+
+    priors_a = cfg["priors_split_A"]
+    eff_ground = priors_a["effective_ground_plane"]
+
+    priors = GeometricPriors(
+        W_eff=float(priors_a["W_eff"]),
+        H_obj=float(priors_a["H_obj"]),
+        H_cam=float(eff_ground["H_cam_effective"]),
+        delta_horizon=float(eff_ground["delta_horizon"]),
+    )
+
+    return priors, cfg
+
+
+def load_priors_from_yaml(yaml_path: str = "configs/geometry_priors.yaml", obj_class: str = "Car") -> tuple:
+    """
+    [DEPRECATED] Load GeometricPriors from configs/geometry_priors.yaml.
+
+    WARNING: This reads uncalibrated priors (H_cam=1.886m, fixed y_horizon=174.77px)
+    without effective ground-plane calibration or delta_horizon.
+    For Week 2 and all current pipelines, use `load_geometry_v2()` which loads
+    calibrated effective parameters from configs/geometry_params.yaml (Decision D10/D14).
 
     Returns:
         (GeometricPriors, metadata_dict)
     """
+    warnings.warn(
+        "load_priors_from_yaml is deprecated and reads uncalibrated geometry_priors.yaml. "
+        "Use load_geometry_v2() which loads calibrated effective parameters from configs/geometry_params.yaml (Decision D10/D14).",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     import yaml
 
     with open(yaml_path, "r", encoding="utf-8") as f:
@@ -282,3 +333,4 @@ def load_priors_from_yaml(yaml_path: str, obj_class: str = "Car") -> tuple:
     )
 
     return priors, meta
+

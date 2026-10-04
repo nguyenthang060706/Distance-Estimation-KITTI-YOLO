@@ -1,10 +1,10 @@
 """
 scripts/run_pilot_d5.py: Runs Pilot D5 on YOLOv8s (30 epochs) to benchmark imgsz=640 vs imgsz=960.
 
-Criteria (from Decision D5):
-- Metric: Car mAP@0.5:0.95 on Split V.
-- Tie-breaker: Pick smaller imgsz (640).
-- Hardware note: Measures time/epoch and peak VRAM on RTX 5060 (8GB).
+Criteria & Status (Decision D5):
+- Hardware-driven stop rule: VRAM 8 GB (RTX 5060 Laptop GPU).
+- imgsz=640 finalized across all detectors to prevent OOM/shared-memory thrashing at batch=16.
+- imgsz=960 was not evaluated via mAP due to VRAM ceiling; imgsz=640 is frozen for Week 1 & 2.
 """
 
 import sys

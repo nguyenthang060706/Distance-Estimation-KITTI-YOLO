@@ -1,0 +1,133 @@
+{
+  "Baseline (All 12 drives)": {
+    "n_samples": 4776,
+    "n_drives": 12,
+    "excluded_drives": [],
+    "weights": [
+      0.0807,
+      0.6634,
+      0.256
+    ],
+    "shrinkage_alpha": 0.000811,
+    "cov_shrunk": [
+      [
+        0.10449,
+        -0.00135,
+        -0.00532
+      ],
+      [
+        -0.00135,
+        0.00837,
+        0.00284
+      ],
+      [
+        -0.00532,
+        0.00284,
+        0.01843
+      ]
+    ],
+    "absrel_insample": 0.0605,
+    "absrel_transfer_drive_0059": 0.051,
+    "absrel_transfer_drive_0104": 0.0702
+  },
+  "Exclude drive_0059 (Top-2, 24.8%)": {
+    "n_samples": 3591,
+    "n_drives": 11,
+    "excluded_drives": [
+      "2011_09_26_drive_0059_sync"
+    ],
+    "weights": [
+      0.0933,
+      0.6596,
+      0.2471
+    ],
+    "shrinkage_alpha": 0.001165,
+    "cov_shrunk": [
+      [
+        0.10311,
+        -0.00143,
+        -0.00577
+      ],
+      [
+        -0.00143,
+        0.00965,
+        0.00413
+      ],
+      [
+        -0.00577,
+        0.00413,
+        0.02051
+      ]
+    ],
+    "absrel_insample": 0.064,
+    "absrel_transfer_drive_0059": 0.051,
+    "absrel_transfer_drive_0104": 0.0709
+  },
+  "Exclude drive_0104 (Top-1, 26.8%)": {
+    "n_samples": 3494,
+    "n_drives": 11,
+    "excluded_drives": [
+      "2011_09_26_drive_0104_sync"
+    ],
+    "weights": [
+      0.0839,
+      0.6949,
+      0.2212
+    ],
+    "shrinkage_alpha": 0.001087,
+    "cov_shrunk": [
+      [
+        0.11071,
+        -0.00407,
+        -0.00676
+      ],
+      [
+        -0.00407,
+        0.00715,
+        0.00153
+      ],
+      [
+        -0.00676,
+        0.00153,
+        0.02023
+      ]
+    ],
+    "absrel_insample": 0.0567,
+    "absrel_transfer_drive_0059": 0.051,
+    "absrel_transfer_drive_0104": 0.0714
+  },
+  "Exclude both 0059 & 0104 (51.7%)": {
+    "n_samples": 2309,
+    "n_drives": 10,
+    "excluded_drives": [
+      "2011_09_26_drive_0059_sync",
+      "2011_09_26_drive_0104_sync"
+    ],
+    "weights": [
+      0.0408,
+      0.7262,
+      0.2331
+    ],
+    "shrinkage_alpha": 0.001977,
+    "cov_shrunk": [
+      [
+        0.08803,
+        0.00176,
+        0.00211
+      ],
+      [
+        0.00176,
+        0.00712,
+        0.0005
+      ],
+      [
+        0.00211,
+        0.0005,
+        0.02106
+      ]
+    ],
+    "absrel_insample": 0.0603,
+    "absrel_transfer_drive_0059": 0.052,
+    "absrel_transfer_drive_0104": 0.0706
+  }
+}

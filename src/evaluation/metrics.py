@@ -1,20 +1,18 @@
 """
-src/evaluation/metrics.py: Standard depth estimation evaluation metrics (§6 of KE_HOACH_V4).
+[LEGACY / DEPRECATED] src/evaluation/metrics.py: Early Day 4 evaluation helper.
 
-Metrics:
-    - AbsRel: mean(|Z - Z_gt| / Z_gt)
-    - SqRel:  mean((Z - Z_gt)^2 / Z_gt)
-    - RMSE:   sqrt(mean((Z - Z_gt)^2))
-    - RMSElog: sqrt(mean((ln Z - ln Z_gt)^2))
-    - delta1: % with max(Z / Z_gt, Z_gt / Z) < 1.25
-    - delta2: % with max(Z / Z_gt, Z_gt / Z) < 1.25^2 (1.5625)
-    - delta3: % with max(Z / Z_gt, Z_gt / Z) < 1.25^3 (1.953125)
-    - MAE:    mean(|Z - Z_gt|)
+NOTE: This module is retained for historical backward compatibility with Day 4 scripts only.
+It silently drops NaNs and counts only valid rows (n = n_valid), without tracking `valid_frac`,
+and uses non-standard band labels ("0-10m" instead of "0-10").
 
-Depth ranges (Decision D3):
-    - 0-10m, 10-20m, 20-30m, 30-50m, >50m, plus combined >30m.
+For all Week 2 code, research questions, and official benchmarks, use `src/evaluation/eval.py`,
+which provides:
+  - Strict tracking of valid_frac, n_valid, and total n.
+  - Frozen band edges and labels [0,10), [10,20), [20,30), [30,50), [50,inf) and ">30" (D3).
+  - Paired cluster bootstrap over whole drives.
 """
 
+import warnings
 import numpy as np
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
@@ -58,8 +56,15 @@ class DepthMetrics:
 
 def compute_depth_metrics(z_pred: np.ndarray, z_gt: np.ndarray) -> DepthMetrics:
     """
-    Compute standard depth estimation metrics on valid pairs.
+    [LEGACY] Compute standard depth estimation metrics on valid pairs.
+    Use src.evaluation.eval (evaluate_report, depth_metrics) for official evaluations.
     """
+    warnings.warn(
+        "src.evaluation.metrics.compute_depth_metrics is legacy. "
+        "Use src.evaluation.eval (evaluate_report, depth_metrics) for official evaluations.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     valid = (~np.isnan(z_pred)) & (~np.isnan(z_gt)) & (z_pred > 0) & (z_gt > 0)
     pred = z_pred[valid]
     gt = z_gt[valid]

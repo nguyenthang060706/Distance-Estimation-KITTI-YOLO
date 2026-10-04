@@ -124,8 +124,8 @@ def match_detections_frame(
     if dontcare_boxes is None:
         dontcare_boxes = np.empty((0, 4))
 
-    # Sort prediction indices by confidence descending
-    sorted_order = np.argsort(-pred_scores)
+    # Sort prediction indices by confidence descending (kind='stable' for exact reproducibility)
+    sorted_order = np.argsort(-pred_scores, kind="stable")
 
     matched_gt_hard = set()
     results: dict[int, MatchedDetection] = {}

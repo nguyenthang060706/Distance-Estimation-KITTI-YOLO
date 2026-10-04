@@ -10,6 +10,7 @@ from src.geometry.geometric_cues import (
     compute_Z_h,
     compute_Z_g,
     compute_cues_batch,
+    load_geometry_v2,
     load_priors_from_yaml,
     BORDER_EPS,
 )
