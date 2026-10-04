@@ -9,17 +9,17 @@ where weights w = Σ⁻¹ 1 / (1ᵀ Σ⁻¹ 1) minimise the variance of ln Z_d,
 and Σ is the K×K covariance matrix of log-depth errors e_k = ln Z_k − ln Z_gt
 estimated from Split B using grouped cross-validation by drive.
 
-Design decisions (user instructions):
+Design decisions (see NHAT_KY_QUYET_DINH.md):
     - Σ estimated via grouped CV by drive, not in-sample.
     - For objects with missing cues, use the sub-matrix Σ_S.
-    - Apply Ledoit-Wolf shrinkage to Σ.
+    - Apply Oracle Approximating Shrinkage (OAS, Chen et al. 2010) to Σ.
     - If any weight < 0, fall back to constrained w ≥ 0 (NNLS).
     - NaN in one cue must not contaminate others.
+    - Decision D16c: LODO OOF fusion (fuse_depths_lodo) on Split B for target residual r.
 """
 
 import warnings
 from dataclasses import dataclass
-from typing import Optional
 import numpy as np
 
 
@@ -56,13 +56,8 @@ def _oas_shrinkage(S: np.ndarray, n: int) -> tuple:
         (S_shrunk, alpha) where alpha ∈ [0, 1] is the shrinkage intensity
     """
     K = S.shape[0]
-    # Target: diagonal with same trace
     mu = np.trace(S) / K
     F = mu * np.eye(K)
-
-    # Frobenius norm of (S - F)
-    delta = S - F
-    frobenius_sq = np.sum(delta ** 2)
 
     # OAS shrinkage intensity (Chen et al. 2010)
     rho_num = (1 - 2.0 / K) * np.sum(S ** 2) + np.trace(S) ** 2
@@ -96,13 +91,14 @@ def _optimal_weights(sigma: np.ndarray) -> np.ndarray:
     try:
         sigma_inv = np.linalg.inv(sigma)
     except np.linalg.LinAlgError:
-        # Fallback: equal weights
+        warnings.warn("Covariance matrix is singular; cannot invert. Falling back to equal weights.", UserWarning, stacklevel=2)
         return np.ones(K) / K
 
     w = sigma_inv @ ones
     denom = ones @ sigma_inv @ ones
 
     if denom <= 0 or not np.isfinite(denom):
+        warnings.warn(f"Optimal weights denominator {denom} <= 0 or non-finite. Falling back to equal weights.", UserWarning, stacklevel=2)
         return np.ones(K) / K
 
     w = w / denom
@@ -182,13 +178,9 @@ def estimate_covariance_grouped_cv(
     n_complete = complete_errors.shape[0]
 
     if n_complete < K + 1:
-        warnings.warn(
-            f"Insufficient complete cases for covariance estimation: n_complete={n_complete} < K+1={K+1}. "
-            f"Falling back to identity matrix (equal weights across {K} cues).",
-            UserWarning,
-            stacklevel=2,
+        raise ValueError(
+            f"Insufficient complete cases for covariance estimation: n_complete={n_complete} < K+1={K+1}."
         )
-        return np.eye(K), n_complete, n_drives
 
     # Leave-one-drive-out residuals
     residuals = np.zeros_like(complete_errors)
@@ -250,8 +242,8 @@ def fit_fusion_weights(
         log_errors, drive_ids, valid_mask_clean
     )
 
-    # Apply Ledoit-Wolf shrinkage
-    cov_shrunk, alpha = _ledoit_wolf_shrinkage(cov_raw, n_complete)
+    # Apply OAS shrinkage (Chen et al. 2010)
+    cov_shrunk, alpha = _oas_shrinkage(cov_raw, n_complete)
 
     # Compute optimal weights
     weights = _optimal_weights(cov_shrunk)
@@ -374,3 +366,54 @@ def fuse_depths_vectorised(
             Z_d[i] = np.exp(np.dot(sub_w, log_Z))
 
     return Z_d
+
+
+def fuse_depths_lodo(
+    Z_cues: np.ndarray,
+    Z_gt: np.ndarray,
+    valid_mask: np.ndarray,
+    drive_ids: np.ndarray,
+    min_train_drives: int = 3,
+) -> tuple[np.ndarray, dict[str, FusionWeights]]:
+    """
+    Z_d out-of-fold: weights for drive d are fit on all OTHER drives (Decision D16c).
+
+    For each drive d, optimal fusion weights are fitted strictly on all OTHER drives (out-of-fold).
+    This ensures the fused depth Z_d on Split B contains zero in-sample lookahead bias
+    when constructing target residual r = ln Z_gt - ln Z_d.
+
+    Args:
+        Z_cues: (N, K) array of depth estimates from each cue
+        Z_gt: (N,) array of ground truth depths
+        valid_mask: (N, K) boolean, True if cue k is valid
+        drive_ids: (N,) array of drive identifiers
+        min_train_drives: minimum required training drives in each fold (default: 3)
+
+    Returns:
+        (Z_d, fits_dict): (N,) array of fused depths and dict mapping drive -> FusionWeights
+    """
+    N = len(Z_gt)
+    Z_d = np.full(N, np.nan)
+    fits: dict[str, FusionWeights] = {}
+    unique_drives = np.unique(drive_ids)
+
+    for d in unique_drives:
+        held = (drive_ids == d)
+        train_mask = ~held
+        train_drives = np.unique(drive_ids[train_mask])
+        if len(train_drives) < min_train_drives:
+            raise ValueError(
+                f"Too few training drives for LODO fusion on fold '{d}': "
+                f"{len(train_drives)} < min_train_drives={min_train_drives}"
+            )
+        fw = fit_fusion_weights(
+            Z_cues=Z_cues[train_mask],
+            Z_gt=Z_gt[train_mask],
+            valid_mask=valid_mask[train_mask],
+            drive_ids=drive_ids[train_mask],
+        )
+        Z_d[held] = fuse_depths(Z_cues[held], valid_mask[held], fw)
+        fits[str(d)] = fw
+
+    return Z_d, fits
+

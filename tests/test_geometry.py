@@ -29,6 +29,7 @@ from src.geometry.geometric_cues import (
 )
 from src.geometry.fusion import (
     fit_fusion_weights, fuse_depths, fuse_depths_vectorised,
+    fuse_depths_lodo,
     FusionWeights, _optimal_weights, _nnls_weights,
     _ledoit_wolf_shrinkage,
     estimate_covariance_grouped_cv,
@@ -536,6 +537,63 @@ class TestGeometryLoaders:
         with pytest.deprecated_call():
             priors, meta = load_priors_from_yaml("configs/geometry_priors.yaml")
             assert priors.H_cam == pytest.approx(1.886, rel=1e-3)
+
+
+class TestLODOFusion:
+    """Tests for Leave-One-Drive-Out (LODO) fusion (Decision D16c)."""
+
+    def test_lodo_invariance(self):
+        """
+        Modifying Z_gt of drive d alone MUST NOT change Z_d of drive d,
+        while Z_d of all other drives MUST change.
+        """
+        rng = np.random.default_rng(42)
+        n_per_drive = 20
+        drives = np.repeat([f"drive_{i:02d}" for i in range(5)], n_per_drive)
+        N = len(drives)
+        Z_gt = rng.uniform(10, 50, N)
+        # 3 cues with correlated noise
+        cues = np.column_stack([
+            Z_gt * np.exp(rng.normal(0, 0.1, N)),
+            Z_gt * np.exp(rng.normal(0, 0.05, N)),
+            Z_gt * np.exp(rng.normal(0, 0.08, N)),
+        ])
+        valid_mask = np.ones((N, 3), dtype=bool)
+
+        Z_d_orig, fits_orig = fuse_depths_lodo(cues, Z_gt, valid_mask, drives, min_train_drives=3)
+
+        # Now perturb Z_gt of drive_00 only
+        target_drive = "drive_00"
+        mask_target = (drives == target_drive)
+        Z_gt_perturbed = Z_gt.copy()
+        Z_gt_perturbed[mask_target] *= 1.5
+
+        Z_d_pert, fits_pert = fuse_depths_lodo(cues, Z_gt_perturbed, valid_mask, drives, min_train_drives=3)
+
+        # Z_d for target_drive must be IDENTICAL (its weights were trained on ~mask_target where Z_gt was unchanged)
+        np.testing.assert_allclose(Z_d_pert[mask_target], Z_d_orig[mask_target], rtol=1e-12)
+
+        # Z_d for other drives must DIFFER (their training sets included target_drive whose Z_gt changed)
+        diff_other = np.abs(Z_d_pert[~mask_target] - Z_d_orig[~mask_target])
+        assert np.any(diff_other > 1e-4), "Z_d for other drives should have changed when drive_00 Z_gt was perturbed"
+
+    def test_lodo_too_few_drives_raises(self):
+        """When total drives < min_train_drives + 1, must raise ValueError."""
+        drives = np.array(["d1", "d1", "d2", "d2"])
+        cues = np.ones((4, 3)) * 20.0
+        gt = np.ones(4) * 20.0
+        mask = np.ones((4, 3), dtype=bool)
+        with pytest.raises(ValueError, match="Too few training drives"):
+            fuse_depths_lodo(cues, gt, mask, drives, min_train_drives=3)
+
+    def test_fit_fusion_weights_insufficient_complete_cases_raises(self):
+        """fit_fusion_weights must raise ValueError when complete cases < K+1."""
+        cues = np.ones((2, 3)) * 20.0
+        gt = np.ones(2) * 20.0
+        mask = np.ones((2, 3), dtype=bool)
+        drives = np.array(["d1", "d2"])
+        with pytest.raises(ValueError, match="Insufficient complete cases"):
+            fit_fusion_weights(cues, gt, mask, drives)
 
 
 if __name__ == "__main__":

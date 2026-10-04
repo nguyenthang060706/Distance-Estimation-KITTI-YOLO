@@ -26,9 +26,25 @@
         0.01843
       ]
     ],
-    "absrel_insample": 0.0605,
-    "absrel_transfer_drive_0059": 0.051,
-    "absrel_transfer_drive_0104": 0.0702
+    "fit_metrics": {
+      "n": 4776,
+      "n_valid": 4729,
+      "valid_frac": 0.9902,
+      "absrel": 0.0605
+    },
+    "test_drive_0059": {
+      "is_out_of_sample": false,
+      "n": 1185,
+      "n_valid": 1165,
+      "absrel": 0.051
+    },
+    "test_drive_0104": {
+      "is_out_of_sample": false,
+      "n": 1282,
+      "n_valid": 1281,
+      "absrel": 0.0702
+    },
+    "macro_absrel_12_drives": 0.0631
   },
   "Exclude drive_0059 (Top-2, 24.8%)": {
     "n_samples": 3591,
@@ -59,9 +75,25 @@
         0.02051
       ]
     ],
-    "absrel_insample": 0.064,
-    "absrel_transfer_drive_0059": 0.051,
-    "absrel_transfer_drive_0104": 0.0709
+    "fit_metrics": {
+      "n": 3591,
+      "n_valid": 3564,
+      "valid_frac": 0.9925,
+      "absrel": 0.064
+    },
+    "test_drive_0059": {
+      "is_out_of_sample": true,
+      "n": 1185,
+      "n_valid": 1165,
+      "absrel": 0.051
+    },
+    "test_drive_0104": {
+      "is_out_of_sample": false,
+      "n": 1282,
+      "n_valid": 1281,
+      "absrel": 0.0709
+    },
+    "macro_absrel_12_drives": 0.0621
   },
   "Exclude drive_0104 (Top-1, 26.8%)": {
     "n_samples": 3494,
@@ -92,9 +124,25 @@
         0.02023
       ]
     ],
-    "absrel_insample": 0.0567,
-    "absrel_transfer_drive_0059": 0.051,
-    "absrel_transfer_drive_0104": 0.0714
+    "fit_metrics": {
+      "n": 3494,
+      "n_valid": 3448,
+      "valid_frac": 0.9868,
+      "absrel": 0.0567
+    },
+    "test_drive_0059": {
+      "is_out_of_sample": false,
+      "n": 1185,
+      "n_valid": 1165,
+      "absrel": 0.051
+    },
+    "test_drive_0104": {
+      "is_out_of_sample": true,
+      "n": 1282,
+      "n_valid": 1281,
+      "absrel": 0.0714
+    },
+    "macro_absrel_12_drives": 0.061
   },
   "Exclude both 0059 & 0104 (51.7%)": {
     "n_samples": 2309,
@@ -126,8 +174,24 @@
         0.02106
       ]
     ],
-    "absrel_insample": 0.0603,
-    "absrel_transfer_drive_0059": 0.052,
-    "absrel_transfer_drive_0104": 0.0706
+    "fit_metrics": {
+      "n": 2309,
+      "n_valid": 2283,
+      "valid_frac": 0.9887,
+      "absrel": 0.0603
+    },
+    "test_drive_0059": {
+      "is_out_of_sample": true,
+      "n": 1185,
+      "n_valid": 1165,
+      "absrel": 0.052
+    },
+    "test_drive_0104": {
+      "is_out_of_sample": true,
+      "n": 1282,
+      "n_valid": 1281,
+      "absrel": 0.0706
+    },
+    "macro_absrel_12_drives": 0.0644
   }
 }
