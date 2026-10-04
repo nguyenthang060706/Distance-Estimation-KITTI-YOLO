@@ -16,6 +16,13 @@ Implements Decision D8 and Decision D15:
 - Configurable DontCare overlap criterion:
     - 'iou': standard intersection-over-union (reproduces Decision D6 / find_conf_thresholds.py).
     - 'area_pred': intersection / area(prediction) (standard KITTI official benchmark devkit).
+- Note on Neighbor Classes / Devkit alignment (Limitations):
+    In official KITTI benchmark evaluation for class 'Car', GT boxes of classes 'Van' and 'Truck'
+    are treated as neighbor classes (ignored, so matching them does not penalize Precision as FP).
+    In this pipeline, target population is strictly 'Car' (Hard and non-Hard); Van/Truck GTs are
+    not treated as ignored boxes, so a predicted Car box overlapping a Van or Truck is marked FP.
+    This makes detector Precision slightly more conservative than official KITTI devkit, but has
+    zero effect on distance estimation ranging because ranging evaluates exclusively on TP matches.
 """
 
 from __future__ import annotations

@@ -361,7 +361,9 @@ def main():
     losses = sum(1 for s in drive_stats if s["win_h"] == "LOSS")
     ties = sum(1 for s in drive_stats if s["win_h"] == "TIED")
     print("-" * 92)
-    print(f"Sign Count across 12 Drives: Fused (d) wins in {wins}/12 drives (Loss: {losses}, Tied: {ties})")
+    from scipy.stats import binomtest
+    p_val_sign = float(binomtest(k=wins, n=len(car_drives), p=0.5, alternative="greater").pvalue)
+    print(f"Sign Count across 12 Drives: Fused (d) wins in {wins}/12 drives (Loss: {losses}, Tied: {ties}, p-value: {p_val_sign:.4f})")
 
     # Macro averages across 12 drives (Decision D18 / D20)
     macro_d = float(np.mean([s["ar_d"] for s in drive_stats]))
@@ -422,7 +424,7 @@ def main():
             "losses": losses,
             "ties": ties,
             "total_drives": len(car_drives),
-            "p_value_one_sided": 0.073,
+            "p_value_one_sided": round(p_val_sign, 4),
         },
         "bootstrap_vs_zh": {
             "diff": round(boot_h.estimate, 4),

@@ -38,11 +38,11 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **T chỉ chạy một lần**, với cấu hình đã đóng băng (git tag). Ablation chạy trên dự đoán out-of-fold của B∪C.
 - ✅ **Số liệu tập V:** Chỉ dùng chọn checkpoint và ngưỡng conf; không dùng báo cáo hiệu năng detector trong paper (hiệu năng tính trên B∪C và T). Số FPS từ Ultralytics val không dùng làm latency end-to-end (sẽ đo riêng ở Tier 1).
 - ✅ **Gate §8.1 & Đánh giá công bằng (D9):** Gate tính trên các dải $n \ge 100$ không chồng lấn (4 dải: 0–10, 10–20, 20–30, 30–50 m; không tính hàng gộp ">30 m"). Báo cáo thêm so sánh cặp trên tập chung (common support) và bảng phân rã theo tổ hợp cue (pattern breakdown).
-- ✅ **Đóng băng hình học & Tham số hiệu dụng (D10):** $\delta = -4.6782$ px và $H_{\text{cam}} = 2.0422$ m là tham số hiệu dụng (effective ground-plane parameters) fit trên A để bù chênh lệch giữa góc tiếp đất gần nhất ($Z_{\text{closest}}$) và tâm xe ($Z_{\text{center}}$). Trọng số hợp nhất $[w_w, w_h, w_g] = [0.0691, 0.6500, 0.2809]$ fit trên B (in-sample trên 10 drive có Car Hard). Đóng băng vào `configs/geometry_params.yaml` kèm hash A và B, gắn tag `geometry-v1`.
+- ✅ **Đóng băng hình học & Tham số hiệu dụng (D10):** $\delta = -4.6782$ px và $H_{\text{cam}} = 2.0422$ m là tham số hiệu dụng (effective ground-plane parameters) fit trên A (hash A `4402edf8...`) để bù chênh lệch giữa góc tiếp đất gần nhất ($Z_{\text{closest}}$) và tâm xe ($Z_{\text{center}}$). Trọng số hợp nhất hiện hành fit trên Split B-v2 mới (hash B `0f83c354...`, 12 drive có Car Hard, $N=4,776$): $[w_w, w_h, w_g] = [0.0807, 0.6634, 0.2560]$ (tổng = 1.0, shrinkage $\alpha = 0.0008$). Đóng băng vào `configs/geometry/geometry_params.yaml` gắn tag `geometry-v2`. *(Ghi chú: Trọng số cũ $[0.0691, 0.6500, 0.2809]$ fit trên Split B-v1 cũ hash `1242...` tag `geometry-v1` đã chính thức bị thay thế / superseded do D14)*.
 - ✅ **Phân tách đặc trưng suy luận khỏi GT (D11):** Pipeline suy luận tuyệt đối tách biệt các cột đặc trưng khỏi các trường nhãn ground truth (`gt_*`, `alpha`, `truncated`, `occluded`, `depth`/`location_z`). Phải có unit test chặn và bảo đảm bộ trích đặc trưng không được đọc `gt_*` (đã có trong `tests/test_feature_guard.py`).
 - ✅ **Chốt checkpoint detector bằng `last.pt` (D12):** Dùng `last.pt` (epoch 100) cho cả 3 detector, chốt trước khi xem kết quả huấn luyện lại, và ghi epoch của `best.pt` vào log để đối chứng. Lý do: Split V chỉ có 6 drive chứa Car Hard (trong đó 1 drive chiếm 41%), việc chọn `best.pt` theo đỉnh fitness trên V dễ rơi vào winner's curse / đỉnh nhiễu của vài cụm; `last.pt` tại epoch 100 bảo đảm LR annealing hoàn tất và close_mosaic đã kích hoạt đầy đủ trên toàn bộ Split A.
 - ✅ **Xử lý xe suy giảm cue & pattern 000 (D13):** Toàn bộ xe thỏa Car Hard (kể cả 13.5% mang pattern `000` ở 0–10m không có cue hình học nào) đều thuộc quần thể đánh giá ranging và được dự đoán bằng mô hình direct ranging (e) làm fallback kèm cờ `fallback_flag=True`. C và T đều đi qua đúng pipeline fallback này để bảo toàn tính exchangeability, không loại bỏ ca khó khỏi bảng tổng hợp. $Z_{\text{base}} = Z_d$ nếu $\ge 1$ cue hợp lệ, ngược lại là $Z_e$. Mô hình (e) fit trên toàn bộ B. Target $r = \ln Z_{gt} - \ln Z_{\text{base}}$. Conformalize chung trên C; coverage theo cờ dùng làm chẩn đoán.
-- ✅ **Phân bổ lại drive cho B/C/T, giữ nguyên A và V (D14):** Audit concentration phát hiện Split C cũ bị `drive_0059` chi phối 50.8% ($n_{\text{eff}} = 3.2$), gây rủi ro sập coverage CQR cho RQ3. Quyết định D14: phân bổ lại drive giữa B, C, T qua tìm kiếm tối đa 200 seed simulated annealing, chỉ đọc nhãn (Car Hard count và Z depth), không dùng kết quả mô hình. Giữ nguyên 100% Split A và V. Tiêu chí: $\text{top1\_share} \le 0.35$; $\ge 10$ drive Car Hard mỗi tập; KS $\le 0.07$ cả 3 cặp; frame ratio lệch $\le 3$ điểm % so với 20/10/15. Seed 85 được chọn tối ưu: $n_{\text{eff}}$ cân bằng ở mức 5.28 cho cả 3 tập, top1 C giảm xuống 28.7%, KS B-C=0.0460, B-T=0.0588, C-T=0.0556 (tất cả đều $\le 0.0588$). Đóng băng `splits-v2` và refit trọng số hình học fit trên B mới thành `geometry-v2`. Xuất bảng chuyển dịch drive chi tiết vào `results/tables/split_migration_v1_to_v2.md`. Thêm phân tích độ nhạy (Sensitivity Analysis): fit lại trọng số hợp nhất và mô hình residual khi loại bỏ `drive_0059` khỏi Split B (chiếm 1.185 xe). Ghi chú Limitations: các drive từ B-v1 sang C hoặc T-v2 (`drive_0039`, `drive_0095`, `drive_0096`) có ảnh hưởng gián tiếp ở mức thiết kế định tính trong Day 4 (quy tắc mask viền).
+- ✅ **Phân bổ lại drive cho B/C/T, giữ nguyên A và V (D14):** Audit concentration phát hiện Split C cũ bị `drive_0059` chi phối 50.8% ($n_{\text{eff}} = 3.2$), gây rủi ro sập coverage CQR cho RQ3. Quyết định D14: phân bổ lại drive giữa B, C, T qua tìm kiếm tối đa 200 seed simulated annealing, protocol định sẵn trong docstring của script, chỉ đọc nhãn (Car Hard count và Z depth), tuyệt đối không dùng kết quả mô hình (không dùng từ "pre-registered"). Giữ nguyên 100% Split A và V. Tiêu chí: $\text{top1\_share} \le 0.35$; $\ge 10$ drive Car Hard mỗi tập; KS $\le 0.07$ cả 3 cặp; frame ratio lệch $\le 3$ điểm % so với 20/10/15. Seed 85 được chọn tối ưu: $n_{\text{eff}}$ cân bằng ở mức 5.28 cho cả 3 tập, top1 C giảm xuống 28.7%, KS B-C=0.0460, B-T=0.0588, C-T=0.0556 (tất cả đều $\le 0.0588$). Đóng băng `splits-v2` và refit trọng số hình học fit trên B mới thành `geometry-v2`. Xuất bảng chuyển dịch drive chi tiết vào `results/tables/split_migration_v1_to_v2.md`. Thêm phân tích độ nhạy (Sensitivity Analysis): fit lại trọng số hợp nhất và mô hình residual khi loại bỏ lần lượt `drive_0059` (top-2, 1.185 xe) và `drive_0104` (top-1, 1.282 xe) khỏi Split B (hai drive chiếm 51.65% Car Hard). Ghi chú Limitations: 10 drive từ B-v1 sang T-v2 và 3 drive từ B-v1 sang C-v2 có ảnh hưởng gián tiếp ở mức thiết kế định tính trong Day 4 (quy tắc mask viền).
 - ✅ **Ngưỡng IoU khớp = 0.5 và Trạng thái đánh giá 4 lớp (D15):** Xây dựng module dùng chung `src/detection/matching.py` trả về 4 trạng thái rõ ràng: `TP`, `FP`, `IGNORED_NONHARD`, `IGNORED_DONTCARE`. Ưu tiên GT Hard (unmatched) trước; nếu trùng GT Hard đã ghép thì gán `FP` (duplicate, kể cả khi nằm trong vùng DontCare); kiểm tra GT non-Hard rồi DontCare để bỏ qua. Ngưỡng IoU khớp mặc định là **0.5** theo đúng kế hoạch v4 §5.1 và ngưỡng F1 của D6 (mAP@0.7 báo cáo riêng). Tiêu chí DontCare mặc định là `iou` (IoU $\ge 0.5$) tái lập 100% kết quả ngưỡng D6; hỗ trợ `area_pred` theo devkit chính thức.
 - ✅ **Khớp Greedy theo điểm số giảm dần thay cho Hungarian (D16):** Chốt thuật toán matching là Greedy theo confidence giảm dần (cập nhật v4 §5.1). Lý do: trong Greedy matching, trạng thái gán của một detection chỉ phụ thuộc vào các detection có điểm số cao hơn nó; do đó khớp một lần ở sàn `conf >= 0.05` rồi lọc cờ `pass_thr` tương đương hoàn toàn về mặt toán học với việc lọc ngưỡng trước rồi mới khớp. Thuật toán Hungarian phụ thuộc vào tập ứng viên tổng thể nên không có tính chất bảo toàn phân cấp (nested filtering) này.
 - ✅ **Quy tắc Out-of-Fold cho mô hình direct (e) trên Split B (D16b / Out-of-fold rule):** Khi tạo target khoảng cách $r = \ln Z_{gt} - \ln Z_{\text{base}}$ trên Split B, nếu vật thể mang pattern `000` cần fallback sang $Z_e$, thì $Z_e$ phải được tính dạng out-of-fold theo drive (Grouped CV). Mô hình $Z_e$ fit trên toàn bộ B chỉ dùng để suy luận trên C và T.
@@ -65,7 +65,7 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ## 3. Quyết định về code
 
 - ✅ Loader **trung lập về split**: nhận danh sách frame ID từ bên ngoài, không chứa logic split.
-- ✅ Bỏ `DontCare` khi đọc nhãn xe; **thêm `parse_dontcare()`** trả về bbox DontCare riêng (cần cho §5.1 khớp Hungarian).
+- ✅ Bỏ `DontCare` khi đọc nhãn xe; **thêm `parse_dontcare()`** trả về bbox DontCare riêng (cần cho §5.1 khớp Greedy D16).
 - ✅ Hash split = SHA-256 của danh sách ID đã sắp xếp. Metadata ghi `seed`, tên split, `n_frames` và hash vào `split_metadata.json`.
 - ✅ Kiểm tra rò rỉ theo drive bằng `assert_split_disjoint_by_drive` và script `scripts/verify_data.py`.
 - ✅ Loader cung cấp cả `depth` (Z) và `distance` (Euclid); **dùng `depth` cho mọi tính toán AbsRel/MAE**.
@@ -81,25 +81,30 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 
 - [x] Tải KITTI Object: `image_2`, `label_2`, `calib`, devkit. Đã xác nhận 7,481 frames, 141 drives.
 - [x] Xác minh mapping: `train_rand.txt` kiểm chứng bằng P2 consistency = **1.0000** (141/141 drives).
-- [x] Chạy KS test Car-only (Hard-filtered) làm decision gate D1:
-  - **C vs T:** KS stat = **0.0391** (≤ 0.07) → **ĐẠT CHUẨN ĐÓNG BĂNG D1!**
-  - **B vs C:** KS stat = 0.0527 (≤ 0.07)
-  - **B vs T:** KS stat = 0.0723
+- [x] Chạy KS test Car-only (Hard-filtered) trên Splits-v2 (Decision D14, Seed 85):
+  - **B vs C:** KS stat = **0.0460** ($p = 7.13e-3 \le 0.0700$) → **ĐẠT!**
+  - **B vs T:** KS stat = **0.0588** ($p = 3.17e-6 \le 0.0700$) → **ĐẠT!**
+  - **C vs T:** KS stat = **0.0556** ($p = 1.41e-3 \le 0.0700$) → **ĐẠT!**
+  *(Ghi chú: Các số KS v1 cũ: B-C=0.0527, B-T=0.0723, C-T=0.0391 đã superseded bởi splits-v2)*.
   - Độ sâu Car Hard: B (mean 25.5, median 24.1), C (mean 25.6, median 25.4), T (mean 26.2, median 26.2).
-- [x] Đếm mẫu Car-only dải >50 m (Hard): B=9*, C=8*, T=35* (đều < 100 → đánh cờ `*` và thêm hàng gộp >30 m theo D3).
+- [x] Đếm mẫu Car-only dải >50 m (Hard) trên Splits-v2: B=19*, C=0*, T=33* (tổng B∪C∪T = 52 xe; B-v1 cũ là 9*, C-v1 là 8*, T-v1 là 35*). Đánh cờ `*` khi $n < 100$ và có hàng gộp >30 m theo D3.
 - [x] Phép thử P2 consistency và split disjointness chuyển thành `scripts/verify_data.py` (chạy tự động trước mỗi khâu).
 - [x] Viết `tests/test_splits.py` (5 tests pass: regression mapping H0 vs H1, hash metadata, drive disjoint, frame counts, test split guard).
 
 ### 📝 Limitations cần nêu trong paper
 1. **Lệch phân bố Truck:** Truck tập trung ở một số drive lớn (A=5.2%, T=0.8%), không thể khắc phục hoàn toàn khi split theo drive với 141 drive.
 2. **Split theo drive ≠ theo địa điểm:** Một số drive cùng ngày có thể quay ở cùng khu vực địa lý, nhưng split theo drive là chuẩn cao nhất khả thi trên KITTI raw mapping.
-3. **Mẫu dải xa (>50 m) thấp:** Car Hard >50 m chỉ có 8 xe ở C và 35 xe ở T; khoảng tin cậy ở dải này rộng và cần phân tích thận trọng.
-4. **Tập trung Car Hard theo ít cụm drive (Drive Concentration):** Nhiều drive trong KITTI không có xe hơi (quay trong khuôn viên/người đi bộ). Kết quả audit cho thấy:
+3. **Mẫu dải xa (>50 m) thấp:** Car Hard >50 m chỉ có 19 xe ở B, 0 xe ở C và 33 xe ở T (tổng cộng 52 xe trên B∪C∪T). Khoảng tin cậy ở dải này rộng và đánh giá detector trên C chỉ phản ánh cự ly $\le 50$ m.
+4. **Tập trung Car Hard theo ít cụm drive (Drive Concentration trên Splits-v2):** Nhiều drive trong KITTI không có xe hơi (quay trong khuôn viên/người đi bộ). Kết quả audit v2 cho thấy:
    - Split A: 35 drives, chỉ 18 drives có Car Hard ($N=11,291$, top 1 drive chiếm 16%).
-   - Split B: 28 drives, chỉ 10 drives có Car Hard ($N=4,210$, top 1 drive chiếm 30%).
-   - Split C: 25 drives, chỉ 11 drives có Car Hard ($N=2,331$, top 1 drive chiếm **51%**!).
-   - Split T: 28 drives, chỉ 11 drives có Car Hard ($N=3,273$, top 1 drive chiếm 26%).
+   - Split B: 34 drives, 12 drives có Car Hard ($N=4,776$); top 1 là `drive_0104` chiếm 26.8% (1.282 xe), top 2 là `drive_0059` chiếm 24.8% (1.185 xe); hai drive này chiếm 51.65% Car Hard của B ($n_{\text{eff}} = 5.29$).
+   - Split C: 18 drives, 10 drives có Car Hard ($N=1,826$, top 1 là `drive_0096` chiếm 28.7%, $n_{\text{eff}} = 5.28$; giảm mạnh từ 50.8% ở v1).
+   - Split T: 29 drives, 10 drives có Car Hard ($N=3,212$, top 1 là `drive_0095` chiếm 23.3%, $n_{\text{eff}} = 5.28$).
    - Split V: 25 drives, chỉ 6 drives có Car Hard ($N=611$, top 1 drive chiếm **41%**!).
+   *Hệ quả:* Cluster bootstrap trên T có 10 cụm độc lập (khoảng tin cậy thô, cần cảnh báo khi $<20$ cụm theo quy ước `eval.py`), grouped CV trên B có 12 fold. Đây là căn cứ khoa học vững chắc để chốt **Quyết định D12** (chọn checkpoint detector `last.pt` epoch 100 thay vì dựa vào đỉnh fitness dễ ăn may trên 6 cụm của V).
+5. **Nguồn gốc Checkpoint Detector trong train_log.jsonl:** Ba dòng huấn luyện lại D7 (`ddd519a`, `058158d`) có `git_dirty: true` do untracked files lúc chạy nền. Nguồn gốc và tính toàn vẹn của checkpoint được bảo chứng độc lập và bất biến bằng mã băm SHA-256 đối chiếu khớp 100% trong `configs/detector/checkpoints.yaml` và `runs/inference_log.jsonl`.
+6. **Neighbor classes trong đối sánh KITTI:** Module matching chỉ coi Car non-Hard và DontCare là đối tượng bỏ qua (ignore); Van và Truck không được coi là neighbor class như devkit chính thức của KITTI. Do đó, một số bbox dự đoán Car trùng với GT Van/Truck bị tính là FP, khiến Precision của detector trong báo cáo có thể thấp hơn thực tế một chút; điều này hoàn toàn không ảnh hưởng đến ước lượng khoảng cách Z vì ranging chỉ thực hiện trên True Positives (TP).
+7. **Chuyển dịch Drive D14 (B-v1 sang T-v2 và C-v2):** Tổng cộng 10 drive từ B-v1 sang T-v2 (gồm 4 drive có Car Hard: `0926_0002`, `0926_0017`, `0926_0039`, `0926_0095` và 6 drive rỗng: `0928_0134`, `0928_0136`, `0928_0162`, `0928_0167`, `0928_0168`, `0928_0201`) cùng 3 drive từ B-v1 sang C-v2 (gồm `0926_0096` và 2 drive rỗng: `0928_0153`, `0928_0161`) từng nằm trong B-v1 khi phân tích Day 4 (hình thành quy tắc mask viền ảnh). Đây là ảnh hưởng gián tiếp ở mức thiết kế hình học định tính, không phải tối ưu hóa số học.
    *Hệ quả:* Cluster bootstrap trên T chỉ có $\le 11$ cụm độc lập (khoảng tin cậy thô, cần cảnh báo khi $<20$ cụm theo quy ước `eval.py`), grouped CV trên B tối đa 10 fold, và việc chia lại B∪C xoay quanh ~21 cụm. Đây là căn cứ khoa học vững chắc để chốt **Quyết định D12** (chọn checkpoint detector `last.pt` epoch 100 thay vì dựa vào đỉnh fitness dễ ăn may trên 6 cụm của V).
 
 ---
@@ -124,13 +129,44 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 3 (sớm):** tính prior W_eff, H_obj, H_cam, y_horizon từ nhãn A (`scripts/compute_priors.py`, `configs/geometry_priors.yaml`).
 - [x] **Ngày 3:** Chốt `imgsz = 640` (D5), chạy hoàn tất hàng đợi fine-tune YOLOv8s → YOLO11s → YOLOv5su, chốt ngưỡng conf theo F1 max Car trên V (D6).
 - [x] **Ngày 4:** cài 3 cue (a)(b)(c) + hợp nhất log-space (d), kiểm thử đơn vị pass 23/23, đánh giá trên Split B GT bbox vượt điều kiện Tuần 2 (4/5 dải pass, AbsRel 0.0635).
-- [x] **Ngày 5:** `eval.py` + test đơn vị (`tests/test_geometry.py` 23 tests pass, `src/evaluation/metrics.py`).
-- [ ] **Ngày 6:** chạy (a)–(d) trên GT bbox, vẽ sai số theo khoảng cách và theo alpha.
-- [ ] **Ngày 7:** đệm.
+- [x] **Ngày 5:** `eval.py` + test đơn vị (`tests/test_geometry.py` 23 tests pass, `src/evaluation/metrics.py`, `tests/test_matching.py` pass).
+- [x] **Ngày 6:** chạy (a)–(d) trên GT bbox Split B-v2, phân tích chuyên sâu LODO OOF (12 fold), phân rã góc nhìn $\theta$ (chuẩn KITTI), sign count 9/12 drive ($p=0.0730$ tính bằng `scipy.stats.binomtest`), paired cluster bootstrap (`scripts/eval_day6_analysis.py`).
+- [x] **Ngày 7:** đệm & hoàn tất tái phân bổ B/C/T (D14, `splits-v2`, `geometry-v2`), chốt D15 (matching 4 trạng thái), D16 (Greedy matching), D22 (`run_inference.py` FP32 `conf=0.05` parquet pipeline).
+
+### Tuần 2
+- [x] **Ngày 1:** Chạy suy luận detector trên Split B (1.499 frames) và Split C (766 frames) cho cả 3 detector (`yolov8s`, `yolo11s`, `yolov5su`). Hoàn tất xuất 18 parquet files và báo cáo hiệu năng P/R/F1/Common Support (`detector_eval_b_c.md`).
+- [ ] **Ngày 2:** Chạy (a)–(d) trên bbox detector với trọng số refit trên Split B theo từng detector (D17), kèm cột đối chứng dùng trọng số fit trên GT bbox.
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### 03/10/2026 (đêm): Hoàn tất Suy luận B & C cho 3 Detector (D15, D16, D22), Báo cáo Hiệu năng Detector (f156546), Track toàn bộ Parquet và Chuẩn bị D17
+- **Hoàn tất toàn bộ suy luận Split B và C cho cả 3 Detector (D22):**
+  - Chạy `scripts/run_inference.py` ở chế độ FP32, `imgsz=640`, matching IoU 0.5 (Greedy theo điểm số, D16), `conf_min=0.05`, dùng checkpoint `last.pt` (epoch 100, D12) khớp tuyệt đối mã băm SHA-256 trong `configs/detector/checkpoints.yaml`.
+  - Cả 6 lượt suy luận chính thức đều đạt `git_dirty: false`, `splits_version: "v2"`, n_frames B=1.499 (hash `0f83c354...`), C=766 (hash `b24db22e...`):
+    - Split B: `yolov8s_640` (22:19), `yolo11s_640` (22:31), `yolov5su_640` (22:33).
+    - Split C: `yolov8s_640` (22:22), `yolo11s_640` (22:23), `yolov5su_640` (22:23).
+  - Ghi nhận 3 dòng log **superseded** trong `runs/inference_log.jsonl`:
+    1. `yolov8s_640` B (`2026-10-03T21:45:12`): chạy khi git dirty, thiếu trường `checkpoint_path`.
+    2. `yolo11s_640` B (`2026-10-03T22:20:03`): chạy khi git dirty (thay thế bởi run 22:31:22).
+    3. `yolov5su_640` B (`2026-10-03T22:21:09`): chạy khi git dirty (thay thế bởi run 22:33:38).
+- **Lưu trữ & Track dữ liệu Parquet:**
+  - Toàn bộ 18 file parquet (3 file `detections`, `matches`, `gt` $\times$ 3 model $\times$ 2 split B & C) đã được commit và track chính thức vào git repo (`commit b14a83e`). Working tree hoàn toàn sạch (clean).
+- **Báo cáo Hiệu năng Detector trên Split B và C (commit `f156546`, `results/tables/detector_eval_b_c.md`):**
+  - Ngưỡng tối ưu F1 trên Split V: yolov8s (0.790), yolo11s (0.700), yolov5su (0.740).
+  - Split B (4.776 Car Hard):
+    - yolov8s: P = 94.62%, R = 71.75%, F1 = 0.8161.
+    - yolo11s: P = 94.63%, R = 73.76%, F1 = 0.8290.
+    - yolov5su: P = 94.49%, R = 73.20%, F1 = 0.8249.
+    - Tập chung (Common Support - cả 3 detector cùng phát hiện): **3.181 / 4.776 xe (66.60%)**. Hợp (ít nhất 1 detector): **3.772 xe (78.98%)**.
+  - Split C (1.826 Car Hard, toàn bộ $\le 50$ m):
+    - yolov8s: P = 91.34%, R = 79.13%, F1 = 0.8480.
+    - yolo11s: P = 90.02%, R = 81.54%, F1 = 0.8557.
+    - yolov5su: P = 90.16%, R = 78.31%, F1 = 0.8382.
+    - Tập chung (Common Support): **1.359 / 1.826 xe (74.42%)**.
+- **Chốt nguyên tắc viết Paper cho D14:** Không sử dụng cụm từ "pre-registered" vì commit git script và split diễn ra đồng thời; trong paper trình bày khách quan: *"Protocol được định nghĩa cố định trong docstring của script từ trước, thuật toán chỉ đọc nhãn (số lượng Car Hard và Z depth) mà không nhìn kết quả mô hình"*.
+- **Chuẩn bị Quyết định D17:** Sẵn sàng chạy đánh giá (a)–(d) trên bbox detector với trọng số refit trên Split B theo từng detector, đối chứng với cột trọng số fit trên GT bbox.
 
 ### 03/10/2026 (chiều): Queue 100 epochs hoàn tất, Đánh giá last.pt (D12), Chốt conf thresholds (D6), Phân bổ B/C/T (D14) đóng băng splits-v2 & geometry-v2
 - **Hoàn thành hàng đợi huấn luyện 3 detector (D7, 100 epochs, patience=100):**
@@ -165,10 +201,12 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
     - Gate §8.1: Thắng 3/4 dải độc lập $n \ge 100$ (10–20m: 0.0594 vs 0.0704, 20–30m: 0.0564 vs 0.0645, 30–50m: 0.0553 vs 0.0638; thua 0–10m: 0.1283 vs 0.0619).
     - Đóng băng vào `configs/geometry_params.yaml` với tag `geometry-v2`.
 - **Xác minh 2.1 (Sửa cách tính Gate §8.1 - Quyết định D9):**
+  - *(Lưu ý: Các số liệu trong phân tích này được thực hiện trên Split B-v1 cũ làm cơ sở lịch sử [AbsRel 0–10m = 0.1572, n=9 ở >50m]. Bảng trên Split B-v2 mới tương ứng là: AbsRel 0–10m = 0.1283, n=19 ở >50m)*.
   - Gate chỉ tính trên các dải $n \ge 100$ độc lập: 0–10, 10–20, 20–30, 30–50 m (4 dải; không tính dải gộp `>30 m`, dải `>50 m` có $n=9 < 100$).
   - (d) thắng ở 3/4 dải và thua ở dải 0–10 m (AbsRel 0.1572 so với $Z_g$ 0.0651 và $Z_h$ 0.1463).
   - Gate ($\ge 3/4$) vẫn **ĐẠT CHUẨN**, nhưng tỷ lệ chính xác là **3/4 dải**, không phải 4/5. Đã nêu rõ dải thua 0–10 m trong báo cáo.
 - **Xác minh 2.2 (Giải mã dải 0–10 m: So sánh tập chung & tổ hợp pattern):**
+  - *(Lưu ý: Phân rã lịch sử trên Split B-v1: 69 xe pattern 100, 145 xe common support)*.
   - Đã chạy phân rã theo pattern: Đúng chính xác **69 xe** chênh lệch ở 0–10 m mang pattern `100` (chỉ còn $Z_w$ hợp lệ do xe gần chạm viền trên/dưới ảnh làm mask $Z_h$ và $Z_g$).
   - Ở nhóm `100`, AbsRel của (d) là **0.2284** (thoái hóa 100% về cue yếu nhất $Z_w$), kéo AbsRel chung từ 0.1238 lên 0.1572.
   - Trên tập chung (Common Support, 145 xe đủ 3 cue): (d) đạt AbsRel = **0.1238**, thắng $Z_w$ (0.1793) và $Z_h$ (0.1460).
@@ -214,11 +252,12 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   - **YOLOv5su:** 18.44 phút. Car mAP50 = 0.7748, mAP@0.5:0.95 = **0.5453**, Recall = 0.8463.
   - Tổng thời gian huấn luyện cả 3 detector: **64.26 phút** (rất nhanh nhờ tối ưu bộ nhớ VRAM 3.66 GB).
   - Trọng số tốt nhất đã lưu tại `runs/detector/{model}_640/weights/best.pt`.
-- **Chốt ngưỡng confidence threshold (Quyết định D6):**
+- **Chốt ngưỡng confidence threshold (Quyết định D6 - SUPERSEDED):**
+  - *(Ghi chú: Các kết quả ngưỡng conf thô dưới đây quét trên checkpoint prelim early-stopping đã chính thức bị thay thế / SUPERSEDED bởi phiên 03/10 chiều với F1 moving average window 0.05 trên checkpoint 100 epochs last.pt: 0.790 / 0.700 / 0.740)*.
   - Quét ngưỡng tìm $F_1$ tối đa trên lớp **Car** của tập V (bỏ qua detection khớp với DontCare theo §5.1):
-    - **YOLOv8s:** `conf = 0.430` $\rightarrow$ Max F1 = **0.8052** (Precision = 0.7921, Recall = 0.8187)
-    - **YOLO11s:** `conf = 0.600` $\rightarrow$ Max F1 = **0.7957** (Precision = 0.8469, Recall = 0.7503)
-    - **YOLOv5su:** `conf = 0.650` $\rightarrow$ Max F1 = **0.7798** (Precision = 0.8586, Recall = 0.7143)
+    - [SUPERSEDED] - **YOLOv8s:** `conf = 0.430` $\rightarrow$ Max F1 = **0.8052** (Precision = 0.7921, Recall = 0.8187)
+    - [SUPERSEDED] - **YOLO11s:** `conf = 0.600` $\rightarrow$ Max F1 = **0.7957** (Precision = 0.8469, Recall = 0.7503)
+    - [SUPERSEDED] - **YOLOv5su:** `conf = 0.650` $\rightarrow$ Max F1 = **0.7798** (Precision = 0.8586, Recall = 0.7143)
   - Lưu cấu hình vào `configs/detector/conf_thresholds.yaml`.
 
 ### 02/10/2026 (chiều): Chạy Pilot D5 YOLOv8s (imgsz = 640)

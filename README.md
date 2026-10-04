@@ -27,7 +27,7 @@ Distance-Estimation-KITTI-YOLO/
 │   └── residual/                 # Cấu hình XGBoost/MLP
 │
 ├── src/                           # Source code chính
-│   ├── detection/                # Fine-tune, suy luận YOLO, khớp Hungarian
+│   ├── detection/                # Fine-tune, suy luận YOLO, khớp Greedy (D16)
 │   ├── geometry/                 # 3 cue hình học (Z_w, Z_h, Z_g), hợp nhất log-space
 │   ├── residual/                 # Hiệu chỉnh residual (XGBoost, MLP)
 │   ├── uncertainty/              # CQR, Mondrian CQR, conformalization
@@ -64,7 +64,7 @@ Distance-Estimation-KITTI-YOLO/
 
 ```
 Ảnh → YOLO detector → bbox (map về ảnh gốc)
-    → Lọc / Khớp Hungarian
+    → Lọc / Khớp Greedy (D16)
     → 3 cue: Z_w (chiều rộng), Z_h (chiều cao), Z_g (cạnh dưới)
     → Hợp nhất log-space (trọng số theo hiệp phương sai)
     → Z_d
