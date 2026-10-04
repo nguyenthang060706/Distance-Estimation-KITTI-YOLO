@@ -22,6 +22,7 @@ from src.evaluation.eval import (
     make_log_record,
     paired_cluster_bootstrap,
     sign_test_one_sided,
+    macro_by_cluster,
 )
 
 
@@ -232,4 +233,52 @@ def test_sign_test_one_sided() -> None:
         sign_test_one_sided(-1, 5)
     with pytest.raises(ValueError):
         sign_test_one_sided(5, -1)
+
+
+# ------------------------------------------------------------- macro by cluster
+def test_macro_by_cluster_hand_calculated() -> None:
+    # Hand-crafted test dataset:
+    # Drive A:
+    #   Row 1: z_gt=10.0, z_pred=11.0 -> absrel = 0.10, mae = 1.0
+    #   Row 2: z_gt=20.0, z_pred=24.0 -> absrel = 0.20, mae = 4.0
+    #   Drive A mean absrel = 0.15, mean mae = 2.5
+    # Drive B:
+    #   Row 3: z_gt=50.0, z_pred=40.0 -> absrel = 0.20, mae = 10.0
+    #   Drive B mean absrel = 0.20, mean mae = 10.0
+    # Drive C (all invalid predictions):
+    #   Row 4: z_gt=30.0, z_pred=NaN
+    df = pd.DataFrame({
+        "drive": ["drive_A", "drive_A", "drive_B", "drive_C"],
+        "z_gt": [10.0, 20.0, 50.0, 30.0],
+        "z_pred": [11.0, 24.0, 40.0, np.nan],
+    })
+
+    # Macro absrel over Drive A and B: (0.15 + 0.20) / 2 = 0.175
+    macro_ar = macro_by_cluster(df, "absrel")
+    assert macro_ar == pytest.approx(0.175)
+
+    # Note pooled absrel is (0.10 + 0.20 + 0.20) / 3 = 0.16666... != 0.175
+    pooled_m = depth_metrics(df["z_gt"].to_numpy(), df["z_pred"].to_numpy())
+    assert pooled_m["absrel"] == pytest.approx(0.5 / 3)
+    assert macro_ar != pooled_m["absrel"]
+
+    # Macro MAE over Drive A and B: (2.5 + 10.0) / 2 = 6.25
+    macro_mae = macro_by_cluster(df, "mae")
+    assert macro_mae == pytest.approx(6.25)
+
+    # min_valid=2 filters out Drive B (which only has 1 valid row) -> only Drive A remains
+    macro_min2 = macro_by_cluster(df, "absrel", min_valid=2)
+    assert macro_min2 == pytest.approx(0.15)
+
+    # All invalid cluster scenario -> returns NaN
+    df_empty = pd.DataFrame({
+        "drive": ["drive_C", "drive_C"],
+        "z_gt": [10.0, 20.0],
+        "z_pred": [np.nan, -1.0],
+    })
+    assert np.isnan(macro_by_cluster(df_empty, "absrel"))
+
+    # Invalid metric raises ValueError
+    with pytest.raises(ValueError):
+        macro_by_cluster(df, "nonexistent_metric")
 

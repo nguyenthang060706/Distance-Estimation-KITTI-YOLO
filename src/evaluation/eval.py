@@ -362,3 +362,45 @@ def sign_test_one_sided(wins: int, losses: int) -> float:
     res = binomtest(wins, n, p=0.5, alternative="greater")
     return float(res.pvalue)
 
+
+# ---------------------------------------------------------------------------
+# Macro average across clusters / drives (D18, D20)
+# ---------------------------------------------------------------------------
+def macro_by_cluster(
+    df: pd.DataFrame,
+    metric: str = "absrel",
+    *,
+    gt_col: str = "z_gt",
+    pred_col: str = "z_pred",
+    cluster_col: str = "drive",
+    min_valid: int = 1,
+) -> float:
+    """
+    Unweighted macro average of a metric across unique clusters (drives).
+
+    Only clusters having at least `min_valid` valid predictions are included.
+    Returns NaN if no cluster has at least `min_valid` valid predictions.
+    """
+    if metric not in METRICS:
+        raise ValueError(f"Unknown metric '{metric}'. Expected one of {list(METRICS.keys())}")
+
+    if cluster_col not in df.columns:
+        raise KeyError(f"Cluster column '{cluster_col}' not found in dataframe.")
+
+    fn = METRICS[metric]
+    cluster_values = []
+
+    for _, group in df.groupby(cluster_col, sort=False):
+        z_gt = group[gt_col].to_numpy(dtype=float)
+        z_pred = group[pred_col].to_numpy(dtype=float)
+
+        valid = valid_prediction_mask(z_pred)
+        if valid.sum() >= min_valid:
+            _check_gt(z_gt[valid])
+            cluster_values.append(fn(z_gt[valid], z_pred[valid]))
+
+    if not cluster_values:
+        return float("nan")
+
+    return float(np.mean(cluster_values))
+

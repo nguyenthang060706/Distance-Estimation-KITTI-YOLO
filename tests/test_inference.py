@@ -39,6 +39,7 @@ def test_split_t_cli_guard():
         cwd=str(PROJECT_ROOT),
         capture_output=True,
         text=True,
+        stdin=subprocess.DEVNULL,
     )
     assert res.returncode != 0
     # Either caught by argparse choices or by runtime PermissionError
