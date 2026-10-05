@@ -1,0 +1,199 @@
+{
+  "model_key": "yolo11s_640",
+  "split": "B",
+  "split_b_hash": "0f83c3547188c8a6ab29a389f27524a5e09d5e7f96fcaff5f7a4f1328c2aef92",
+  "git_commit": "824992b29f00ea790a5b21242b5ecb742595ca57",
+  "git_tag": "prereg-residual-v1",
+  "seed": 42,
+  "bootstrap_seed": 42,
+  "n_boot": 1000,
+  "created_at": "2026-10-06T00:13:08.682390",
+  "n_samples": 3523,
+  "records": [
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "baseline_full_f",
+      "ablation_name": "Full Model (f) Baseline",
+      "category": "baseline",
+      "n_features": 17,
+      "pooled_absrel": 0.04703130756105817,
+      "macro_absrel": 0.05461548690332415,
+      "delta_pooled": 0.0,
+      "delta_macro": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_bbox_geometry",
+      "ablation_name": "Drop bbox_geometry",
+      "category": "drop_group",
+      "dropped_features": [
+        "w",
+        "h",
+        "w_h_ratio",
+        "y_bottom_minus_cy",
+        "cx_offset_norm"
+      ],
+      "n_features": 12,
+      "pooled_absrel": 0.04832908231659063,
+      "macro_absrel": 0.06461126345621045,
+      "delta_pooled": 0.0012977747555324645,
+      "delta_macro": 0.009995776552886297,
+      "ci_lo": -0.004062904689816059,
+      "ci_hi": 0.005896295449797383
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_edge_flags",
+      "ablation_name": "Drop edge_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "touch_left",
+        "touch_right",
+        "touch_top",
+        "touch_bottom"
+      ],
+      "n_features": 13,
+      "pooled_absrel": 0.04756310802830215,
+      "macro_absrel": 0.05417059902924121,
+      "delta_pooled": 0.0005318004672439855,
+      "delta_macro": -0.00044488787408293595,
+      "ci_lo": -0.0002326816715031264,
+      "ci_hi": 0.0009147277755939207
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_confidence",
+      "ablation_name": "Drop confidence",
+      "category": "drop_group",
+      "dropped_features": [
+        "confidence"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.04759672359694066,
+      "macro_absrel": 0.05462117197407767,
+      "delta_pooled": 0.0005654160358824906,
+      "delta_macro": 5.685070753519428e-06,
+      "ci_lo": -0.0004949474298243068,
+      "ci_hi": 0.0017827869210180604
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_cues_ln_z",
+      "ablation_name": "Drop cues_ln_z",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_w",
+        "ln_z_h",
+        "ln_z_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.0473578691473741,
+      "macro_absrel": 0.05429152168001681,
+      "delta_pooled": 0.0003265615863159363,
+      "delta_macro": -0.00032396522330734034,
+      "ci_lo": -7.508765411187635e-05,
+      "ci_hi": 0.0007140269291696991
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_validity_flags",
+      "ablation_name": "Drop validity_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "valid_w",
+        "valid_h",
+        "valid_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04737228470595875,
+      "macro_absrel": 0.05463916906550201,
+      "delta_pooled": 0.00034097714490058384,
+      "delta_macro": 2.3682162177858512e-05,
+      "ci_lo": -2.2925813085942005e-05,
+      "ci_hi": 0.0006708419425258025
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_ln_z_base",
+      "ablation_name": "Drop ln_z_base",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_base"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.04800861194643183,
+      "macro_absrel": 0.05571515328465974,
+      "delta_pooled": 0.0009773043853736618,
+      "delta_macro": 0.0010996663813355873,
+      "ci_lo": 0.0006224228757475174,
+      "ci_hi": 0.001572407079712108
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_z_w",
+      "ablation_name": "Drop Cue Z_W",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_w",
+        "valid_w"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.04710902159030524,
+      "macro_absrel": 0.05375664099990999,
+      "delta_pooled": 7.771402924707654e-05,
+      "delta_macro": -0.0008588459034141599,
+      "ci_lo": -0.001100362442459156,
+      "ci_hi": 0.0007434433003564466
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_z_h",
+      "ablation_name": "Drop Cue Z_H",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_h",
+        "valid_h"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.054004764485558604,
+      "macro_absrel": 0.07262372882198363,
+      "delta_pooled": 0.006973456924500437,
+      "delta_macro": 0.018008241918659483,
+      "ci_lo": 0.002405042409832247,
+      "ci_hi": 0.011905959225430248
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_z_g",
+      "ablation_name": "Drop Cue Z_G",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_g",
+        "valid_g"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.04715496947249556,
+      "macro_absrel": 0.049619047173163976,
+      "delta_pooled": 0.0001236619114373949,
+      "delta_macro": -0.004996439730160174,
+      "ci_lo": -0.0025118480209409145,
+      "ci_hi": 0.0020673419000989193
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "mlp",
+      "ablation_name": "MLP (128, 64) [Un-tuned]",
+      "category": "alternative_model",
+      "dropped_features": [],
+      "n_features": 17,
+      "pooled_absrel": 0.04879864117694459,
+      "macro_absrel": 0.05265189737946324,
+      "delta_pooled": 0.0017673336158864211,
+      "delta_macro": -0.0019635895238609077,
+      "ci_lo": -0.0018448406307739324,
+      "ci_hi": 0.0037948291228874615
+    }
+  ]
+}

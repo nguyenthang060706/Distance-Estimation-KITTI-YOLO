@@ -211,6 +211,7 @@ def fit_fusion_weights(
     Z_gt: np.ndarray,
     valid_mask: np.ndarray,
     drive_ids: np.ndarray,
+    cue_names: list[str] | None = None,
 ) -> FusionWeights:
     """
     Estimate optimal fusion weights from data (Split B).
@@ -220,6 +221,7 @@ def fit_fusion_weights(
         Z_gt: (N,) array of ground truth depths
         valid_mask: (N, K) boolean, True if cue k is valid
         drive_ids: (N,) array of drive identifiers
+        cue_names: Optional list of K cue names (defaults to CUE_NAMES[:K]).
 
     Returns:
         FusionWeights dataclass
@@ -227,6 +229,12 @@ def fit_fusion_weights(
     N, K = Z_cues.shape
     assert Z_gt.shape == (N,), f"Z_gt shape {Z_gt.shape} != (N,)={N}"
     assert valid_mask.shape == (N, K), f"valid_mask shape mismatch"
+
+    if cue_names is None:
+        resolved_cue_names = CUE_NAMES[:K]
+    else:
+        assert len(cue_names) == K, f"len(cue_names)={len(cue_names)} != K={K}"
+        resolved_cue_names = list(cue_names)
 
     # Compute log errors for valid cues
     log_errors = np.full((N, K), np.nan)
@@ -259,7 +267,7 @@ def fit_fusion_weights(
         cov_matrix=cov_raw,
         cov_shrunk=cov_shrunk,
         shrinkage_alpha=alpha,
-        cue_names=CUE_NAMES[:K],
+        cue_names=resolved_cue_names,
         constrained=constrained,
         n_samples=n_complete,
         n_drives=n_drives,

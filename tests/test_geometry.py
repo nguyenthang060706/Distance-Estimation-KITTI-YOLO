@@ -595,6 +595,24 @@ class TestLODOFusion:
         with pytest.raises(ValueError, match="Insufficient complete cases"):
             fit_fusion_weights(cues, gt, mask, drives)
 
+    def test_fit_fusion_weights_custom_cue_names(self):
+        """fit_fusion_weights preserves explicit custom cue_names when K < 3 (Decision D38)."""
+        np.random.seed(42)
+        n = 50
+        cues_2 = np.ones((n, 2)) * 20.0 + np.random.randn(n, 2) * 0.5
+        gt = np.ones(n) * 20.0
+        mask = np.ones((n, 2), dtype=bool)
+        drives = np.array([f"d{i % 5}" for i in range(n)])
+
+        custom_names = ["Z_h", "Z_g"]
+        fw = fit_fusion_weights(cues_2, gt, mask, drives, cue_names=custom_names)
+        assert fw.cue_names == custom_names
+        assert len(fw.weights) == 2
+
+        # Invalid length must raise AssertionError
+        with pytest.raises(AssertionError, match="len\\(cue_names\\)"):
+            fit_fusion_weights(cues_2, gt, mask, drives, cue_names=["Z_w"])
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -1,0 +1,569 @@
+{
+  "task": "T05",
+  "description": "Feature and cue ablation on Split B OOF",
+  "split": "B",
+  "split_b_hash": "0f83c3547188c8a6ab29a389f27524a5e09d5e7f96fcaff5f7a4f1328c2aef92",
+  "git_commit": "824992b29f00ea790a5b21242b5ecb742595ca57",
+  "git_tag": "prereg-residual-v1",
+  "seed": 42,
+  "bootstrap_seed": 42,
+  "n_boot": 1000,
+  "created_at": "2026-10-06T00:50:14.359585",
+  "records": [
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "baseline_full_f",
+      "ablation_name": "Full Model (f) Baseline",
+      "category": "baseline",
+      "n_features": 17,
+      "pooled_absrel": 0.04703130756105817,
+      "macro_absrel": 0.05461548690332415,
+      "delta_pooled": 0.0,
+      "delta_macro": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_bbox_geometry",
+      "ablation_name": "Drop bbox_geometry",
+      "category": "drop_group",
+      "dropped_features": [
+        "w",
+        "h",
+        "w_h_ratio",
+        "y_bottom_minus_cy",
+        "cx_offset_norm"
+      ],
+      "n_features": 12,
+      "pooled_absrel": 0.04832908231659063,
+      "macro_absrel": 0.06461126345621045,
+      "delta_pooled": 0.0012977747555324645,
+      "delta_macro": 0.009995776552886297,
+      "ci_lo": -0.004062904689816059,
+      "ci_hi": 0.005896295449797383
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_edge_flags",
+      "ablation_name": "Drop edge_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "touch_left",
+        "touch_right",
+        "touch_top",
+        "touch_bottom"
+      ],
+      "n_features": 13,
+      "pooled_absrel": 0.04756310802830215,
+      "macro_absrel": 0.05417059902924121,
+      "delta_pooled": 0.0005318004672439855,
+      "delta_macro": -0.00044488787408293595,
+      "ci_lo": -0.0002326816715031264,
+      "ci_hi": 0.0009147277755939207
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_confidence",
+      "ablation_name": "Drop confidence",
+      "category": "drop_group",
+      "dropped_features": [
+        "confidence"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.04759672359694066,
+      "macro_absrel": 0.05462117197407767,
+      "delta_pooled": 0.0005654160358824906,
+      "delta_macro": 5.685070753519428e-06,
+      "ci_lo": -0.0004949474298243068,
+      "ci_hi": 0.0017827869210180604
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_cues_ln_z",
+      "ablation_name": "Drop cues_ln_z",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_w",
+        "ln_z_h",
+        "ln_z_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.0473578691473741,
+      "macro_absrel": 0.05429152168001681,
+      "delta_pooled": 0.0003265615863159363,
+      "delta_macro": -0.00032396522330734034,
+      "ci_lo": -7.508765411187635e-05,
+      "ci_hi": 0.0007140269291696991
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_validity_flags",
+      "ablation_name": "Drop validity_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "valid_w",
+        "valid_h",
+        "valid_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04737228470595875,
+      "macro_absrel": 0.05463916906550201,
+      "delta_pooled": 0.00034097714490058384,
+      "delta_macro": 2.3682162177858512e-05,
+      "ci_lo": -2.2925813085942005e-05,
+      "ci_hi": 0.0006708419425258025
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_group_ln_z_base",
+      "ablation_name": "Drop ln_z_base",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_base"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.04800861194643183,
+      "macro_absrel": 0.05571515328465974,
+      "delta_pooled": 0.0009773043853736618,
+      "delta_macro": 0.0010996663813355873,
+      "ci_lo": 0.0006224228757475174,
+      "ci_hi": 0.001572407079712108
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_z_w",
+      "ablation_name": "Drop Cue Z_W",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_w",
+        "valid_w"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.04710902159030524,
+      "macro_absrel": 0.05375664099990999,
+      "delta_pooled": 7.771402924707654e-05,
+      "delta_macro": -0.0008588459034141599,
+      "ci_lo": -0.001100362442459156,
+      "ci_hi": 0.0007434433003564466
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_z_h",
+      "ablation_name": "Drop Cue Z_H",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_h",
+        "valid_h"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.054004764485558604,
+      "macro_absrel": 0.07262372882198363,
+      "delta_pooled": 0.006973456924500437,
+      "delta_macro": 0.018008241918659483,
+      "ci_lo": 0.002405042409832247,
+      "ci_hi": 0.011905959225430248
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "drop_z_g",
+      "ablation_name": "Drop Cue Z_G",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_g",
+        "valid_g"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.04715496947249556,
+      "macro_absrel": 0.049619047173163976,
+      "delta_pooled": 0.0001236619114373949,
+      "delta_macro": -0.004996439730160174,
+      "ci_lo": -0.0025118480209409145,
+      "ci_hi": 0.0020673419000989193
+    },
+    {
+      "model_key": "yolo11s_640",
+      "ablation_key": "mlp",
+      "ablation_name": "MLP (128, 64) [Un-tuned]",
+      "category": "alternative_model",
+      "dropped_features": [],
+      "n_features": 17,
+      "pooled_absrel": 0.04879864117694459,
+      "macro_absrel": 0.05265189737946324,
+      "delta_pooled": 0.0017673336158864211,
+      "delta_macro": -0.0019635895238609077,
+      "ci_lo": -0.0018448406307739324,
+      "ci_hi": 0.0037948291228874615
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "baseline_full_f",
+      "ablation_name": "Full Model (f) Baseline",
+      "category": "baseline",
+      "n_features": 17,
+      "pooled_absrel": 0.047445159592096456,
+      "macro_absrel": 0.05211601336292548,
+      "delta_pooled": 0.0,
+      "delta_macro": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_group_bbox_geometry",
+      "ablation_name": "Drop bbox_geometry",
+      "category": "drop_group",
+      "dropped_features": [
+        "w",
+        "h",
+        "w_h_ratio",
+        "y_bottom_minus_cy",
+        "cx_offset_norm"
+      ],
+      "n_features": 12,
+      "pooled_absrel": 0.049850615624845,
+      "macro_absrel": 0.05864302441629952,
+      "delta_pooled": 0.002405456032748547,
+      "delta_macro": 0.0065270110533740405,
+      "ci_lo": -0.0011081431777032998,
+      "ci_hi": 0.005859026544469031
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_group_edge_flags",
+      "ablation_name": "Drop edge_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "touch_left",
+        "touch_right",
+        "touch_top",
+        "touch_bottom"
+      ],
+      "n_features": 13,
+      "pooled_absrel": 0.04725965939219466,
+      "macro_absrel": 0.05186248918833653,
+      "delta_pooled": -0.00018550019990179467,
+      "delta_macro": -0.0002535241745889455,
+      "ci_lo": -0.0012525651166847445,
+      "ci_hi": 0.0006171441398764299
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_group_confidence",
+      "ablation_name": "Drop confidence",
+      "category": "drop_group",
+      "dropped_features": [
+        "confidence"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.046954150633895464,
+      "macro_absrel": 0.051369705727225067,
+      "delta_pooled": -0.0004910089582009919,
+      "delta_macro": -0.0007463076357004106,
+      "ci_lo": -0.0014451031059410976,
+      "ci_hi": 0.00039687472467516517
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_group_cues_ln_z",
+      "ablation_name": "Drop cues_ln_z",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_w",
+        "ln_z_h",
+        "ln_z_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04752426768428814,
+      "macro_absrel": 0.05239304839582317,
+      "delta_pooled": 7.910809219168619e-05,
+      "delta_macro": 0.0002770350328976934,
+      "ci_lo": -0.0011666903066185504,
+      "ci_hi": 0.000959838802178325
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_group_validity_flags",
+      "ablation_name": "Drop validity_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "valid_w",
+        "valid_h",
+        "valid_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04760800688057853,
+      "macro_absrel": 0.05217404414890842,
+      "delta_pooled": 0.00016284728848207225,
+      "delta_macro": 5.8030785982945976e-05,
+      "ci_lo": -0.0010357710067942297,
+      "ci_hi": 0.0009542121740078014
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_group_ln_z_base",
+      "ablation_name": "Drop ln_z_base",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_base"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.047645103453116185,
+      "macro_absrel": 0.051816073546082864,
+      "delta_pooled": 0.00019994386101972877,
+      "delta_macro": -0.00029993981684261345,
+      "ci_lo": -0.0006938830442297375,
+      "ci_hi": 0.0011717776454090356
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_z_w",
+      "ablation_name": "Drop Cue Z_W",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_w",
+        "valid_w"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.04705238117521423,
+      "macro_absrel": 0.048880977755767,
+      "delta_pooled": -0.00039277841688222653,
+      "delta_macro": -0.0032350356071584804,
+      "ci_lo": -0.0016096115851437142,
+      "ci_hi": 0.00020900373848539862
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_z_h",
+      "ablation_name": "Drop Cue Z_H",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_h",
+        "valid_h"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.055939052698800396,
+      "macro_absrel": 0.06738385918522097,
+      "delta_pooled": 0.00849389310670394,
+      "delta_macro": 0.01526784582229549,
+      "ci_lo": 0.002288636857111322,
+      "ci_hi": 0.015285396226314935
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "drop_z_g",
+      "ablation_name": "Drop Cue Z_G",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_g",
+        "valid_g"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.04793194523129315,
+      "macro_absrel": 0.048102616746415215,
+      "delta_pooled": 0.0004867856391966921,
+      "delta_macro": -0.004013396616510262,
+      "ci_lo": -0.0021109997799100937,
+      "ci_hi": 0.0026128192391463934
+    },
+    {
+      "model_key": "yolov8s_640",
+      "ablation_key": "mlp",
+      "ablation_name": "MLP (128, 64) [Un-tuned]",
+      "category": "alternative_model",
+      "dropped_features": [],
+      "n_features": 17,
+      "pooled_absrel": 0.05008746973601352,
+      "macro_absrel": 0.04841668633381451,
+      "delta_pooled": 0.0026423101439170607,
+      "delta_macro": -0.003699327029110966,
+      "ci_lo": -0.0008188549794861053,
+      "ci_hi": 0.007537619952205478
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "baseline_full_f",
+      "ablation_name": "Full Model (f) Baseline",
+      "category": "baseline",
+      "n_features": 17,
+      "pooled_absrel": 0.04923353719155282,
+      "macro_absrel": 0.05254713164811184,
+      "delta_pooled": 0.0,
+      "delta_macro": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_bbox_geometry",
+      "ablation_name": "Drop bbox_geometry",
+      "category": "drop_group",
+      "dropped_features": [
+        "w",
+        "h",
+        "w_h_ratio",
+        "y_bottom_minus_cy",
+        "cx_offset_norm"
+      ],
+      "n_features": 12,
+      "pooled_absrel": 0.05222703613987812,
+      "macro_absrel": 0.06420437162054357,
+      "delta_pooled": 0.0029934989483252974,
+      "delta_macro": 0.011657239972431732,
+      "ci_lo": -0.0030120067849939247,
+      "ci_hi": 0.007910155582653396
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_edge_flags",
+      "ablation_name": "Drop edge_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "touch_left",
+        "touch_right",
+        "touch_top",
+        "touch_bottom"
+      ],
+      "n_features": 13,
+      "pooled_absrel": 0.049915594364477164,
+      "macro_absrel": 0.05226291287296652,
+      "delta_pooled": 0.0006820571729243413,
+      "delta_macro": -0.00028421877514531874,
+      "ci_lo": -0.0002632980372190197,
+      "ci_hi": 0.0013645075826123104
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_confidence",
+      "ablation_name": "Drop confidence",
+      "category": "drop_group",
+      "dropped_features": [
+        "confidence"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.05051945664413555,
+      "macro_absrel": 0.05339988273073699,
+      "delta_pooled": 0.0012859194525827247,
+      "delta_macro": 0.0008527510826251486,
+      "ci_lo": -0.00020138156029435336,
+      "ci_hi": 0.0026805815971182477
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_cues_ln_z",
+      "ablation_name": "Drop cues_ln_z",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_w",
+        "ln_z_h",
+        "ln_z_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04946687176049686,
+      "macro_absrel": 0.05277134241273671,
+      "delta_pooled": 0.00023333456894403942,
+      "delta_macro": 0.00022421076462487283,
+      "ci_lo": -0.00043167093899513647,
+      "ci_hi": 0.0008742207091722079
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_validity_flags",
+      "ablation_name": "Drop validity_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "valid_w",
+        "valid_h",
+        "valid_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04936864743372762,
+      "macro_absrel": 0.05297189895770247,
+      "delta_pooled": 0.0001351102421747949,
+      "delta_macro": 0.0004247673095906304,
+      "ci_lo": -0.0003777017173483407,
+      "ci_hi": 0.0005142800936550359
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_ln_z_base",
+      "ablation_name": "Drop ln_z_base",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_base"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.04993727745699215,
+      "macro_absrel": 0.05654806759294089,
+      "delta_pooled": 0.0007037402654393246,
+      "delta_macro": 0.004000935944829052,
+      "ci_lo": -0.00012213283493603364,
+      "ci_hi": 0.001573424992565777
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_z_w",
+      "ablation_name": "Drop Cue Z_W",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_w",
+        "valid_w"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.048497764415018026,
+      "macro_absrel": 0.05285246693811654,
+      "delta_pooled": -0.0007357727765347974,
+      "delta_macro": 0.00030533529000469767,
+      "ci_lo": -0.0021850110412797775,
+      "ci_hi": 0.0006250298262443024
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_z_h",
+      "ablation_name": "Drop Cue Z_H",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_h",
+        "valid_h"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.05833214891104295,
+      "macro_absrel": 0.07324346064523184,
+      "delta_pooled": 0.009098611719490127,
+      "delta_macro": 0.020696328997119998,
+      "ci_lo": 0.0028664122222713225,
+      "ci_hi": 0.01627867307958669
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_z_g",
+      "ablation_name": "Drop Cue Z_G",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_g",
+        "valid_g"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.048924769073517484,
+      "macro_absrel": 0.050710010910424215,
+      "delta_pooled": -0.0003087681180353394,
+      "delta_macro": -0.001837120737687624,
+      "ci_lo": -0.004667215254636287,
+      "ci_hi": 0.002967068848388217
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "mlp",
+      "ablation_name": "MLP (128, 64) [Un-tuned]",
+      "category": "alternative_model",
+      "dropped_features": [],
+      "n_features": 17,
+      "pooled_absrel": 0.05065807854679985,
+      "macro_absrel": 0.05568522497060155,
+      "delta_pooled": 0.0014245413552470276,
+      "delta_macro": 0.00313809332248971,
+      "ci_lo": -0.001451021774265477,
+      "ci_hi": 0.003772484034598475
+    }
+  ]
+}

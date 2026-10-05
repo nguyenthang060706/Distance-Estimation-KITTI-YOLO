@@ -51,6 +51,16 @@
 | D28 | `fallback_flag` là metadata, không nằm trong feature whitelist. | ✅ |
 | D29 | Z_d trên B dùng trọng số LODO (OOF theo drive) làm nền cho target residual; C và T dùng trọng số fit trên toàn B. | ✅ |
 | D30 | `ln_z_base` là đặc trưng dẫn xuất (suy ra được lúc test) cho (f0), (f); nằm ngoài whitelist D11 với guard test riêng; T05 có ablation bỏ nó. | ✅ |
+| D31 | Đánh giá OOF của B: báo cáo cả pooled và macro (theo 12 drive của B). Gate T04 yêu cầu AbsRel OOF của (f) < (d) ở cả pooled và macro. | ✅ |
+| D32 | Cơ chế Canary xáo nhãn trong train: kiểm tra rò rỉ label trong pipeline nested LODO B. OOF khi train trên nhãn xáo không được tốt hơn (d). | ✅ |
+| D33 | Pre-registration residual: `configs/residual/residual_prereg_v1.yaml` đóng băng grid 12 cấu hình (depth ≤ 4), bộ đặc trưng (f: 17, f0: 5, e: 10), loại bỏ `class_id` và `fallback_flag`. | ✅ |
+| D34 | Dựng $Z_{\text{base}}$ qua inner-LODO 11 fold trên 11 drive train để tạo $Z_e$ cho pattern 000, tránh rò rỉ target trong tập train. | ✅ |
+| D35 | Code freeze sau khi phát triển trên `yolo11s_640`; sửa code thì chạy lại toàn bộ 3 detector. | ✅ |
+| D36 | Thứ tự detector: chạy `yolo11s_640` trước, sau đó chạy `yolov8s_640` và `yolov5su_640` với cùng mã nguồn. | ✅ |
+| D37 | Ablation (T05) chỉ chạy trên OOF của Split B (12 folds), cấm chạm Split C (giữ nguyên vẹn cho conformalization). | ✅ |
+| D38 | Quy chuẩn Drop Single Cue ($Z_k$): loại bỏ $Z_k$ khỏi fusion, bỏ $\ln z_k$ và $\text{valid}_k$ khỏi Model (f); pattern 000 đi fallback (e); `fit_fusion_weights` hỗ trợ `cue_names` tùy chọn. | ✅ |
+| D39 | Thứ tự cắt khi trễ: cắt ngay Jitter (J1) trước khi chạy; nếu trễ T06 dời về W3-4 (T16), tuyệt đối không dời sang W2-5 (đường găng của T07 CQR). | ✅ |
+| D40 | Chuẩn đo đạc Latency Tier 1 (T06): GPU chính dùng PyTorch FP16 trên CUDA; CPU chính dùng ONNX Runtime CPU FP32; không chạy song song T05 và T06. | ✅ |
 
 ## 5. Hợp đồng dữ liệu (agent dùng chung)
 

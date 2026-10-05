@@ -1,0 +1,199 @@
+{
+  "model_key": "yolov5su_640",
+  "split": "B",
+  "split_b_hash": "0f83c3547188c8a6ab29a389f27524a5e09d5e7f96fcaff5f7a4f1328c2aef92",
+  "git_commit": "824992b29f00ea790a5b21242b5ecb742595ca57",
+  "git_tag": "prereg-residual-v1",
+  "seed": 42,
+  "bootstrap_seed": 42,
+  "n_boot": 1000,
+  "created_at": "2026-10-06T00:50:14.353536",
+  "n_samples": 3496,
+  "records": [
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "baseline_full_f",
+      "ablation_name": "Full Model (f) Baseline",
+      "category": "baseline",
+      "n_features": 17,
+      "pooled_absrel": 0.04923353719155282,
+      "macro_absrel": 0.05254713164811184,
+      "delta_pooled": 0.0,
+      "delta_macro": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_bbox_geometry",
+      "ablation_name": "Drop bbox_geometry",
+      "category": "drop_group",
+      "dropped_features": [
+        "w",
+        "h",
+        "w_h_ratio",
+        "y_bottom_minus_cy",
+        "cx_offset_norm"
+      ],
+      "n_features": 12,
+      "pooled_absrel": 0.05222703613987812,
+      "macro_absrel": 0.06420437162054357,
+      "delta_pooled": 0.0029934989483252974,
+      "delta_macro": 0.011657239972431732,
+      "ci_lo": -0.0030120067849939247,
+      "ci_hi": 0.007910155582653396
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_edge_flags",
+      "ablation_name": "Drop edge_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "touch_left",
+        "touch_right",
+        "touch_top",
+        "touch_bottom"
+      ],
+      "n_features": 13,
+      "pooled_absrel": 0.049915594364477164,
+      "macro_absrel": 0.05226291287296652,
+      "delta_pooled": 0.0006820571729243413,
+      "delta_macro": -0.00028421877514531874,
+      "ci_lo": -0.0002632980372190197,
+      "ci_hi": 0.0013645075826123104
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_confidence",
+      "ablation_name": "Drop confidence",
+      "category": "drop_group",
+      "dropped_features": [
+        "confidence"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.05051945664413555,
+      "macro_absrel": 0.05339988273073699,
+      "delta_pooled": 0.0012859194525827247,
+      "delta_macro": 0.0008527510826251486,
+      "ci_lo": -0.00020138156029435336,
+      "ci_hi": 0.0026805815971182477
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_cues_ln_z",
+      "ablation_name": "Drop cues_ln_z",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_w",
+        "ln_z_h",
+        "ln_z_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04946687176049686,
+      "macro_absrel": 0.05277134241273671,
+      "delta_pooled": 0.00023333456894403942,
+      "delta_macro": 0.00022421076462487283,
+      "ci_lo": -0.00043167093899513647,
+      "ci_hi": 0.0008742207091722079
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_validity_flags",
+      "ablation_name": "Drop validity_flags",
+      "category": "drop_group",
+      "dropped_features": [
+        "valid_w",
+        "valid_h",
+        "valid_g"
+      ],
+      "n_features": 14,
+      "pooled_absrel": 0.04936864743372762,
+      "macro_absrel": 0.05297189895770247,
+      "delta_pooled": 0.0001351102421747949,
+      "delta_macro": 0.0004247673095906304,
+      "ci_lo": -0.0003777017173483407,
+      "ci_hi": 0.0005142800936550359
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_group_ln_z_base",
+      "ablation_name": "Drop ln_z_base",
+      "category": "drop_group",
+      "dropped_features": [
+        "ln_z_base"
+      ],
+      "n_features": 16,
+      "pooled_absrel": 0.04993727745699215,
+      "macro_absrel": 0.05654806759294089,
+      "delta_pooled": 0.0007037402654393246,
+      "delta_macro": 0.004000935944829052,
+      "ci_lo": -0.00012213283493603364,
+      "ci_hi": 0.001573424992565777
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_z_w",
+      "ablation_name": "Drop Cue Z_W",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_w",
+        "valid_w"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.048497764415018026,
+      "macro_absrel": 0.05285246693811654,
+      "delta_pooled": -0.0007357727765347974,
+      "delta_macro": 0.00030533529000469767,
+      "ci_lo": -0.0021850110412797775,
+      "ci_hi": 0.0006250298262443024
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_z_h",
+      "ablation_name": "Drop Cue Z_H",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_h",
+        "valid_h"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.05833214891104295,
+      "macro_absrel": 0.07324346064523184,
+      "delta_pooled": 0.009098611719490127,
+      "delta_macro": 0.020696328997119998,
+      "ci_lo": 0.0028664122222713225,
+      "ci_hi": 0.01627867307958669
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "drop_z_g",
+      "ablation_name": "Drop Cue Z_G",
+      "category": "drop_cue",
+      "dropped_features": [
+        "ln_z_g",
+        "valid_g"
+      ],
+      "n_features": 15,
+      "pooled_absrel": 0.048924769073517484,
+      "macro_absrel": 0.050710010910424215,
+      "delta_pooled": -0.0003087681180353394,
+      "delta_macro": -0.001837120737687624,
+      "ci_lo": -0.004667215254636287,
+      "ci_hi": 0.002967068848388217
+    },
+    {
+      "model_key": "yolov5su_640",
+      "ablation_key": "mlp",
+      "ablation_name": "MLP (128, 64) [Un-tuned]",
+      "category": "alternative_model",
+      "dropped_features": [],
+      "n_features": 17,
+      "pooled_absrel": 0.05065807854679985,
+      "macro_absrel": 0.05568522497060155,
+      "delta_pooled": 0.0014245413552470276,
+      "delta_macro": 0.00313809332248971,
+      "ci_lo": -0.001451021774265477,
+      "ci_hi": 0.003772484034598475
+    }
+  ]
+}

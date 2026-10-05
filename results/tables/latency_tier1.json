@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-06T00:57:10.604635",
+    "hardware": {
+      "cpu": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+      "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+      "cpu_threads": 4
+    },
+    "versions": {
+      "torch": "2.11.0+cu128",
+      "onnxruntime": "1.30.0",
+      "xgboost": "2.0.3"
+    },
+    "parameters": {
+      "n_images": 200,
+      "n_warmup": 20,
+      "imgsz": 640,
+      "conf_min": 0.05,
+      "iou_nms": 0.7
+    }
+  },
+  "detectors": {
+    "yolo11s_640": {
+      "checkpoint_sha256": "fbcaf900de1a8723b0982188ffcc239a74b2c3739cb728c2dbe47147123d52dd",
+      "parity": {
+        "n_images_tested": 50,
+        "total_pt_detections": 231,
+        "total_ort_detections": 225,
+        "count_ratio": 0.974025974025974,
+        "high_iou_match_rate": 0.9437229437229437,
+        "count_parity_passed": true,
+        "iou_parity_passed": false
+      },
+      "latency": {
+        "preprocess": {
+          "median_ms": 32.14,
+          "p95_ms": 35.69
+        },
+        "detector_gpu_fp16": {
+          "median_ms": 36.76,
+          "p95_ms": 46.84
+        },
+        "detector_cpu_ort_fp32": {
+          "median_ms": 106.69,
+          "p95_ms": 109.51
+        },
+        "postprocess_gpu": {
+          "median_ms": 0.33,
+          "p95_ms": 0.72
+        },
+        "postprocess_cpu": {
+          "median_ms": 0.47,
+          "p95_ms": 0.78
+        },
+        "geometry": {
+          "median_ms": 0.18,
+          "p95_ms": 0.37
+        },
+        "residual_xgboost": {
+          "median_ms": 0.7,
+          "p95_ms": 0.77
+        },
+        "cqr_uncertainty": {
+          "median_ms": "\u2014",
+          "p95_ms": "\u2014",
+          "note": "To be completed at T16"
+        },
+        "total_pipeline_gpu": {
+          "median_ms": 70.11000000000001,
+          "p95_ms": 84.39,
+          "fps": 14.3
+        },
+        "total_pipeline_cpu": {
+          "median_ms": 140.17999999999998,
+          "p95_ms": 147.12,
+          "fps": 7.1
+        }
+      }
+    },
+    "yolov8s_640": {
+      "checkpoint_sha256": "9c7cf571eace5558590b20748d79917c44cad9127692f5694fe14b9d6a420875",
+      "parity": {
+        "n_images_tested": 50,
+        "total_pt_detections": 223,
+        "total_ort_detections": 225,
+        "count_ratio": 1.0089686098654709,
+        "high_iou_match_rate": 0.9417040358744395,
+        "count_parity_passed": true,
+        "iou_parity_passed": false
+      },
+      "latency": {
+        "preprocess": {
+          "median_ms": 20.55,
+          "p95_ms": 21.19
+        },
+        "detector_gpu_fp16": {
+          "median_ms": 32.57,
+          "p95_ms": 57.91
+        },
+        "detector_cpu_ort_fp32": {
+          "median_ms": 131.25,
+          "p95_ms": 136.69
+        },
+        "postprocess_gpu": {
+          "median_ms": 0.32,
+          "p95_ms": 0.68
+        },
+        "postprocess_cpu": {
+          "median_ms": 0.48,
+          "p95_ms": 0.79
+        },
+        "geometry": {
+          "median_ms": 0.18,
+          "p95_ms": 0.34
+        },
+        "residual_xgboost": {
+          "median_ms": 0.69,
+          "p95_ms": 0.74
+        },
+        "cqr_uncertainty": {
+          "median_ms": "\u2014",
+          "p95_ms": "\u2014",
+          "note": "To be completed at T16"
+        },
+        "total_pipeline_gpu": {
+          "median_ms": 54.31,
+          "p95_ms": 80.86,
+          "fps": 18.4
+        },
+        "total_pipeline_cpu": {
+          "median_ms": 153.15,
+          "p95_ms": 159.75,
+          "fps": 6.5
+        }
+      }
+    },
+    "yolov5su_640": {
+      "checkpoint_sha256": "119dd46137af4851edf27e4be49e99393c79fd1ed53fe3c005b15a107b679790",
+      "parity": {
+        "n_images_tested": 50,
+        "total_pt_detections": 230,
+        "total_ort_detections": 230,
+        "count_ratio": 1.0,
+        "high_iou_match_rate": 0.9043478260869565,
+        "count_parity_passed": true,
+        "iou_parity_passed": false
+      },
+      "latency": {
+        "preprocess": {
+          "median_ms": 20.55,
+          "p95_ms": 21.5
+        },
+        "detector_gpu_fp16": {
+          "median_ms": 34.0,
+          "p95_ms": 62.02
+        },
+        "detector_cpu_ort_fp32": {
+          "median_ms": 109.69,
+          "p95_ms": 117.3
+        },
+        "postprocess_gpu": {
+          "median_ms": 0.32,
+          "p95_ms": 0.7
+        },
+        "postprocess_cpu": {
+          "median_ms": 0.5,
+          "p95_ms": 0.82
+        },
+        "geometry": {
+          "median_ms": 0.19,
+          "p95_ms": 0.36
+        },
+        "residual_xgboost": {
+          "median_ms": 0.7,
+          "p95_ms": 0.76
+        },
+        "cqr_uncertainty": {
+          "median_ms": "\u2014",
+          "p95_ms": "\u2014",
+          "note": "To be completed at T16"
+        },
+        "total_pipeline_gpu": {
+          "median_ms": 55.76,
+          "p95_ms": 85.34000000000002,
+          "fps": 17.9
+        },
+        "total_pipeline_cpu": {
+          "median_ms": 131.63,
+          "p95_ms": 140.74,
+          "fps": 7.6
+        }
+      }
+    }
+  }
+}

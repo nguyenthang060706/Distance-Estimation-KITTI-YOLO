@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import GroupKFold
+from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
@@ -285,6 +286,7 @@ def fit_f(
     n_splits: int = 5,
     random_state: int = 42,
     n_jobs: int = 1,
+    feature_cols: list[str] | None = None,
 ) -> tuple[xgb.XGBRegressor, dict[str, Any], dict[str, Any]]:
     """
     Fit Model (f): XGBoost residual model using pre-registered inner CV grid search (D25).
@@ -293,19 +295,21 @@ def fit_f(
     Tie-breaking: smaller max_depth -> smaller n_estimators.
 
     Args:
-        X: Feature DataFrame (must contain FEATURE_COLS_F).
+        X: Feature DataFrame (must contain feature_cols or FEATURE_COLS_F).
         y: Target log-residual array r = ln(Z_gt) - ln(Z_base).
         groups: Cluster/drive IDs for GroupKFold.
         grid: Hyperparameter grid (defaults to DEFAULT_F_GRID).
         n_splits: Number of inner CV folds (default 5).
         random_state: Seed for reproducibility.
         n_jobs: Number of worker threads (default 1).
+        feature_cols: Optional subset of feature column names for ablation (defaults to FEATURE_COLS_F).
 
     Returns:
         (best_model, best_params, cv_results)
     """
     check_no_gt_leakage(X.columns)
-    X_mat = X[FEATURE_COLS_F].to_numpy(dtype=float)
+    cols = feature_cols if feature_cols is not None else FEATURE_COLS_F
+    X_mat = X[cols].to_numpy(dtype=float)
     y_arr = np.asarray(y, dtype=float)
     groups_arr = np.asarray(groups, dtype=str)
 
@@ -418,6 +422,7 @@ def predict_f(
     model: xgb.XGBRegressor,
     X: pd.DataFrame,
     z_base: np.ndarray | pd.Series,
+    feature_cols: list[str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Predict depth using fitted Model (f): Z_hat = Z_base * exp(r_hat).
@@ -426,7 +431,8 @@ def predict_f(
         (z_hat_f, r_hat_f)
     """
     check_no_gt_leakage(X.columns)
-    X_mat = X[FEATURE_COLS_F].to_numpy(dtype=float)
+    cols = feature_cols if feature_cols is not None else FEATURE_COLS_F
+    X_mat = X[cols].to_numpy(dtype=float)
     z_base_arr = np.asarray(z_base, dtype=float)
 
     r_hat = model.predict(X_mat)
@@ -484,3 +490,68 @@ def save_model_f0(model: Pipeline, path: str | Path) -> None:
 
 def load_model_f0(path: str | Path) -> Pipeline:
     return joblib.load(str(path))
+
+
+def fit_mlp(
+    X: pd.DataFrame,
+    y: np.ndarray,
+    feature_cols: list[str] | None = None,
+    hidden_layer_sizes: tuple[int, ...] = (128, 64),
+    activation: str = "relu",
+    max_iter: int = 500,
+    random_state: int = 42,
+) -> Pipeline:
+    """
+    Fit alternative Model (MLP) for ablation M1 (residual_prereg_v1.yaml).
+    Uses StandardScaler within a Pipeline to prevent data leakage and handle scaling.
+
+    Args:
+        X: Feature DataFrame containing feature_cols (defaults to FEATURE_COLS_F).
+        y: Target log-residual array r = ln(Z_gt) - ln(Z_base).
+        feature_cols: Optional list of features to extract from X.
+        hidden_layer_sizes: MLP layer topology (default 128, 64).
+        activation: Activation function (default relu).
+        max_iter: Maximum optimization iterations (default 500).
+        random_state: Deterministic seed (default 42).
+
+    Returns:
+        Fitted sklearn Pipeline(StandardScaler, MLPRegressor).
+    """
+    check_no_gt_leakage(X.columns)
+    cols = feature_cols if feature_cols is not None else FEATURE_COLS_F
+    X_mat = X[cols].to_numpy(dtype=float)
+    y_arr = np.asarray(y, dtype=float)
+
+    pipe = Pipeline([
+        ("scaler", StandardScaler()),
+        ("mlp", MLPRegressor(
+            hidden_layer_sizes=hidden_layer_sizes,
+            activation=activation,
+            max_iter=max_iter,
+            random_state=random_state,
+        )),
+    ])
+    pipe.fit(X_mat, y_arr)
+    return pipe
+
+
+def predict_mlp(
+    model: Pipeline,
+    X: pd.DataFrame,
+    z_base: np.ndarray | pd.Series,
+    feature_cols: list[str] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Predict depth using fitted MLP Pipeline: Z_hat = Z_base * exp(r_hat).
+
+    Returns:
+        (z_hat_mlp, r_hat_mlp)
+    """
+    check_no_gt_leakage(X.columns)
+    cols = feature_cols if feature_cols is not None else FEATURE_COLS_F
+    X_mat = X[cols].to_numpy(dtype=float)
+    z_base_arr = np.asarray(z_base, dtype=float)
+
+    r_hat = model.predict(X_mat)
+    z_hat = z_base_arr * np.exp(r_hat)
+    return z_hat, r_hat
