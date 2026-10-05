@@ -44,13 +44,13 @@
 | # | Nội dung | Trạng thái |
 |---|---|---|
 | D23 | Quần thể ranging = detection TP ở `pass_thr`; `z_gt` chỉ join sau khi đặc trưng đã tính. Sensitivity ở sàn `conf ≥ 0.05` và ở eps mask của detector chỉ là ablation, không đổi cấu hình đóng băng. | ✅ |
-| D24 | Tuning và chọn cấu hình chỉ trên OOF của B (nested grouped CV). OOF B∪C chỉ để báo cáo mô tả sau khi đóng băng. | ⏳ |
-| D25 | Grid XGBoost nhỏ, pre-register: `max_depth ≤ 4`, `min_child_weight` lớn, `n_estimators` cố định trong fold (không early stopping trên fold giữ lại), ≤ 24 cấu hình. Bắt buộc có baseline (f0) tuyến tính và (e). `configs/residual/residual_config.yaml` (depth 6, 500 cây) bị thay thế. | ⏳ |
-| D26 | Giao thức coverage: LODO calibration trong C cho dev; 20 lần chia lại B∪C theo drive (seed 0–19, ba phần fit/calib/eval, luật ghi trong pre-register); Mondrian bin theo Ẑ, gộp bin ≥ 30 m; mọi CI ghi "thô (k cụm)". | ⏳ |
-| D27 | T chạy một lần, chỉ qua `scripts/run_final_T.py`: tham số `allow_test` kiểm soát, lock file chặn lần chạy thứ hai, bắt buộc có tag `final-config-v1` trùng HEAD, kiểm SHA checkpoint + hash split. Guard công khai của `run_inference.py` giữ nguyên. | ⏳ |
-| D28 | `fallback_flag` là metadata, không nằm trong feature whitelist. | ⏳ |
+| D24 | Tuning và chọn cấu hình chỉ trên OOF của B (nested grouped CV). OOF B∪C chỉ để báo cáo mô tả sau khi đóng băng. | ✅ |
+| D25 | Grid XGBoost nhỏ, pre-register: `max_depth ≤ 4`, `min_child_weight` lớn, `n_estimators` cố định trong fold (không early stopping trên fold giữ lại), ≤ 24 cấu hình. Bắt buộc có baseline (f0) tuyến tính và (e). `configs/residual/residual_config.yaml` (depth 6, 500 cây) bị thay thế. | ✅ |
+| D26 | Giao thức coverage: LODO calibration trong C cho dev; 20 lần chia lại B∪C theo drive (seed 0–19, ba phần fit/calib/eval, luật ghi trong pre-register); Mondrian bin theo Ẑ, gộp bin ≥ 30 m; mọi CI ghi "thô (k cụm)". | ✅ |
+| D27 | T chạy một lần, chỉ qua `scripts/run_final_T.py`: tham số `allow_test` kiểm soát, lock file chặn lần chạy thứ hai, bắt buộc có tag `final-config-v1` trùng HEAD, kiểm SHA checkpoint + hash split. Guard công khai của `run_inference.py` giữ nguyên. | ✅ |
+| D28 | `fallback_flag` là metadata, không nằm trong feature whitelist. | ✅ |
 | D29 | Z_d trên B dùng trọng số LODO (OOF theo drive) làm nền cho target residual; C và T dùng trọng số fit trên toàn B. | ✅ |
-| D30 | `ln_z_base` là đặc trưng dẫn xuất (suy ra được lúc test) cho (f0), (f); nằm ngoài whitelist D11 với guard test riêng; T05 có ablation bỏ nó. | ⏳ |
+| D30 | `ln_z_base` là đặc trưng dẫn xuất (suy ra được lúc test) cho (f0), (f); nằm ngoài whitelist D11 với guard test riêng; T05 có ablation bỏ nó. | ✅ |
 
 ## 5. Hợp đồng dữ liệu (agent dùng chung)
 

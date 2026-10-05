@@ -1,0 +1,210 @@
+# ================================================================
+# Pre-registered residual experiment config (D25, D33, D34)
+# Tag: prereg-residual-v1
+# ================================================================
+# Mọi selection và gate chỉ trên Split B (D24). C không dùng.
+# B là dev data: D19 đặt sau khi nhìn B -> prereg cố định hyperparams
+# và gate, không phải kiểm định mù. Ghi vào Limitations.
+# ================================================================
+
+seed: 42
+n_jobs: 1  # Deterministic, ghi vào log
+
+# ---------------------------------------------------------------
+# Inner CV (chọn hyperparams cho (f) và (f0) trên B)
+# ---------------------------------------------------------------
+inner_cv:
+  method: GroupKFold
+  group_col: drive
+  n_splits: 5  # 12 drives chia 5 fold
+
+# ---------------------------------------------------------------
+# Selection criterion (D25)
+# ---------------------------------------------------------------
+selection:
+  criterion: rmse_log     # min RMSE of log-residual OOF trên inner CV
+  tie_break:              # Hòa criterion:
+    - max_depth: smaller  #   depth nhỏ hơn
+    - n_estimators: smaller  # rồi n_estimators nhỏ hơn
+
+# ================================================================
+# Model (f): XGBoost residual — grid search (D25)
+# ================================================================
+model_f:
+  type: xgboost
+  objective: "reg:squarederror"
+  grid:
+    n_estimators: [100, 200]
+    max_depth: [2, 3, 4]
+    min_child_weight: [10, 20]
+    learning_rate: [0.05]
+    subsample: [0.8]
+    colsample_bytree: [0.8]
+    reg_alpha: [0.1]
+    reg_lambda: [1.0]
+    # Tổng: 2 x 3 x 2 = 12 configs (< 24)
+    # Không early stopping trên fold giữ lại
+  features:
+    - w
+    - h
+    - w_h_ratio
+    - y_bottom_minus_cy
+    - cx_offset_norm
+    - touch_left
+    - touch_right
+    - touch_top
+    - touch_bottom
+    - confidence
+    # class_id bỏ: luôn = 0 (chỉ Car), vô nghĩa
+    - ln_z_w
+    - ln_z_h
+    - ln_z_g
+    - valid_w
+    - valid_h
+    - valid_g
+    - ln_z_base    # Derived feature (D30), guard test riêng
+    # Tổng: 17 features
+
+# ================================================================
+# Model (f0): Ridge regression — baseline tuyến tính (D25)
+# ================================================================
+model_f0:
+  type: ridge
+  preprocessing: StandardScaler   # Chuẩn hóa trước fit
+  alpha_grid: [0.01, 0.1, 1.0, 10.0, 100.0]  # Chọn bằng inner CV (cùng GroupKFold)
+  selection_criterion: rmse_log
+  features:
+    - ln_z_base    # D30
+    - w
+    - h
+    - w_h_ratio
+    - confidence
+    # Tổng: 5 features
+
+# ================================================================
+# Model (e): XGBoost direct depth — cố định, KHÔNG grid (D25)
+# ================================================================
+model_e:
+  type: xgboost
+  objective: "reg:squarederror"
+  # Cố định 1 config, không tuning
+  n_estimators: 200
+  max_depth: 3
+  min_child_weight: 20
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.8
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  target: ln_z_gt   # Hồi quy trực tiếp ln(Z), KHÔNG dùng residual
+  features:
+    # Tất cả whitelist NGOẠI TRỪ ln_z_* và valid_* và ln_z_base
+    - w
+    - h
+    - w_h_ratio
+    - y_bottom_minus_cy
+    - cx_offset_norm
+    - touch_left
+    - touch_right
+    - touch_top
+    - touch_bottom
+    - confidence
+    # class_id bỏ: luôn = 0
+    # Tổng: 10 features
+
+# ================================================================
+# Metadata
+# ================================================================
+metadata:
+  fallback_flag: metadata_only   # D28: KHÔNG feature, KHÔNG whitelist
+  ln_z_base: derived_feature     # D30: guard test riêng, không D11 whitelist
+
+# ================================================================
+# Z_base construction (D13, D16b, D29, D34)
+# ================================================================
+z_base:
+  rule: |
+    Z_base = Z_d  nếu >= 1 cue hợp lệ (pattern != 000)
+    Z_base = Z_e  nếu pattern 000 (fallback, D13)
+
+  # --- Nested OOF trên B (D34) ---
+  # Outer LODO: 12 fold theo drive (dùng cho (f0), (f), (e))
+  # Trong mỗi outer fold d:
+  #   - Z_d train: dùng một bộ trọng số w_-d fit trên 11 drives train
+  #     (KHÔNG dùng w_-d' từ các fold khác)
+  #   - Z_e train cho pattern 000: inner-LODO trong 11 drives train
+  #     (fit (e) trên 10 drives, predict drive còn lại)
+  #   - Z_d test fold d: dùng w_-d
+  #   - Z_e test fold d: dùng model (e) fit trên 11 drives train
+
+  outer_lodo:
+    n_folds: 12      # Số drives có Car Hard trong B
+    group_col: drive
+
+  inner_lodo_for_ze:
+    description: |
+      Trong 11 drives train của outer fold d, chạy LODO 11 fold
+      để sinh Z_e OOF cho các dòng train mang pattern 000.
+      Tránh rò rỉ: model (e) cho dòng train drive d'
+      KHÔNG được fit trên dữ liệu chứa d'.
+
+# ================================================================
+# Gate (D33)
+# ================================================================
+gate:
+  baseline: "d"  # Z_d OOF LODO (D29), KHÔNG in-sample
+
+  support: |
+    (d) là NaN ở pattern 000; (f) có fallback Z_e.
+    - Gate pooled & macro: tính trên TẬP CHUNG nơi d hợp lệ (pattern != 000).
+    - Thêm 1 dòng phụ "toàn bộ matched" (d + fallback Z_e) để đối chiếu.
+
+  macro: |
+    Macro = trung bình không trọng số qua 12 drives (D18).
+    Phụ: macro trên drives có n >= 30.
+
+  primary_rule: |
+    (f) AbsRel OOF < (d) AbsRel OOF, cả pooled VÀ macro,
+    trên tập chung nơi d hợp lệ.
+
+  f0_approx_f: |
+    "f0 ≈ f" khi: CI cặp cluster bootstrap (f − f0) chứa 0
+    VÀ |Δ AbsRel pooled| < 0.005.
+    Nếu đúng -> ghi "mô hình đơn giản đủ" (không phải lỗi).
+
+  no_fix_to_pass: true  # AGENT_RULES §1.9
+
+  ghi_n: |
+    Bảng kết quả ghi n_matched / n_GT cạnh AbsRel (D17),
+    để (f) vs (d) không bị đọc chỉ trên phần matched.
+
+# ================================================================
+# Ablation T05 (pre-registered, chạy ở T05 không phải T04)
+# ================================================================
+ablation:
+  drop_groups:
+    - name: bbox_geometry
+      features: [w, h, w_h_ratio, y_bottom_minus_cy, cx_offset_norm]
+    - name: edge_flags
+      features: [touch_left, touch_right, touch_top, touch_bottom]
+    - name: confidence
+      features: [confidence]
+    - name: cues_ln_z
+      features: [ln_z_w, ln_z_h, ln_z_g]
+    - name: validity_flags
+      features: [valid_w, valid_h, valid_g]
+    - name: ln_z_base
+      features: [ln_z_base]  # D30 ablation
+  drop_single_cue:
+    - drop_z_w  # Refit fusion không có Z_w rồi chạy lại (f)
+    - drop_z_h
+    - drop_z_g
+  alternative_model:
+    mlp:
+      type: MLPRegressor
+      hidden_layer_sizes: [128, 64]
+      activation: relu
+      max_iter: 500
+      random_state: 42
+  optional_if_time:
+    - jitter_bbox_train  # Cắt đầu tiên nếu trễ (§7)
