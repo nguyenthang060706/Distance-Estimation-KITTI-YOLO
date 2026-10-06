@@ -1,0 +1,10 @@
+{
+  "model_key": "yolov8s_640",
+  "split": "C",
+  "alpha": 0.1,
+  "nominal_coverage": 0.9,
+  "q_hat_full_c": 0.06389765051835194,
+  "n_calib": 1445,
+  "scores_sha256": "ce5600e5f564150f836ea8049fba91107943d05565f01d890fb91a49688f5576",
+  "created_at": "2026-10-06T14:32:24.419947"
+}

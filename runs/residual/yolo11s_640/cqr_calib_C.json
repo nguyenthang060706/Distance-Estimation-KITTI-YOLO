@@ -1,0 +1,10 @@
+{
+  "model_key": "yolo11s_640",
+  "split": "C",
+  "alpha": 0.1,
+  "nominal_coverage": 0.9,
+  "q_hat_full_c": 0.051069145804244265,
+  "n_calib": 1489,
+  "scores_sha256": "6475205c31884c2645c0787e2a0ca4af13b395690f0b60f116ad4ed2d5ecd666",
+  "created_at": "2026-10-06T14:32:23.363901"
+}

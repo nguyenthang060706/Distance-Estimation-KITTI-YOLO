@@ -30,6 +30,18 @@
     "full_fw": {
       "file": "full_fw.json",
       "sha256": "6c815dbb1a5af4ec8896c7cb2926bcbc3d7c57bd8cada49c071b229ef9c333fa"
+    },
+    "model_q05": {
+      "file": "model_q05.json",
+      "sha256": "b1ed4e9555b2b41195b2f3a1f3a80b22394ebdfb1f327f71fd39e84ee43399cd"
+    },
+    "model_q95": {
+      "file": "model_q95.json",
+      "sha256": "1d90d5223dffcb9339ad14fccdad2398de397b8fd2f7fbf9237a46e57e6347f4"
+    },
+    "cqr_calib_C": {
+      "file": "cqr_calib_C.json",
+      "sha256": "63f2604c8046d9a6b70ded3035f02781bad16c650f3779217789c7dd7ac51828"
     }
   },
   "fold_summary": [
@@ -202,7 +214,20 @@
       "f_rmse_inner": 0.06193384332199239
     }
   ],
-  "updated_at": "2026-10-06T13:49:30.764392",
+  "updated_at": "2026-10-06T14:32:23.375707",
   "protocol_fix": "D43: final models trained on OOF Z_base (LODO Z_d and OOF Z_e)",
-  "z_base_source": "B_oof.parquet"
+  "z_base_source": "B_oof.parquet",
+  "cqr": {
+    "alpha": 0.1,
+    "nominal_coverage": 0.9,
+    "pooled_coverage_lodo": 0.8717259905977166,
+    "macro_coverage_lodo_all": 0.8976315954911914,
+    "macro_coverage_lodo_ge_30": 0.9013784697493212,
+    "mean_width_ratio": 1.3298322884148823,
+    "median_width_ratio": 1.3207332523011448,
+    "mean_winkler": 0.5784854670422706,
+    "total_crossings": 0,
+    "q_hat_full_c": 0.051069145804244265,
+    "gate_passed": true
+  }
 }

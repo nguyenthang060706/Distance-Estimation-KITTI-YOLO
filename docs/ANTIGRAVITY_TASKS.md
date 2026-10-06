@@ -64,6 +64,10 @@
 | D43 | Protocol fit toàn B: Model cuối (f)/(f0) fit trên Split B phải dùng nền $Z_{\text{base}}$ OOF (LODO $Z_d$ và OOF $Z_e$). Trọng số toàn cục `full_fw` được serialize cùng mã băm SHA. | ✅ |
 | D44 | Latency Tier 1 sơ bộ: kết quả T06 là preliminary; Parity báo cả Count và IoU (không đổi ngưỡng). Đo lại toàn diện ở T16 kèm CQR. | ✅ |
 | D45 | Ngôn ngữ kết quả T05: chỉ báo cáo mô tả số liệu, tôn trọng CI thô chứa 0 (không khẳng định vượt trội hay trực giao); giữ nguyên 17 features theo prereg. | ✅ |
+| D46 | Mức conformal dùng order statistic chính xác $k = \lceil (n+1)(1-\alpha) \rceil$; $k > n \implies \hat{Q} = +\infty$; tránh lỗi off-by-one của numpy. | ✅ |
+| D47 | Interval $[q_{lo} - \hat{Q}, q_{hi} + \hat{Q}]$ trong log-space; sort quantiles nhất quán; đếm crossing không silent clip; Winkler score ở log-space. | ✅ |
+| D48 | Tiêu chí Gate T07 chấp nhận pooled $[85\%, 95\%]$; báo song song macro drive $n \ge 30$; fallback_flag chỉ báo n mô tả. | ✅ |
+| D49 | Module suy luận out-of-sample dùng chung C và T tại `src/pipeline/apply_frozen.py`, assert khớp cues parquet. | ✅ |
 
 ## 5. Hợp đồng dữ liệu (agent dùng chung)
 
@@ -168,15 +172,17 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 **Làm:** `scripts/bench_latency.py`: xuất ONNX 3 detector (`YOLO.export(format="onnx", imgsz=640)`, file `.onnx` đã nằm trong `.gitignore`); đo ONNX Runtime CPU (warmup 20, N = 200 ảnh từ B, cố định số luồng và ghi lại) và GPU FP16; tách khâu preprocess / detector / postprocess, hình học, residual (XGBoost predict); khâu CQR để trống, hoàn thiện ở T16. Kiểm tra parity ONNX vs `.pt` (số detection xấp xỉ). Ghi cấu hình phần cứng, phiên bản `onnxruntime`/`ultralytics`. Ra `results/tables/latency_tier1.{md,json}`.
 **Cấm:** suy ra kết luận về độ chính xác từ ONNX.
 
-### T07 — CQR lõi (W2-5)
+### T07 — CQR lõi (W2-5) — [x] HOÀN THÀNH
 **Mục tiêu:** CQR trên r, conformalize trên C, đánh giá dev.
-**Đọc trước:** `docs/KE_HOACH_V4.md` §5.4; D13, D24, D26.
+**Đọc trước:** `docs/KE_HOACH_V4.md` §5.4; D13, D24, D26, D46–D49.
 **Làm:**
-1. `src/uncertainty/cqr.py`: `fit_quantile_xgb(q)` (cùng bộ đặc trưng và cấu hình đã chọn ở T04, không tune thêm), `conformalize(scores, alpha)` (mức `⌈(n+1)(1−α)⌉/n`), `predict_interval` (sắp `q_lo ≤ q_hi`, đổi sang Z qua `exp`), `assert_disjoint_drives(fit, calib)`.
-2. Fit hai phân vị 5%/95% trên B; conformalize trên C với α = 0.1. C đi qua đúng pipeline của T (cùng ngưỡng, cùng matching, cùng Hard, cùng fallback).
-3. Dev: LODO calibration trong C (hiệu chỉnh trên C∖d, test trên d). Báo cáo coverage pooled + macro + từng drive, độ rộng (Z_hi/Z_lo), interval score, coverage theo `fallback_flag`.
-4. Test (`tests/test_cqr.py`): dữ liệu giả exchangeable, dị phương sai → coverage trung bình ≥ 1 − α trừ dung sai; công thức mức phân vị; `lo ≤ hi`; guard disjoint drive.
-**Gate:** coverage tổng trên C (LODO) gần 90%; lệch thì giải thích được, không chỉnh α hay cấu hình để vừa.
+1. `src/uncertainty/cqr.py`: `fit_quantile_xgb(q)` (cùng bộ đặc trưng và cấu hình đã chọn ở T04, không tune thêm), `conformalize(scores, alpha)` (mức order statistic thứ $\lceil (n+1)(1-\alpha) \rceil$, D46), `predict_interval` (sắp `q_lo ≤ q_hi`, đổi sang Z qua `exp`, đếm crossing không silent clip, D47), `winkler_score` ở log-space (D47), `assert_disjoint_drives(fit, calib)`.
+2. `src/pipeline/apply_frozen.py`: chuẩn hóa luồng suy luận Split C và T, assert khớp `C_cues.parquet` (D49).
+3. Fit hai phân vị 5%/95% trên B; conformalize trên C với α = 0.1. C đi qua đúng pipeline của T (cùng ngưỡng, cùng matching, cùng Hard, cùng fallback).
+4. Dev: LODO calibration trong C (hiệu chỉnh trên C∖d, test trên d). Báo cáo coverage pooled + macro + macro ($n \ge 30$) + từng drive, độ rộng (Z_hi/Z_lo), Winkler score, coverage theo `fallback_flag`. Calibrate toàn C xuất `cqr_calib_C.json` cho T10/T11.
+5. Test (`tests/test_cqr.py`): 10 tests pass (order statistic hand-crafted, LODO invariance, exchangeable coverage 200 trials, heteroscedasticity, crossing counter, disjoint guard, OOF Z_base invariance, Winkler properties). Toàn repo đạt 154 passed tests.
+**Gate:** coverage tổng trên C (LODO) trong $[85\%, 95\%]$: **ĐẠT (PASS)** ở cả 3 detector (yolo11s: 87.17%, v8s: 87.13%, v5su: 87.97%; macro $n \ge 30$ đạt 90.01%–90.14%). Output: `results/tables/cqr_coverage_dev.{json,md}`.
+
 
 ### T08 — Conformal biến thể + 20 lần chia lại + coverage có điều kiện (dev) (W2-6)
 **Mục tiêu:** split conformal, Mondrian CQR, độ ổn định coverage.

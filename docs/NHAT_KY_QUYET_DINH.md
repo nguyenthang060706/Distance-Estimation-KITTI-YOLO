@@ -85,9 +85,13 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Cơ chế Canary xáo nhãn trong train (D42):** Kiểm tra rò rỉ target trong pipeline nested LODO B. Khi xáo ngẫu nhiên nhãn $Z_{\text{gt}}$ trong tập huấn luyện, OOF của mô hình residual (f) không được phép tốt hơn baseline $Z_{\text{base}}$. (Đổi từ D32 tasks cũ để tránh trùng D32 nhật ký).
 - ✅ **Protocol fit toàn B cho Model cuối & Serialization full_fw (D43):** Sửa lỗi giao thức fit trên nền in-sample: Khi fit mô hình cuối (f)/(f0) trên toàn bộ Split B để triển khai sang C và T, target $r$ và đặc trưng dẫn xuất $\ln z_{\text{base}}$ bắt buộc sử dụng $Z_{\text{base}}$ OOF từ `B_oof.parquet` (LODO $Z_d$ và OOF $Z_e$), không dùng $Z_{\text{base}}$ in-sample. Trọng số toàn cục `full_fw` (fit trên toàn bộ B) được serialize thành `full_fw.json` cùng mã băm SHA-256 lưu trong `manifest.json`.
 - ✅ **Latency Tier 1 sơ bộ & Quy chuẩn Parity Check (D44):** Kết quả T06 được gắn nhãn `PRELIMINARY` (không trích số vào bài báo) do các hạn chế phương pháp luận: double count tiền xử lý ở GPU line, tổng tính theo sum of medians, đường tắt residual, và khác biệt dynamic padding của PyTorch vs static padding của ONNX. Bảng Parity báo cáo độc lập cả hai tiêu chí: Count Parity (đạt) và IoU Parity (chưa đạt ngưỡng 0.95), tuân thủ AGENT_RULES §1.9 không đổi ngưỡng. Phép đo chính thức sẽ thực hiện ở T16 kèm CQR.
-- ✅ **Ngôn ngữ kết quả T05 ở mức mô tả (D45):** Kết quả ablation T05 phản ánh trung thực số liệu thực nghiệm: drop $Z_h$ làm sai số tăng rõ rệt (hiệu ứng lên $Z_{\text{base}}$), trong khi drop $Z_w$ và $Z_g$ cho $\Delta \approx 0$ (phù hợp D31 $w_w \to 0$); drop `bbox_geometry` và `confidence` có 95% CI chứa 0; MLP un-tuned và XGBoost không phân biệt được sự khác biệt có ý nghĩa thống kê (D32). Giữ nguyên 17 features theo pre-registration.
+- ✅ **Mức phân vị hiệu chỉnh conformal dùng order statistic chính xác (D46):** `np.quantile(..., method='higher')` sử dụng nội suy virtual index $q(n-1)$ gây lỗi off-by-one, lấy phần tử thứ $k+1$ thay vì $k$, tạo ra kết quả bảo thủ sai lệch với lý thuyết conformal prediction hữu hạn mẫu. Mức conformal $\hat{Q}$ được tính trực tiếp từ thống kê thứ tự: $k = \lceil (n + 1)(1 - \alpha) \rceil$; nếu $k > n$, $\hat{Q} = +\infty$; nếu $k \le n$, $\hat{Q} = s_{(k)} = \text{sorted\_scores}[k - 1]$.
+- ✅ **Công thức khoảng tin cậy CQR, xử lý crossing và Winkler score (D47):** Khoảng tin cậy trong log-space là $[r_{lo}, r_{hi}] = [q_{lo} - \hat{Q}, q_{hi} + \hat{Q}]$. Cả khi tính score và khi dự báo, quantile thô đều được chuẩn hóa qua `sort_quantiles`. Trường hợp crossing ($r_{lo} > r_{hi}$) được đếm và báo cáo công khai số lượng, tuyệt đối không silently clip. Độ sắc nét và phạt miscoverage được đo bằng Winkler score (Gneiting-Raftery 2007) tính trong không gian log ($r$).
+- ✅ **Tiêu chí nghiệm thu Gate T07 và quy chuẩn báo cáo cỡ mẫu nhỏ (D48):** Khoảng chấp nhận cho pooled coverage LODO trên Split C là $[85\%, 95\%]$ cho $\alpha = 0.1$ (danh nghĩa $90\%$). Báo cáo macro coverage trên toàn bộ 10 drive song song với macro trên các drive có $n \ge 30$. Phân nhóm `fallback_flag = True` chỉ báo cáo số lượng $n$ và coverage mô tả, không đưa ra kết luận diễn giải do cỡ mẫu quá nhỏ ($n \le 10$).
+- ✅ **Chuẩn hóa module suy luận out-of-sample dùng chung giữa Split C và Split T (D49):** Logic suy luận từ cues thô $\to Z_d \to Z_e \to Z_{\text{base}} \to$ features được đặt tại `src/pipeline/apply_frozen.py`, dùng chung cho cả T07, T10 và T12 để bảo đảm tính nhất quán tuyệt đối giữa Split C (calibration) và Split T (test cuối cùng). Có assertion kiểm tra $Z_d$ tính lại từ `full_fw.json` khớp chính xác với $Z_d$ trong cues parquet.
 
 ---
+
 
 ## 3. Quyết định về code
 
@@ -167,11 +171,28 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 3 (W2-3, T04):** Residual (f0), (f), (e) + pre-register (`prereg-residual-v1`), nested LODO 12 fold trên Split B, Gate T04 vượt chuẩn (AbsRel giảm từ 0.059–0.061 xuống 0.046–0.048 ở cả 3 detector).
 - [x] **Ngày 4 (W2-4, T05, T06):** Ablation 10 cấu hình trên Split B OOF (T05); Latency Tier 1 benchmark trên GPU FP16 và CPU ORT FP32 (T06, Preliminary D44).
 - [x] **Sửa lỗi giao thức & Refit Full B (06/10, D43):** Refit toàn bộ model cuối trên nền $Z_{\text{base}}$ OOF từ `B_oof.parquet`, serialize `full_fw.json` và cập nhật manifest cho cả 3 detector.
-- [ ] **Ngày 5 (W2-5, T07):** Conformal Quantile Regression (CQR) trên r, conformalize trên Split C.
+- [x] **Ngày 5 (W2-5, T07):** Conformal Quantile Regression (CQR) trên r, conformalize trên Split C (D46–D49).
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W2-5 — 07/10/2026: T07 Conformal Quantile Regression (CQR) lõi trên Split C (D46–D49)
+- **T07 — Conformal Quantile Regression (CQR lõi trên đường găng):**
+  - Hoàn thiện module `src/uncertainty/cqr.py` (6 hàm lõi) và module suy luận dùng chung `src/pipeline/apply_frozen.py` (D49).
+  - Viết `tests/test_cqr.py` gồm 10 test cases (order statistic hand-crafted, LODO invariance, exchangeable coverage 200 trials, heteroscedasticity, crossing counter, disjoint guard, OOF Z_base invariance, Winkler properties). Toàn bộ test suite đạt **154 passed, 1 warning (MLP)**.
+  - Viết `scripts/run_cqr.py` thực thi end-to-end trên cả 3 detector: fit XGBoost quantile ($q=0.05, 0.95$) trên Split B với `best_params_f` cố định (D24), LODO calibrate trên 10 drive Car Hard của Split C, và calibrate toàn bộ Split C xuất `cqr_calib_C.json`.
+  - **Số liệu nghiệm thu và Đánh giá Gate T07 (D48):**
+    - `yolo11s_640`: Pooled Cov = **0.8717** (Gate [0.85, 0.95]: **PASS**), Macro Cov (10 cụm) = **0.8976**, Macro Cov ($n \ge 30$, 7 cụm) = **0.9014**, Mean Width ($Z_{hi}/Z_{lo}$) = **1.330**, Winkler log-space = **0.5785**, Crossings = **0 (0.0%)**, $\hat{Q}_{\text{full\_C}} = +0.05107$.
+    - `yolov8s_640`: Pooled Cov = **0.8713** (Gate [0.85, 0.95]: **PASS**), Macro Cov (10 cụm) = **0.9158**, Macro Cov ($n \ge 30$, 7 cụm) = **0.9001**, Mean Width ($Z_{hi}/Z_{lo}$) = **1.353**, Winkler log-space = **0.6503**, Crossings = **0 (0.0%)**, $\hat{Q}_{\text{full\_C}} = +0.06390$.
+    - `yolov5su_640`: Pooled Cov = **0.8797** (Gate [0.85, 0.95]: **PASS**), Macro Cov (10 cụm) = **0.9013**, Macro Cov ($n \ge 30$, 7 cụm) = **0.9004**, Mean Width ($Z_{hi}/Z_{lo}$) = **1.344**, Winkler log-space = **0.6642**, Crossings = **0 (0.0%)**, $\hat{Q}_{\text{full\_C}} = +0.05246$.
+  - **Phân tích độ lệch phân phối & Fallback (D47, D48):**
+    - $\hat{Q}$ mang dấu dương (+0.051 đến +0.064) và mean $r$ trên C lệch so với OOF B ($\Delta r = -0.008\text{--}-0.014$), giải thích trực tiếp bởi hiện tượng dịch chuyển đáy bbox $\Delta y_2$ phát hiện từ T03 ($KS(B, C) = 0.20\text{--}0.24$, median $\Delta y_2$ đổi dấu).
+    - Cụm drive $n \ge 30$ đạt độ phủ macro gần như hoàn hảo 90.0% (90.01%–90.14%), trong khi các drive rất nhỏ (`0079`: 4–7 mẫu, `0047`: 4–7 mẫu, `0027`: 24–25 mẫu) tạo độ nhấp nhô cục bộ.
+    - Nhóm fallback (pattern 000) chỉ có 7–10 mẫu ($0.5\%\text{--}0.7\%$), báo cáo mô tả không suy diễn (D48).
+    - Không có bất kỳ trường hợp quantile crossing nào ($0/4364$ ca).
+  - Hoàn tất xuất `results/tables/cqr_coverage_dev.{json,md}`, `runs/residual/{model}/model_q05.json`, `model_q95.json`, `cqr_calib_C.json`, cập nhật `manifest.json` và `pipeline_log.jsonl`.
+
 
 ### W2-4 — 06/10/2026: T05 Ablation, T06 Latency Tier 1 (Preliminary D44), và Sửa lỗi Giao thức Refit Full B (D43)
 - **T05 — Nghiên cứu Thành phần Mô hình (Ablation trên Split B OOF, D25, D37, D38, D45):**

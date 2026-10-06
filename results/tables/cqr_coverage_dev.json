@@ -1,0 +1,362 @@
+[
+  {
+    "model_key": "yolo11s_640",
+    "n_samples": 1489,
+    "alpha": 0.1,
+    "nominal_coverage": 0.9,
+    "pooled_coverage": 0.8717259905977166,
+    "macro_coverage_all": 0.8976315954911914,
+    "macro_coverage_ge_30": 0.9013784697493212,
+    "mean_width_ratio": 1.3298322884148823,
+    "median_width_ratio": 1.3207332523011448,
+    "mean_winkler": 0.5784854670422706,
+    "median_winkler": 0.29041518575486824,
+    "total_crossings": 0,
+    "crossing_rate": 0.0,
+    "n_fallback": 8,
+    "fallback_coverage": 0.0,
+    "normal_coverage": 0.8764348413234301,
+    "mean_q_hat_lodo": 0.04973822332181577,
+    "median_q_hat_lodo": 0.05170745676511057,
+    "mean_r_c": 0.006301906185470094,
+    "mean_r_b": 0.019926282345651452,
+    "shift_r": -0.013624376160181358,
+    "q_hat_full_c": 0.051069145804244265,
+    "gate_passed": true,
+    "drive_stats": [
+      {
+        "drive": "2011_09_26_drive_0005_sync",
+        "n": 55,
+        "q_hat": 0.05174140624896273,
+        "coverage": 0.9636363636363636,
+        "mean_width_ratio": 1.3548479050360112,
+        "mean_winkler": 1.8474540896652827,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0011_sync",
+        "n": 120,
+        "q_hat": 0.05283309963907179,
+        "coverage": 0.9916666666666667,
+        "mean_width_ratio": 1.3533907769422282,
+        "mean_winkler": 0.6841426278919939,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0027_sync",
+        "n": 25,
+        "q_hat": 0.05167350728125841,
+        "coverage": 1.0,
+        "mean_width_ratio": 1.30813091129303,
+        "mean_winkler": 0.266045665133336,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0035_sync",
+        "n": 271,
+        "q_hat": 0.05379377019633269,
+        "coverage": 0.959409594095941,
+        "mean_width_ratio": 1.3500035437404747,
+        "mean_winkler": 0.9160009737693988,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0057_sync",
+        "n": 260,
+        "q_hat": 0.041633081377035364,
+        "coverage": 0.7423076923076923,
+        "mean_width_ratio": 1.3444693662379916,
+        "mean_winkler": 0.40706854238439416,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0079_sync",
+        "n": 7,
+        "q_hat": 0.051160916510239574,
+        "coverage": 1.0,
+        "mean_width_ratio": 1.3275855425170386,
+        "mean_winkler": 0.28304648124706383,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0087_sync",
+        "n": 51,
+        "q_hat": 0.05186745027712125,
+        "coverage": 0.9803921568627451,
+        "mean_width_ratio": 1.2873351328406335,
+        "mean_winkler": 0.25137825174230644,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0096_sync",
+        "n": 369,
+        "q_hat": 0.05736446719138466,
+        "coverage": 0.989159891598916,
+        "mean_width_ratio": 1.3645733854390103,
+        "mean_winkler": 0.32472878180876347,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_28_drive_0047_sync",
+        "n": 6,
+        "q_hat": 0.05104797620439161,
+        "coverage": 0.6666666666666666,
+        "mean_width_ratio": 1.3485529037930568,
+        "mean_winkler": 0.4395814122950821,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_29_drive_0004_sync",
+        "n": 325,
+        "q_hat": 0.034266558292359584,
+        "coverage": 0.683076923076923,
+        "mean_width_ratio": 1.2569673657218303,
+        "mean_winkler": 0.5528262105807287,
+        "n_crossings": 0
+      }
+    ],
+    "sha_q05": "b1ed4e9555b2b41195b2f3a1f3a80b22394ebdfb1f327f71fd39e84ee43399cd",
+    "sha_q95": "1d90d5223dffcb9339ad14fccdad2398de397b8fd2f7fbf9237a46e57e6347f4",
+    "sha_calib_c": "63f2604c8046d9a6b70ded3035f02781bad16c650f3779217789c7dd7ac51828"
+  },
+  {
+    "model_key": "yolov8s_640",
+    "n_samples": 1445,
+    "alpha": 0.1,
+    "nominal_coverage": 0.9,
+    "pooled_coverage": 0.871280276816609,
+    "macro_coverage_all": 0.9157564248525107,
+    "macro_coverage_ge_30": 0.9000601987688929,
+    "mean_width_ratio": 1.3525784781501966,
+    "median_width_ratio": 1.354023995409172,
+    "mean_winkler": 0.6503293747911644,
+    "median_winkler": 0.31868843522394386,
+    "total_crossings": 0,
+    "crossing_rate": 0.0,
+    "n_fallback": 7,
+    "fallback_coverage": 0.0,
+    "normal_coverage": 0.8755215577190543,
+    "mean_q_hat_lodo": 0.06382285558090554,
+    "median_q_hat_lodo": 0.06522115366857983,
+    "mean_r_c": 0.007701864163005737,
+    "mean_r_b": 0.0207969751081432,
+    "shift_r": -0.013095110945137465,
+    "q_hat_full_c": 0.06389765051835194,
+    "gate_passed": true,
+    "drive_stats": [
+      {
+        "drive": "2011_09_26_drive_0005_sync",
+        "n": 53,
+        "q_hat": 0.06568293987750362,
+        "coverage": 0.9622641509433962,
+        "mean_width_ratio": 1.3916113124077427,
+        "mean_winkler": 1.9335728645199648,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0011_sync",
+        "n": 112,
+        "q_hat": 0.06865642699710728,
+        "coverage": 0.9910714285714286,
+        "mean_width_ratio": 1.3557468606307188,
+        "mean_winkler": 0.7146536772327552,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0027_sync",
+        "n": 24,
+        "q_hat": 0.06475936745965605,
+        "coverage": 1.0,
+        "mean_width_ratio": 1.3559363831390552,
+        "mean_winkler": 0.30385553806501875,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0035_sync",
+        "n": 259,
+        "q_hat": 0.072427635323149,
+        "coverage": 0.972972972972973,
+        "mean_width_ratio": 1.3994663603150839,
+        "mean_winkler": 0.8340215871182054,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0057_sync",
+        "n": 250,
+        "q_hat": 0.044697476974948636,
+        "coverage": 0.668,
+        "mean_width_ratio": 1.2792266013256262,
+        "mean_winkler": 0.8025560531420554,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0079_sync",
+        "n": 4,
+        "q_hat": 0.06389765051835194,
+        "coverage": 1.0,
+        "mean_width_ratio": 1.3585597022633917,
+        "mean_winkler": 0.3063741115120049,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0087_sync",
+        "n": 59,
+        "q_hat": 0.06767020742905139,
+        "coverage": 1.0,
+        "mean_width_ratio": 1.3495094101941374,
+        "mean_winkler": 0.2980585703770899,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0096_sync",
+        "n": 366,
+        "q_hat": 0.08153440138560875,
+        "coverage": 0.9890710382513661,
+        "mean_width_ratio": 1.4040360717449745,
+        "mean_winkler": 0.3439610222544659,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_28_drive_0047_sync",
+        "n": 7,
+        "q_hat": 0.06389765051835194,
+        "coverage": 0.8571428571428571,
+        "mean_width_ratio": 1.3676607016236428,
+        "mean_winkler": 0.3872968791858375,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_29_drive_0004_sync",
+        "n": 311,
+        "q_hat": 0.04500479932532686,
+        "coverage": 0.7170418006430869,
+        "mean_width_ratio": 1.30405087122154,
+        "mean_winkler": 0.5975899396886966,
+        "n_crossings": 0
+      }
+    ],
+    "sha_q05": "6e766805908621df3f580e0fd40b9ea34d07ad5fea747250a5df24e971b9ac36",
+    "sha_q95": "b88de4e0dd943c0e596caf1187eca3bae227f6e61f4f1865395ca6018db09647",
+    "sha_calib_c": "97cd7d2fea3c0f446864c78ca868d1cc00b828a0380d30d8679bb10ea83de50f"
+  },
+  {
+    "model_key": "yolov5su_640",
+    "n_samples": 1430,
+    "alpha": 0.1,
+    "nominal_coverage": 0.9,
+    "pooled_coverage": 0.8797202797202798,
+    "macro_coverage_all": 0.9012847694975672,
+    "macro_coverage_ge_30": 0.900406813567953,
+    "mean_width_ratio": 1.3439319590384937,
+    "median_width_ratio": 1.3332687540277042,
+    "mean_winkler": 0.6641747810075606,
+    "median_winkler": 0.29558380250169103,
+    "total_crossings": 0,
+    "crossing_rate": 0.0,
+    "n_fallback": 10,
+    "fallback_coverage": 0.0,
+    "normal_coverage": 0.8859154929577465,
+    "mean_q_hat_lodo": 0.05165532853614554,
+    "median_q_hat_lodo": 0.05252295998110956,
+    "mean_r_c": 0.012908039201554256,
+    "mean_r_b": 0.021298391774992993,
+    "shift_r": -0.008390352573438738,
+    "q_hat_full_c": 0.052463042935182,
+    "gate_passed": true,
+    "drive_stats": [
+      {
+        "drive": "2011_09_26_drive_0005_sync",
+        "n": 54,
+        "q_hat": 0.05261080314598732,
+        "coverage": 0.9629629629629629,
+        "mean_width_ratio": 1.355181955926489,
+        "mean_winkler": 1.908378418144045,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0011_sync",
+        "n": 112,
+        "q_hat": 0.05540762301544633,
+        "coverage": 0.9910714285714286,
+        "mean_width_ratio": 1.3435252273529945,
+        "mean_winkler": 0.7104433066428227,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0027_sync",
+        "n": 25,
+        "q_hat": 0.05252994429062685,
+        "coverage": 0.96,
+        "mean_width_ratio": 1.3291656377324341,
+        "mean_winkler": 1.9180090914421997,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0035_sync",
+        "n": 265,
+        "q_hat": 0.05741699306298509,
+        "coverage": 0.9660377358490566,
+        "mean_width_ratio": 1.3770455387284077,
+        "mean_winkler": 1.1164732633379537,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0057_sync",
+        "n": 252,
+        "q_hat": 0.04521393101827442,
+        "coverage": 0.7936507936507936,
+        "mean_width_ratio": 1.3479997458248527,
+        "mean_winkler": 0.37856536539277497,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0079_sync",
+        "n": 4,
+        "q_hat": 0.052515975671592274,
+        "coverage": 1.0,
+        "mean_width_ratio": 1.3251609061151046,
+        "mean_winkler": 0.28151225975110217,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0087_sync",
+        "n": 49,
+        "q_hat": 0.052515975671592274,
+        "coverage": 0.9183673469387755,
+        "mean_width_ratio": 1.2979809796838475,
+        "mean_winkler": 0.28028115982481816,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_26_drive_0096_sync",
+        "n": 356,
+        "q_hat": 0.06125572754210862,
+        "coverage": 0.9943820224719101,
+        "mean_width_ratio": 1.372463068851097,
+        "mean_winkler": 0.316931732144614,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_28_drive_0047_sync",
+        "n": 4,
+        "q_hat": 0.052463042935182,
+        "coverage": 0.75,
+        "mean_width_ratio": 1.3250826627987646,
+        "mean_winkler": 0.3275303637531768,
+        "n_crossings": 0
+      },
+      {
+        "drive": "2011_09_29_drive_0004_sync",
+        "n": 309,
+        "q_hat": 0.03462326900766022,
+        "coverage": 0.6763754045307443,
+        "mean_width_ratio": 1.2864951808936045,
+        "mean_winkler": 0.6438061287978297,
+        "n_crossings": 0
+      }
+    ],
+    "sha_q05": "ce8451468da88937067fec7ada089ce5367700f1425cf3403d66fb0e069ff55a",
+    "sha_q95": "0ed4ece9a9c04eb6fe87bca70c78ec68bc6a773a3d849b37cf86213f146891b5",
+    "sha_calib_c": "25550fffbff1dc848629518f794a336b426bba97b80e0675dd70dec2b50b79a0"
+  }
+]
