@@ -1,7 +1,17 @@
 # Bảng Đo Độ Trễ Từng Khâu (Latency Tier 1 Benchmark, T06)
 
+> [!WARNING]
+> **PRELIMINARY — KẾT QUẢ SƠ BỘ: KHÔNG TRÍCH DẪN SỐ LIỆU NÀY CHO BÀI BÁO (Quyết định D44)**
+> 
+> Bảng đo này được thực hiện trong phiên W2-4 để kiểm thử giao diện và độ khả thi của Tier 1, nhưng tồn tại các hạn chế phương pháp luận:
+> 1. **Double count ở GPU line:** Hàm `model_pt.predict(source=p)` của Ultralytics đã thực hiện đọc ảnh, letterbox, suy luận và NMS nội bộ. Việc cộng thêm khâu "Preprocess" (đo imread + letterbox riêng) là đếm hai lần thời gian tiền xử lý.
+> 2. **Tổng là tổng các trung vị:** Thời gian tổng toàn pipeline hiện được tính bằng tổng các trung vị thành phần ($\sum \text{median}$) và P95 bằng tổng các P95 ($\sum \text{P95}$), thay vì tính trung vị của tổng thời gian thực tế trên từng ảnh ($\text{median}(\sum)$).
+> 3. **Đường tắt ở khâu Residual:** Khâu đo residual dùng confidence cố định (0.8) và tính `cx_offset` chia cho chiều rộng ảnh thay vì tiêu cự $f_x$ như trong `feature_extractor.py`.
+> 4. **Khác biệt input padding PT vs ORT:** Ultralytics PyTorch ở batch 1 thường dùng dynamic rectangular padding (~640×224), trong khi ONNX export tĩnh là 640×640.
+> 5. **Toàn bộ phép đo độ trễ sẽ được viết lại chuẩn hóa và đo chính thức một lần duy nhất cùng khâu CQR ở tác vụ T16.**
+
 > [!IMPORTANT]
-> - Tuân thủ đúng đặc tả v4 §5.6 và **Quyết định D40**.
+> - Tuân thủ đặc tả v4 §5.6 và **Quyết định D40, D44**.
 > - **GPU Line (Bắt buộc):** PyTorch `.pt` FP16 trên CUDA GPU (`torch.cuda.synchronize()`).
 > - **CPU Line (Bắt buộc):** ONNX Runtime CPU FP32 (cố định số luồng CPU `intra_op_num_threads=4`).
 > - **Khâu CQR:** Để trống `—`, sẽ được hoàn thiện ở tác vụ T16.
@@ -16,14 +26,15 @@
 
 ## 2. Kết quả Kiểm tra Tính Tương đồng (Parity Check: PyTorch .pt vs ONNX)
 
-| Detector | Ảnh kiểm thử | Detections (.pt) | Detections (ONNX) | Tỉ lệ Số lượng (ORT/PT) | Tỉ lệ Khớp IoU ≥ 0.90 | Parity Gate |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| `yolo11s_640` | 50 | 231 | 225 | 0.9740 | 0.9437 | ✅ ĐẠT |
-| `yolov8s_640` | 50 | 223 | 225 | 1.0090 | 0.9417 | ✅ ĐẠT |
-| `yolov5su_640` | 50 | 230 | 230 | 1.0000 | 0.9043 | ✅ ĐẠT |
+| Detector | Ảnh kiểm thử | Detections (.pt) | Detections (ONNX) | Tỉ lệ Số lượng (ORT/PT) | Count Parity (0.95–1.05) | Tỉ lệ Khớp IoU ≥ 0.90 | IoU Parity (≥ 0.95) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `yolo11s_640` | 50 | 231 | 225 | 0.9740 | ✅ ĐẠT | 0.9437 | ❌ Chưa đạt (0.944 < 0.95) |
+| `yolov8s_640` | 50 | 223 | 225 | 1.0090 | ✅ ĐẠT | 0.9417 | ❌ Chưa đạt (0.942 < 0.95) |
+| `yolov5su_640` | 50 | 230 | 230 | 1.0000 | ✅ ĐẠT | 0.9043 | ❌ Chưa đạt (0.904 < 0.95) |
 
+*(Ghi chú: Báo cáo trung thực cả hai chỉ số parity theo AGENT_RULES §1.9, không đổi ngưỡng để ép đạt. Nguyên nhân tỉ lệ IoU chưa đạt 0.95 có thể do khác biệt giữa FP16 PyTorch và FP32 ONNX, hoặc khác biệt dynamic rect padding vs static square padding. Sẽ được đối chứng ở T16).*
 
-## 3. Bảng Độ Trễ Từng Khâu (Median / P95 theo ms)
+## 3. Bảng Độ Trễ Từng Khâu (Median / P95 theo ms - Sơ bộ)
 
 | Khâu Pipeline | `yolo11s_640` (GPU / CPU) | `yolov8s_640` (GPU / CPU) | `yolov5su_640` (GPU / CPU) |
 | :--- | :---: | :---: | :---: |
@@ -34,14 +45,11 @@
 | **Residual (Feature + XGBoost)** | 0.7 ms / 0.7 ms | 0.69 ms / 0.69 ms | 0.7 ms / 0.7 ms |
 | **CQR Uncertainty** | — / — | — / — | — / — |
 | :--- | :---: | :---: | :---: |
-| **Tổng Toàn Pipeline (ms)** | **70.11 ms / 140.18 ms** | **54.31 ms / 153.15 ms** | **55.76 ms / 131.63 ms** |
-| **Thông lượng Tương đương (FPS)** | **14.3 FPS / 7.1 FPS** | **18.4 FPS / 6.5 FPS** | **17.9 FPS / 7.6 FPS** |
+| **Tổng Toàn Pipeline (ms) [$\sum \text{median}$]** | **70.11 ms / 140.18 ms** | **54.31 ms / 153.15 ms** | **55.76 ms / 131.63 ms** |
+| **Thông lượng Ước tính (FPS)** | **14.3 FPS / 7.1 FPS** | **18.4 FPS / 6.5 FPS** | **17.9 FPS / 7.6 FPS** |
 
+## 4. Nhận xét Phân bố Thời gian Thực thi (Sơ bộ)
 
-## 4. Nhận xét Phân bố Thời gian Thực thi
-
-1. **Khâu Detector:** Là khâu chiếm tỉ trọng lớn nhất trong pipeline. Trên GPU NVIDIA RTX 5060 Laptop (PyTorch FP16), thời gian suy luận dao động khoảng ~32–37 ms, trong khi trên CPU (ONNX Runtime 4 luồng) mất khoảng ~106–131 ms.
-2. **Khâu Hình học & Residual:** Cực kỳ gọn nhẹ: khâu tính toán hình học (cues + fusion) chỉ mất ~0.18–0.19 ms, và khâu residual (XGBoost) chỉ mất ~0.70 ms cho mỗi ảnh.
-3. **Khả năng thời gian thực (Real-time Capability):**
-   - Trên GPU, toàn bộ pipeline từ ảnh thô tới ước lượng khoảng cách đạt ~54–70 ms (~14.3–18.4 FPS).
-   - Trên CPU, pipeline đạt ~131–153 ms (~6.5–7.6 FPS).
+1. **Khâu Detector:** Là khâu chiếm phần lớn thời gian trong pipeline (~32–37 ms trên GPU FP16, ~106–131 ms trên CPU ONNX 4 luồng).
+2. **Khâu Hình học & Residual:** Cực kỳ gọn nhẹ: hình học chỉ mất ~0.18–0.19 ms, residual XGBoost mất ~0.70 ms mỗi ảnh.
+3. **Kế hoạch T16:** Do các hạn chế phương pháp luận ở mục cảnh báo, kết quả trên chỉ mang tính sơ bộ. Khâu đo latency chính thức sẽ được chạy lại ở T16 với pipeline end-to-end hoàn chỉnh (kèm CQR), loại bỏ double count, đo median per-image tổng thể, và kiểm tra input shape chuẩn xác.

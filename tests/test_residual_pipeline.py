@@ -35,7 +35,8 @@ from src.residual.models import (
     predict_f,
     predict_f0,
 )
-from src.pipeline.oof import run_nested_lodo_b
+from src.geometry.fusion import FusionWeights, load_fusion_weights, save_fusion_weights
+from src.pipeline.oof import fit_full_b_models, run_nested_lodo_b
 
 
 def test_derived_features_not_in_default_whitelist():
@@ -235,3 +236,62 @@ def test_canary_scrambled_z_gt_fails_improvement_mock():
         f"Canary failed: Model (f) unexpectedly beat Z_base despite scrambled training targets! "
         f"rmse_f={rmse_f:.4f} vs rmse_base={rmse_base:.4f}"
     )
+
+
+def test_fit_full_b_models_requires_z_base_oof():
+    """Decisions D16b, D29, D43: fit_full_b_models must require out-of-fold z_base_oof."""
+    feats, evals, cues = _create_mock_dataset(n_per_drive=20, n_drives=4)
+    best_params_f = {"max_depth": 2, "n_estimators": 10, "min_child_weight": 1}
+
+    # Missing z_base_oof must raise ValueError
+    with pytest.raises(ValueError, match="z_base_oof must be provided"):
+        fit_full_b_models(
+            features_df=feats,
+            eval_df=evals,
+            cues_df=cues,
+            best_params_f=best_params_f,
+            best_alpha_f0=10.0,
+            z_base_oof=None,
+        )
+
+    # Valid z_base_oof must fit successfully
+    z_base_mock = evals["z_gt"].to_numpy(dtype=float) * 1.02
+    m_f0, m_f, m_e, full_fw = fit_full_b_models(
+        features_df=feats,
+        eval_df=evals,
+        cues_df=cues,
+        best_params_f=best_params_f,
+        best_alpha_f0=10.0,
+        z_base_oof=z_base_mock,
+    )
+    assert m_f0 is not None
+    assert m_f is not None
+    assert m_e is not None
+    assert isinstance(full_fw, FusionWeights)
+
+
+def test_fusion_weights_json_serialization(tmp_path):
+    """Verify FusionWeights serializes to JSON and deserializes identically."""
+    fw = FusionWeights(
+        weights=np.array([0.0, 0.7, 0.3]),
+        cov_matrix=np.array([[0.05, 0.01, 0.02], [0.01, 0.04, 0.01], [0.02, 0.01, 0.06]]),
+        cov_shrunk=np.array([[0.05, 0.01, 0.02], [0.01, 0.04, 0.01], [0.02, 0.01, 0.06]]),
+        shrinkage_alpha=0.001,
+        cue_names=["Z_w", "Z_h", "Z_g"],
+        constrained=True,
+        n_samples=500,
+        n_drives=12,
+    )
+    out_file = tmp_path / "weights.json"
+    save_fusion_weights(fw, out_file)
+    assert out_file.is_file()
+
+    loaded = load_fusion_weights(out_file)
+    np.testing.assert_allclose(loaded.weights, fw.weights)
+    np.testing.assert_allclose(loaded.cov_matrix, fw.cov_matrix)
+    np.testing.assert_allclose(loaded.cov_shrunk, fw.cov_shrunk)
+    assert loaded.shrinkage_alpha == fw.shrinkage_alpha
+    assert loaded.cue_names == fw.cue_names
+    assert loaded.constrained == fw.constrained
+    assert loaded.n_samples == fw.n_samples
+    assert loaded.n_drives == fw.n_drives

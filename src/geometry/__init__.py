@@ -21,5 +21,7 @@ from src.geometry.fusion import (
     fuse_depths,
     fuse_depths_vectorised,
     fuse_depths_lodo,
+    save_fusion_weights,
+    load_fusion_weights,
     CUE_NAMES,
 )

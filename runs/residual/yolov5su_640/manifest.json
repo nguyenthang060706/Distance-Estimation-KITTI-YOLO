@@ -17,15 +17,19 @@
   "models": {
     "model_f0": {
       "file": "model_f0.joblib",
-      "sha256": "64727bc2ba6a4d0d82b684b951c6f2a8989da93ddc2950a78d35053d9150d73a"
+      "sha256": "275f7ed6bf66efdcd03599bc9f0cc4205d2b6d10e2c70cba3bf0ffdd8f87cd68"
     },
     "model_f": {
       "file": "model_f.json",
-      "sha256": "645d831c0ffd020df30ef77728e3b39307021e3155c5a5a4c1bf931482f7165d"
+      "sha256": "88476d50eab365473d1d37402882a8c4dd67466f797d5ce0e72744240592db18"
     },
     "model_e": {
       "file": "model_e.json",
-      "sha256": "e02946e5f23d5ad05ef9463f554358bbc41b252e57c9d86314a8f15938f1ae8a"
+      "sha256": "214af684574d8c64f844ec5e94f5fcf9406ff470e3dae0767c3441270439ed04"
+    },
+    "full_fw": {
+      "file": "full_fw.json",
+      "sha256": "ec0e8227574b1eb05b3592ea1bbfba74a5995930a99a6f131eb81bd048190083"
     }
   },
   "fold_summary": [
@@ -197,5 +201,8 @@
       },
       "f_rmse_inner": 0.0678572088650914
     }
-  ]
+  ],
+  "updated_at": "2026-10-06T13:49:31.734641",
+  "protocol_fix": "D43: final models trained on OOF Z_base (LODO Z_d and OOF Z_e)",
+  "z_base_source": "B_oof.parquet"
 }

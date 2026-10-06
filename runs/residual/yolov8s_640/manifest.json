@@ -17,15 +17,19 @@
   "models": {
     "model_f0": {
       "file": "model_f0.joblib",
-      "sha256": "e3ef9febb63185d710fd50b2100489bf85ab1d1e4d7faa4c664f2089e174f445"
+      "sha256": "ee7b2b1e50b7767e985100ebcefb945d790448b1d13f70fa0d3e3e2af814500f"
     },
     "model_f": {
       "file": "model_f.json",
-      "sha256": "96edfaecde8a3bfb6f8de6e555b2681712ca23a8ed6c3a55a1575bd11474a95d"
+      "sha256": "12e82d12d260811f36df8a0803095fe04a345e006d426ef49b3f5d755f9518ab"
     },
     "model_e": {
       "file": "model_e.json",
-      "sha256": "342abd13c62babde2aec8cd15aca5189a20e3899497f71e6d4a05b708c1e18c7"
+      "sha256": "d23fffb3437ab2f8be90d994b6295f88346a1f89bb5fd17d43afdf556a7c3360"
+    },
+    "full_fw": {
+      "file": "full_fw.json",
+      "sha256": "0c812f495011fc9aef8fc08c22c68f152c638007e9d99e9a3c37a491c0fb4ce6"
     }
   },
   "fold_summary": [
@@ -197,5 +201,8 @@
       },
       "f_rmse_inner": 0.06465661116858992
     }
-  ]
+  ],
+  "updated_at": "2026-10-06T13:49:31.254287",
+  "protocol_fix": "D43: final models trained on OOF Z_base (LODO Z_d and OOF Z_e)",
+  "z_base_source": "B_oof.parquet"
 }

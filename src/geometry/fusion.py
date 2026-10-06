@@ -18,6 +18,8 @@ Design decisions (see NHAT_KY_QUYET_DINH.md):
     - Decision D16c: LODO OOF fusion (fuse_depths_lodo) on Split B for target residual r.
 """
 
+import json
+from pathlib import Path
 import warnings
 from dataclasses import dataclass
 import numpy as np
@@ -424,4 +426,54 @@ def fuse_depths_lodo(
         fits[str(d)] = fw
 
     return Z_d, fits
+
+
+def save_fusion_weights(fw: FusionWeights, path: Path | str) -> None:
+    """
+    Serialize FusionWeights object to a JSON file.
+
+    Args:
+        fw: FusionWeights dataclass instance.
+        path: Output path for JSON serialization.
+    """
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "weights": fw.weights.tolist(),
+        "cov_matrix": fw.cov_matrix.tolist(),
+        "cov_shrunk": fw.cov_shrunk.tolist(),
+        "shrinkage_alpha": float(fw.shrinkage_alpha),
+        "cue_names": list(fw.cue_names),
+        "constrained": bool(fw.constrained),
+        "n_samples": int(fw.n_samples),
+        "n_drives": int(fw.n_drives),
+    }
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+
+
+def load_fusion_weights(path: Path | str) -> FusionWeights:
+    """
+    Load serialized FusionWeights object from a JSON file.
+
+    Args:
+        path: Path to serialized JSON file.
+
+    Returns:
+        Reconstructed FusionWeights dataclass instance.
+    """
+    p = Path(path)
+    with open(p, "r", encoding="utf-8") as f:
+        payload = json.load(f)
+
+    return FusionWeights(
+        weights=np.array(payload["weights"], dtype=float),
+        cov_matrix=np.array(payload["cov_matrix"], dtype=float),
+        cov_shrunk=np.array(payload["cov_shrunk"], dtype=float),
+        shrinkage_alpha=float(payload["shrinkage_alpha"]),
+        cue_names=list(payload["cue_names"]),
+        constrained=bool(payload["constrained"]),
+        n_samples=int(payload["n_samples"]),
+        n_drives=int(payload["n_drives"]),
+    )
 

@@ -73,6 +73,19 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   1. *Phân rã đa chiều:* Hiệu năng hình học (a)–(d) phải luôn được phân rã đồng thời theo từng cue, từng dải khoảng cách và từng detector trên cùng tập TP chung.
   2. *Survivorship Bias (Thiên lệch kẻ sống sót):* Kết quả so sánh sai số giữa detector bbox và GT bbox có $\Delta \approx 0.0000$ (CI chứa 0) chỉ đúng trên tập **True Positives ($TP$)** đã qua ngưỡng tin cậy. Ở cự ly xa ($30\text{--}50$ m), detector bỏ sót gần một nửa số xe (Recall $\sim 50\text{--}54\%$). Do đó, độ phủ và sai số của mô hình ranging phải luôn được ghi rõ là có điều kiện trên tập đối tượng phát hiện thành công, và số lượng $FN$ phải được báo cáo song hành.
   3. *Nguyên tắc RQ2 (So sánh các detector):* Khi đánh giá ảnh hưởng của các detector khác nhau đến sai số khoảng cách, nếu 95% khoảng tin cậy từ cluster bootstrap chồng lấn nhau hoặc chứa 0, báo cáo trung thực kết quả là *"không phân biệt được sự khác biệt có ý nghĩa"* (indistinguishable), tuyệt đối không gượng ép xếp hạng thứ bậc detector.
+- ✅ **Pre-registration mô hình residual (D33):** Đóng băng cấu hình tại `configs/residual/residual_prereg_v1.yaml` (thay thế file nháp cũ): grid XGBoost gồm 12 cấu hình nhỏ gọn (`max_depth <= 4`, `min_child_weight >= 10`, `n_estimators = 200`, `learning_rate = 0.05`), tập đặc trưng chuẩn hóa (f: 17, f0: 5, e: 10), loại bỏ hoàn toàn `class_id` (hằng số 0) và cờ `fallback_flag` (metadata).
+- ✅ **Dựng Z_base qua inner-LODO trong tập huấn luyện (D34):** Để ngăn chặn rò rỉ target khi các đối tượng pattern 000 fallback sang $Z_e$ trong các fold train của Split B, $Z_e$ trong tập huấn luyện được dự đoán qua inner-LODO 11 fold giữa 11 drive train. Tập test fold được dự đoán bằng $Z_e$ fit trên toàn bộ 11 drive train.
+- ✅ **Quy tắc Code freeze và thực thi đa detector (D35):** Hoàn thiện và kiểm chứng toàn diện pipeline trên detector chính `yolo11s_640`, sau đó đóng băng mã nguồn và chạy lại cùng một logic cho cả 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`). Bất kỳ thay đổi logic nào đều bắt buộc chạy lại đồng bộ trên cả 3 detector.
+- ✅ **Thứ tự detector thực nghiệm (D36):** Ưu tiên phát triển và kiểm chứng trên `yolo11s_640` trước (detector mới nhất), sau đó mở rộng sang `yolov8s_640` và `yolov5su_640` với cùng mã nguồn và cấu hình đóng băng.
+- ✅ **Phạm vi nghiên cứu thành phần Ablation T05 (D37):** Toàn bộ phân tích ablation (bỏ nhóm đặc trưng, bỏ từng cue, MLP vs XGBoost) chỉ thực hiện trên dự đoán OOF của Split B (12 folds LODO), tuyệt đối không chạm Split C (bảo toàn Split C nguyên vẹn cho Conformalization).
+- ✅ **Quy chuẩn Drop Single Cue (D38):** Khi loại bỏ cue $Z_k$, loại bỏ $Z_k$ khỏi hợp nhất hình học (refit trọng số và $\Sigma$ trên 2 cue còn lại), bỏ đồng thời $\ln z_k$ và $\text{valid}_k$ khỏi Model (f); pattern 000 đi fallback (e); hàm `fit_fusion_weights` hỗ trợ `cue_names` tùy chọn.
+- ✅ **Thứ tự cắt giảm khi trễ tiến độ (D39):** Nếu trễ lịch, cắt Jitter (J1) đầu tiên; nếu trễ T06 dời về W3-4 (T16) cùng khâu CQR, tuyệt đối không dời sang W2-5 (đường găng của T07 CQR).
+- ✅ **Chuẩn đo đạc Latency Tier 1 (D40):** GPU chính dùng PyTorch FP16 trên CUDA với `torch.cuda.synchronize()`; CPU chính dùng ONNX Runtime CPU FP32 (cố định 4 luồng).
+- ✅ **Tiêu chí Gate T04 cho mô hình Residual (D41):** Đánh giá OOF trên Split B báo cáo song song cả Pooled và Macro theo 12 drive. Gate T04 yêu cầu AbsRel OOF của (f) < (d) ở cả Pooled và Macro; nếu không đạt báo cáo trung thực. (Đổi từ D31 tasks cũ để tránh trùng D31 nhật ký).
+- ✅ **Cơ chế Canary xáo nhãn trong train (D42):** Kiểm tra rò rỉ target trong pipeline nested LODO B. Khi xáo ngẫu nhiên nhãn $Z_{\text{gt}}$ trong tập huấn luyện, OOF của mô hình residual (f) không được phép tốt hơn baseline $Z_{\text{base}}$. (Đổi từ D32 tasks cũ để tránh trùng D32 nhật ký).
+- ✅ **Protocol fit toàn B cho Model cuối & Serialization full_fw (D43):** Sửa lỗi giao thức fit trên nền in-sample: Khi fit mô hình cuối (f)/(f0) trên toàn bộ Split B để triển khai sang C và T, target $r$ và đặc trưng dẫn xuất $\ln z_{\text{base}}$ bắt buộc sử dụng $Z_{\text{base}}$ OOF từ `B_oof.parquet` (LODO $Z_d$ và OOF $Z_e$), không dùng $Z_{\text{base}}$ in-sample. Trọng số toàn cục `full_fw` (fit trên toàn bộ B) được serialize thành `full_fw.json` cùng mã băm SHA-256 lưu trong `manifest.json`.
+- ✅ **Latency Tier 1 sơ bộ & Quy chuẩn Parity Check (D44):** Kết quả T06 được gắn nhãn `PRELIMINARY` (không trích số vào bài báo) do các hạn chế phương pháp luận: double count tiền xử lý ở GPU line, tổng tính theo sum of medians, đường tắt residual, và khác biệt dynamic padding của PyTorch vs static padding của ONNX. Bảng Parity báo cáo độc lập cả hai tiêu chí: Count Parity (đạt) và IoU Parity (chưa đạt ngưỡng 0.95), tuân thủ AGENT_RULES §1.9 không đổi ngưỡng. Phép đo chính thức sẽ thực hiện ở T16 kèm CQR.
+- ✅ **Ngôn ngữ kết quả T05 ở mức mô tả (D45):** Kết quả ablation T05 phản ánh trung thực số liệu thực nghiệm: drop $Z_h$ làm sai số tăng rõ rệt (hiệu ứng lên $Z_{\text{base}}$), trong khi drop $Z_w$ và $Z_g$ cho $\Delta \approx 0$ (phù hợp D31 $w_w \to 0$); drop `bbox_geometry` và `confidence` có 95% CI chứa 0; MLP un-tuned và XGBoost không phân biệt được sự khác biệt có ý nghĩa thống kê (D32). Giữ nguyên 17 features theo pre-registration.
 
 ---
 
@@ -120,6 +133,7 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 6. **Neighbor classes trong đối sánh KITTI:** Module matching chỉ coi Car non-Hard và DontCare là đối tượng bỏ qua (ignore); Van và Truck không được coi là neighbor class như devkit chính thức của KITTI. Do đó, một số bbox dự đoán Car trùng với GT Van/Truck bị tính là FP, khiến Precision của detector trong báo cáo có thể thấp hơn thực tế một chút; điều này hoàn toàn không ảnh hưởng đến ước lượng khoảng cách Z vì ranging chỉ thực hiện trên True Positives (TP).
 7. **Chuyển dịch Drive D14 (B-v1 sang T-v2 và C-v2):** Tổng cộng 10 drive từ B-v1 sang T-v2 (gồm 4 drive có Car Hard: `0926_0002`, `0926_0017`, `0926_0039`, `0926_0095` và 6 drive rỗng: `0928_0134`, `0928_0136`, `0928_0162`, `0928_0167`, `0928_0168`, `0928_0201`) cùng 3 drive từ B-v1 sang C-v2 (gồm `0926_0096` và 2 drive rỗng: `0928_0153`, `0928_0161`) từng nằm trong B-v1 khi phân tích Day 4 (hình thành quy tắc mask viền ảnh). Đây là ảnh hưởng gián tiếp ở mức thiết kế hình học định tính, không phải tối ưu hóa số học.
    *Hệ quả:* Cluster bootstrap trên T chỉ có $\le 11$ cụm độc lập (khoảng tin cậy thô, cần cảnh báo khi $<20$ cụm theo quy ước `eval.py`), grouped CV trên B tối đa 10 fold, và việc chia lại B∪C xoay quanh ~21 cụm. Đây là căn cứ khoa học vững chắc để chốt **Quyết định D12** (chọn checkpoint detector `last.pt` epoch 100 thay vì dựa vào đỉnh fitness dễ ăn may trên 6 cụm của V).
+8. **Hiện tượng (f) ≈ (e) và vai trò của hình học (T04, T05):** Trên cả 3 detector, sai số của mô hình residual (f) và mô hình hồi quy trực tiếp (e) từ bbox xấp xỉ tương đương nhau (Pooled AbsRel: 0.0462 vs 0.0462 trên yolo11s; 0.0467 vs 0.0468 trên v8s; 0.0484 vs 0.0482 trên v5su; CI của f − e chứa 0). Thí nghiệm ablation (T05) xác nhận bỏ toàn bộ $\ln z_*$ chỉ làm sai số tăng $\Delta \le +0.0003$. Nguyên nhân có thể do $Z_h$ và $Z_g$ là các biến đổi đơn điệu của $h$ và $y_{\text{bottom}} - c_y$, mà cây quyết định tự học được tương đương. Do đó, bài báo **không khẳng định hình học là bắt buộc để đạt độ chính xác cao nhất**, mà định vị giá trị cốt lõi của hình học ở 3 khía cạnh: (1) cung cấp nền vật lý có thể diễn giải (d); (2) làm điểm neo để phân rã tách bạch sai số hình học thuần túy so với sai số do jitter detector ($\Delta \text{AbsRel} \approx 0$); và (3) đóng vai trò fallback an toàn khi mất dữ liệu.
 
 ---
 
@@ -148,12 +162,59 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 7:** đệm & hoàn tất tái phân bổ B/C/T (D14, `splits-v2`, `geometry-v2`), chốt D15 (matching 4 trạng thái), D16 (Greedy matching), D22 (`run_inference.py` FP32 `conf=0.05` parquet pipeline).
 
 ### Tuần 2
-- [x] **Ngày 1:** Chạy suy luận detector trên Split B (1.499 frames) và Split C (766 frames) cho cả 3 detector (`yolov8s`, `yolo11s`, `yolov5su`). Hoàn tất xuất 18 parquet files và báo cáo hiệu năng P/R/F1/Common Support (`detector_eval_b_c.md`).
-- [x] **Ngày 2 (T00, T01, T02, T03):** Hoàn thành chuẩn bị dữ liệu `build_dataset` (T01), đánh giá hình học trên bbox detector kèm refit trọng số và phân rã sai số (T02, D17/D29/D31), chẩn đoán độ lệch phân bố bbox A vs B vs C (T03, D32).
+- [x] **Ngày 1 (W2-1):** Chạy suy luận detector trên Split B (1.499 frames) và Split C (766 frames) cho cả 3 detector (`yolov8s`, `yolo11s`, `yolov5su`). Hoàn tất xuất 18 parquet files và báo cáo hiệu năng P/R/F1/Common Support (`detector_eval_b_c.md`).
+- [x] **Ngày 2 (W2-2, T00–T03):** Hoàn thành chuẩn bị dữ liệu `build_dataset` (T01), đánh giá hình học trên bbox detector kèm refit trọng số và phân rã sai số (T02, D17/D29/D31), chẩn đoán độ lệch phân bố bbox A vs B vs C (T03, D32).
+- [x] **Ngày 3 (W2-3, T04):** Residual (f0), (f), (e) + pre-register (`prereg-residual-v1`), nested LODO 12 fold trên Split B, Gate T04 vượt chuẩn (AbsRel giảm từ 0.059–0.061 xuống 0.046–0.048 ở cả 3 detector).
+- [x] **Ngày 4 (W2-4, T05, T06):** Ablation 10 cấu hình trên Split B OOF (T05); Latency Tier 1 benchmark trên GPU FP16 và CPU ORT FP32 (T06, Preliminary D44).
+- [x] **Sửa lỗi giao thức & Refit Full B (06/10, D43):** Refit toàn bộ model cuối trên nền $Z_{\text{base}}$ OOF từ `B_oof.parquet`, serialize `full_fw.json` và cập nhật manifest cho cả 3 detector.
+- [ ] **Ngày 5 (W2-5, T07):** Conformal Quantile Regression (CQR) trên r, conformalize trên Split C.
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W2-4 — 06/10/2026: T05 Ablation, T06 Latency Tier 1 (Preliminary D44), và Sửa lỗi Giao thức Refit Full B (D43)
+- **T05 — Nghiên cứu Thành phần Mô hình (Ablation trên Split B OOF, D25, D37, D38, D45):**
+  - Chạy `scripts/run_ablation_oof.py` đánh giá 10 cấu hình ablation trên cả 3 detector:
+    - Nhóm Drop Group (A1–A6): Drop `bbox_geometry`, `edge_flags`, `confidence`, `cues_ln_z`, `validity_flags`, `ln_z_base`.
+    - Nhóm Drop Single Cue (C1–C3): Drop $Z_w$, $Z_h$, $Z_g$ (tái hợp nhất hình học và loại đặc trưng tương ứng).
+    - Nhóm Alternative Model (M1): MLP (128, 64) un-tuned vs XGBoost.
+  - **Số liệu chính và diễn giải thực nghiệm (D45):**
+    - **Drop $Z_h$:** Là cue duy nhất khiến sai số tăng rõ rệt ở cả 3 detector ($\Delta \text{Pooled} +0.0070\text{--}+0.0091$, 95% CI thô loại 0: yolo11s $[+0.0024, +0.0119]$, v8s $[+0.0023, +0.0153]$, v5su $[+0.0029, +0.0163]$). Đây là hiệu ứng trực tiếp lên $Z_{\text{base}}$ vì $Z_h$ chiếm ~70% trọng số hợp nhất.
+    - **Drop $Z_w$ và Drop $Z_g$:** $\Delta \text{Pooled} \approx 0$ (-0.0007 đến +0.0005, CI chứa 0). Macro AbsRel thậm chí giảm nhẹ khi bỏ $Z_g$ (-0.0018 đến -0.0050). Kết quả này hoàn toàn phù hợp với Quyết định D31 (trọng số $w_w \to 0$ khi refit trên bbox detector).
+    - **Drop `cues_ln_z`:** Bỏ toàn bộ $\ln z_*$ chỉ làm $\Delta \text{Pooled} \le +0.0003$ (CI chứa 0), nhất quán với việc hồi quy trực tiếp từ bbox (e) đạt sai số gần tương đương (f).
+    - **Drop `validity_flags`:** Không thấy đóng góp đo lường được ($\Delta \le +0.0003$, CI chứa 0), dư thừa theo cấu trúc vì khi cue invalid thì $\ln z_k = 0$ và đã có cờ `touch_*` đi kèm.
+    - **Drop `ln_z_base` (D30):** Đóng góp nhỏ ($\Delta \le 0.0010$); chỉ tách được ở 1/3 detector (`yolo11s_640`: +0.0010 $[+0.0006, +0.0016]$), 2 detector còn lại CI chứa 0.
+    - **Drop `bbox_geometry` và `confidence`:** 95% CI thô chứa 0 ở cả 3 detector.
+    - **MLP un-tuned vs XGBoost:** Pooled AbsRel của MLP kém hơn +0.0014..+0.0026 (CI chứa 0), nhưng Macro AbsRel của MLP lại thấp hơn ở 2/3 detector (yolo11s: -0.0020, yolov8s: -0.0037). Hai mô hình không phân biệt được sự khác biệt có ý nghĩa thống kê (D32).
+  - Hoàn tất xuất `results/tables/ablation_oof_b.json` và `results/tables/ablation_oof_b.md`.
+- **T06 — Đo độ trễ Latency Tier 1 (v4 §5.6, D40, D44):**
+  - Chạy `scripts/bench_latency.py` đo 200 ảnh Split B trên GPU NVIDIA RTX 5060 Laptop (PyTorch FP16) và CPU (ONNX Runtime FP32, 4 luồng).
+  - Gắn nhãn `PRELIMINARY` (D44) do các hạn chế phương pháp luận: double-count tiền xử lý ở GPU line, tổng tính theo sum of medians, đường tắt residual, và khác biệt dynamic padding của PyTorch vs static padding của ONNX.
+  - Parity check: Count Parity đạt chuẩn (0.974–1.009, trong [0.95, 1.05]), nhưng IoU match rate ($\ge 0.90$) đạt 0.904–0.944 (chưa đạt ngưỡng 0.95). Báo cáo trung thực cả 2 chỉ số theo AGENT_RULES §1.9.
+  - Hoàn thiện và đo lại chính thức ở tác vụ T16 cùng khâu CQR.
+- **Sửa lỗi giao thức và Refit Model cuối (D43):**
+  - Khắc phục lỗi protocol ở `fit_full_b_models`: trước đây $Z_{\text{base}}$ dùng để fit (f)/(f0) toàn B được tính in-sample, vi phạm D16b và D29.
+  - Sửa `fit_full_b_models` nhận $Z_{\text{base}}$ OOF từ `B_oof.parquet` làm nền target $r$ và đặc trưng dẫn xuất $\ln z_{\text{base}}$.
+  - Bổ sung serialization cho `FusionWeights` (`save_fusion_weights`, `load_fusion_weights`).
+  - Viết `scripts/refit_full_b.py`, refit thành công mô hình cuối trên cả 3 detector, lưu `full_fw.json`, cập nhật `manifest.json` đầy đủ mã SHA-256 và ghi log `runs/pipeline_log.jsonl`.
+  - Bộ test suite tăng lên 144 tests pass 100%.
+
+### W2-3 — 05/10/2026: T04 Mô hình Residual OOF trên Split B, Pre-registration prereg-residual-v1 (D13, D16b, D24, D25, D28–D30, D33, D34, D41, D42)
+- **Pha A — Pre-registration (D25, D33):**
+  - Tạo `configs/residual/residual_prereg_v1.yaml` đóng băng không gian tìm kiếm XGBoost 12 cấu hình (`max_depth <= 4`, `min_child_weight >= 10`, `n_estimators = 200`, `lr = 0.05`), tập đặc trưng chuẩn hóa (f: 17, f0: 5, e: 10), loại `class_id` và `fallback_flag`. Đánh dấu superseded cho `residual_config.yaml`. Gắn tag git `prereg-residual-v1`.
+- **Pha B — Thực thi Nested LODO và Đánh giá Gate T04:**
+  - Cài đặt `src/residual/models.py`: `fit_f0` (Ridge), `fit_f` (XGBoost), `fit_e` (direct log depth).
+  - Cài đặt `src/pipeline/oof.py`: `run_nested_lodo_b` thực hiện nested Leave-One-Drive-Out CV qua 12 drive của Split B. Ở mỗi fold: Z_d tính theo trọng số LODO $w_{-d}$; Z_e cho pattern 000 trong train dùng inner-LODO 11 fold (D34); Z_base = Z_d nếu $\ge 1$ cue hợp lệ, fallback Z_e nếu pattern 000. Target $r = \ln Z_{\text{gt}} - \ln Z_{\text{base}}$.
+  - Chạy trên `yolo11s_640` trước (D36), sau đó chạy `yolov8s_640` và `yolov5su_640` (D35). Xuất 3 file `*_B_oof.parquet` tại `results/datasets/`.
+- **Số liệu chính & Đánh giá Gate T04:**
+  - `yolo11s_640`: Baseline (d) Pooled AbsRel = 0.0607, Macro = 0.0759 $\to$ (f) Pooled = **0.0462**, Macro = **0.0541** ($\Delta = -0.0144$, CI $[-0.0205, -0.0090]$, sign test 12 thắng / 0 thua, $p = 0.0002$). Gate T04 **ĐẠT**!
+  - `yolov8s_640`: Baseline (d) Pooled = 0.0592, Macro = 0.0674 $\to$ (f) Pooled = **0.0467**, Macro = **0.0516** ($\Delta = -0.0125$, CI $[-0.0208, -0.0042]$, sign test 11 thắng / 1 thua, $p = 0.0032$). Gate T04 **ĐẠT**!
+  - `yolov5su_640`: Baseline (d) Pooled = 0.0613, Macro = 0.0742 $\to$ (f) Pooled = **0.0484**, Macro = **0.0519** ($\Delta = -0.0129$, CI $[-0.0215, -0.0047]$, sign test 11 thắng / 1 thua, $p = 0.0032$). Gate T04 **ĐẠT**!
+  - So sánh với baseline tuyến tính (f0): (f0) đạt Pooled 0.0543–0.0581; $\Delta(f - f0) \approx -0.0076\text{--}-0.0097$ (CI loại trừ 0), xác nhận mô hình phi tuyến XGBoost vượt trội có ý nghĩa so với Ridge tuyến tính.
+  - So sánh với direct model (e): (e) đạt Pooled 0.0462 (11s), 0.0468 (v8s), 0.0482 (v5su); $\Delta(f - e) \approx 0.0000$ (CI chứa 0). Mô hình hybrid (f) và mô hình direct (e) đạt độ chính xác tương đương nhau.
+  - Canary test (D42): Hoán vị nhãn $Z_{\text{gt}}$ trong train folds khiến RMSE OOF không vượt được $Z_{\text{base}}$ (pass canary guard).
+  - Xuất báo cáo `results/tables/residual_oof_b.{json,md}`.
 
 ### W2-2 — 04/10/2026: Hoàn tất Chuẩn bị Pipeline (T01), Hình học trên Bbox Detector (T02, D17/D29/D31), và Chẩn đoán Lệch Bbox A vs B vs C (T03, D32)
 - **T00 — Dọn Nhật ký, README và Thống kê Đơn vị:**

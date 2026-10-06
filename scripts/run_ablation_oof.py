@@ -595,15 +595,19 @@ def generate_ablation_markdown(all_records: list[dict[str, Any]]) -> str:
             md.append(f"| {idx} | {cat_label} | **{name}** | {n_f} | {p:.4f} | {m:.4f} | {dp_str} | {ci_str} | {dm_str} |")
         md.append("\n")
 
-    # Summary discussion
-    md.append("## Nhận xét & Diễn giải Kết quả\n")
-    md.append("1. **Độ ổn định khi loại bỏ đặc trưng (A1–A6):**")
-    md.append("   - Việc loại bỏ `bbox_geometry` hoặc `confidence` có tác động đo lường được trên sai số khoảng cách.")
-    md.append("   - Việc loại bỏ `validity_flags` hay `ln_z_base` chỉ gây ra biến thiên rất nhỏ (Δ ≈ 0), minh chứng cho tính đa cộng tuyến cao giữa cờ chạm biên và cờ hợp lệ hình học (thông tin dư thừa được bù trừ).")
-    md.append("2. **Đóng góp của từng Cue hình học (C1–C3):**")
-    md.append("   - Loại bỏ từng cue $Z_w, Z_h, Z_g$ và tái hợp nhất trọng số cho thấy sự suy giảm độ chính xác khác biệt, khẳng định mỗi cue mang lại thông tin trực giao bổ sung.")
-    md.append("3. **XGBoost so với MLP (M1):**")
-    md.append("   - Model (f) XGBoost (được tối ưu qua grid search) thể hiện ưu thế vượt trội hoặc tương đương về độ chính xác và tính ổn định trên dữ liệu tabular dạng bảng so với MLP chưa qua tinh chỉnh.\n")
+    # Summary discussion (Decisions D18, D20, D32, D45 - strictly descriptive, no claims of significance or superiority)
+    md.append("## Nhận xét & Diễn giải Kết quả (Mô tả theo số liệu)\n")
+    md.append("1. **Loại bỏ nhóm đặc trưng (A1–A6):**")
+    md.append("   - **bbox_geometry** và **confidence**: Δ Pooled AbsRel dao động từ -0.0005 đến +0.0030, tuy nhiên 95% CI thô (12 cụm) chứa 0 ở cả 3 detector (chưa tách biệt được sai khác ngoài nhiễu cụm).")
+    md.append("   - **validity_flags**: Không thấy đóng góp đo lường được (Δ ≤ +0.0003, CI chứa 0 ở cả 3 detector). Điều này phù hợp về mặt cấu trúc vì khi cue invalid thì `ln_z_k = 0` và có cờ `touch_*` đi kèm.")
+    md.append("   - **ln_z_base** (đặc trưng dẫn xuất D30): Đóng góp nhỏ (Δ ≤ 0.0010); CI loại trừ 0 ở 1/3 detector (`yolo11s_640`: +0.0010 [+0.0006, +0.0016]), trong khi ở 2 detector còn lại CI chứa 0 (`yolov8s`: +0.0002, `yolov5su`: +0.0007).")
+    md.append("   - **cues_ln_z**: Bỏ toàn bộ `ln_z_*` làm Δ Pooled chỉ tăng +0.0001 đến +0.0003 (CI chứa 0), nhất quán với việc hồi quy trực tiếp từ bbox (e) đạt sai số gần tương đương (f).")
+    md.append("2. **Đóng góp của từng Cue hình học khi loại bỏ (C1–C3):**")
+    md.append("   - **Drop Z_h**: Là cue duy nhất khiến sai số tăng rõ rệt ở cả 3 detector (Δ Pooled +0.0070 đến +0.0091; 95% CI thô hoàn toàn loại trừ 0: [+0.0024, +0.0119] trên yolo11s, [+0.0023, +0.0153] trên v8s, [+0.0029, +0.0163] trên v5su). Đây là hiệu ứng trực tiếp lên $Z_{\\text{base}}$ vì $Z_h$ chiếm ~70% trọng số hợp nhất.")
+    md.append("   - **Drop Z_w** và **Drop Z_g**: Δ Pooled xấp xỉ 0 (-0.0007 đến +0.0005; CI đều chứa 0). Thậm chí Macro AbsRel giảm nhẹ khi bỏ $Z_g$ (-0.0018 đến -0.0050). Kết quả này hoàn toàn nhất quán với Quyết định D31 (trọng số $w_w \\to 0$ khi refit trên bbox detector).")
+    md.append("3. **So sánh XGBoost và MLP (M1):**")
+    md.append("   - MLP un-tuned đạt Pooled AbsRel kém hơn nhẹ (+0.0014 đến +0.0026), nhưng 95% CI thô chứa 0 ở cả 3 detector. Đồng thời, Macro AbsRel của MLP lại thấp hơn ở 2/3 detector (yolo11s: -0.0020, yolov8s: -0.0037).")
+    md.append("   - Theo nguyên tắc D20 và D32, không phân biệt được sự khác biệt có ý nghĩa thống kê giữa XGBoost và MLP trên tập dữ liệu này.\n")
 
     return "\n".join(md)
 

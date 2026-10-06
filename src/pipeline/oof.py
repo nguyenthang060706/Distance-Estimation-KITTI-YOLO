@@ -289,6 +289,7 @@ def fit_full_b_models(
     cues_df: pd.DataFrame,
     best_params_f: dict[str, Any],
     best_alpha_f0: float,
+    z_base_oof: np.ndarray | None = None,
     random_state: int = 42,
     n_jobs: int = 1,
 ) -> tuple[Pipeline, xgb.XGBRegressor, xgb.XGBRegressor, FusionWeights]:
@@ -301,47 +302,56 @@ def fit_full_b_models(
         cues_df: Geometric cues DataFrame for Split B.
         best_params_f: Optimal hyperparameters chosen from CV.
         best_alpha_f0: Optimal Ridge alpha chosen from CV.
+        z_base_oof: Baseline depth Z_base strictly from out-of-fold evaluations
+            (LODO Z_d and OOF Z_e per Decisions D16b, D29, D43). Must not be None.
         random_state: Seed.
         n_jobs: Threads.
 
     Returns:
         (model_f0, model_f, model_e, full_b_weights)
     """
+    if z_base_oof is None:
+        raise ValueError(
+            "z_base_oof must be provided (Decisions D16b, D29, D43). "
+            "Final models must train on the OOF baseline (LODO Z_d and OOF Z_e), not in-sample."
+        )
+    z_base_oof_arr = np.asarray(z_base_oof, dtype=float)
+
     combined = features_df.copy()
     for col in ["z_w", "z_h", "z_g", "valid_w", "valid_h", "valid_g"]:
         combined[col] = cues_df[col]
     base_feats = extract_inference_features(combined)
 
     z_gt = eval_df["z_gt"].to_numpy(dtype=float)
+    if len(z_base_oof_arr) != len(z_gt):
+        raise ValueError(f"z_base_oof length ({len(z_base_oof_arr)}) must match z_gt length ({len(z_gt)})")
+    if np.any(np.isnan(z_base_oof_arr)) or np.any(z_base_oof_arr <= 0):
+        raise ValueError("z_base_oof must be strictly positive and finite")
+
     ln_z_gt = np.log(z_gt)
     z_cues = cues_df[["z_w", "z_h", "z_g"]].to_numpy(dtype=float)
     valid_mask = cues_df[["valid_w", "valid_h", "valid_g"]].to_numpy(dtype=bool)
     drive_ids = cues_df["drive"].to_numpy(dtype=str)
-    pattern_000 = (~valid_mask[:, 0] & ~valid_mask[:, 1] & ~valid_mask[:, 2])
 
-    # 1. Full geometric fusion weights
+    # 1. Full geometric fusion weights (used for inference on Split C and T)
     full_fw = fit_fusion_weights(
         Z_cues=z_cues,
         Z_gt=z_gt,
         valid_mask=valid_mask,
         drive_ids=drive_ids,
     )
-    z_d_full = fuse_depths_vectorised(z_cues, valid_mask, full_fw)
 
-    # 2. Full Model (e)
+    # 2. Full Model (e) (used for fallback pattern 000 on Split C and T)
     model_e = fit_e(
         X=base_feats,
         y_ln_gt=ln_z_gt,
         random_state=random_state,
         n_jobs=n_jobs,
     )
-    z_e_full, _ = predict_e(model_e, base_feats)
 
-    # 3. Construct Z_base for full B
-    z_base_full = np.where(~pattern_000, z_d_full, z_e_full)
-    r_full = ln_z_gt - np.log(z_base_full)
-
-    feat_mats_full = build_feature_matrices(base_feats, z_base=z_base_full)
+    # 3. Construct target r and derived features strictly on OOF baseline z_base_oof (D16b, D29, D43)
+    r_full = ln_z_gt - np.log(z_base_oof_arr)
+    feat_mats_full = build_feature_matrices(base_feats, z_base=z_base_oof_arr)
 
     # 4. Full Model (f0)
     scaler = StandardScaler()

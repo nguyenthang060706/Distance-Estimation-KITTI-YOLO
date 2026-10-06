@@ -60,6 +60,7 @@ from src.evaluation.eval import (
     paired_cluster_bootstrap,
     sign_test_one_sided,
 )
+from src.geometry.fusion import save_fusion_weights
 from src.pipeline.oof import fit_full_b_models, run_nested_lodo_b
 from src.residual.models import (
     save_model_e,
@@ -156,6 +157,7 @@ def run_model_pipeline(
         cues_df=cues_df,
         best_params_f=best_params_f,
         best_alpha_f0=best_alpha_f0,
+        z_base_oof=oof_df["z_base"].to_numpy(dtype=float),
         random_state=seed,
         n_jobs=n_jobs,
     )
@@ -167,15 +169,18 @@ def run_model_pipeline(
     f0_path = model_dir / "model_f0.joblib"
     f_path = model_dir / "model_f.json"
     e_path = model_dir / "model_e.json"
+    fw_path = model_dir / "full_fw.json"
     manifest_path = model_dir / "manifest.json"
 
     save_model_f0(model_f0, f0_path)
     save_model_f(model_f, f_path)
     save_model_e(model_e, e_path)
+    save_fusion_weights(full_fw, fw_path)
 
     sha_f0 = sha256_file(f0_path)
     sha_f = sha256_file(f_path)
     sha_e = sha256_file(e_path)
+    sha_fw = sha256_file(fw_path)
 
     manifest_data = {
         "model_key": model_key,
@@ -189,10 +194,12 @@ def run_model_pipeline(
         "created_at": datetime.now().isoformat(),
         "best_params_f": best_params_f,
         "best_alpha_f0": best_alpha_f0,
+        "z_base_source": "B_oof.parquet (LODO Z_d and OOF Z_e per Decisions D16b, D29, D43)",
         "models": {
             "model_f0": {"file": "model_f0.joblib", "sha256": sha_f0},
             "model_f": {"file": "model_f.json", "sha256": sha_f},
             "model_e": {"file": "model_e.json", "sha256": sha_e},
+            "full_fw": {"file": "full_fw.json", "sha256": sha_fw},
         },
         "fold_summary": fold_records,
     }
