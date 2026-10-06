@@ -41,7 +41,7 @@
     },
     "cqr_calib_C": {
       "file": "cqr_calib_C.json",
-      "sha256": "97cd7d2fea3c0f446864c78ca868d1cc00b828a0380d30d8679bb10ea83de50f"
+      "sha256": "a973d9321c58d7946a043e94e8df5d0629821828124b747a07ed61cb61797d3c"
     }
   },
   "fold_summary": [
@@ -214,20 +214,26 @@
       "f_rmse_inner": 0.06465661116858992
     }
   ],
-  "updated_at": "2026-10-06T14:32:24.433387",
+  "updated_at": "2026-10-06T14:50:18.182581",
   "protocol_fix": "D43: final models trained on OOF Z_base (LODO Z_d and OOF Z_e)",
   "z_base_source": "B_oof.parquet",
   "cqr": {
     "alpha": 0.1,
     "nominal_coverage": 0.9,
+    "seed_q05": 42,
+    "seed_q95": 43,
+    "raw_coverage_qhat0": 0.6512110726643598,
     "pooled_coverage_lodo": 0.871280276816609,
     "macro_coverage_lodo_all": 0.9157564248525107,
     "macro_coverage_lodo_ge_30": 0.9000601987688929,
+    "share_samples_ge_30": 0.9757785467128027,
     "mean_width_ratio": 1.3525784781501966,
     "median_width_ratio": 1.354023995409172,
     "mean_winkler": 0.6503293747911644,
     "total_crossings": 0,
     "q_hat_full_c": 0.06389765051835194,
-    "gate_passed": true
+    "gate_passed": true,
+    "fallback_n": 7,
+    "fallback_mean_abs_r": 2.585676219810367
   }
 }

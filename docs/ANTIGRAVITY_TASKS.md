@@ -68,6 +68,8 @@
 | D47 | Interval $[q_{lo} - \hat{Q}, q_{hi} + \hat{Q}]$ trong log-space; sort quantiles nhất quán; đếm crossing không silent clip; Winkler score ở log-space. | ✅ |
 | D48 | Tiêu chí Gate T07 chấp nhận pooled $[85\%, 95\%]$; báo song song macro drive $n \ge 30$; fallback_flag chỉ báo n mô tả. | ✅ |
 | D49 | Module suy luận out-of-sample dùng chung C và T tại `src/pipeline/apply_frozen.py`, assert khớp cues parquet. | ✅ |
+| D50 | Cảnh báo drive-level heterogeneity: pooled coverage lệch do cụm lớn 0057 và 0004 under-cover; T08 phải chẩn đoán sâu. | ✅ |
+| D51 | Nhóm fallback_flag không claim coverage do Model (e) under-predict lớn (|r| ≈ 2.56); chỉ báo cáo mô tả 0/n. | ✅ |
 
 ## 5. Hợp đồng dữ liệu (agent dùng chung)
 

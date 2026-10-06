@@ -89,7 +89,7 @@ def conformalize(scores: np.ndarray | pd.Series | list[float], alpha: float = 0.
     if not (0.0 < alpha < 1.0):
         raise ValueError(f"alpha must be in (0, 1), got {alpha}")
 
-    k = int(np.ceil((n + 1) * (1.0 - alpha)))
+    k = int(np.ceil((n + 1) * (1.0 - alpha) - 1e-12))
     if k > n:
         return float("inf")
 

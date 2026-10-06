@@ -4,9 +4,11 @@
     "n_samples": 1489,
     "alpha": 0.1,
     "nominal_coverage": 0.9,
+    "raw_coverage": 0.6977837474815313,
     "pooled_coverage": 0.8717259905977166,
     "macro_coverage_all": 0.8976315954911914,
     "macro_coverage_ge_30": 0.9013784697493212,
+    "share_samples_ge_30": 0.974479516453996,
     "mean_width_ratio": 1.3298322884148823,
     "median_width_ratio": 1.3207332523011448,
     "mean_winkler": 0.5784854670422706,
@@ -16,6 +18,8 @@
     "n_fallback": 8,
     "fallback_coverage": 0.0,
     "normal_coverage": 0.8764348413234301,
+    "mean_abs_r_fallback": 2.558936890281903,
+    "mean_abs_r_normal": 0.08502725159448266,
     "mean_q_hat_lodo": 0.04973822332181577,
     "median_q_hat_lodo": 0.05170745676511057,
     "mean_r_c": 0.006301906185470094,
@@ -115,18 +119,57 @@
         "n_crossings": 0
       }
     ],
+    "band_results": [
+      {
+        "band": "0-10m",
+        "n_gt": 136,
+        "coverage_by_gt": 0.6102941176470589,
+        "n_pred": 137,
+        "coverage_by_pred": 0.6058394160583942
+      },
+      {
+        "band": "10-20m",
+        "n_gt": 430,
+        "coverage_by_gt": 0.958139534883721,
+        "n_pred": 417,
+        "coverage_by_pred": 0.9664268585131894
+      },
+      {
+        "band": "20-30m",
+        "n_gt": 457,
+        "coverage_by_gt": 0.8971553610503282,
+        "n_pred": 438,
+        "coverage_by_pred": 0.9246575342465754
+      },
+      {
+        "band": "30-50m",
+        "n_gt": 466,
+        "coverage_by_gt": 0.8433476394849786,
+        "n_pred": 489,
+        "coverage_by_pred": 0.8261758691206544
+      },
+      {
+        "band": ">50m",
+        "n_gt": 0,
+        "coverage_by_gt": NaN,
+        "n_pred": 8,
+        "coverage_by_pred": 0.375
+      }
+    ],
     "sha_q05": "b1ed4e9555b2b41195b2f3a1f3a80b22394ebdfb1f327f71fd39e84ee43399cd",
     "sha_q95": "1d90d5223dffcb9339ad14fccdad2398de397b8fd2f7fbf9237a46e57e6347f4",
-    "sha_calib_c": "63f2604c8046d9a6b70ded3035f02781bad16c650f3779217789c7dd7ac51828"
+    "sha_calib_c": "9d67d14f4a740d0142bb8cbd4958516ceda2f8a91c7f24e0b19967fb75f1b21c"
   },
   {
     "model_key": "yolov8s_640",
     "n_samples": 1445,
     "alpha": 0.1,
     "nominal_coverage": 0.9,
+    "raw_coverage": 0.6512110726643598,
     "pooled_coverage": 0.871280276816609,
     "macro_coverage_all": 0.9157564248525107,
     "macro_coverage_ge_30": 0.9000601987688929,
+    "share_samples_ge_30": 0.9757785467128027,
     "mean_width_ratio": 1.3525784781501966,
     "median_width_ratio": 1.354023995409172,
     "mean_winkler": 0.6503293747911644,
@@ -136,6 +179,8 @@
     "n_fallback": 7,
     "fallback_coverage": 0.0,
     "normal_coverage": 0.8755215577190543,
+    "mean_abs_r_fallback": 2.585676219810367,
+    "mean_abs_r_normal": 0.08272867762808596,
     "mean_q_hat_lodo": 0.06382285558090554,
     "median_q_hat_lodo": 0.06522115366857983,
     "mean_r_c": 0.007701864163005737,
@@ -235,18 +280,57 @@
         "n_crossings": 0
       }
     ],
+    "band_results": [
+      {
+        "band": "0-10m",
+        "n_gt": 135,
+        "coverage_by_gt": 0.562962962962963,
+        "n_pred": 135,
+        "coverage_by_pred": 0.5555555555555556
+      },
+      {
+        "band": "10-20m",
+        "n_gt": 429,
+        "coverage_by_gt": 0.9603729603729604,
+        "n_pred": 420,
+        "coverage_by_pred": 0.9666666666666667
+      },
+      {
+        "band": "20-30m",
+        "n_gt": 459,
+        "coverage_by_gt": 0.9128540305010894,
+        "n_pred": 445,
+        "coverage_by_pred": 0.9393258426966292
+      },
+      {
+        "band": "30-50m",
+        "n_gt": 422,
+        "coverage_by_gt": 0.8341232227488151,
+        "n_pred": 435,
+        "coverage_by_pred": 0.8275862068965517
+      },
+      {
+        "band": ">50m",
+        "n_gt": 0,
+        "coverage_by_gt": NaN,
+        "n_pred": 10,
+        "coverage_by_pred": 0.0
+      }
+    ],
     "sha_q05": "6e766805908621df3f580e0fd40b9ea34d07ad5fea747250a5df24e971b9ac36",
     "sha_q95": "b88de4e0dd943c0e596caf1187eca3bae227f6e61f4f1865395ca6018db09647",
-    "sha_calib_c": "97cd7d2fea3c0f446864c78ca868d1cc00b828a0380d30d8679bb10ea83de50f"
+    "sha_calib_c": "a973d9321c58d7946a043e94e8df5d0629821828124b747a07ed61cb61797d3c"
   },
   {
     "model_key": "yolov5su_640",
     "n_samples": 1430,
     "alpha": 0.1,
     "nominal_coverage": 0.9,
+    "raw_coverage": 0.693006993006993,
     "pooled_coverage": 0.8797202797202798,
     "macro_coverage_all": 0.9012847694975672,
     "macro_coverage_ge_30": 0.900406813567953,
+    "share_samples_ge_30": 0.9769230769230769,
     "mean_width_ratio": 1.3439319590384937,
     "median_width_ratio": 1.3332687540277042,
     "mean_winkler": 0.6641747810075606,
@@ -256,6 +340,8 @@
     "n_fallback": 10,
     "fallback_coverage": 0.0,
     "normal_coverage": 0.8859154929577465,
+    "mean_abs_r_fallback": 2.55696990741108,
+    "mean_abs_r_normal": 0.08113258169504863,
     "mean_q_hat_lodo": 0.05165532853614554,
     "median_q_hat_lodo": 0.05252295998110956,
     "mean_r_c": 0.012908039201554256,
@@ -355,8 +441,45 @@
         "n_crossings": 0
       }
     ],
+    "band_results": [
+      {
+        "band": "0-10m",
+        "n_gt": 135,
+        "coverage_by_gt": 0.6666666666666666,
+        "n_pred": 136,
+        "coverage_by_pred": 0.6691176470588235
+      },
+      {
+        "band": "10-20m",
+        "n_gt": 423,
+        "coverage_by_gt": 0.9598108747044918,
+        "n_pred": 409,
+        "coverage_by_pred": 0.9633251833740831
+      },
+      {
+        "band": "20-30m",
+        "n_gt": 453,
+        "coverage_by_gt": 0.8785871964679912,
+        "n_pred": 429,
+        "coverage_by_pred": 0.9277389277389277
+      },
+      {
+        "band": "30-50m",
+        "n_gt": 419,
+        "coverage_by_gt": 0.8687350835322196,
+        "n_pred": 454,
+        "coverage_by_pred": 0.8215859030837004
+      },
+      {
+        "band": ">50m",
+        "n_gt": 0,
+        "coverage_by_gt": NaN,
+        "n_pred": 2,
+        "coverage_by_pred": 1.0
+      }
+    ],
     "sha_q05": "ce8451468da88937067fec7ada089ce5367700f1425cf3403d66fb0e069ff55a",
     "sha_q95": "0ed4ece9a9c04eb6fe87bca70c78ec68bc6a773a3d849b37cf86213f146891b5",
-    "sha_calib_c": "25550fffbff1dc848629518f794a336b426bba97b80e0675dd70dec2b50b79a0"
+    "sha_calib_c": "9c9f026e51ab71a1645ed4138be585ae8d662cb833250752c5685ddab7628534"
   }
 ]
