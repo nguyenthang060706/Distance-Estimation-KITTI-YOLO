@@ -21,8 +21,13 @@ import pytest
 from src.uncertainty.cqr import (
     assert_disjoint_drives,
     compute_nonconformity_scores,
+    compute_split_conformal_scores,
     conformalize,
+    conformalize_mondrian,
+    MondrianBinning,
     predict_interval,
+    predict_interval_mondrian,
+    predict_split_interval,
     sort_quantiles,
     winkler_score,
 )
@@ -339,5 +344,91 @@ def test_conformalize_floating_point_stability():
     # (99 + 1) * (1 - 0.1) = 90.0 exactly
     q_hat = conformalize(scores, alpha=0.1)
     assert q_hat == 90.0
+
+
+def test_split_conformal_scores_and_interval():
+    """
+    Decision D26: Test Split Conformal (absolute error score and symmetric interval).
+    """
+    r_pred = np.array([0.0, 0.1, -0.2])
+    r_act = np.array([0.05, -0.1, -0.3])
+    scores = compute_split_conformal_scores(r_pred, r_act)
+    expected_scores = np.array([0.05, 0.2, 0.1])
+    assert np.allclose(scores, expected_scores)
+
+    # Conformalize
+    q_hat = 0.15
+    z_base = np.array([10.0, 20.0, 30.0])
+    z_lo, z_hi, r_lo, r_hi, n_cross = predict_split_interval(z_base, r_pred, q_hat)
+
+    assert n_cross == 0
+    assert np.allclose(r_lo, r_pred - 0.15)
+    assert np.allclose(r_hi, r_pred + 0.15)
+    assert np.allclose(z_lo, z_base * np.exp(r_pred - 0.15))
+    assert np.allclose(z_hi, z_base * np.exp(r_pred + 0.15))
+    assert np.all(z_lo <= z_hi)
+
+
+def test_mondrian_binning_merge_rule():
+    """
+    Decision D26: Test Mondrian binning with pre-registered merge rule (min_samples=50).
+    """
+    # Case 1: Enough samples in all 4 bins [0, 10), [10, 20), [20, 30), [30, inf)
+    z_calib_full = np.concatenate([
+        np.full(60, 5.0),
+        np.full(60, 15.0),
+        np.full(60, 25.0),
+        np.full(60, 35.0),
+    ])
+    binning_full = MondrianBinning(z_calib_full, base_edges=[0.0, 10.0, 20.0, 30.0], min_samples=50)
+    assert binning_full.n_bins == 4
+    assert binning_full.edges == [0.0, 10.0, 20.0, 30.0]
+    assert binning_full.labels == ["0-10m", "10-20m", "20-30m", ">=30m"]
+
+    # Case 2: Only 10 samples in [30, inf) -> merges into preceding bin -> [20, inf)
+    z_calib_sparse = np.concatenate([
+        np.full(60, 5.0),
+        np.full(60, 15.0),
+        np.full(60, 25.0),
+        np.full(10, 35.0),  # < 50
+    ])
+    binning_merged = MondrianBinning(z_calib_sparse, base_edges=[0.0, 10.0, 20.0, 30.0], min_samples=50)
+    assert binning_merged.n_bins == 3
+    assert binning_merged.edges == [0.0, 10.0, 20.0]
+    assert binning_merged.labels == ["0-10m", "10-20m", ">=20m"]
+
+    # Test assignment on new samples
+    test_z = np.array([3.0, 12.0, 28.0, 45.0])
+    assigned = binning_merged.assign_bins(test_z)
+    assert np.array_equal(assigned, np.array([0, 1, 2, 2]))
+
+
+def test_mondrian_cqr_conformalize_and_predict():
+    """
+    Decision D26: Verify Mondrian CQR conformalization and interval prediction per bin.
+    """
+    # 2 bins: 100 samples each
+    n = 100
+    scores = np.concatenate([np.linspace(0.1, 0.5, n), np.linspace(0.5, 1.0, n)])
+    bin_idx = np.concatenate([np.zeros(n, dtype=int), np.ones(n, dtype=int)])
+
+    q_hat_per_bin = conformalize_mondrian(scores, bin_idx, n_bins=2, alpha=0.1)
+    assert 0 in q_hat_per_bin and 1 in q_hat_per_bin
+    assert q_hat_per_bin[0] < q_hat_per_bin[1]  # Bin 1 has larger nonconformity scores
+
+    # Predict
+    z_base = np.array([5.0, 25.0])
+    q_lo = np.array([-0.1, -0.2])
+    q_hi = np.array([0.1, 0.2])
+    test_bins = np.array([0, 1])
+
+    z_lo, z_hi, r_lo, r_hi, n_cross = predict_interval_mondrian(
+        z_base, q_lo, q_hi, q_hat_per_bin, test_bins
+    )
+    assert n_cross == 0
+    assert r_lo[0] == q_lo[0] - q_hat_per_bin[0]
+    assert r_hi[0] == q_hi[0] + q_hat_per_bin[0]
+    assert r_lo[1] == q_lo[1] - q_hat_per_bin[1]
+    assert r_hi[1] == q_hi[1] + q_hat_per_bin[1]
 
 

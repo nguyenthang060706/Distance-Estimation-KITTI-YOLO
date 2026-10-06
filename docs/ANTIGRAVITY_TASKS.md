@@ -186,14 +186,15 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 **Gate:** coverage tổng trên C (LODO) trong $[85\%, 95\%]$: **ĐẠT (PASS)** ở cả 3 detector (yolo11s: 87.17%, v8s: 87.13%, v5su: 87.97%; macro $n \ge 30$ đạt 90.01%–90.14%). Output: `results/tables/cqr_coverage_dev.{json,md}`.
 
 
-### T08 — Conformal biến thể + 20 lần chia lại + coverage có điều kiện (dev) (W2-6)
+### T08 — Conformal biến thể + 20 lần chia lại + coverage có điều kiện (dev) (W2-6) — [x] HOÀN THÀNH
 **Mục tiêu:** split conformal, Mondrian CQR, độ ổn định coverage.
-**Pha A — pre-register (xong thì DỪNG):** `configs/residual/coverage_prereg_v1.yaml` gồm: bin Mondrian theo Ẑ (`[0,10), [10,20), [20,30), [30,∞)`, `min_samples_per_bin: 50`, gộp bin từ xa vào gần); luật 20 lần chia lại B∪C theo drive (seed 0–19; xáo 22 drive có Car Hard, gán theo số xe thành ba phần fit ≈ 50% / calib ≈ 25% / eval ≈ 25%, mỗi phần ≥ 4 drive có xe và top1_share ≤ 0.5, nếu không thì rút lại từ cùng dòng RNG và ghi `n_redraws`); danh sách điều kiện nhóm. Bạn commit + tag `prereg-coverage-v1`, rồi nhắn "GO pha B".
+**Pha A — pre-register:** Đã hoàn tất và gắn tag `prereg-coverage-v1` tại commit `e1f9e5b`.
 **Pha B — chạy:**
-1. Ba phương án trên cùng mô hình: split conformal thường (điểm `|r − r̂|`), CQR, Mondrian CQR.
-2. 20 lần chia lại: báo cáo mean ± std **và cả 20 giá trị**. Giải thích: coverage trên chính phần calib là tầm thường nên mới cần phần eval riêng.
-3. Coverage có điều kiện theo: dải (theo Ẑ, và theo Z thật chỉ để chẩn đoán), truncated, occluded, cờ chạm biên, θ (D19), difficulty. Mọi CI "thô (k cụm)".
-**Cấm:** đổi bin/seed/luật sau khi thấy kết quả.
+1. Ba phương án trên cùng mô hình: Split Conformal thường, Standard CQR, Mondrian CQR trên 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`).
+2. 20 lần chia lại: báo cáo mean ± std và đầy đủ 20 giá trị cho cả 3 phương án và 3 detector tại `results/tables/coverage_stability_20resplits.{json,md}`. Độ phủ trung bình đạt 85.15% (CQR), 85.56% (Split), 84.53% (Mondrian) cho YOLO11s (tương ứng 86.14%, 87.41%, 84.49% cho YOLOv8s; 84.99%, 85.85%, 83.79% cho YOLOv5su). Độ rộng khoảng hẹp ($Z_{hi}/Z_{lo} \approx 1.24 - 1.26$), 0 crossing.
+3. Coverage có điều kiện theo dải Ẑ, Z thật, truncated, occluded, cờ chạm biên, θ (D19), difficulty, fallback pattern 000 (D51) tại `results/tables/coverage_conditional_dev.{json,md}`. Mondrian CQR cải thiện độ phủ ở dải gần 0–10m (+6.8% đến +9.3%) và nhóm chạm biên (+4.4% đến +8.2%).
+4. Test: Toàn bộ 164 tests pass (`tests/test_resplit.py`, `tests/test_cqr.py`). Đã log `T08-Coverage-Stability-20Resplits` vào `runs/pipeline_log.jsonl`.
+
 
 ### T09 — Sensitivity (W2-7)
 **Mục tiêu:** ba phép kiểm độ nhạy, không đổi cấu hình đóng băng.
