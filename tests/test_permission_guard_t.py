@@ -132,3 +132,24 @@ def test_guard_4_lock_logic(tmp_path: Path, monkeypatch):
     # 4. Running again when lockfile exists raises FileExistsError (Decision D27)
     with pytest.raises(FileExistsError, match="Guard 4 FAILED: Lockfile .* already exists"):
         check_and_create_guard_4_lock(dry_run=False, confirm_flag="FINAL_T_RUN")
+
+
+def test_guard_preflight_logic(tmp_path: Path, monkeypatch):
+    """Test Guard Preflight verifies write permissions and disk space (Decision D67)."""
+    import shutil
+    from collections import namedtuple
+    from scripts.run_final_T import check_guard_preflight
+
+    # 1. Normal writable directory passes preflight
+    out_dir = tmp_path / "final_out"
+    check_guard_preflight(out_dir)
+    assert out_dir.is_dir()
+    assert not (out_dir / ".preflight_write_test.tmp").exists()
+
+    # 2. Insufficient disk space (< 1 GB) raises RuntimeError
+    DiskUsage = namedtuple("DiskUsage", ["total", "used", "free"])
+    low_space = DiskUsage(total=10**10, used=10**10, free=500 * (1024**2))  # 500 MB
+    monkeypatch.setattr(shutil, "disk_usage", lambda path: low_space)
+
+    with pytest.raises(RuntimeError, match="Preflight FAILED: Insufficient disk space"):
+        check_guard_preflight(out_dir)

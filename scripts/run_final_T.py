@@ -115,25 +115,25 @@ def check_guard_1_tag():
 
 def check_guard_2_clean_tree():
     """Guard 2: Check that git working directory is completely clean."""
-    status = subprocess.check_output(
+    raw_status = subprocess.check_output(
         ["git", "status", "--porcelain"],
         cwd=PROJECT_ROOT,
         text=True,
-    ).strip()
-    if status:
-        # Ignore runtime files in runs/ and results/
-        dirty_lines = [
-            line for line in status.splitlines()
-            if not (
-                line[3:].replace("\\", "/").startswith("runs/")
-                or line[3:].replace("\\", "/").startswith("results/")
-            )
-        ]
-        if dirty_lines:
-            raise RuntimeError(
-                f"Guard 2 FAILED: Working tree is dirty!\n"
-                f"Dirty files:\n" + "\n".join(dirty_lines)
-            )
+    )
+    dirty_lines = []
+    for line in raw_status.splitlines():
+        if not line.strip():
+            continue
+        # Porcelain format: 2 status characters followed by path
+        path_part = line[2:].strip().replace("\\", "/")
+        if not (path_part.startswith("runs/") or path_part.startswith("results/")):
+            dirty_lines.append(line)
+
+    if dirty_lines:
+        raise RuntimeError(
+            f"Guard 2 FAILED: Working tree is dirty!\n"
+            f"Dirty files:\n" + "\n".join(dirty_lines)
+        )
     print("  [Guard 2 PASS] Git working tree is completely clean.")
 
 
