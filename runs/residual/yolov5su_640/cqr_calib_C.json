@@ -3,8 +3,7 @@
   "split": "C",
   "alpha": 0.1,
   "nominal_coverage": 0.9,
-  "q_hat_full_c": 0.052463042935182,
+  "q_hat_full_c": 0.049768972753813534,
   "n_calib": 1430,
-  "scores_sha256": "9b3dc8dcb82cb238d9a7320b0071025b82eb81ac8e721c0a330d25a359ef72c9",
-  "created_at": "2026-10-06T14:50:19.454323"
+  "updated_posthoc": "D71: updated after fixing base_score in Model e fallback"
 }

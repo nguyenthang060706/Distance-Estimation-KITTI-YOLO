@@ -278,17 +278,18 @@ def main():
     print("\n--- Running Paired Cluster Bootstrap (10 Drive Clusters, B=1000) ---")
     boot_rows = []
 
-    # 4.1. Comparison (d) Fused Cues vs (f) Residual Model within each detector
+    # 4.1. Comparison (f) Residual Model vs (d) Fused Cues within each detector
+    # Note: pred_col_a="z_hat_f", pred_col_b="z_d" -> metric diff is AbsRel(f) - AbsRel(d)
+    # Negative difference means Model (f) improves upon Model (d).
     for m in DETECTORS:
         df_m = dfs[m]
-        # Keep valid rows for both (d) and (f)
         valid_both = valid_prediction_mask(df_m["z_d"].to_numpy()) & valid_prediction_mask(df_m["z_hat_f"].to_numpy())
         sub_df = df_m[valid_both].copy()
 
         boot_res = paired_cluster_bootstrap(
             df=sub_df,
-            pred_col_a="z_d",
-            pred_col_b="z_hat_f",
+            pred_col_a="z_hat_f",
+            pred_col_b="z_d",
             metric="absrel",
             seed=42,
             n_boot=1000,
@@ -297,7 +298,7 @@ def main():
             cluster_col="drive",
         )
         boot_rows.append({
-            "comparison": f"{m}: (d)_fused vs (f)_residual",
+            "comparison": f"{m}: (f)_residual vs (d)_fused",
             "metric": "diff_absrel (f - d)",
             "estimate": round(boot_res.estimate, 4),
             "ci_low": round(boot_res.ci_low, 4),
@@ -305,7 +306,7 @@ def main():
             "excludes_zero": bool(boot_res.excludes_zero),
             "n_pairs": boot_res.n_rows,
             "k_clusters": boot_res.n_clusters,
-            "note": "Coarse CI (10 clusters) per Decision D68",
+            "note": "Negative indicates (f) improves over (d); coarse CI (10 clusters) per D68",
         })
 
     # 4.2. Pairwise detector comparison on Common Intersection TP for Model (f)
@@ -334,14 +335,14 @@ def main():
         )
         boot_rows.append({
             "comparison": f"{d1} vs {d2} on Common TP (Model f)",
-            "metric": f"diff_absrel ({d2} - {d1})",
+            "metric": f"diff_absrel ({d1} - {d2})",
             "estimate": round(boot_res.estimate, 4),
             "ci_low": round(boot_res.ci_low, 4),
             "ci_high": round(boot_res.ci_high, 4),
             "excludes_zero": bool(boot_res.excludes_zero),
             "n_pairs": boot_res.n_rows,
             "k_clusters": boot_res.n_clusters,
-            "note": "Coarse CI (10 clusters) per Decision D68",
+            "note": f"Negative indicates {d1} has lower error than {d2}; coarse CI (10 clusters)",
         })
 
     boot_df = pd.DataFrame(boot_rows)
@@ -418,12 +419,15 @@ def main():
     # ==============================================================================
     # 6. RQ2 Analysis: Correlation of Depth Error with Detection Quality
     # ==============================================================================
-    print("\n--- Generating Table 5: RQ2 Correlation Analysis ---")
+    print("\n--- Generating Table 5: RQ2 Correlation Analysis (with Cluster Bootstrap CIs) ---")
+    from src.evaluation.eval import cluster_row_groups, iter_cluster_resamples
+
     rq2_rows = []
     for m in DETECTORS:
         df = dfs[m]
         z_gt = df["z_gt"].to_numpy(dtype=float)
         z_pred = df["z_hat_f"].to_numpy(dtype=float)
+        drives = df["drive"].to_numpy(dtype=str)
         absrel = np.abs(z_pred - z_gt) / z_gt
 
         iou = df["matched_iou"].to_numpy(dtype=float)
@@ -432,7 +436,6 @@ def main():
         bbox_w = df["bbox_x2"].to_numpy(dtype=float) - df["bbox_x1"].to_numpy(dtype=float)
         bbox_area = bbox_h * bbox_w
 
-        # Metrics for correlation
         features = {
             "matched_iou": iou,
             "confidence": conf,
@@ -441,19 +444,47 @@ def main():
             "bbox_area": bbox_area,
         }
 
+        groups = cluster_row_groups(drives)
+        rng = np.random.default_rng(42)
+
         for feat_name, feat_arr in features.items():
             valid_corr = np.isfinite(absrel) & np.isfinite(feat_arr)
-            r_pearson, p_pearson = stats.pearsonr(feat_arr[valid_corr], absrel[valid_corr])
-            r_spearman, p_spearman = stats.spearmanr(feat_arr[valid_corr], absrel[valid_corr])
+            fc = feat_arr[valid_corr]
+            ec = absrel[valid_corr]
+            dc = drives[valid_corr]
+
+            r_pearson, p_pearson = stats.pearsonr(fc, ec)
+            r_spearman, p_spearman = stats.spearmanr(fc, ec)
+
+            # Cluster bootstrap over 10 drives (B=1000)
+            valid_groups = cluster_row_groups(dc)
+            boot_p = []
+            boot_s = []
+            for idx in iter_cluster_resamples(valid_groups, 1000, rng):
+                fx_s, ey_s = fc[idx], ec[idx]
+                if np.std(fx_s) > 1e-12 and np.std(ey_s) > 1e-12:
+                    rp_b, _ = stats.pearsonr(fx_s, ey_s)
+                    rs_b, _ = stats.spearmanr(fx_s, ey_s)
+                    boot_p.append(rp_b)
+                    boot_s.append(rs_b)
+
+            p_ci_low = round(float(np.percentile(boot_p, 2.5)), 4) if boot_p else float("nan")
+            p_ci_high = round(float(np.percentile(boot_p, 97.5)), 4) if boot_p else float("nan")
+            s_ci_low = round(float(np.percentile(boot_s, 2.5)), 4) if boot_s else float("nan")
+            s_ci_high = round(float(np.percentile(boot_s, 97.5)), 4) if boot_s else float("nan")
 
             rq2_rows.append({
                 "detector": m,
                 "detection_feature": feat_name,
                 "pearson_r": round(float(r_pearson), 4),
-                "pearson_p": float(p_pearson),
+                "pearson_p_naive": float(p_pearson),
+                "pearson_ci_95": f"[{p_ci_low}, {p_ci_high}]",
                 "spearman_rho": round(float(r_spearman), 4),
-                "spearman_p": float(p_spearman),
-                "n": int(np.sum(valid_corr)),
+                "spearman_p_naive": float(p_spearman),
+                "spearman_ci_95": f"[{s_ci_low}, {s_ci_high}]",
+                "n_samples": int(np.sum(valid_corr)),
+                "k_clusters": len(np.unique(dc)),
+                "note": "Naive p assumes IID (pseudo-replication across 10 drives); rely on cluster CI",
             })
 
     rq2_df = pd.DataFrame(rq2_rows)
@@ -492,6 +523,94 @@ def main():
     drive_df.to_csv(drive_df_path, index=False)
     print(f"Saved: {drive_df_path}")
 
+    # ==============================================================================
+    # 8. Comparison Table: v1 (Original Frozen with Bug) vs v1.1 (Fixed Post-hoc) (D71)
+    # ==============================================================================
+    print("\n--- Generating Table 7: v1 vs v1.1 Comparison Table (Decision D71) ---")
+    comp_json_path = tables_dir / "posthoc_v1_vs_v1_1_comparison.json"
+    comp_rows = []
+    if comp_json_path.is_file():
+        with open(comp_json_path, "r", encoding="utf-8") as f:
+            comp_data = json.load(f)
+        for m, m_vals in comp_data.items():
+            v1 = m_vals["v1_buggy"]
+            v1_1 = m_vals["v1_1_fixed"]
+            metrics_to_show = [
+                ("absrel_f", "Model (f) Residual AbsRel"),
+                ("absrel_e", "Model (e) Direct Depth AbsRel"),
+                ("absrel_f0", "Model (f0) Ridge AbsRel"),
+                ("sc_width", "Split Conformal Mean Width Ratio"),
+                ("m_width", "Mondrian CQR Mean Width Ratio"),
+                ("cqr_cov", "Standard CQR Coverage (90% nominal)"),
+                ("cqr_width", "Standard CQR Mean Width Ratio"),
+            ]
+            for k, label in metrics_to_show:
+                comp_rows.append({
+                    "detector": m,
+                    "metric_label": label,
+                    "v1_buggy": round(v1[k], 4),
+                    "v1_1_fixed": round(v1_1[k], 4),
+                    "delta (v1.1 - v1)": round(v1_1[k] - v1[k], 4),
+                    "note": "Fixed XGBoost JSON base_score syntax bug (D71)" if "AbsRel" in label or "Width" in label else "Standard CQR invariant",
+                })
+        comp_df = pd.DataFrame(comp_rows)
+        comp_df_path = tables_dir / "final_eval_v1_vs_v1_1_comparison.csv"
+        comp_df.to_csv(comp_df_path, index=False)
+        print(f"Saved: {comp_df_path}")
+
+    # ==============================================================================
+    # 9. Markdown Executive Summary (Objective & Free of Hyperbole)
+    # ==============================================================================
+    print("\n--- Generating Executive Summary Markdown (Decision D68, D71) ---")
+    summary_md_path = tables_dir / "final_eval_executive_summary_T.md"
+    with open(summary_md_path, "w", encoding="utf-8") as f:
+        f.write("# Split T Final Evaluation Executive Summary (Post-hoc Verified v1.1)\n\n")
+        f.write("## 1. Summary of Bug Identification & Implementation Fix (Decision D71)\n\n")
+        f.write(
+            "- **Bug Identified**: In the frozen `model_f.json` and `model_e.json` artifacts, the field `learner.learner_model_param.base_score` "
+            "contained array brackets (e.g., `'[1.9926282E-2]'`). The C++ parser silently defaulted `base_score` to 0.5, causing a constant +0.5 shift "
+            "in log residuals. This artificially inflated AbsRel of Model (f) to ~0.62 and Model (e) to ~0.92, while also distorting Split Conformal (3.37x) "
+            "and Mondrian bin assignments (34x in bin 0-10m).\n"
+            "- **Resolution (D71)**: Brackets were removed to restore the intended scalar string (e.g., `'1.9926282E-2'`). No retraining, parameter tuning, "
+            "or YOLO inference was rerun. Post-hoc predictions were recomputed strictly from static saved parquets without unlocking Split T (`runs/final_T.lock` preserved).\n"
+            "- **Scientific Integrity**: Both v1 (original frozen with bug) and v1.1 (corrected syntax) are reported side-by-side below.\n\n"
+        )
+        f.write("## 2. Key Point Estimation Metrics on Split T (v1.1 Fixed)\n\n")
+        f.write("| Detector | Model (d) Fused | Model (f0) Ridge | Model (f) Residual | Model (e) Direct | Delta1 (f) |\n")
+        f.write("|---|---|---|---|---|---|\n")
+        for m in DETECTORS:
+            sub_m = main_df[main_df["detector"] == m]
+            d_val = sub_m[sub_m["variant"] == "z_d"]["absrel_pooled"].values[0]
+            f0_val = sub_m[sub_m["variant"] == "z_hat_f0"]["absrel_pooled"].values[0]
+            f_val = sub_m[sub_m["variant"] == "z_hat_f"]["absrel_pooled"].values[0]
+            e_val = sub_m[sub_m["variant"] == "z_hat_e"]["absrel_pooled"].values[0]
+            d1_val = sub_m[sub_m["variant"] == "z_hat_f"]["delta1"].values[0]
+            f.write(f"| {m} | {d_val:.4f} | {f0_val:.4f} | **{f_val:.4f}** | {e_val:.4f} | {d1_val:.4f} |\n")
+
+        f.write("\n## 3. Conformal Prediction Intervals (Nominal 90% Coverage)\n\n")
+        f.write("| Detector | Standard CQR Coverage (Pooled) | Macro Coverage | Mean Width | Split Conformal Width | Mondrian Width |\n")
+        f.write("|---|---|---|---|---|---|\n")
+        for m in DETECTORS:
+            sub_m = main_df[main_df["detector"] == m]
+            cqr_row = sub_m[sub_m["variant"] == "interval_cqr"].iloc[0]
+            sc_row = sub_m[sub_m["variant"] == "interval_sc"].iloc[0]
+            m_row = sub_m[sub_m["variant"] == "interval_mondrian"].iloc[0]
+            f.write(
+                f"| {m} | {cqr_row['coverage_pooled']:.1%} | {cqr_row['coverage_macro']:.1%} | "
+                f"{cqr_row['mean_width_ratio']:.3f}x | {sc_row['mean_width_ratio']:.3f}x | {m_row['mean_width_ratio']:.3f}x |\n"
+            )
+
+        f.write("\n## 4. Methodological Notes and Caveats\n\n")
+        f.write(
+            "- **Conditioning on True Positives**: Interval and point metrics are conditioned on matched detections (recall 83.2% - 84.4%). "
+            "There were 515–553 False Negatives (FN) per detector.\n"
+            "- **Distance-dependent Coverage**: While overall CQR coverage is 96.4%–97.1%, coverage in the near band (0–10m) is lower (~80.5%), "
+            "as expected due to perspective distortion and fewer near-range calibration samples.\n"
+            "- **Cluster Structure**: Split T contains K=10 drive clusters. Paired bootstrap CIs are coarse and should be interpreted descriptively. "
+            "RQ2 correlations are weak (|r| <= 0.15), and naive p-values suffer from pseudo-replication across frames within drives.\n"
+        )
+    print(f"Saved: {summary_md_path}")
+
     print("\n==================================================================")
     print("ALL TASK T13 ACCEPTANCE EVALUATION TABLES GENERATED SUCCESSFULLY!")
     print("==================================================================")
@@ -499,3 +618,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

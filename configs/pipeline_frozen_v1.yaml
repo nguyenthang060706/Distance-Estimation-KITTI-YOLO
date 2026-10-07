@@ -1,8 +1,8 @@
 metadata:
   name: KITTI Distance Estimation Frozen Pipeline
-  schema_version: '1.0'
-  created_at: '2026-10-07T08:47:12.085092+00:00'
-  git_tag: final-config-v1
+  schema_version: '1.1'
+  created_at: '2026-10-07T10:31:32.504980+00:00'
+  git_tag: final-config-v1.1
   decision_references:
   - D25
   - D26
@@ -15,6 +15,8 @@ metadata:
   - D63
   - D64
   - D65
+  - D71
+  - D72
 splits:
   A:
     path: splits/A.txt
@@ -52,10 +54,10 @@ detectors:
         sha256: 0eb241489c3055137c063b6695d11ffe8687085cd4e98d43c267fa94ac297d9b
       model_f:
         path: runs/residual/yolo11s_640/model_f.json
-        sha256: 2ab49fe4416475fec3eab0f164192820c257e1e7e62b5f3e730fe7e3644badf8
+        sha256: cd1523d3cdf83ff67841823c5dea36672e333ae649d325c28d1718722ee8f871
       model_e:
         path: runs/residual/yolo11s_640/model_e.json
-        sha256: 924a04e3432b21bbcffb4f252b7d48fcf5a3c16d84a62964d838e111f68ae5e7
+        sha256: fe2fc474733a4d9a8fccba1716afc03de97fb1b9ffe476755a1029045b5d1353
       full_fw:
         path: runs/residual/yolo11s_640/full_fw.json
         sha256: 6c815dbb1a5af4ec8896c7cb2926bcbc3d7c57bd8cada49c071b229ef9c333fa
@@ -67,10 +69,10 @@ detectors:
         sha256: 1d90d5223dffcb9339ad14fccdad2398de397b8fd2f7fbf9237a46e57e6347f4
       cqr_calib_C:
         path: runs/residual/yolo11s_640/cqr_calib_C.json
-        sha256: 9d67d14f4a740d0142bb8cbd4958516ceda2f8a91c7f24e0b19967fb75f1b21c
+        sha256: fa63c4c4f8674ff230bfac3f7f55f0675c92b8d60c291b9de32277097202c3d2
     conformal_calib_C:
       path: runs/residual/yolo11s_640/conformal_calib_C.json
-      sha256: 86131d7510ffd8c93832c53c76cd6269775559e7843889c5de215bc73c1612aa
+      sha256: a35ea18cdfc054f3c22e2a6a4c1a0d69a77888c58a26efe38e536d6eee7e8f5c
   yolov8s_640:
     conf_threshold: 0.79
     checkpoint:
@@ -87,10 +89,10 @@ detectors:
         sha256: ee7b2b1e50b7767e985100ebcefb945d790448b1d13f70fa0d3e3e2af814500f
       model_f:
         path: runs/residual/yolov8s_640/model_f.json
-        sha256: 12e82d12d260811f36df8a0803095fe04a345e006d426ef49b3f5d755f9518ab
+        sha256: 3142fbe890b4121be151c867b22e220174af4aae01619438c5a9f3219cb4325a
       model_e:
         path: runs/residual/yolov8s_640/model_e.json
-        sha256: d23fffb3437ab2f8be90d994b6295f88346a1f89bb5fd17d43afdf556a7c3360
+        sha256: 097dbead7fa3cdf1f1ba3b9a771766be93c24410177cd65579bbec2deecb222e
       full_fw:
         path: runs/residual/yolov8s_640/full_fw.json
         sha256: 0c812f495011fc9aef8fc08c22c68f152c638007e9d99e9a3c37a491c0fb4ce6
@@ -102,10 +104,10 @@ detectors:
         sha256: b88de4e0dd943c0e596caf1187eca3bae227f6e61f4f1865395ca6018db09647
       cqr_calib_C:
         path: runs/residual/yolov8s_640/cqr_calib_C.json
-        sha256: a973d9321c58d7946a043e94e8df5d0629821828124b747a07ed61cb61797d3c
+        sha256: 86688e6e31ec3596c62d320f087fd1978b3d80e0f03ae6b67cd7eb37783aa3b1
     conformal_calib_C:
       path: runs/residual/yolov8s_640/conformal_calib_C.json
-      sha256: ff66c492400651f74a3256f6066a95da29bf7bf780ae13ebc92fc70da8e8aa2d
+      sha256: 496e2883a3125254e86dc9748441cdf46d6ba10eb3f777e9609b6371172acecd
   yolov5su_640:
     conf_threshold: 0.74
     checkpoint:
@@ -122,10 +124,10 @@ detectors:
         sha256: 275f7ed6bf66efdcd03599bc9f0cc4205d2b6d10e2c70cba3bf0ffdd8f87cd68
       model_f:
         path: runs/residual/yolov5su_640/model_f.json
-        sha256: 88476d50eab365473d1d37402882a8c4dd67466f797d5ce0e72744240592db18
+        sha256: b2b48189fa894d8067c65d0e5ae5f74979d760e66a5a8809f84098ccf1c41092
       model_e:
         path: runs/residual/yolov5su_640/model_e.json
-        sha256: 214af684574d8c64f844ec5e94f5fcf9406ff470e3dae0767c3441270439ed04
+        sha256: 25e90d2a5a84c34de3b352a89f63d846016fb702d6a7f4ec2b706ae0447c8bf8
       full_fw:
         path: runs/residual/yolov5su_640/full_fw.json
         sha256: ec0e8227574b1eb05b3592ea1bbfba74a5995930a99a6f131eb81bd048190083
@@ -137,10 +139,10 @@ detectors:
         sha256: 0ed4ece9a9c04eb6fe87bca70c78ec68bc6a773a3d849b37cf86213f146891b5
       cqr_calib_C:
         path: runs/residual/yolov5su_640/cqr_calib_C.json
-        sha256: 9c9f026e51ab71a1645ed4138be585ae8d662cb833250752c5685ddab7628534
+        sha256: fa8612fa849328ba7f54ce4c3ff45456683f71ecb8a85e75517ef8e518e5a14e
     conformal_calib_C:
       path: runs/residual/yolov5su_640/conformal_calib_C.json
-      sha256: d6971b1c2342a00816750565a19de08d4dba5589ccdc955d3c7cc2b2b7a1b8fc
+      sha256: b13d1270ed44de762eab24e907d0f2b68b8ef97a5e1d8d16b41e616de4fcbd8c
 pipeline_parameters:
   dontcare_mode: iou
   dontcare_threshold: 0.5
@@ -150,7 +152,7 @@ pipeline_parameters:
   border_eps: 2.0
   alpha: 0.1
   seed: 42
-  seed_quantile: 42  # Note: q05 uses seed 42, q95 uses seed 43 (seed + 1) per Decision D26 / run_cqr.py
+  seed_quantile: 42
 config_files_sha256:
   configs/geometry_params.yaml: 916d0b8af48c7f00d6702f924b903a585334b9535ec16e81d3b08c3b36f095bc
   configs/detector/checkpoints.yaml: 0d07276d984de615e4a3d3aeb43b29488a705d5b6c61b133adedfdbd624a36f5

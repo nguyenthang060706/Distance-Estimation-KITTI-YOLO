@@ -1,7 +1,7 @@
 comparison,metric,estimate,ci_low,ci_high,excludes_zero,n_pairs,k_clusters,note
-yolo11s_640: (d)_fused vs (f)_residual,diff_absrel (f - d),-0.5544,-0.5738,-0.5356,True,2676,10,Coarse CI (10 clusters) per Decision D68
-yolov8s_640: (d)_fused vs (f)_residual,diff_absrel (f - d),-0.5503,-0.5741,-0.529,True,2624,10,Coarse CI (10 clusters) per Decision D68
-yolov5su_640: (d)_fused vs (f)_residual,diff_absrel (f - d),-0.5474,-0.5723,-0.5226,True,2638,10,Coarse CI (10 clusters) per Decision D68
-yolo11s_640 vs yolov8s_640 on Common TP (Model f),diff_absrel (yolov8s_640 - yolo11s_640),0.0021,-0.002,0.0062,False,2528,10,Coarse CI (10 clusters) per Decision D68
-yolo11s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolov5su_640 - yolo11s_640),0.0048,-0.0038,0.0156,False,2528,10,Coarse CI (10 clusters) per Decision D68
-yolov8s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolov5su_640 - yolov8s_640),0.0027,-0.0025,0.0109,False,2528,10,Coarse CI (10 clusters) per Decision D68
+yolo11s_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0188,-0.0264,-0.0107,True,2676,10,Negative indicates (f) improves over (d); coarse CI (10 clusters) per D68
+yolov8s_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0191,-0.0259,-0.0111,True,2624,10,Negative indicates (f) improves over (d); coarse CI (10 clusters) per D68
+yolov5su_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0178,-0.0264,-0.0076,True,2638,10,Negative indicates (f) improves over (d); coarse CI (10 clusters) per D68
+yolo11s_640 vs yolov8s_640 on Common TP (Model f),diff_absrel (yolo11s_640 - yolov8s_640),-0.0003,-0.0023,0.0011,False,2528,10,Negative indicates yolo11s_640 has lower error than yolov8s_640; coarse CI (10 clusters)
+yolo11s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolo11s_640 - yolov5su_640),-0.0011,-0.0033,0.001,False,2528,10,Negative indicates yolo11s_640 has lower error than yolov5su_640; coarse CI (10 clusters)
+yolov8s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolov8s_640 - yolov5su_640),-0.0008,-0.003,0.001,False,2528,10,Negative indicates yolov8s_640 has lower error than yolov5su_640; coarse CI (10 clusters)

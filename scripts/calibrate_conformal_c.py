@@ -75,15 +75,20 @@ def calibrate_split_c_for_detector(model_key: str) -> dict[str, Any]:
     scores_cqr = compute_nonconformity_scores(q05_pred, q95_pred, r_actual)
     q_hat_cqr = conformalize(scores_cqr, alpha=ALPHA)
 
-    # Compare against old cqr_calib_C.json
+    # Update cqr_calib_C.json
     old_calib_path = runs_dir / "cqr_calib_C.json"
-    if old_calib_path.is_file():
-        with open(old_calib_path, "r", encoding="utf-8") as f:
-            old_data = json.load(f)
-        old_q = float(old_data["q_hat_full_c"])
-        diff_q = abs(q_hat_cqr - old_q)
-        assert diff_q <= 1e-6, f"Mismatch with existing cqr_calib_C.json! |{q_hat_cqr} - {old_q}| = {diff_q}"
-        print(f"  [Verified] Standard CQR Q_hat = {q_hat_cqr:.6f} matches existing cqr_calib_C.json (|diff|={diff_q:.1e})")
+    cqr_calib_data = {
+        "model_key": model_key,
+        "split": "C",
+        "alpha": ALPHA,
+        "nominal_coverage": 1.0 - ALPHA,
+        "q_hat_full_c": float(q_hat_cqr),
+        "n_calib": n_samples,
+        "updated_posthoc": "D71: updated after fixing base_score in Model e fallback",
+    }
+    with open(old_calib_path, "w", encoding="utf-8") as f:
+        json.dump(cqr_calib_data, f, indent=2)
+    print(f"  [Updated] Standard CQR Q_hat = {q_hat_cqr:.6f} saved to cqr_calib_C.json")
 
     # 4. Method 2: Split Conformal (Descriptive baseline)
     scores_sc = compute_split_conformal_scores(r_actual, r_hat_f)

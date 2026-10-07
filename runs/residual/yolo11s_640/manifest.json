@@ -21,11 +21,11 @@
     },
     "model_f": {
       "file": "model_f.json",
-      "sha256": "2ab49fe4416475fec3eab0f164192820c257e1e7e62b5f3e730fe7e3644badf8"
+      "sha256": "cd1523d3cdf83ff67841823c5dea36672e333ae649d325c28d1718722ee8f871"
     },
     "model_e": {
       "file": "model_e.json",
-      "sha256": "924a04e3432b21bbcffb4f252b7d48fcf5a3c16d84a62964d838e111f68ae5e7"
+      "sha256": "fe2fc474733a4d9a8fccba1716afc03de97fb1b9ffe476755a1029045b5d1353"
     },
     "full_fw": {
       "file": "full_fw.json",
@@ -41,7 +41,7 @@
     },
     "cqr_calib_C": {
       "file": "cqr_calib_C.json",
-      "sha256": "9d67d14f4a740d0142bb8cbd4958516ceda2f8a91c7f24e0b19967fb75f1b21c"
+      "sha256": "fa63c4c4f8674ff230bfac3f7f55f0675c92b8d60c291b9de32277097202c3d2"
     }
   },
   "fold_summary": [

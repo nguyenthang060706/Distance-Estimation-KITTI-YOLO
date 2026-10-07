@@ -527,12 +527,28 @@ def verify_dryrun_against_golden(results: dict[str, Any]) -> bool:
         if status_str == "FAIL":
             all_passed = False
 
+        # Decision D72 Sanity Gates
+        absrel_f = res["metrics"]["absrel_f"]
+        sc_width = res["metrics"]["split_conformal"]["mean_width_ratio"]
+        m_width = res["metrics"]["mondrian_cqr"]["mean_width_ratio"]
+
+        pass_sanity_f = (absrel_f <= 0.10)
+        pass_sanity_sc = (1.0 <= sc_width <= 2.0)
+        pass_sanity_m = (1.0 <= m_width <= 2.5)
+
+        if not (pass_sanity_f and pass_sanity_sc and pass_sanity_m):
+            all_passed = False
+            status_str = "FAIL"
+
         print(f"\n--- Detector `{m}` [{status_str}] ---")
         print(f"  Count TP:       Dry-Run={res['n_tp']}, Golden={g['n_samples']} (Diff={diff_n}) {'✓' if pass_n else '✗'}")
         print(f"  Q_hat CQR:      Dry-Run={res['q_hat_cqr']:.6f}, Golden={g['q_hat']:.6f} (Diff={diff_q:.2e}) {'✓' if pass_q else '✗'}")
         print(f"  Pooled Cov:     Dry-Run={met['pooled_coverage']*100:.2f}%, Golden={g['pooled_coverage']*100:.2f}% (Diff={diff_cov*100:.3f}%) {'✓' if pass_cov else '✗'}")
         print(f"  Mean Width:     Dry-Run={met['mean_width_ratio']:.4f}, Golden={g['mean_width_ratio']:.4f} (RelDiff={rel_width:.2e}) {'✓' if pass_width else '✗'}")
         print(f"  Mean Winkler:   Dry-Run={met['mean_winkler']:.4f}, Golden={g['mean_winkler']:.4f} (RelDiff={rel_winkler:.2e}) {'✓' if pass_winkler else '✗'}")
+        print(f"  [D72 Sanity] AbsRel(f) = {absrel_f:.4f} (limit <= 0.10) {'✓' if pass_sanity_f else '✗ FAIL'}")
+        print(f"  [D72 Sanity] SC Width  = {sc_width:.4f}x (limit 1.0-2.0x) {'✓' if pass_sanity_sc else '✗ FAIL'}")
+        print(f"  [D72 Sanity] Mon Width = {m_width:.4f}x (limit 1.0-2.5x) {'✓' if pass_sanity_m else '✗ FAIL'}")
 
     return all_passed
 

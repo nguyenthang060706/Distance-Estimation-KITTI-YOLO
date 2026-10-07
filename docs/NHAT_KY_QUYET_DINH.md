@@ -121,6 +121,27 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   - `yolov5su_640` (conf 0.74): $n_{\text{TP}} = 2,674$, $n_{\text{FN}} = 538$ (Recall 83.25%), $n_{\text{fallback}} = 36$ (1.35%). SHA parquet: `be5cc9e2354f98ee...`
   Khóa vĩnh viễn `runs/final_T.lock` đã được tạo thành công. Toàn bộ số liệu trên là mốc gốc bất biến tuyệt đối.
 - ✅ **Phân định phạm vi tác vụ T13 và các tác vụ hậu T12 (D70):** Tất cả các phân tích từ T13 đến T18 chỉ được phép đọc các tệp tĩnh đã sinh trong `results/final/*` và `results/tables/final_eval_T.json`. Tuyệt đối cấm code mới nhập `load_split("splits", "T")` hoặc gọi lại suy luận trên T dưới mọi hình thức, tuân thủ nguyên tắc AGENT_RULES §1.1. Mọi bảng kết quả so sánh đều phải kèm cảnh báo hiệu ứng lựa chọn mẫu (survivorship bias) qua việc công bố song song $n_{\text{GT}} = \text{TP} + \text{FN}$.
+- ✅ **Khắc phục lỗi triển khai serialization base_score và chuẩn hóa hậu T12 (D71):**
+  * **Phát hiện**: Quá trình kiểm toán độc lập sau T12 phát hiện lỗi cú pháp trong các tệp serialize `model_f.json` và `model_e.json` (tồn tại từ commit `76f4fd8`): trường `learner.learner_model_param.base_score` bị bao trong chuỗi mảng `"[val]"` thay vì chuỗi số vô hướng. Parser C++ của XGBoost khi nạp gặp lỗi parse cú pháp nên silently fallback về giá trị mặc định của thư viện là `0.5`, gây độ lệch hằng số $+0.5$ trong log-residuals $\hat{r}$, đẩy AbsRel của Model (f) lên ~0.62 và Model (e) lên ~0.92, đồng thời làm méo mó độ rộng Split Conformal ($3.37\times$) và Mondrian CQR ($34\times$ ở dải 0–10m).
+  * **Quy trình chuẩn hóa bảo vệ Split T**:
+    1. Giữ nguyên 100% lockfile `runs/final_T.lock`, không chạy lại detector inference trên Split T, không nạp lại raw data Split T (tuân thủ D27, D70). Toàn bộ detections, matches, và ground truth trên Split T được bảo toàn bất biến trong `results/final/*.parquet`.
+    2. Chuẩn hóa chuỗi `base_score` trong 6 file JSON (xóa dấu ngoặc vuông `[]`), khôi phục 100% hành vi nguyên bản của các cây quyết định đã học trên Split B, tuyệt đối không retrain, không tuning.
+    3. Hiệu chuẩn lại Split Conformal và Mondrian CQR trên Split C (`scripts/calibrate_conformal_c.py`).
+    4. Cập nhật mã băm SHA-256 mới trong `runs/residual/*/manifest.json` và `configs/pipeline_frozen_v1.yaml` (schema version 1.1, chuẩn bị tag `final-config-v1.1`).
+    5. Sao lưu dữ liệu dự đoán ban đầu thành `results/final/*_T_predictions_v1_buggy.parquet`.
+    6. Thực hiện suy luận hậu kiểm (post-hoc recomputation) trên các artifact tĩnh qua `scripts/recompute_final_T_posthoc.py`.
+    7. Cam kết liêm chính học thuật: Báo cáo song song cả kết quả gốc v1 (có lỗi triển khai) và v1.1 (đã chuẩn hóa), giải trình chi tiết trong mục Limitations của bài báo.
+- ✅ **Bổ sung Sanity Gate vào Runner Dry-run (D72):**
+  * Mở rộng `verify_dryrun_against_golden` trong `scripts/run_final_T.py` với 3 cổng kiểm tra mức độ hợp lý (Sanity Gates):
+    1. $\text{AbsRel}(f) \le 0.10$ trên Split C (đảm bảo cùng quy mô với OOF trên Split B).
+    2. Độ rộng Split Conformal trung bình nằm trong khoảng $[1.0, 2.0\times]$ (không vượt quá xa CQR).
+    3. Độ rộng Mondrian CQR trung bình nằm trong khoảng $[1.0, 2.5\times]$.
+  * Cập nhật `runs/dryrun_golden_C.json` với số liệu sạch của Split C ($\text{AbsRel}(f) \approx 0.070\text{--}0.072$, CQR mean width $\approx 1.33\text{--}1.35\times$, Winkler $\approx 0.33\text{--}0.41$).
+- ✅ **Chuẩn hóa Phương pháp luận Đánh giá T13 và Diễn giải Thống kê (D73):**
+  * **Sửa lỗi nhãn Bootstrap**: Quy ước hiển thị $\Delta = \text{AbsRel}(f) - \text{AbsRel}(d)$, trong đó giá trị âm phản ánh Model (f) cải thiện so với Model (d). Nhãn ghi rõ `diff_absrel (f - d)`. Tương tự, so sánh giữa 2 detector $d_1$ vs $d_2$ ghi rõ `diff_absrel (d1 - d2)`.
+  * **Phân tích tương quan RQ2**: Thừa nhận hiện tượng lặp giả (pseudo-replication) khi tính $p$-value tổng gộp (pooled) trên 2,712 quan sát chỉ thuộc 10 cụm drive. Bổ sung khoảng tin cậy Cluster Bootstrap 95% (resample theo drive) cho cả hệ số tương quan Pearson $r$ và Spearman $\rho$. Báo cáo RQ2 ở mức độ mô tả thận trọng, chỉ ra tương quan yếu ($|r| \le 0.15$).
+  * **Đánh giá độ phủ CQR**: Báo cáo độ phủ thực nghiệm (96.4%–97.1%) kèm điều kiện chặt chẽ: có điều kiện trên True Positives (Recall 83.2%–84.4%), và phân tầng theo khoảng cách (dải gần 0–10m đạt ~80.5%).
+  * **Chuẩn hóa văn phong**: Loại bỏ toàn bộ ngôn ngữ mang tính cảm tính ("rực rỡ / xuất sắc / khẳng định thực nghiệm") theo chuẩn mực D68.
 
 
 
