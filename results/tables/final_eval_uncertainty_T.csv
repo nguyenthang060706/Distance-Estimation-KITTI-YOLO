@@ -1,64 +1,64 @@
-detector,method,subset,n,coverage,mean_width_ratio,median_width_ratio
-yolo11s_640,cqr,overall,2712,0.9639,1.3194,1.3097
-yolo11s_640,cqr,fallback_000,36,0.7778,1.5719,1.5796
-yolo11s_640,cqr,band_0-10m,261,0.9157,1.4282,1.3705
-yolo11s_640,cqr,band_10-20m,831,0.9759,1.3197,1.3144
-yolo11s_640,cqr,band_20-30m,804,0.9726,1.3147,1.3215
-yolo11s_640,cqr,band_30-50m,809,0.9617,1.2887,1.284
-yolo11s_640,cqr,band_>50m,7,0.5714,1.3168,1.2801
-yolo11s_640,sc,overall,2712,0.9631,1.3223,1.3223
-yolo11s_640,sc,fallback_000,36,0.6389,1.3223,1.3223
-yolo11s_640,sc,band_0-10m,261,0.8889,1.3223,1.3223
-yolo11s_640,sc,band_10-20m,831,0.9795,1.3223,1.3223
-yolo11s_640,sc,band_20-30m,804,0.9652,1.3223,1.3223
-yolo11s_640,sc,band_30-50m,809,0.9703,1.3223,1.3223
-yolo11s_640,sc,band_>50m,7,0.7143,1.3223,1.3223
-yolo11s_640,mondrian,overall,2712,0.9554,1.2936,1.2772
-yolo11s_640,mondrian,fallback_000,36,0.8056,1.6201,1.6281
-yolo11s_640,mondrian,band_0-10m,261,0.9272,1.4635,1.4006
-yolo11s_640,mondrian,band_10-20m,831,0.9507,1.2448,1.2396
-yolo11s_640,mondrian,band_20-30m,804,0.9565,1.2667,1.2687
-yolo11s_640,mondrian,band_30-50m,809,0.9716,1.3152,1.3129
-yolo11s_640,mondrian,band_>50m,7,0.5714,1.3483,1.3107
-yolov8s_640,cqr,overall,2660,0.9714,1.3524,1.348
-yolov8s_640,cqr,fallback_000,36,0.8611,1.6092,1.6167
-yolov8s_640,cqr,band_0-10m,266,0.9361,1.4518,1.3799
-yolov8s_640,cqr,band_10-20m,836,0.9785,1.3555,1.3541
-yolov8s_640,cqr,band_20-30m,780,0.9795,1.3316,1.3426
-yolov8s_640,cqr,band_30-50m,776,0.9678,1.336,1.3345
-yolov8s_640,cqr,band_>50m,2,1.0,1.3456,1.3456
-yolov8s_640,sc,overall,2660,0.9692,1.3448,1.3448
-yolov8s_640,sc,fallback_000,36,0.6944,1.3448,1.3448
-yolov8s_640,sc,band_0-10m,266,0.8985,1.3448,1.3448
-yolov8s_640,sc,band_10-20m,836,0.9809,1.3448,1.3448
-yolov8s_640,sc,band_20-30m,780,0.9782,1.3448,1.3448
-yolov8s_640,sc,band_30-50m,776,0.9716,1.3448,1.3448
-yolov8s_640,sc,band_>50m,2,1.0,1.3448,1.3448
-yolov8s_640,mondrian,overall,2660,0.9699,1.3532,1.302
-yolov8s_640,mondrian,fallback_000,36,0.9722,2.0198,2.0293
-yolov8s_640,mondrian,band_0-10m,266,0.9774,1.7962,1.7258
-yolov8s_640,mondrian,band_10-20m,836,0.9641,1.2799,1.2694
-yolov8s_640,mondrian,band_20-30m,780,0.9705,1.2705,1.2784
-yolov8s_640,mondrian,band_30-50m,776,0.9729,1.3633,1.3642
-yolov8s_640,mondrian,band_>50m,2,1.0,1.3785,1.3785
-yolov5su_640,cqr,overall,2674,0.966,1.3316,1.3171
-yolov5su_640,cqr,fallback_000,36,0.8611,1.5806,1.6079
-yolov5su_640,cqr,band_0-10m,264,0.8939,1.4229,1.3673
-yolov5su_640,cqr,band_10-20m,835,0.9713,1.3281,1.3149
-yolov5su_640,cqr,band_20-30m,781,0.9795,1.3169,1.3156
-yolov5su_640,cqr,band_30-50m,785,0.9745,1.3182,1.3112
-yolov5su_640,cqr,band_>50m,9,0.6667,1.425,1.3926
-yolov5su_640,sc,overall,2674,0.9705,1.3509,1.3509
-yolov5su_640,sc,fallback_000,36,0.6944,1.3509,1.3509
-yolov5su_640,sc,band_0-10m,264,0.8939,1.3509,1.3509
-yolov5su_640,sc,band_10-20m,835,0.982,1.3509,1.3509
-yolov5su_640,sc,band_20-30m,781,0.9808,1.3509,1.3509
-yolov5su_640,sc,band_30-50m,785,0.9796,1.3509,1.3509
-yolov5su_640,sc,band_>50m,9,0.4444,1.3509,1.3509
-yolov5su_640,mondrian,overall,2674,0.9611,1.3163,1.2975
-yolov5su_640,mondrian,fallback_000,36,0.8611,1.632,1.6603
-yolov5su_640,mondrian,band_0-10m,264,0.9091,1.4623,1.3953
-yolov5su_640,mondrian,band_10-20m,835,0.9593,1.2685,1.2551
-yolov5su_640,mondrian,band_20-30m,781,0.968,1.2764,1.2711
-yolov5su_640,mondrian,band_30-50m,785,0.9771,1.3561,1.3507
-yolov5su_640,mondrian,band_>50m,9,0.6667,1.4716,1.4382
+detector,method,subset,n,coverage,mean_width_ratio,median_width_ratio,note
+yolo11s_640,cqr,overall,2712,0.9639,1.3194,1.3097,
+yolo11s_640,cqr,fallback_000,36,0.7778,1.5719,1.5796,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolo11s_640,cqr,band_0-10m,261,0.9157,1.4282,1.3705,
+yolo11s_640,cqr,band_10-20m,831,0.9759,1.3197,1.3144,
+yolo11s_640,cqr,band_20-30m,804,0.9726,1.3147,1.3215,
+yolo11s_640,cqr,band_30-50m,809,0.9617,1.2887,1.284,
+yolo11s_640,cqr,band_>50m,7,0.5714,1.3168,1.2801,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolo11s_640,sc,overall,2712,0.9631,1.3223,1.3223,
+yolo11s_640,sc,fallback_000,36,0.6389,1.3223,1.3223,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolo11s_640,sc,band_0-10m,261,0.8889,1.3223,1.3223,
+yolo11s_640,sc,band_10-20m,831,0.9795,1.3223,1.3223,
+yolo11s_640,sc,band_20-30m,804,0.9652,1.3223,1.3223,
+yolo11s_640,sc,band_30-50m,809,0.9703,1.3223,1.3223,
+yolo11s_640,sc,band_>50m,7,0.7143,1.3223,1.3223,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolo11s_640,mondrian,overall,2712,0.9554,1.2936,1.2772,
+yolo11s_640,mondrian,fallback_000,36,0.8056,1.6201,1.6281,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolo11s_640,mondrian,band_0-10m,261,0.9272,1.4635,1.4006,
+yolo11s_640,mondrian,band_10-20m,831,0.9507,1.2448,1.2396,
+yolo11s_640,mondrian,band_20-30m,804,0.9565,1.2667,1.2687,
+yolo11s_640,mondrian,band_30-50m,809,0.9716,1.3152,1.3129,
+yolo11s_640,mondrian,band_>50m,7,0.5714,1.3483,1.3107,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolov8s_640,cqr,overall,2660,0.9714,1.3524,1.348,
+yolov8s_640,cqr,fallback_000,36,0.8611,1.6092,1.6167,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolov8s_640,cqr,band_0-10m,266,0.9361,1.4518,1.3799,
+yolov8s_640,cqr,band_10-20m,836,0.9785,1.3555,1.3541,
+yolov8s_640,cqr,band_20-30m,780,0.9795,1.3316,1.3426,
+yolov8s_640,cqr,band_30-50m,776,0.9678,1.336,1.3345,
+yolov8s_640,cqr,band_>50m,2,1.0,1.3456,1.3456,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolov8s_640,sc,overall,2660,0.9692,1.3448,1.3448,
+yolov8s_640,sc,fallback_000,36,0.6944,1.3448,1.3448,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolov8s_640,sc,band_0-10m,266,0.8985,1.3448,1.3448,
+yolov8s_640,sc,band_10-20m,836,0.9809,1.3448,1.3448,
+yolov8s_640,sc,band_20-30m,780,0.9782,1.3448,1.3448,
+yolov8s_640,sc,band_30-50m,776,0.9716,1.3448,1.3448,
+yolov8s_640,sc,band_>50m,2,1.0,1.3448,1.3448,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolov8s_640,mondrian,overall,2660,0.9699,1.3532,1.302,
+yolov8s_640,mondrian,fallback_000,36,0.9722,2.0198,2.0293,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolov8s_640,mondrian,band_0-10m,266,0.9774,1.7962,1.7258,
+yolov8s_640,mondrian,band_10-20m,836,0.9641,1.2799,1.2694,
+yolov8s_640,mondrian,band_20-30m,780,0.9705,1.2705,1.2784,
+yolov8s_640,mondrian,band_30-50m,776,0.9729,1.3633,1.3642,
+yolov8s_640,mondrian,band_>50m,2,1.0,1.3785,1.3785,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolov5su_640,cqr,overall,2674,0.966,1.3316,1.3171,
+yolov5su_640,cqr,fallback_000,36,0.8611,1.5806,1.6079,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolov5su_640,cqr,band_0-10m,264,0.8939,1.4229,1.3673,
+yolov5su_640,cqr,band_10-20m,835,0.9713,1.3281,1.3149,
+yolov5su_640,cqr,band_20-30m,781,0.9795,1.3169,1.3156,
+yolov5su_640,cqr,band_30-50m,785,0.9745,1.3182,1.3112,
+yolov5su_640,cqr,band_>50m,9,0.6667,1.425,1.3926,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolov5su_640,sc,overall,2674,0.9705,1.3509,1.3509,
+yolov5su_640,sc,fallback_000,36,0.6944,1.3509,1.3509,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolov5su_640,sc,band_0-10m,264,0.8939,1.3509,1.3509,
+yolov5su_640,sc,band_10-20m,835,0.982,1.3509,1.3509,
+yolov5su_640,sc,band_20-30m,781,0.9808,1.3509,1.3509,
+yolov5su_640,sc,band_30-50m,785,0.9796,1.3509,1.3509,
+yolov5su_640,sc,band_>50m,9,0.4444,1.3509,1.3509,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"
+yolov5su_640,mondrian,overall,2674,0.9611,1.3163,1.2975,
+yolov5su_640,mondrian,fallback_000,36,0.8611,1.632,1.6603,"* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)"
+yolov5su_640,mondrian,band_0-10m,264,0.9091,1.4623,1.3953,
+yolov5su_640,mondrian,band_10-20m,835,0.9593,1.2685,1.2551,
+yolov5su_640,mondrian,band_20-30m,781,0.968,1.2764,1.2711,
+yolov5su_640,mondrian,band_30-50m,785,0.9771,1.3561,1.3507,
+yolov5su_640,mondrian,band_>50m,9,0.6667,1.4716,1.4382,"* Cỡ mẫu nhỏ n < 100 (D3, D54)"

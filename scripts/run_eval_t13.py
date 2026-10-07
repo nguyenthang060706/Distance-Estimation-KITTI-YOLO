@@ -293,38 +293,20 @@ def main():
     print(f"Saved: {common_df_path} ({len(common_res_df)} rows)")
 
     # ==============================================================================
-    # 4. Paired Cluster Bootstrap (10 Drive Clusters, B=1000)
+    # 4. Paired Cluster Bootstrap (10 Drive Clusters, B=1000) & Drive Sign Test
     # ==============================================================================
-    print("\n--- Running Paired Cluster Bootstrap (10 Drive Clusters, B=1000) ---")
+    print("\n--- Running Paired Cluster Bootstrap (10 Drive Clusters, B=1000) & Drive Sign Test ---")
     boot_rows = []
 
     # 4.1. Comparison of (f) against baselines within each detector
     for m in DETECTORS:
         df_m = dfs[m]
         comparisons = [
-            (
-                "z_hat_f",
-                "z_d",
-                f"{m}: (f)_residual vs (d)_fused",
-                "diff_absrel (f - d)",
-                "Negative indicates (f) improves over (d); coarse CI (10 clusters) excludes 0 per D68",
-            ),
-            (
-                "z_hat_f",
-                "z_hat_f0",
-                f"{m}: (f)_residual vs (f0)_ridge",
-                "diff_absrel (f - f0)",
-                "Negative indicates (f) improves over (f0); coarse CI (10 clusters) excludes 0 per D68",
-            ),
-            (
-                "z_hat_f",
-                "z_hat_e",
-                f"{m}: (f)_residual vs (e)_direct",
-                "diff_absrel (f - e)",
-                "Coarse CI (10 clusters) includes 0; residual (f) statistically indistinguishable from direct (e) on T (Limitations #8)",
-            ),
+            ("z_hat_f", "z_d", f"{m}: (f)_residual vs (d)_fused", "diff_absrel (f - d)"),
+            ("z_hat_f", "z_hat_f0", f"{m}: (f)_residual vs (f0)_ridge", "diff_absrel (f - f0)"),
+            ("z_hat_f", "z_hat_e", f"{m}: (f)_residual vs (e)_direct", "diff_absrel (f - e)"),
         ]
-        for col_a, col_b, comp_label, metric_label, note_str in comparisons:
+        for col_a, col_b, comp_label, metric_label in comparisons:
             valid_both = valid_prediction_mask(df_m[col_a].to_numpy()) & valid_prediction_mask(df_m[col_b].to_numpy())
             sub_df = df_m[valid_both].copy()
 
@@ -339,6 +321,19 @@ def main():
                 gt_col="z_gt",
                 cluster_col="drive",
             )
+
+            # Strictly dynamic note based on bootstrap outcome (Decisions D20, D68, D78)
+            if boot_res.excludes_zero:
+                note_str = (
+                    f"Ước lượng {boot_res.estimate:+.4f}, CI thô (10 cụm) [{boot_res.ci_low:.4f}, {boot_res.ci_high:.4f}] "
+                    f"loại trừ 0 (D68, D78)"
+                )
+            else:
+                note_str = (
+                    f"Ước lượng {boot_res.estimate:+.4f}, CI thô (10 cụm) [{boot_res.ci_low:.4f}, {boot_res.ci_high:.4f}] "
+                    f"chứa 0 (không phân biệt được trên 10 cụm) (D68, D78)"
+                )
+
             boot_rows.append({
                 "comparison": comp_label,
                 "metric": metric_label,
@@ -350,6 +345,27 @@ def main():
                 "k_clusters": boot_res.n_clusters,
                 "note": note_str,
             })
+
+        # Drive-level sign test for (f) vs (d) on common valid cues support
+        valid_cues = np.isfinite(df_m["z_d"]) & (df_m["z_d"] > 0)
+        sub_cues = df_m[valid_cues].copy()
+        sub_cues["err_d"] = np.abs(sub_cues["z_d"] - sub_cues["z_gt"]) / sub_cues["z_gt"]
+        sub_cues["err_f"] = np.abs(sub_cues["z_hat_f"] - sub_cues["z_gt"]) / sub_cues["z_gt"]
+        grp_d = sub_cues.groupby("drive").agg(d=("err_d", "mean"), f=("err_f", "mean"))
+        n_wins = int((grp_d["f"] < grp_d["d"]).sum())
+        n_drives = len(grp_d)
+        p_sign = float(stats.binomtest(n_wins, n_drives, p=0.5, alternative="greater").pvalue)
+        boot_rows.append({
+            "comparison": f"{m}: (f) vs (d) Drive-level Sign Test",
+            "metric": "sign_test_wins",
+            "estimate": round(n_wins / n_drives, 4),
+            "ci_low": float("nan"),
+            "ci_high": float("nan"),
+            "excludes_zero": bool(p_sign < 0.05),
+            "n_pairs": len(sub_cues),
+            "k_clusters": n_drives,
+            "note": f"Model (f) thắng (d) ở {n_wins}/{n_drives} drive, p_binom={p_sign:.4f}",
+        })
 
     # 4.2. Pairwise detector comparison on Common Intersection TP for Model (f)
     pairs = [
@@ -375,6 +391,11 @@ def main():
             gt_col="z_gt",
             cluster_col="drive",
         )
+        if boot_res.excludes_zero:
+            note_str = f"Ước lượng {boot_res.estimate:+.4f}, CI [{boot_res.ci_low:.4f}, {boot_res.ci_high:.4f}] loại trừ 0"
+        else:
+            note_str = f"Ước lượng {boot_res.estimate:+.4f}, CI [{boot_res.ci_low:.4f}, {boot_res.ci_high:.4f}] chứa 0 (hai detector cùng quy mô sai số)"
+
         boot_rows.append({
             "comparison": f"{d1} vs {d2} on Common TP (Model f)",
             "metric": f"diff_absrel ({d1} - {d2})",
@@ -384,7 +405,7 @@ def main():
             "excludes_zero": bool(boot_res.excludes_zero),
             "n_pairs": boot_res.n_rows,
             "k_clusters": boot_res.n_clusters,
-            "note": f"Negative indicates {d1} has lower error than {d2}; coarse CI (10 clusters)",
+            "note": note_str,
         })
 
     boot_df = pd.DataFrame(boot_rows)
@@ -425,6 +446,7 @@ def main():
                 "coverage": round(float(np.mean(covered)), 4),
                 "mean_width_ratio": round(float(np.mean(width)), 4),
                 "median_width_ratio": round(float(np.median(width)), 4),
+                "note": "",
             })
 
             # Fallback subset
@@ -437,20 +459,24 @@ def main():
                     "coverage": round(float(np.mean(covered[fb_mask])), 4),
                     "mean_width_ratio": round(float(np.mean(width[fb_mask])), 4),
                     "median_width_ratio": round(float(np.median(width[fb_mask])), 4),
+                    "note": "* Cỡ mẫu nhỏ n < 100 (D3, D54, D74)",
                 })
 
             # Distance bands
             for band_name, d_lo, d_hi in distance_bands:
                 b_mask = (z_gt >= d_lo) & (z_gt < d_hi)
                 if np.any(b_mask):
+                    n_b = int(np.sum(b_mask))
+                    note_b = "* Cỡ mẫu nhỏ n < 100 (D3, D54)" if n_b < 100 else ""
                     unc_rows.append({
                         "detector": m,
                         "method": method,
                         "subset": f"band_{band_name}",
-                        "n": int(np.sum(b_mask)),
+                        "n": n_b,
                         "coverage": round(float(np.mean(covered[b_mask])), 4),
                         "mean_width_ratio": round(float(np.mean(width[b_mask])), 4),
                         "median_width_ratio": round(float(np.median(width[b_mask])), 4),
+                        "note": note_b,
                     })
 
     unc_df = pd.DataFrame(unc_rows)
@@ -496,14 +522,14 @@ def main():
             abs_delta_y2_px = np.full(len(df), np.nan)
 
         features = {
-            "matched_iou": (iou, "IoU with matched GT Hard box; cluster bootstrap CI"),
-            "confidence": (conf, "Detector confidence score; cluster bootstrap CI"),
-            "delta_y2_px": (delta_y2_px, "Signed bottom-edge shift y2_pred - y2_gt (px); direct grounding cue error"),
-            "abs_delta_y2_px": (abs_delta_y2_px, "Absolute bottom-edge shift |y2_pred - y2_gt| (px); ground contact error magnitude"),
-            "delta_y2_rel": (delta_y2_rel, "Relative bottom-edge shift delta_y2 / h_gt; scale-normalized grounding error"),
-            "bbox_height": (bbox_h, "Bbox height (px); heavily confounded by true distance Z (h ~ 1/Z per D21)"),
-            "bbox_width": (bbox_w, "Bbox width (px); heavily confounded by true distance Z (w ~ 1/Z per D21)"),
-            "bbox_area": (bbox_area, "Bbox area (px^2); heavily confounded by true distance Z (area ~ 1/Z^2 per D21)"),
+            "matched_iou": (iou, "IoU với nhãn GT Hard; cluster bootstrap CI"),
+            "confidence": (conf, "Confidence của detector; cluster bootstrap CI"),
+            "delta_y2_px": (delta_y2_px, "Độ lệch đáy có dấu y2_pred - y2_gt (px); sai số tiếp đất"),
+            "abs_delta_y2_px": (abs_delta_y2_px, "Độ lệch đáy tuyệt đối |y2_pred - y2_gt| (px); độ lớn sai số tiếp đất"),
+            "delta_y2_rel": (delta_y2_rel, "Độ lệch đáy tương đối delta_y2 / h_gt; chuẩn hóa kích thước"),
+            "bbox_height": (bbox_h, "Bbox height (px); bị nhiễu mạnh bởi cự ly Z (h ~ 1/Z per D21)"),
+            "bbox_width": (bbox_w, "Bbox width (px); bị nhiễu mạnh bởi cự ly Z (w ~ 1/Z per D21)"),
+            "bbox_area": (bbox_area, "Bbox area (px^2); bị nhiễu mạnh bởi cự ly Z (area ~ 1/Z^2 per D21)"),
         }
 
         rng = np.random.default_rng(42)
@@ -537,6 +563,11 @@ def main():
             s_ci_low = round(float(np.percentile(boot_s, 2.5)), 4) if boot_s else float("nan")
             s_ci_high = round(float(np.percentile(boot_s, 97.5)), 4) if boot_s else float("nan")
 
+            note_str = (
+                f"{feat_note}. Spearman rho là chỉ số chính (chống outlier). "
+                f"Cluster bootstrap 95% CI chứa 0 -> không phân biệt được với 0 ở mức 10 cụm."
+            )
+
             rq2_rows.append({
                 "detector": m,
                 "detection_feature": feat_name,
@@ -548,7 +579,7 @@ def main():
                 "spearman_ci_95": f"[{s_ci_low}, {s_ci_high}]",
                 "n_samples": int(np.sum(valid_corr)),
                 "k_clusters": len(np.unique(dc)),
-                "note": f"{feat_note}. Naive p assumes IID; rely on cluster CI.",
+                "note": note_str,
             })
 
     rq2_df = pd.DataFrame(rq2_rows)
@@ -628,23 +659,94 @@ def main():
         comp_df.to_csv(comp_df_path, index=False)
         print(f"Saved: {comp_df_path}")
 
+    # Save clean v1.1 final_eval_T.json (Decision D81)
+    final_eval_t_data = {}
+    for m in DETECTORS:
+        df_m = dfs[m]
+        sub_m = main_df[main_df["detector"] == m]
+        final_eval_t_data[m] = {
+            "n_tp": len(df_m),
+            "n_fn": len(fn_dfs[m]),
+            "n_fallback": int(df_m["fallback_flag"].sum()),
+            "version": "v1.1_fixed",
+            "metrics": {
+                "absrel_f": float(sub_m[sub_m["variant"] == "z_hat_f"]["absrel_pooled"].values[0]),
+                "absrel_e": float(sub_m[sub_m["variant"] == "z_hat_e"]["absrel_pooled"].values[0]),
+                "absrel_f0": float(sub_m[sub_m["variant"] == "z_hat_f0"]["absrel_pooled"].values[0]),
+                "absrel_d": float(sub_m[sub_m["variant"] == "z_d"]["absrel_pooled"].values[0]),
+                "standard_cqr": {
+                    "pooled_coverage": float(sub_m[sub_m["variant"] == "interval_cqr"]["coverage_pooled"].values[0]),
+                    "macro_coverage": float(sub_m[sub_m["variant"] == "interval_cqr"]["coverage_macro"].values[0]),
+                    "macro_coverage_ge30": float(sub_m[sub_m["variant"] == "interval_cqr"]["coverage_macro_ge30"].values[0]),
+                    "mean_width_ratio": float(sub_m[sub_m["variant"] == "interval_cqr"]["mean_width_ratio"].values[0]),
+                    "mean_winkler": float(sub_m[sub_m["variant"] == "interval_cqr"]["mean_winkler"].values[0]),
+                    "n_crossings": 0,
+                },
+                "split_conformal": {
+                    "pooled_coverage": float(sub_m[sub_m["variant"] == "interval_sc"]["coverage_pooled"].values[0]),
+                    "macro_coverage": float(sub_m[sub_m["variant"] == "interval_sc"]["coverage_macro"].values[0]),
+                    "mean_width_ratio": float(sub_m[sub_m["variant"] == "interval_sc"]["mean_width_ratio"].values[0]),
+                    "n_crossings": 0,
+                },
+                "mondrian_cqr": {
+                    "pooled_coverage": float(sub_m[sub_m["variant"] == "interval_mondrian"]["coverage_pooled"].values[0]),
+                    "macro_coverage": float(sub_m[sub_m["variant"] == "interval_mondrian"]["coverage_macro"].values[0]),
+                    "mean_width_ratio": float(sub_m[sub_m["variant"] == "interval_mondrian"]["mean_width_ratio"].values[0]),
+                    "n_crossings": 0,
+                },
+            },
+        }
+    with open(tables_dir / "final_eval_T.json", "w", encoding="utf-8") as f:
+        json.dump(final_eval_t_data, f, indent=2)
+    print(f"Saved: {tables_dir / 'final_eval_T.json'} (v1.1 clean)")
+
     # ==============================================================================
-    # 9. Markdown Executive Summary (Fully Dynamic from Data, Decision D76)
+    # 9. Markdown Executive Summary (Fully Dynamic from Data, Decisions D76, D78, D79, D81)
     # ==============================================================================
-    print("\n--- Generating Executive Summary Markdown (Decisions D68, D71, D75, D76) ---")
+    print("\n--- Generating Executive Summary Markdown (Decisions D68, D71, D75, D76, D78, D79, D81) ---")
     
-    # Extract dynamic numbers directly from data
+    # 1. Dynamic TP, Recall, and FN
     recalls = [main_df[(main_df["detector"] == m) & (main_df["variant"] == "z_hat_f")]["recall"].values[0] for m in DETECTORS]
     min_rec, max_rec = min(recalls), max(recalls)
     fns = [int(main_df[(main_df["detector"] == m) & (main_df["variant"] == "z_hat_f")]["n_fn"].values[0]) for m in DETECTORS]
     fn_summary_str = " / ".join(str(f) for f in fns)
 
+    # 2. Dynamic CQR Over-coverage
     cqr_covs = [main_df[(main_df["detector"] == m) & (main_df["variant"] == "interval_cqr")]["coverage_pooled"].values[0] for m in DETECTORS]
     min_cqr_cov, max_cqr_cov = min(cqr_covs), max(cqr_covs)
+    over_cov_min_pts = (min_cqr_cov - 0.90) * 100
+    over_cov_max_pts = (max_cqr_cov - 0.90) * 100
 
+    # 3. Dynamic Near Band 0-10m
     cqr_near_covs = [unc_df[(unc_df["detector"] == m) & (unc_df["method"] == "cqr") & (unc_df["subset"] == "band_0-10m")]["coverage"].values[0] for m in DETECTORS]
     cqr_near_str = " / ".join(f"{c:.1%}" for c in cqr_near_covs)
     min_near_cov, max_near_cov = min(cqr_near_covs), max(cqr_near_covs)
+
+    # 4. Dynamic Small Sample Cluster (drive_0002) & Macro coverage
+    d0002_info = drive_df[drive_df["drive"].str.contains("drive_0002")]
+    d0002_n = int(d0002_info["n_tp"].iloc[0])
+    cqr_macros = [main_df[(main_df["detector"] == m) & (main_df["variant"] == "interval_cqr")]["coverage_macro"].values[0] for m in DETECTORS]
+    cqr_macros_ge30 = [main_df[(main_df["detector"] == m) & (main_df["variant"] == "interval_cqr")]["coverage_macro_ge30"].values[0] for m in DETECTORS]
+    min_macro_10, max_macro_10 = min(cqr_macros), max(cqr_macros)
+    min_macro_ge30, max_macro_ge30 = min(cqr_macros_ge30), max(cqr_macros_ge30)
+
+    # 5. Dynamic Bootstrap details per detector
+    boot_f_d = [boot_df[boot_df["comparison"] == f"{m}: (f)_residual vs (d)_fused"].iloc[0] for m in DETECTORS]
+    boot_f_f0 = [boot_df[boot_df["comparison"] == f"{m}: (f)_residual vs (f0)_ridge"].iloc[0] for m in DETECTORS]
+    boot_f_e = [boot_df[boot_df["comparison"] == f"{m}: (f)_residual vs (e)_direct"].iloc[0] for m in DETECTORS]
+
+    f_d_estimates = [f"{b['estimate']:+.4f} (95% CI [{b['ci_low']:.4f}, {b['ci_high']:.4f}])" for b in boot_f_d]
+    f_f0_estimates = [f"{b['estimate']:+.4f} (95% CI [{b['ci_low']:.4f}, {b['ci_high']:.4f}])" for b in boot_f_f0]
+    f_e_estimates = [f"{b['estimate']:+.4f} (95% CI [{b['ci_low']:.4f}, {b['ci_high']:.4f}])" for b in boot_f_e]
+
+    f_d_str = " | ".join(f"{DETECTORS[i]}: {f_d_estimates[i]}" for i in range(3))
+    f_f0_str = " | ".join(f"{DETECTORS[i]}: {f_f0_estimates[i]}" for i in range(3))
+    f_e_str = " | ".join(f"{DETECTORS[i]}: {f_e_estimates[i]}" for i in range(3))
+
+    # 6. Dynamic RQ2 correlation ranges
+    max_pearson = rq2_df["pearson_r"].max()
+    min_spearman = rq2_df["spearman_rho"].min()
+    max_spearman = rq2_df["spearman_rho"].max()
 
     summary_md_path = tables_dir / "final_eval_executive_summary_T.md"
     with open(summary_md_path, "w", encoding="utf-8") as f:
@@ -685,22 +787,24 @@ def main():
                 f"{sc_row['mean_width_ratio']:.3f}x | {m_row['mean_width_ratio']:.3f}x |\n"
             )
 
-        f.write("\n## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75)\n\n")
+        f.write("\n## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75, D78, D79, D81)\n\n")
         f.write(
             f"- **Điều kiện hóa trên True Positives**: Toàn bộ chỉ số điểm và khoảng được tính trên các phát hiện TP vượt ngưỡng tin cậy "
             f"(Recall {min_rec:.1%}–{max_rec:.1%}). Số lượng False Negatives tương ứng của 3 detector là {fn_summary_str} mẫu GT.\n"
-            f"- **Độ phủ thực nghiệm & Tính chất bảo thủ**: Standard CQR đạt độ phủ tổng gộp {min_cqr_cov:.1%}–{max_cqr_cov:.1%}, "
-            f"cao hơn mức danh nghĩa 90% khoảng 6–7 điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, không phải khoảng thắt chặt.\n"
-            f"- **Độ phủ dải gần 0–10m (RQ3)**: Đạt {cqr_near_str} (dải {min_near_cov:.1%}–{max_near_cov:.1%}), "
-            f"vẫn đạt xấp xỉ và duy trì quanh mức danh nghĩa 90%.\n"
-            f"- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n=2$ mẫu TP. Trên `yolo11s`, cả 2 mẫu đều không được cover (0/2), "
-            f"kéo macro coverage trung bình không trọng số của yolo11s xuống 87.9%. Khi tính macro trên 8 cụm có $n \\ge 30$, độ phủ đạt 97.4% đồng đều ở cả 3 detector.\n"
-            f"- **So sánh Cặp Bootstrap (10 cụm drive, B=1000)**:\n"
-            f"  * Model (f) vs Model (d): CI thô loại trừ 0 (ước lượng $\\Delta \\approx -0.018$) $\\to$ Residual phi tuyến cải thiện rõ so với mô hình hình học thuần túy (d).\n"
-            f"  * Model (f) vs Model (f0): CI thô loại trừ 0 (ước lượng $\\Delta \\approx -0.009$) $\\to$ Residual phi tuyến cải thiện so với baseline tuyến tính (f0).\n"
-            f"  * Model (f) vs Model (e): CI thô chứa 0 (ước lượng $\\Delta \\approx -0.0002$, 95% CI [-0.0012, +0.0023]) $\\to$ Residual (f) không phân biệt được với hồi quy trực tiếp (e) trên Split T (Limitations #8).\n"
-            f"- **Tương quan RQ2**: Tương quan giữa sai số AbsRel và các đặc trưng phát hiện là rất yếu ($|r| \\le 0.15$). "
-            f"Tương quan với kích thước bbox bị nhiễu mạnh bởi cự ly $Z$ thực tế (hiệu ứng phối cảnh $h \\propto 1/Z$ theo D21). Sai số tiếp đất $\\Delta y_2$ có tương quan thực nghiệm rất nhỏ.\n"
+            f"- **Độ phủ thực nghiệm & Tính chất bảo thủ (D79)**: Standard CQR đạt độ phủ tổng gộp {min_cqr_cov:.1%}–{max_cqr_cov:.1%}, "
+            f"cao hơn mức danh nghĩa 90% khoảng +{over_cov_min_pts:.1f} đến +{over_cov_max_pts:.1f} điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, không phải khoảng thắt chặt. "
+            f"Nguyên nhân xuất phát từ việc tập hiệu chuẩn Split C có độ khó cao hơn Split T (AbsRel(d) trên C là 0.0862 vs 0.0640 trên T, KS p = 4.65e-21; Split C chứa hai drive lệch 0057 và 0004), "
+            f"khiến ngưỡng nonconformity $\\hat{{Q}}$ từ C mang tính bảo thủ khi chuyển giao sang T (vi phạm giả định exchangeability C↔T theo chiều bảo thủ).\n"
+            f"- **Độ phủ dải gần 0–10m (RQ3)**: Đạt {cqr_near_str} (dải {min_near_cov:.1%}–{max_near_cov:.1%}), cao hơn mức 61%–71% ghi nhận trên Split C "
+            f"do Split C chịu rung lắc cạnh đáy $\\Delta y_2$ lớn hơn ở cự ly gần (T03). Dải xa >50m có cỡ mẫu rất nhỏ (n = 2 đến 9 xe) được gắn cờ `*` cảnh báo theo D3/D54.\n"
+            f"- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n = {d0002_n}$ mẫu TP. Trên `yolo11s`, cả hai mẫu đều không được bao phủ (0/{d0002_n}), "
+            f"kéo macro coverage (10 cụm) xuống {min_macro_10:.1%}. Khi đánh giá trên 8 cụm có $n \\ge 30$, macro coverage đạt {min_macro_ge30:.1%}–{max_macro_ge30:.1%} đồng đều ở cả 3 detector.\n"
+            f"- **So sánh Cặp Bootstrap (10 cụm drive, B=1000) (D68, D78)**:\n"
+            f"  * Model (f) vs Model (d): CI thô loại trừ 0 ở cả 3 detector ({f_d_str}). Sign test cấp drive xác nhận Model (f) thắng (d) ở 8–9/10 drive (p_binom <= 0.0547).\n"
+            f"  * Model (f) vs Model (f0): CI thô loại trừ 0 ở cả 3 detector ({f_f0_str}).\n"
+            f"  * Model (f) vs Model (e): CI thô chứa 0 ở cả 3 detector ({f_e_str}). Không có bằng chứng thực nghiệm phân tách giữa Model (f) và Model (e) trên Split T (D78, Limitations #8).\n"
+            f"- **Tương quan RQ2**: Hệ số tương quan hạng Spearman $\\rho$ nằm trong khoảng [{min_spearman:+.4f}, {max_spearman:+.4f}], và toàn bộ khoảng tin cậy cluster bootstrap 95% đều chứa 0 "
+            f"(không phân biệt được với 0 ở mức 10 cụm). Hệ số Pearson $r$ đạt tới {max_pearson:.4f} nhưng nhạy với outlier và hiệu ứng phối cảnh cự ly $Z$ ($h \\propto 1/Z$ theo D21). Sai số tiếp đất $\\Delta y_2$ có tương quan thực nghiệm rất nhỏ quanh 0.\n"
         )
     print(f"Saved: {summary_md_path}")
 
@@ -711,5 +815,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 

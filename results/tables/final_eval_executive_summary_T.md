@@ -22,14 +22,14 @@
 | yolov8s_640 | 97.1% | 96.9% | 97.5% | 1.352x | 1.345x | 1.353x |
 | yolov5su_640 | 96.6% | 97.9% | 97.4% | 1.332x | 1.351x | 1.316x |
 
-## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75)
+## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75, D78, D79, D81)
 
 - **Điều kiện hóa trên True Positives**: Toàn bộ chỉ số điểm và khoảng được tính trên các phát hiện TP vượt ngưỡng tin cậy (Recall 82.8%–84.4%). Số lượng False Negatives tương ứng của 3 detector là 500 / 552 / 538 mẫu GT.
-- **Độ phủ thực nghiệm & Tính chất bảo thủ**: Standard CQR đạt độ phủ tổng gộp 96.4%–97.1%, cao hơn mức danh nghĩa 90% khoảng 6–7 điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, không phải khoảng thắt chặt.
-- **Độ phủ dải gần 0–10m (RQ3)**: Đạt 91.6% / 93.6% / 89.4% (dải 89.4%–93.6%), vẫn đạt xấp xỉ và duy trì quanh mức danh nghĩa 90%.
-- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n=2$ mẫu TP. Trên `yolo11s`, cả 2 mẫu đều không được cover (0/2), kéo macro coverage trung bình không trọng số của yolo11s xuống 87.9%. Khi tính macro trên 8 cụm có $n \ge 30$, độ phủ đạt 97.4% đồng đều ở cả 3 detector.
-- **So sánh Cặp Bootstrap (10 cụm drive, B=1000)**:
-  * Model (f) vs Model (d): CI thô loại trừ 0 (ước lượng $\Delta \approx -0.018$) $\to$ Residual phi tuyến cải thiện rõ so với mô hình hình học thuần túy (d).
-  * Model (f) vs Model (f0): CI thô loại trừ 0 (ước lượng $\Delta \approx -0.009$) $\to$ Residual phi tuyến cải thiện so với baseline tuyến tính (f0).
-  * Model (f) vs Model (e): CI thô chứa 0 (ước lượng $\Delta \approx -0.0002$, 95% CI [-0.0012, +0.0023]) $\to$ Residual (f) không phân biệt được với hồi quy trực tiếp (e) trên Split T (Limitations #8).
-- **Tương quan RQ2**: Tương quan giữa sai số AbsRel và các đặc trưng phát hiện là rất yếu ($|r| \le 0.15$). Tương quan với kích thước bbox bị nhiễu mạnh bởi cự ly $Z$ thực tế (hiệu ứng phối cảnh $h \propto 1/Z$ theo D21). Sai số tiếp đất $\Delta y_2$ có tương quan thực nghiệm rất nhỏ.
+- **Độ phủ thực nghiệm & Tính chất bảo thủ (D79)**: Standard CQR đạt độ phủ tổng gộp 96.4%–97.1%, cao hơn mức danh nghĩa 90% khoảng +6.4 đến +7.1 điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, không phải khoảng thắt chặt. Nguyên nhân xuất phát từ việc tập hiệu chuẩn Split C có độ khó cao hơn Split T (AbsRel(d) trên C là 0.0862 vs 0.0640 trên T, KS p = 4.65e-21; Split C chứa hai drive lệch 0057 và 0004), khiến ngưỡng nonconformity $\hat{Q}$ từ C mang tính bảo thủ khi chuyển giao sang T (vi phạm giả định exchangeability C↔T theo chiều bảo thủ).
+- **Độ phủ dải gần 0–10m (RQ3)**: Đạt 91.6% / 93.6% / 89.4% (dải 89.4%–93.6%), cao hơn mức 61%–71% ghi nhận trên Split C do Split C chịu rung lắc cạnh đáy $\Delta y_2$ lớn hơn ở cự ly gần (T03). Dải xa >50m có cỡ mẫu rất nhỏ (n = 2 đến 9 xe) được gắn cờ `*` cảnh báo theo D3/D54.
+- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n = 2$ mẫu TP. Trên `yolo11s`, cả hai mẫu đều không được bao phủ (0/2), kéo macro coverage (10 cụm) xuống 87.9%. Khi đánh giá trên 8 cụm có $n \ge 30$, macro coverage đạt 97.4%–97.5% đồng đều ở cả 3 detector.
+- **So sánh Cặp Bootstrap (10 cụm drive, B=1000) (D68, D78)**:
+  * Model (f) vs Model (d): CI thô loại trừ 0 ở cả 3 detector (yolo11s_640: -0.0188 (95% CI [-0.0264, -0.0107]) | yolov8s_640: -0.0191 (95% CI [-0.0259, -0.0111]) | yolov5su_640: -0.0178 (95% CI [-0.0264, -0.0076])). Sign test cấp drive xác nhận Model (f) thắng (d) ở 8–9/10 drive (p_binom <= 0.0547).
+  * Model (f) vs Model (f0): CI thô loại trừ 0 ở cả 3 detector (yolo11s_640: -0.0090 (95% CI [-0.0124, -0.0064]) | yolov8s_640: -0.0090 (95% CI [-0.0125, -0.0066]) | yolov5su_640: -0.0087 (95% CI [-0.0148, -0.0034])).
+  * Model (f) vs Model (e): CI thô chứa 0 ở cả 3 detector (yolo11s_640: -0.0002 (95% CI [-0.0012, 0.0023]) | yolov8s_640: +0.0002 (95% CI [-0.0008, 0.0018]) | yolov5su_640: +0.0000 (95% CI [-0.0015, 0.0022])). Không có bằng chứng thực nghiệm phân tách giữa Model (f) và Model (e) trên Split T (D78, Limitations #8).
+- **Tương quan RQ2**: Hệ số tương quan hạng Spearman $\rho$ nằm trong khoảng [-0.0867, +0.1040], và toàn bộ khoảng tin cậy cluster bootstrap 95% đều chứa 0 (không phân biệt được với 0 ở mức 10 cụm). Hệ số Pearson $r$ đạt tới 0.1889 nhưng nhạy với outlier và hiệu ứng phối cảnh cự ly $Z$ ($h \propto 1/Z$ theo D21). Sai số tiếp đất $\Delta y_2$ có tương quan thực nghiệm rất nhỏ quanh 0.

@@ -88,3 +88,100 @@ def test_all_existing_residual_models_loadable():
             else:
                 m = load_quantile_model(m_path)
             assert m is not None
+
+
+def test_golden_prediction_sample_level_regression():
+    """
+    Decisions D77 & D80: Verify sample-level predictions of loaded real JSON models
+    against independent golden values saved in tests/fixtures/golden_predictions_sample.json.
+    Ensures that loaded models from disk match expected outputs and do not suffer
+    from silent base_score reset or version serialization discrepancies.
+    """
+    fixture_path = PROJECT_ROOT / "tests" / "fixtures" / "golden_predictions_sample.json"
+    assert fixture_path.is_file(), f"Fixture file not found: {fixture_path}"
+
+    with open(fixture_path, "r", encoding="utf-8") as f:
+        golden_data = json.load(f)
+
+    import pandas as pd
+    from src.residual.models import predict_f, predict_e
+
+    for det, data in golden_data.items():
+        dir_p = PROJECT_ROOT / "runs" / "residual" / det
+        mf_path = dir_p / "model_f.json"
+        me_path = dir_p / "model_e.json"
+
+        assert mf_path.is_file(), f"Missing {mf_path}"
+        assert me_path.is_file(), f"Missing {me_path}"
+
+        mf = load_model_f(mf_path)
+        me = load_model_e(me_path)
+
+        f_df = pd.DataFrame(data["feat_f_rows"], columns=data["feature_cols_f"])
+        e_df = pd.DataFrame(data["feat_e_rows"], columns=data["feature_cols_e"])
+        z_base = np.array(data["z_base"], dtype=float)
+
+        z_hat_f, r_hat_f = predict_f(mf, f_df, z_base)
+        z_hat_e, _ = predict_e(me, e_df)
+
+        golden_r_hat_f = np.array(data["golden_r_hat_f"], dtype=float)
+        golden_z_hat_f = np.array(data["golden_z_hat_f"], dtype=float)
+        golden_z_hat_e = np.array(data["golden_z_hat_e"], dtype=float)
+
+        # 1. Exact match with golden values
+        np.testing.assert_allclose(
+            r_hat_f, golden_r_hat_f, atol=1e-4,
+            err_msg=f"Loaded Model (f) for {det} diverged from golden sample predictions!"
+        )
+        np.testing.assert_allclose(
+            z_hat_f, golden_z_hat_f, atol=1e-3,
+            err_msg=f"Loaded Model (f) Z_hat for {det} diverged from golden sample predictions!"
+        )
+        np.testing.assert_allclose(
+            z_hat_e, golden_z_hat_e, atol=1e-3,
+            err_msg=f"Loaded Model (e) Z_hat for {det} diverged from golden sample predictions!"
+        )
+
+        # 2. Sanity bounds: Residuals must be realistic and centered around 0 (not shifted by +0.5)
+        assert np.mean(np.abs(r_hat_f)) < 0.20, f"Model (f) residual bias detected: {r_hat_f}"
+        assert np.mean(z_hat_e) > 5.0, f"Model (e) fallback collapsed: {z_hat_e}"
+
+
+def test_corrupted_base_score_alters_raw_predictions(tmp_path: Path):
+    """
+    Demonstrates the exact root-cause bug (Decisions D71, D77, D80):
+    When raw XGBoost loads a JSON with '[val]' bracket, C++ silently resets base_score to 0.5.
+    Our loader `load_model_f` catches this via `_validate_xgboost_json`, preventing corrupted predictions.
+    """
+    p_orig = PROJECT_ROOT / "runs" / "residual" / "yolo11s_640" / "model_f.json"
+    with open(p_orig, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Inject bracket into base_score
+    clean_bs = data["learner"]["learner_model_param"]["base_score"]
+    data["learner"]["learner_model_param"]["base_score"] = f"[{clean_bs}]"
+
+    corrupted_p = tmp_path / "corrupted_model_f.json"
+    with open(corrupted_p, "w", encoding="utf-8") as f:
+        json.dump(data, f)
+
+    # 1. Protected loader must reject with ValueError
+    with pytest.raises(ValueError, match="Corrupted base_score serialization"):
+        load_model_f(corrupted_p)
+
+    # 2. Raw XGBoost silently loads it and defaults to 0.5, shifting predictions
+    raw_clean = xgb.XGBRegressor()
+    raw_clean.load_model(str(p_orig))
+
+    raw_corrupted = xgb.XGBRegressor()
+    raw_corrupted.load_model(str(corrupted_p))
+
+    # Evaluate on dummy row with 17 features
+    dummy_x = np.zeros((1, 17))
+    pred_clean = raw_clean.predict(dummy_x)
+    pred_corrupted = raw_corrupted.predict(dummy_x)
+
+    # The prediction difference must be approximately 0.5 - clean_bs
+    diff = float(pred_corrupted[0] - pred_clean[0])
+    assert abs(diff) > 0.3, f"Expected raw C++ parser bug shift > 0.3, but got {diff}"
+

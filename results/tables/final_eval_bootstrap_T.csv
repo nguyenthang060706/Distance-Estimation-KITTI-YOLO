@@ -1,13 +1,16 @@
 comparison,metric,estimate,ci_low,ci_high,excludes_zero,n_pairs,k_clusters,note
-yolo11s_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0188,-0.0264,-0.0107,True,2676,10,Negative indicates (f) improves over (d); coarse CI (10 clusters) excludes 0 per D68
-yolo11s_640: (f)_residual vs (f0)_ridge,diff_absrel (f - f0),-0.009,-0.0124,-0.0064,True,2712,10,Negative indicates (f) improves over (f0); coarse CI (10 clusters) excludes 0 per D68
-yolo11s_640: (f)_residual vs (e)_direct,diff_absrel (f - e),-0.0002,-0.0012,0.0023,False,2712,10,Coarse CI (10 clusters) includes 0; residual (f) statistically indistinguishable from direct (e) on T (Limitations #8)
-yolov8s_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0191,-0.0259,-0.0111,True,2624,10,Negative indicates (f) improves over (d); coarse CI (10 clusters) excludes 0 per D68
-yolov8s_640: (f)_residual vs (f0)_ridge,diff_absrel (f - f0),-0.009,-0.0125,-0.0066,True,2660,10,Negative indicates (f) improves over (f0); coarse CI (10 clusters) excludes 0 per D68
-yolov8s_640: (f)_residual vs (e)_direct,diff_absrel (f - e),0.0002,-0.0008,0.0018,False,2660,10,Coarse CI (10 clusters) includes 0; residual (f) statistically indistinguishable from direct (e) on T (Limitations #8)
-yolov5su_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0178,-0.0264,-0.0076,True,2638,10,Negative indicates (f) improves over (d); coarse CI (10 clusters) excludes 0 per D68
-yolov5su_640: (f)_residual vs (f0)_ridge,diff_absrel (f - f0),-0.0087,-0.0148,-0.0034,True,2674,10,Negative indicates (f) improves over (f0); coarse CI (10 clusters) excludes 0 per D68
-yolov5su_640: (f)_residual vs (e)_direct,diff_absrel (f - e),0.0,-0.0015,0.0022,False,2674,10,Coarse CI (10 clusters) includes 0; residual (f) statistically indistinguishable from direct (e) on T (Limitations #8)
-yolo11s_640 vs yolov8s_640 on Common TP (Model f),diff_absrel (yolo11s_640 - yolov8s_640),-0.0003,-0.0023,0.0011,False,2528,10,Negative indicates yolo11s_640 has lower error than yolov8s_640; coarse CI (10 clusters)
-yolo11s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolo11s_640 - yolov5su_640),-0.0011,-0.0033,0.001,False,2528,10,Negative indicates yolo11s_640 has lower error than yolov5su_640; coarse CI (10 clusters)
-yolov8s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolov8s_640 - yolov5su_640),-0.0008,-0.003,0.001,False,2528,10,Negative indicates yolov8s_640 has lower error than yolov5su_640; coarse CI (10 clusters)
+yolo11s_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0188,-0.0264,-0.0107,True,2676,10,"Ước lượng -0.0188, CI thô (10 cụm) [-0.0264, -0.0107] loại trừ 0 (D68, D78)"
+yolo11s_640: (f)_residual vs (f0)_ridge,diff_absrel (f - f0),-0.009,-0.0124,-0.0064,True,2712,10,"Ước lượng -0.0090, CI thô (10 cụm) [-0.0124, -0.0064] loại trừ 0 (D68, D78)"
+yolo11s_640: (f)_residual vs (e)_direct,diff_absrel (f - e),-0.0002,-0.0012,0.0023,False,2712,10,"Ước lượng -0.0002, CI thô (10 cụm) [-0.0012, 0.0023] chứa 0 (không phân biệt được trên 10 cụm) (D68, D78)"
+yolo11s_640: (f) vs (d) Drive-level Sign Test,sign_test_wins,0.9,,,True,2676,10,"Model (f) thắng (d) ở 9/10 drive, p_binom=0.0107"
+yolov8s_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0191,-0.0259,-0.0111,True,2624,10,"Ước lượng -0.0191, CI thô (10 cụm) [-0.0259, -0.0111] loại trừ 0 (D68, D78)"
+yolov8s_640: (f)_residual vs (f0)_ridge,diff_absrel (f - f0),-0.009,-0.0125,-0.0066,True,2660,10,"Ước lượng -0.0090, CI thô (10 cụm) [-0.0125, -0.0066] loại trừ 0 (D68, D78)"
+yolov8s_640: (f)_residual vs (e)_direct,diff_absrel (f - e),0.0002,-0.0008,0.0018,False,2660,10,"Ước lượng +0.0002, CI thô (10 cụm) [-0.0008, 0.0018] chứa 0 (không phân biệt được trên 10 cụm) (D68, D78)"
+yolov8s_640: (f) vs (d) Drive-level Sign Test,sign_test_wins,0.9,,,True,2624,10,"Model (f) thắng (d) ở 9/10 drive, p_binom=0.0107"
+yolov5su_640: (f)_residual vs (d)_fused,diff_absrel (f - d),-0.0178,-0.0264,-0.0076,True,2638,10,"Ước lượng -0.0178, CI thô (10 cụm) [-0.0264, -0.0076] loại trừ 0 (D68, D78)"
+yolov5su_640: (f)_residual vs (f0)_ridge,diff_absrel (f - f0),-0.0087,-0.0148,-0.0034,True,2674,10,"Ước lượng -0.0087, CI thô (10 cụm) [-0.0148, -0.0034] loại trừ 0 (D68, D78)"
+yolov5su_640: (f)_residual vs (e)_direct,diff_absrel (f - e),0.0,-0.0015,0.0022,False,2674,10,"Ước lượng +0.0000, CI thô (10 cụm) [-0.0015, 0.0022] chứa 0 (không phân biệt được trên 10 cụm) (D68, D78)"
+yolov5su_640: (f) vs (d) Drive-level Sign Test,sign_test_wins,0.8,,,False,2638,10,"Model (f) thắng (d) ở 8/10 drive, p_binom=0.0547"
+yolo11s_640 vs yolov8s_640 on Common TP (Model f),diff_absrel (yolo11s_640 - yolov8s_640),-0.0003,-0.0023,0.0011,False,2528,10,"Ước lượng -0.0003, CI [-0.0023, 0.0011] chứa 0 (hai detector cùng quy mô sai số)"
+yolo11s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolo11s_640 - yolov5su_640),-0.0011,-0.0033,0.001,False,2528,10,"Ước lượng -0.0011, CI [-0.0033, 0.0010] chứa 0 (hai detector cùng quy mô sai số)"
+yolov8s_640 vs yolov5su_640 on Common TP (Model f),diff_absrel (yolov8s_640 - yolov5su_640),-0.0008,-0.003,0.001,False,2528,10,"Ước lượng -0.0008, CI [-0.0030, 0.0010] chứa 0 (hai detector cùng quy mô sai số)"
