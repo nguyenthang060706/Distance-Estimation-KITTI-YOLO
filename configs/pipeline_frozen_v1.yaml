@@ -1,7 +1,7 @@
 metadata:
   name: KITTI Distance Estimation Frozen Pipeline
   schema_version: '1.0'
-  created_at: '2026-10-07T07:21:58.376519+00:00'
+  created_at: '2026-10-07T08:47:12.085092+00:00'
   git_tag: final-config-v1
   decision_references:
   - D25
@@ -12,6 +12,9 @@ metadata:
   - D59
   - D60
   - D61
+  - D63
+  - D64
+  - D65
 splits:
   A:
     path: splits/A.txt
@@ -139,10 +142,10 @@ detectors:
       path: runs/residual/yolov5su_640/conformal_calib_C.json
       sha256: d6971b1c2342a00816750565a19de08d4dba5589ccdc955d3c7cc2b2b7a1b8fc
 pipeline_parameters:
-  dontcare_mode: greedy_iou
+  dontcare_mode: iou
   dontcare_threshold: 0.5
   iou_nms: 0.7
-  iou_match: 0.7
+  iou_match: 0.5
   conf_min: 0.05
   border_eps: 2.0
   alpha: 0.1

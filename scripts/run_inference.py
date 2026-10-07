@@ -165,7 +165,7 @@ def run_inference_core(
     print(f"[{model_key}] Target device: {device} (FP32)")
 
     # 5. Load Split frame IDs and verify against split_metadata.json
-    frame_ids = load_split(splits_dir, split, allow_test=False)
+    frame_ids = load_split(splits_dir, split, allow_test=allow_test)
     split_hash = compute_split_hash(frame_ids)
 
     meta_path = Path(splits_dir) / "split_metadata.json"

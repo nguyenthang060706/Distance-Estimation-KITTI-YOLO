@@ -114,7 +114,7 @@ def calibrate_split_c_for_detector(model_key: str) -> dict[str, Any]:
         },
         "mondrian_cqr": {
             "is_primary": False,
-            "bin_edges": MONDRIAN_EDGES,
+            "bin_edges": binning.edges,
             "bin_labels": binning.labels,
             "n_bins": binning.n_bins,
             "min_samples_per_bin": MIN_BIN_SAMPLES,

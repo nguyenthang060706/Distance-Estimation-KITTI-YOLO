@@ -55,3 +55,85 @@ def test_allow_test_bypasses_permission_guard(tmp_path: Path):
     # 2. apply_frozen_pipeline with allow_test=True passes permission check
     with pytest.raises(FileNotFoundError):
         apply_frozen_pipeline("yolo11s_640", "T", data_dir=tmp_path, allow_test=True)
+
+
+def test_run_inference_core_allow_test_passes_load_split(monkeypatch, tmp_path: Path):
+    """Confirm run_inference_core(split='T', allow_test=True) does not raise PermissionError in load_split."""
+    from scripts.run_inference import run_inference_core
+    from unittest.mock import MagicMock
+
+    # Mock verify_checkpoint and Ultralytics YOLO to avoid heavy model execution
+    monkeypatch.setattr("scripts.run_inference.verify_checkpoint", lambda *args, **kwargs: "dummy_sha")
+    
+    # Mock KITTILoader and YOLO to abort safely after load_split
+    class MockYOLO:
+        def __init__(self, *args, **kwargs):
+            pass
+        def predict(self, *args, **kwargs):
+            return [MagicMock(boxes=None)]
+
+    monkeypatch.setattr("scripts.run_inference.YOLO", MockYOLO)
+
+    # Calling run_inference_core with split="T" and allow_test=True must NOT raise PermissionError
+    # (If load_split was called with allow_test=False, it would fail with PermissionError)
+    out_dir = tmp_path / "preds"
+    # To run quickly, pass empty frame_ids via mock or real split
+    try:
+        run_inference_core("yolo11s", "T", output_dir=str(out_dir), allow_test=True)
+    except PermissionError:
+        pytest.fail("run_inference_core raised PermissionError despite allow_test=True!")
+    except Exception:
+        # Any other exception (e.g. data path/images not found) is acceptable, as long as PermissionError was NOT raised
+        pass
+
+
+def test_guard_3_hashes_verification_passes_and_detects_tampering(tmp_path: Path):
+    """Test check_guard_3_hashes against real configs and verify tampering detection."""
+    import yaml
+    from scripts.run_final_T import check_guard_3_hashes, PROJECT_ROOT
+
+    real_cfg_path = PROJECT_ROOT / "configs" / "pipeline_frozen_v1.yaml"
+    assert real_cfg_path.is_file()
+
+    # Real config must pass 100%
+    check_guard_3_hashes(real_cfg_path)
+
+    # Tampered config (e.g. altered model SHA) must be caught
+    with open(real_cfg_path, "r", encoding="utf-8") as f:
+        tampered_cfg = yaml.safe_load(f)
+
+    tampered_cfg["detectors"]["yolo11s_640"]["models"]["model_f"]["sha256"] = "00000000000000000000000000000000"
+    tampered_path = tmp_path / "tampered_pipeline.yaml"
+    with open(tampered_path, "w", encoding="utf-8") as f:
+        yaml.dump(tampered_cfg, f)
+
+    with pytest.raises(ValueError, match="Guard 3 FAILED: Model model_f SHA mismatch"):
+        check_guard_3_hashes(tampered_path)
+
+
+def test_guard_4_lock_logic(tmp_path: Path, monkeypatch):
+    """Test Guard 4 lockfile requires explicit confirmation and prevents re-execution."""
+    from scripts.run_final_T import check_and_create_guard_4_lock
+    import scripts.run_final_T as rft
+
+    # 1. Dry-run mode bypasses lock creation
+    check_and_create_guard_4_lock(dry_run=True, confirm_flag=None)
+
+    # 2. Split T without confirm flag raises ValueError
+    with pytest.raises(ValueError, match="Guard 4 FAILED: Running on Split T requires explicit confirmation flag"):
+        check_and_create_guard_4_lock(dry_run=False, confirm_flag=None)
+
+    with pytest.raises(ValueError, match="Guard 4 FAILED: Running on Split T requires explicit confirmation flag"):
+        check_and_create_guard_4_lock(dry_run=False, confirm_flag="INVALID_FLAG")
+
+    # 3. Split T with confirm flag creates lockfile
+    test_runs_dir = tmp_path / "runs"
+    test_runs_dir.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(rft, "PROJECT_ROOT", tmp_path)
+
+    check_and_create_guard_4_lock(dry_run=False, confirm_flag="FINAL_T_RUN")
+    assert (test_runs_dir / "final_T.lock").is_file()
+
+    # 4. Running again when lockfile exists raises FileExistsError (Decision D27)
+    with pytest.raises(FileExistsError, match="Guard 4 FAILED: Lockfile .* already exists"):
+        check_and_create_guard_4_lock(dry_run=False, confirm_flag="FINAL_T_RUN")

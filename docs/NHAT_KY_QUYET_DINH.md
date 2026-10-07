@@ -102,6 +102,9 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Lưu trữ per-object đầy đủ cho Split T (D60):** Runner `run_final_T.py` tự tạo features, cues và $Z_d$ từ detections, xuất toàn bộ per-object artifacts vào `results/final/{model}_T_predictions.parquet` (gồm $Z_{\text{base}}$, $\hat{Z}_f$, khoảng tin cậy của cả 3 phương án, `fallback_flag`, các cột GT đánh giá và danh sách False Negatives). Tuyệt đối không ghi đè vào `results/datasets/` để bảo đảm tính toàn vẹn và độc lập của dữ liệu nghiệm thu cho T14/T15.
 - ✅ **Bổ sung toàn diện cấu hình đóng băng pipeline_frozen_v1.yaml (D61):** File cấu hình đóng băng bao gồm đầy đủ: ngưỡng tin cậy `pass_thr` từng detector (D6), `best_params_f`, `best_alpha_f0`, `dontcare_mode`, `seed_quantile`, mã SHA-256 của tất cả các file cấu hình nguồn và model weights/calibrations, kèm file khóa môi trường `configs/requirements_frozen.txt` (`pip freeze`). Toàn bộ model weights và file calibration trên C được track chính thức vào Git repo.
 - ✅ **Bảo vệ tính cô lập cho Thí nghiệm Độ nhạy T09 (D62):** Thí nghiệm T09.1 bổ sung bài kiểm tra đối chứng bỏ `drive_0104` (bên cạnh bỏ `drive_0059`) do việc bỏ 0059 đẩy tỷ trọng của 0104 lên $\approx 35.7\% > 35\%$ ($n_{\text{eff}} = 4.14$). Toàn bộ kết quả T09 được lưu vào thư mục riêng biệt `results/sensitivity/`, tuyệt đối không ghi đè vào `runs/residual/` hay các file OOF của Split B.
+- ✅ **Kiểm tra toàn diện SHA của models trong Guard 3 (D63):** `check_guard_3_hashes` trong `scripts/run_final_T.py` bắt buộc duyệt và kiểm tra mã băm SHA-256 của toàn bộ các file mô hình trong `det_info["models"]` (`model_f`, `model_f0`, `model_e`, `full_fw`, `model_q05`, `model_q95`) đối chiếu với `configs/pipeline_frozen_v1.yaml`. Điều này ngăn chặn triệt để rủi ro sửa đổi file mô hình sau khi gắn tag `final-config-v1`, khắc phục lỗ hổng do Guard 2 bỏ qua thư mục runtime `runs/`.
+- ✅ **Bản chất của Dry-run trên Split C là Regression Check (D64):** Kết quả độ phủ $\approx 90.0\%$ trên Split C trong chế độ dry-run là in-sample (do $\hat{Q}$ được hiệu chuẩn trên chính C). Kết quả này chỉ phục vụ mục đích kiểm chứng hồi quy kỹ thuật (regression check) đối soát dung sai với Golden File (D59), tuyệt đối không được trích dẫn hay diễn giải như độ phủ ngoài mẫu (out-of-sample coverage) của pipeline trong báo cáo/bài báo.
+- ✅ **Ghi nhận nhật ký T12 qua final_T_log.jsonl và hỗ trợ đầy đủ cột per-object cho T13 (D65):** Runner `scripts/run_final_T.py` bắt buộc tự động ghi nhận nhật ký vào `runs/final_T_log.jsonl` (sự kiện START sau khi tạo lock và COMPLETED sau khi kết thúc với metrics, commit, hashes) theo AGENT_RULES §5 và checklist T12. Bảng per-object `results/final/{model}_T_predictions.parquet` phải chứa đầy đủ dự đoán điểm của cả Model (e) (`z_hat_e`) và Model (f0) (`z_hat_f0`, `r_hat_f0`) cho toàn bộ các mẫu (thay vì chỉ tính (e) khi có fallback), bảo đảm cung cấp đủ dữ liệu per-object cho bài toán so sánh ablation T13 mà không phá vỡ nguyên tắc chạy Split T một lần duy nhất. Tác vụ T09 (độ nhạy phụ trợ) được dời sang W3-2 theo cơ chế D39.
 
 
 
@@ -188,10 +191,32 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Sửa lỗi giao thức & Refit Full B (06/10, D43):** Refit toàn bộ model cuối trên nền $Z_{\text{base}}$ OOF từ `B_oof.parquet`, serialize `full_fw.json` và cập nhật manifest cho cả 3 detector.
 - [x] **Ngày 5 (W2-5, T07):** Conformal Quantile Regression (CQR) trên r, conformalize trên Split C (D46–D49).
 - [x] **Ngày 6 (W2-6, T08):** Đánh giá độ ổn định độ phủ qua 20 resplits trên held-out drives ($B \cup C$), Mondrian CQR và Split Conformal đối chứng (D50–D54).
+- [x] **Ngày 7 (W2-7, T10, T11):** Đóng băng cấu hình toàn diện, runner nghiệm thu Split T với 4 guard, dry-run C đạt dung sai (D55–D65).
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W2-7 — 09/10/2026: T10 & T11 Đóng Băng Cấu Hình Pipeline Toàn Diện, Runner Nghiệm Thu Split T và Chuẩn Bị Tag final-config-v1 (D55–D65)
+- **Chuỗi tác vụ đường găng đóng Tuần 2 (T10, T11):**
+  - **Khâu 1 — Chụp Golden File trên Split C (D59):** Viết `scripts/capture_golden_c.py`, chụp baseline trên code hiện hành lưu vào `runs/dryrun_golden_C.json`.
+  - **Khâu 2 — Refactor Additive `allow_test` và vá lỗi `load_split`:**
+    - Tách `run_inference_core(..., allow_test=False)` trong `scripts/run_inference.py`, giữ nguyên chữ ký công khai `run_inference_for_model` ném `PermissionError` với T.
+    - Sửa lỗi truyền `allow_test=allow_test` vào `load_split` để ngăn chặn sập pipeline sau khi tạo lock trên Split T.
+    - Bổ sung `allow_test=False` cho `load_artifacts` (`build_dataset.py`) và `apply_frozen_pipeline` (`apply_frozen.py`).
+  - **Khâu 3 — Calibrate 3 Phương án trên toàn Split C (D56):**
+    - Viết `scripts/calibrate_conformal_c.py`, lưu `conformal_calib_C.json` cho cả 3 detector gồm Standard CQR ($\hat{Q}$), Split Conformal ($\hat{Q}$) và Mondrian CQR (4 bin theo `binning.edges`).
+  - **Khâu 4 & 5 — Runner Nghiệm Thu Split T và Dry-run C (D27, D59, D60, D63, D64, D65):**
+    - Xây dựng `scripts/run_final_T.py` với 4 Safety Guards: Guard 1 (tag HEAD), Guard 2 (clean tree), Guard 3 (kiểm tra toàn diện SHA của splits, checkpoints, tất cả trained models và configs theo D63), Guard 4 (atomic lock `runs/final_T.lock` với cờ `FINAL_T_RUN`).
+    - Runner hỗ trợ ghi nhật ký `runs/final_T_log.jsonl` (START và COMPLETED theo D65) và tính toán đầy đủ các trường per-object (`z_hat_e`, `z_hat_f0`, `r_hat_f0`) lưu vào `results/final/{model}_T_predictions.parquet` phục vụ T13.
+    - Chạy `python scripts/run_final_T.py --dry-run C`: kích hoạt Guard 3 và đạt 100% PASS khớp Golden File trên cả 3 detector trong dung sai nghiêm ngặt ($|\Delta \hat{Q}| = 0.00$, $|\Delta \text{Cov}| = 0.000\%$, exact TP count). Ghi nhận dry-run là regression check (D64).
+  - **Khâu 6 — Đóng băng Cấu hình và Môi trường (D61):**
+    - Hoàn tất `configs/pipeline_frozen_v1.yaml` với đầy đủ mã băm SHA-256 của splits, checkpoints, toàn bộ mô hình và configs; đồng bộ tham số `iou_match: 0.5` (D15) và `dontcare_mode: "iou"` (D8).
+    - Tạo `configs/requirements_frozen.txt` (176 packages, UTF-8).
+    - Mở rộng `tests/test_permission_guard_t.py` lên 8 tests (kiểm tra PermissionError, `load_split` bypass khi allow_test, tamper detection Guard 3, Guard 4 lock). Test suite đạt **173 passed, 1 warning (MLP)**.
+    - Chạy `python scripts/verify_data.py`: **ALL DATA VERIFICATIONS PASSED**.
+    - Xác nhận `runs/final_T.lock` chưa tồn tại, Split T hoàn toàn nguyên vẹn (zero touch).
+    - Tác vụ T09 (độ nhạy phụ trợ) chính thức dời sang W3-2 theo cơ chế D39 để bảo đảm an toàn đường găng đóng băng trước 17:30.
 
 ### W2-6 — 08/10/2026: T08 Đánh giá Độ ổn định Độ phủ Conformal qua 20 Resplits trên Held-out Drives (D50–D54)
 - **Pha A — Tiền đăng ký (Pre-registration, commit `e1f9e5b`, tag `prereg-coverage-v1`):**

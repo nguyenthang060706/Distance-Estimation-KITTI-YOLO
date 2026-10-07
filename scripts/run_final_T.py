@@ -19,6 +19,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 import numpy as np
@@ -45,6 +46,8 @@ from src.residual.models import (
     build_feature_matrices,
     load_model_f,
     predict_f,
+    load_model_f0,
+    predict_f0,
     load_model_e,
     predict_e,
 )
@@ -58,6 +61,14 @@ from src.uncertainty.cqr import (
 )
 
 DETECTORS = ["yolo11s_640", "yolov8s_640", "yolov5su_640"]
+
+
+def log_final_t_event(event_dict: dict[str, Any]) -> None:
+    """Append one JSON line to runs/final_T_log.jsonl (Decision D65, AGENT_RULES §5)."""
+    log_path = PROJECT_ROOT / "runs" / "final_T_log.jsonl"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(event_dict) + "\n")
 
 
 def sha256_file(path: str | Path) -> str:
@@ -150,13 +161,24 @@ def check_guard_3_hashes(frozen_cfg_path: Path):
         if actual_calib_sha != det_info["conformal_calib_C"]["sha256"]:
             raise ValueError(f"Guard 3 FAILED: Conformal calibration SHA mismatch for {m}!")
 
+        # Verify all trained model weights (Decision D63)
+        for model_name, model_spec in det_info.get("models", {}).items():
+            model_file_path = PROJECT_ROOT / model_spec["path"]
+            actual_model_sha = sha256_file(model_file_path)
+            if actual_model_sha != model_spec["sha256"]:
+                raise ValueError(
+                    f"Guard 3 FAILED: Model {model_name} SHA mismatch for {m}!\n"
+                    f"  Expected: {model_spec['sha256']}\n"
+                    f"  Actual:   {actual_model_sha}"
+                )
+
     # 3. Verify config files
     for cfg_rel, expected_sha in cfg.get("config_files_sha256", {}).items():
         actual_cfg_sha = sha256_file(PROJECT_ROOT / cfg_rel)
         if actual_cfg_sha != expected_sha:
             raise ValueError(f"Guard 3 FAILED: Config file SHA mismatch for {cfg_rel}!")
 
-    print("  [Guard 3 PASS] All split hashes, checkpoint SHAs, calibrations, and config SHAs match frozen configuration.")
+    print("  [Guard 3 PASS] All split hashes, checkpoint SHAs, trained model SHAs, calibrations, and config SHAs match frozen configuration.")
 
 
 def check_and_create_guard_4_lock(dry_run: bool, confirm_flag: str | None):
@@ -194,6 +216,7 @@ def execute_pipeline_for_detector(
     conf_min: float = 0.05,
     iou_nms: float = 0.7,
     iou_match: float = 0.5,
+    dontcare_mode: str = "iou",
 ) -> dict[str, Any]:
     """
     Executes end-to-end detector -> features -> cues -> Z_d -> Z_base -> Z_hat_f -> intervals.
@@ -211,6 +234,7 @@ def execute_pipeline_for_detector(
         conf_min=conf_min,
         iou_nms=iou_nms,
         iou_match=iou_match,
+        dontcare_mode=dontcare_mode,
         allow_test=allow_test,
     )
 
@@ -252,6 +276,11 @@ def execute_pipeline_for_detector(
     full_fw = load_fusion_weights(fw_path)
     z_d = fuse_with_weights(df_tp_cues, full_fw)
 
+    # Direct Model (e) depth prediction for all samples (Decision D13, D34, and T13 ablation support)
+    model_e_path = runs_dir / "model_e.json"
+    model_e = load_model_e(model_e_path)
+    z_hat_e, ln_z_hat_e = predict_e(model_e, base_feats)
+
     valid_w = df_tp_cues["valid_w"].to_numpy(dtype=bool)
     valid_h = df_tp_cues["valid_h"].to_numpy(dtype=bool)
     valid_g = df_tp_cues["valid_g"].to_numpy(dtype=bool)
@@ -259,18 +288,18 @@ def execute_pipeline_for_detector(
     n_fb = int(np.sum(pattern_000))
 
     if n_fb > 0:
-        model_e_path = runs_dir / "model_e.json"
-        model_e = load_model_e(model_e_path)
-        z_hat_e, _ = predict_e(model_e, base_feats)
         z_base = np.where(~pattern_000, z_d, z_hat_e)
     else:
         z_base = z_d.copy()
 
-    # Step 5: Residual prediction (f)
-    print(f"[{model_key}] Step 5: Predicting depth with Model (f)...")
+    # Step 5: Residual prediction (f) and baseline linear (f0)
+    print(f"[{model_key}] Step 5: Predicting depth with Model (f) and Model (f0)...")
     feat_mats = build_feature_matrices(base_feats, z_base=z_base)
     model_f = load_model_f(runs_dir / "model_f.json")
     z_hat_f, r_hat_f = predict_f(model_f, feat_mats["f"], z_base)
+
+    model_f0 = load_model_f0(runs_dir / "model_f0.joblib")
+    z_hat_f0, r_hat_f0 = predict_f0(model_f0, feat_mats["f0"], z_base)
 
     # Step 6: Conformal interval predictions (3 methods)
     print(f"[{model_key}] Step 6: Constructing conformal prediction intervals...")
@@ -315,7 +344,7 @@ def execute_pipeline_for_detector(
         bin_indices=mondrian_bins,
     )
 
-    # Step 7: Build full per-object DataFrame (Decision D60)
+    # Step 7: Build full per-object DataFrame (Decision D60, D65 for T13)
     per_obj_df = pd.DataFrame({
         "frame_id": features_df["frame_id"],
         "pred_idx": features_df["pred_idx"],
@@ -333,6 +362,9 @@ def execute_pipeline_for_detector(
         "z_d": z_d,
         "z_base": z_base,
         "fallback_flag": pattern_000,
+        "z_hat_e": z_hat_e,
+        "z_hat_f0": z_hat_f0,
+        "r_hat_f0": r_hat_f0,
         "z_hat_f": z_hat_f,
         "r_hat_f": r_hat_f,
         "z_lo_cqr": z_lo_cqr,
@@ -478,11 +510,24 @@ def main():
     args = parser.parse_args()
 
     frozen_cfg_path = PROJECT_ROOT / args.config
+    if not frozen_cfg_path.is_file():
+        raise FileNotFoundError(f"Missing frozen config at: {frozen_cfg_path}")
+
+    with open(frozen_cfg_path, "r", encoding="utf-8") as f:
+        frozen_cfg = yaml.safe_load(f)
+
+    pipe_params = frozen_cfg.get("pipeline_parameters", {})
+    conf_min = float(pipe_params.get("conf_min", 0.05))
+    iou_nms = float(pipe_params.get("iou_nms", 0.7))
+    iou_match = float(pipe_params.get("iou_match", 0.5))
+    dontcare_mode = str(pipe_params.get("dontcare_mode", "iou"))
 
     if args.dry_run == "C":
         print("==================================================================")
         print("STARTING DRY-RUN VERIFICATION ON SPLIT C (DECISION D59)")
         print("==================================================================")
+        print("\nVerifying Guard 3 (Hashes & Model SHAs) during Dry-run...")
+        check_guard_3_hashes(frozen_cfg_path)
         check_and_create_guard_4_lock(dry_run=True, confirm_flag=None)
 
         dry_results = {}
@@ -492,7 +537,11 @@ def main():
                 model_key=m,
                 split="C",
                 output_dir=dry_out_dir,
-                allow_test=True, # Dry-run on C uses runner pipeline
+                allow_test=True,  # Dry-run on C uses runner pipeline
+                conf_min=conf_min,
+                iou_nms=iou_nms,
+                iou_match=iou_match,
+                dontcare_mode=dontcare_mode,
             )
             dry_results[m] = res
 
@@ -502,6 +551,7 @@ def main():
             sys.exit(1)
         else:
             print("\n✓ DRY-RUN PASSED: All metrics match Golden Baseline within strict tolerances!")
+            print("  Note: Dry-run serves as regression check (Decision D64).")
             sys.exit(0)
 
     # Official Split T Execution
@@ -516,6 +566,26 @@ def main():
     check_guard_3_hashes(frozen_cfg_path)
     check_and_create_guard_4_lock(dry_run=False, confirm_flag=args.confirm)
 
+    try:
+        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True).strip()
+    except Exception:
+        git_commit = "unknown"
+
+    # Log START event (Decision D65)
+    t_start_time = time.time()
+    log_final_t_event({
+        "event": "START",
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "split": "T",
+        "git_commit": git_commit,
+        "tag": "final-config-v1",
+        "seed": int(pipe_params.get("seed", 42)),
+        "config_file": str(frozen_cfg_path.relative_to(PROJECT_ROOT)).replace("\\", "/"),
+        "pipeline_parameters": pipe_params,
+        "detectors": DETECTORS,
+        "status": "STARTED",
+    })
+
     # 2. Execute on Split T
     final_results = {}
     final_out_dir = PROJECT_ROOT / "results" / "final"
@@ -525,8 +595,14 @@ def main():
             split="T",
             output_dir=final_out_dir,
             allow_test=True,
+            conf_min=conf_min,
+            iou_nms=iou_nms,
+            iou_match=iou_match,
+            dontcare_mode=dontcare_mode,
         )
         final_results[m] = res
+
+    total_elapsed = time.time() - t_start_time
 
     # 3. Save summary report
     summary_path = PROJECT_ROOT / "results" / "tables" / "final_eval_T.json"
@@ -542,7 +618,26 @@ def main():
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary_data, f, indent=2)
 
-    print(f"\n✓ Split T evaluation completed successfully! Results stored in {final_out_dir}")
+    # Log COMPLETED event (Decision D65)
+    log_final_t_event({
+        "event": "COMPLETED",
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "split": "T",
+        "elapsed_seconds": round(total_elapsed, 2),
+        "detectors_summary": {
+            m: {
+                "n_tp": final_results[m]["n_tp"],
+                "n_fallback": final_results[m]["n_fallback"],
+                "q_hat_cqr": final_results[m]["q_hat_cqr"],
+                "absrel_f": final_results[m]["metrics"].get("absrel_f"),
+                "cqr_pooled_coverage": final_results[m]["metrics"].get("standard_cqr", {}).get("pooled_coverage"),
+            }
+            for m in DETECTORS
+        },
+        "status": "SUCCESS",
+    })
+
+    print(f"\n✓ Split T evaluation completed successfully in {total_elapsed:.1f}s! Results stored in {final_out_dir}")
 
 
 if __name__ == "__main__":
