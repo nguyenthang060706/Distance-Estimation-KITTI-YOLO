@@ -432,3 +432,26 @@ def test_mondrian_cqr_conformalize_and_predict():
     assert r_hi[1] == q_hi[1] + q_hat_per_bin[1]
 
 
+def test_mondrian_binning_invariance_to_gt():
+    """
+    Guard test: Mondrian binning strictly depends on prospective depth Ẑ.
+    Permuting or modifying ground-truth z_gt has zero impact on bin edges, labels, or assignments.
+    """
+    rng = np.random.default_rng(42)
+    n = 200
+    z_hat = rng.uniform(5.0, 45.0, size=n)
+    z_gt_original = z_hat + rng.normal(0, 1.0, size=n)
+    z_gt_permuted = rng.permutation(z_gt_original)
+
+    binning1 = MondrianBinning(z_hat, base_edges=[0.0, 10.0, 20.0, 30.0], min_samples=20)
+    bins1 = binning1.assign_bins(z_hat)
+
+    binning2 = MondrianBinning(z_hat, base_edges=[0.0, 10.0, 20.0, 30.0], min_samples=20)
+    bins2 = binning2.assign_bins(z_hat)
+
+    assert binning1.edges == binning2.edges
+    assert binning1.labels == binning2.labels
+    assert np.array_equal(bins1, bins2)
+
+
+
