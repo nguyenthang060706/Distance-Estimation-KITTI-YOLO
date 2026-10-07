@@ -106,7 +106,7 @@ def verify_checkpoint(model_key: str, checkpoint_path: Path, checkpoints_cfg_pat
     return actual_sha
 
 
-def run_inference_for_model(
+def run_inference_core(
     model_name: str,
     split: str,
     data_root: str = "data/kitti",
@@ -120,15 +120,20 @@ def run_inference_for_model(
     imgsz: int = 640,
     device: str | None = None,
     dontcare_mode: str = "iou",
+    allow_test: bool = False,
 ) -> tuple[Path, Path, Path]:
     """
-    Run full inference and matching for a single model on a single split.
+    Core implementation of detector inference and matching on a single split.
+
+    Args:
+        allow_test: If True, permits execution on Split T (reserved for final evaluation).
+                    Defaults to False.
 
     Returns:
         (detections_path, matches_path, gt_path)
     """
-    # 1. Hard Guard against Split T (Decision D4, D22)
-    if split.upper() == "T":
+    # 1. Hard Guard against Split T (Decisions D4, D22, D27)
+    if split.upper() == "T" and not allow_test:
         raise PermissionError(
             "Access to Split T is strictly forbidden during Week 2 development (Decision D4, D22)! "
             "Split T is strictly reserved for one-time final test in Week 3."
@@ -358,6 +363,51 @@ def run_inference_for_model(
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
     return det_out, match_out, gt_out
+
+
+def run_inference_for_model(
+    model_name: str,
+    split: str,
+    data_root: str = "data/kitti",
+    splits_dir: str = "splits",
+    output_dir: str = "results/predictions",
+    checkpoints_cfg: str = "configs/detector/checkpoints.yaml",
+    conf_thresholds_cfg: str = "configs/detector/conf_thresholds.yaml",
+    conf_min: float = 0.05,
+    iou_nms: float = 0.7,
+    iou_match: float = 0.5,
+    imgsz: int = 640,
+    device: str | None = None,
+    dontcare_mode: str = "iou",
+) -> tuple[Path, Path, Path]:
+    """
+    Run full inference and matching for a single model on a single split.
+    Preserves exact public signature and always enforces allow_test=False (Decisions D4, D22).
+
+    Returns:
+        (detections_path, matches_path, gt_path)
+    """
+    if split.upper() == "T":
+        raise PermissionError(
+            "Access to Split T is strictly forbidden during Week 2 development (Decision D4, D22)! "
+            "Split T is strictly reserved for one-time final test in Week 3."
+        )
+    return run_inference_core(
+        model_name=model_name,
+        split=split,
+        data_root=data_root,
+        splits_dir=splits_dir,
+        output_dir=output_dir,
+        checkpoints_cfg=checkpoints_cfg,
+        conf_thresholds_cfg=conf_thresholds_cfg,
+        conf_min=conf_min,
+        iou_nms=iou_nms,
+        iou_match=iou_match,
+        imgsz=imgsz,
+        device=device,
+        dontcare_mode=dontcare_mode,
+        allow_test=False,
+    )
 
 
 def main():

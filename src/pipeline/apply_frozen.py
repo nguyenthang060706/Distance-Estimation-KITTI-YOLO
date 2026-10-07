@@ -34,6 +34,7 @@ def apply_frozen_pipeline(
     data_dir: Path | str | None = None,
     runs_dir: Path | str | None = None,
     verify_stored_zd: bool = True,
+    allow_test: bool = False,
 ) -> dict[str, Any]:
     """
     Execute frozen pipeline inference for Split C or Split T (Decision D49).
@@ -44,6 +45,7 @@ def apply_frozen_pipeline(
         data_dir: Directory containing parquet dataset artifacts (defaults to results/datasets).
         runs_dir: Directory containing trained model artifacts (defaults to runs/residual).
         verify_stored_zd: If True and cues parquet has 'z_d', asserts numerical equality.
+        allow_test: If True, permits pipeline execution on Split T (Decisions D4, D27).
 
     Returns:
         dict containing:
@@ -60,6 +62,12 @@ def apply_frozen_pipeline(
             - 'r_actual': np.ndarray | None (log-residual ln(Z_gt) - ln(Z_base) if eval exists)
             - 'n_samples': int
     """
+    if split.upper() == "T" and not allow_test:
+        raise PermissionError(
+            "Access to Split T pipeline execution is strictly forbidden during Week 2 development "
+            "(Decision D4, D22, D27)!"
+        )
+
     d_dir = Path(data_dir) if data_dir is not None else PROJECT_ROOT / "results" / "datasets"
     r_dir = Path(runs_dir) if runs_dir is not None else PROJECT_ROOT / "runs" / "residual"
 

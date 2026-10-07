@@ -99,6 +99,7 @@ def load_artifacts(
     model_key: str,
     split: str,
     predictions_dir: str | Path = "results/predictions",
+    allow_test: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load raw prediction parquet files for a model and split.
@@ -107,16 +108,17 @@ def load_artifacts(
         model_key: Identifier of detector model, e.g. 'yolov8s_640'.
         split: Dataset split ('A', 'B', 'C'). Split 'T' is strictly forbidden.
         predictions_dir: Path to directory containing predictions parquet artifacts.
+        allow_test: If True, permits loading Split T artifacts (for final evaluation). Defaults to False.
 
     Returns:
         (df_detections, df_matches, df_gt)
 
     Raises:
-        PermissionError: If split is 'T' (Decision D4, AGENT_RULES.md §1.1).
+        PermissionError: If split is 'T' and allow_test is False (Decisions D4, D27).
         FileNotFoundError: If any parquet artifact is missing.
     """
     split_upper = split.upper()
-    if split_upper == "T":
+    if split_upper == "T" and not allow_test:
         raise PermissionError(
             "Access to Split T is strictly forbidden during Week 2 development "
             "(Decision D4, D22, AGENT_RULES.md §1.1)!"

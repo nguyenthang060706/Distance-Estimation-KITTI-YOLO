@@ -1,0 +1,38 @@
+{
+  "model_key": "yolo11s_640",
+  "calibration_split": "C",
+  "n_samples": 1489,
+  "alpha": 0.1,
+  "nominal_coverage": 0.9,
+  "standard_cqr": {
+    "is_primary": true,
+    "q_hat": 0.051069145804244265
+  },
+  "split_conformal": {
+    "is_primary": false,
+    "q_hat": 0.6070886904279367
+  },
+  "mondrian_cqr": {
+    "is_primary": false,
+    "bin_edges": [
+      0.0,
+      10.0,
+      20.0,
+      30.0
+    ],
+    "bin_labels": [
+      "0-10m",
+      "10-20m",
+      "20-30m",
+      ">=30m"
+    ],
+    "n_bins": 4,
+    "min_samples_per_bin": 50,
+    "q_hat_per_bin": {
+      "0": 2.3519837219247868,
+      "1": 0.05918876220893576,
+      "2": 0.0198360282836334,
+      "3": 0.04968538340028461
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "model_key": "yolov8s_640",
+  "calibration_split": "C",
+  "n_samples": 1445,
+  "alpha": 0.1,
+  "nominal_coverage": 0.9,
+  "standard_cqr": {
+    "is_primary": true,
+    "q_hat": 0.06389765051835194
+  },
+  "split_conformal": {
+    "is_primary": false,
+    "q_hat": 0.618571191197621
+  },
+  "mondrian_cqr": {
+    "is_primary": false,
+    "bin_edges": [
+      0.0,
+      10.0,
+      20.0,
+      30.0
+    ],
+    "bin_labels": [
+      "0-10m",
+      "10-20m",
+      "20-30m",
+      ">=30m"
+    ],
+    "n_bins": 4,
+    "min_samples_per_bin": 50,
+    "q_hat_per_bin": {
+      "0": 2.3712303203166067,
+      "1": 0.1693534759504336,
+      "2": 0.02331961757253831,
+      "3": 0.05373488734343379
+    }
+  }
+}

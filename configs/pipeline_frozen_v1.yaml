@@ -1,0 +1,156 @@
+metadata:
+  name: KITTI Distance Estimation Frozen Pipeline
+  schema_version: '1.0'
+  created_at: '2026-10-07T07:21:58.376519+00:00'
+  git_tag: final-config-v1
+  decision_references:
+  - D25
+  - D26
+  - D27
+  - D49
+  - D56
+  - D59
+  - D60
+  - D61
+splits:
+  A:
+    path: splits/A.txt
+    sha256: 35d4a2f225e7b0c5d01b661e557d5a1068a0f014a5dfd5e40b638fa8be1ea879
+    lines: 3740
+  B:
+    path: splits/B.txt
+    sha256: 42716604b73de2fbc178ea8a7531970279953492add3323ef5d25726d9478afb
+    lines: 1499
+  C:
+    path: splits/C.txt
+    sha256: aa6c62482dd7c789f3659ab2d61aa7af7fd49d40a11ab6a3a8f1a296911b8a65
+    lines: 766
+  T:
+    path: splits/T.txt
+    sha256: 26ec44f560c271ea51c089e511f5f3da978d89b699fe19f1f874d79b45f5b197
+    lines: 1102
+  metadata:
+    path: splits/split_metadata.json
+    sha256: 086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d
+detectors:
+  yolo11s_640:
+    conf_threshold: 0.7
+    checkpoint:
+      path: runs/detector/yolo11s_640/weights/last.pt
+      sha256: fbcaf900de1a8723b0982188ffcc239a74b2c3739cb728c2dbe47147123d52dd
+    best_params_f:
+      n_estimators: 200
+      max_depth: 3
+      min_child_weight: 10
+    best_alpha_f0: 100.0
+    models:
+      model_f0:
+        path: runs/residual/yolo11s_640/model_f0.joblib
+        sha256: 0eb241489c3055137c063b6695d11ffe8687085cd4e98d43c267fa94ac297d9b
+      model_f:
+        path: runs/residual/yolo11s_640/model_f.json
+        sha256: 2ab49fe4416475fec3eab0f164192820c257e1e7e62b5f3e730fe7e3644badf8
+      model_e:
+        path: runs/residual/yolo11s_640/model_e.json
+        sha256: 924a04e3432b21bbcffb4f252b7d48fcf5a3c16d84a62964d838e111f68ae5e7
+      full_fw:
+        path: runs/residual/yolo11s_640/full_fw.json
+        sha256: 6c815dbb1a5af4ec8896c7cb2926bcbc3d7c57bd8cada49c071b229ef9c333fa
+      model_q05:
+        path: runs/residual/yolo11s_640/model_q05.json
+        sha256: b1ed4e9555b2b41195b2f3a1f3a80b22394ebdfb1f327f71fd39e84ee43399cd
+      model_q95:
+        path: runs/residual/yolo11s_640/model_q95.json
+        sha256: 1d90d5223dffcb9339ad14fccdad2398de397b8fd2f7fbf9237a46e57e6347f4
+      cqr_calib_C:
+        path: runs/residual/yolo11s_640/cqr_calib_C.json
+        sha256: 9d67d14f4a740d0142bb8cbd4958516ceda2f8a91c7f24e0b19967fb75f1b21c
+    conformal_calib_C:
+      path: runs/residual/yolo11s_640/conformal_calib_C.json
+      sha256: 86131d7510ffd8c93832c53c76cd6269775559e7843889c5de215bc73c1612aa
+  yolov8s_640:
+    conf_threshold: 0.79
+    checkpoint:
+      path: runs/detector/yolov8s_640/weights/last.pt
+      sha256: 9c7cf571eace5558590b20748d79917c44cad9127692f5694fe14b9d6a420875
+    best_params_f:
+      n_estimators: 200
+      max_depth: 3
+      min_child_weight: 10
+    best_alpha_f0: 100.0
+    models:
+      model_f0:
+        path: runs/residual/yolov8s_640/model_f0.joblib
+        sha256: ee7b2b1e50b7767e985100ebcefb945d790448b1d13f70fa0d3e3e2af814500f
+      model_f:
+        path: runs/residual/yolov8s_640/model_f.json
+        sha256: 12e82d12d260811f36df8a0803095fe04a345e006d426ef49b3f5d755f9518ab
+      model_e:
+        path: runs/residual/yolov8s_640/model_e.json
+        sha256: d23fffb3437ab2f8be90d994b6295f88346a1f89bb5fd17d43afdf556a7c3360
+      full_fw:
+        path: runs/residual/yolov8s_640/full_fw.json
+        sha256: 0c812f495011fc9aef8fc08c22c68f152c638007e9d99e9a3c37a491c0fb4ce6
+      model_q05:
+        path: runs/residual/yolov8s_640/model_q05.json
+        sha256: 6e766805908621df3f580e0fd40b9ea34d07ad5fea747250a5df24e971b9ac36
+      model_q95:
+        path: runs/residual/yolov8s_640/model_q95.json
+        sha256: b88de4e0dd943c0e596caf1187eca3bae227f6e61f4f1865395ca6018db09647
+      cqr_calib_C:
+        path: runs/residual/yolov8s_640/cqr_calib_C.json
+        sha256: a973d9321c58d7946a043e94e8df5d0629821828124b747a07ed61cb61797d3c
+    conformal_calib_C:
+      path: runs/residual/yolov8s_640/conformal_calib_C.json
+      sha256: ff66c492400651f74a3256f6066a95da29bf7bf780ae13ebc92fc70da8e8aa2d
+  yolov5su_640:
+    conf_threshold: 0.74
+    checkpoint:
+      path: runs/detector/yolov5su_640/weights/last.pt
+      sha256: 119dd46137af4851edf27e4be49e99393c79fd1ed53fe3c005b15a107b679790
+    best_params_f:
+      n_estimators: 200
+      max_depth: 3
+      min_child_weight: 10
+    best_alpha_f0: 100.0
+    models:
+      model_f0:
+        path: runs/residual/yolov5su_640/model_f0.joblib
+        sha256: 275f7ed6bf66efdcd03599bc9f0cc4205d2b6d10e2c70cba3bf0ffdd8f87cd68
+      model_f:
+        path: runs/residual/yolov5su_640/model_f.json
+        sha256: 88476d50eab365473d1d37402882a8c4dd67466f797d5ce0e72744240592db18
+      model_e:
+        path: runs/residual/yolov5su_640/model_e.json
+        sha256: 214af684574d8c64f844ec5e94f5fcf9406ff470e3dae0767c3441270439ed04
+      full_fw:
+        path: runs/residual/yolov5su_640/full_fw.json
+        sha256: ec0e8227574b1eb05b3592ea1bbfba74a5995930a99a6f131eb81bd048190083
+      model_q05:
+        path: runs/residual/yolov5su_640/model_q05.json
+        sha256: ce8451468da88937067fec7ada089ce5367700f1425cf3403d66fb0e069ff55a
+      model_q95:
+        path: runs/residual/yolov5su_640/model_q95.json
+        sha256: 0ed4ece9a9c04eb6fe87bca70c78ec68bc6a773a3d849b37cf86213f146891b5
+      cqr_calib_C:
+        path: runs/residual/yolov5su_640/cqr_calib_C.json
+        sha256: 9c9f026e51ab71a1645ed4138be585ae8d662cb833250752c5685ddab7628534
+    conformal_calib_C:
+      path: runs/residual/yolov5su_640/conformal_calib_C.json
+      sha256: d6971b1c2342a00816750565a19de08d4dba5589ccdc955d3c7cc2b2b7a1b8fc
+pipeline_parameters:
+  dontcare_mode: greedy_iou
+  dontcare_threshold: 0.5
+  iou_nms: 0.7
+  iou_match: 0.7
+  conf_min: 0.05
+  border_eps: 2.0
+  alpha: 0.1
+  seed: 42
+  seed_quantile: 42
+config_files_sha256:
+  configs/geometry_params.yaml: 916d0b8af48c7f00d6702f924b903a585334b9535ec16e81d3b08c3b36f095bc
+  configs/detector/checkpoints.yaml: 0d07276d984de615e4a3d3aeb43b29488a705d5b6c61b133adedfdbd624a36f5
+  configs/detector/conf_thresholds.yaml: 67ec5ca5fdfb201a6d589a13b69fb6e1044de862936de83df2e907f8ff2d4131
+  configs/residual/residual_prereg_v1.yaml: 9b62e7f5c50297ea256351fc8992fad0f808acc64e8596e766b557ea5b9fe108
+  configs/residual/coverage_prereg_v1.yaml: c2c341bbc796ae752a3016620459c6840ffd0b2297bdbadbe1a1a419a0588fab
