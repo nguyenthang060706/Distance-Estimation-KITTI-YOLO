@@ -115,6 +115,12 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   - Tuyệt đối cấm refit mô hình, cấm chỉnh sửa $\alpha = 0.1$, cấm điều chỉnh ngưỡng hay binning sau khi quan sát dữ liệu T.
   - Dựa trên phát hiện thực nghiệm tại T08 (độ phủ held-out drive thực tế dao động 83.8%–87.4% trên $B \cup C$ do chỉ có 10 cụm drive), độ phủ thực tế trên Split T rất có thể sẽ dưới mức danh nghĩa 90%. Đây là phát hiện khoa học trung thực và khách quan cho RQ3/H3 về giới hạn conformal trong điều kiện cụm nhỏ hữu hạn, không được xem là lỗi và không được tìm cách che giấu hay điều chỉnh tham số.
   - Không xếp hạng hơn kém giữa các detector nếu khoảng tin cậy Bootstrap (10 cụm) chồng lấn hoặc chứa 0. Mọi độ phủ báo cáo đều là độ phủ có điều kiện trên tập True Positives vượt ngưỡng tin cậy.
+- ✅ **Ghi nhận số liệu mốc gốc Split T từ T12 (D69):** Chạy nghiệm thu T12 hoàn thành thành công trong 147.8s (tag `final-config-v1`, commit `e3ead56`). Split T gồm 1,102 frames, 10 drive có xe, tổng số 3,212 Ground Truth Car objects (khớp 100% giữa 3 detector). Số lượng True Positives vượt ngưỡng tin cậy D6 và False Negatives:
+  - `yolo11s_640` (conf 0.70): $n_{\text{TP}} = 2,712$, $n_{\text{FN}} = 500$ (Recall 84.43%), $n_{\text{fallback}} = 36$ (1.33%). SHA parquet: `4119e4b636c6d685...`
+  - `yolov8s_640` (conf 0.79): $n_{\text{TP}} = 2,660$, $n_{\text{FN}} = 552$ (Recall 82.81%), $n_{\text{fallback}} = 36$ (1.35%). SHA parquet: `8105f1d843050c37...`
+  - `yolov5su_640` (conf 0.74): $n_{\text{TP}} = 2,674$, $n_{\text{FN}} = 538$ (Recall 83.25%), $n_{\text{fallback}} = 36$ (1.35%). SHA parquet: `be5cc9e2354f98ee...`
+  Khóa vĩnh viễn `runs/final_T.lock` đã được tạo thành công. Toàn bộ số liệu trên là mốc gốc bất biến tuyệt đối.
+- ✅ **Phân định phạm vi tác vụ T13 và các tác vụ hậu T12 (D70):** Tất cả các phân tích từ T13 đến T18 chỉ được phép đọc các tệp tĩnh đã sinh trong `results/final/*` và `results/tables/final_eval_T.json`. Tuyệt đối cấm code mới nhập `load_split("splits", "T")` hoặc gọi lại suy luận trên T dưới mọi hình thức, tuân thủ nguyên tắc AGENT_RULES §1.1. Mọi bảng kết quả so sánh đều phải kèm cảnh báo hiệu ứng lựa chọn mẫu (survivorship bias) qua việc công bố song song $n_{\text{GT}} = \text{TP} + \text{FN}$.
 
 
 
@@ -206,6 +212,21 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-1 — 10/10/2026: T12 Nghiệm Thu Split T Thành Công và Khóa Bất Biến Kết Quả (D69–D70)
+- **Thực thi chính thức T12 (Human-in-the-loop, D27, D69):**
+  - Người nghiên cứu trực tiếp chạy `python scripts/run_final_T.py --confirm FINAL_T_RUN` trên terminal.
+  - Vượt qua 4 Safety Guards và Preflight: Guard 1 (tag `final-config-v1` trùng HEAD commit `e3ead56`), Guard 2 (cây sạch), Guard 3 (toàn bộ SHA khớp 100%), Preflight Check (GPU RTX 5060, đĩa trống 419.6 GB, thư mục ghi được), Guard 4 (tạo atomic lock `runs/final_T.lock`).
+  - Hoàn tất suy luận trên 1,102 frames của Split T trong 147.8s (21.0 - 25.4 FPS). Ghi nhận cặp sự kiện `START` và `COMPLETED` (`status: "SUCCESS"`) vào `runs/final_T_log.jsonl`.
+  - Toàn bộ 15 tệp artifacts (detections, matches, gt, predictions, fn) được xuất an toàn vào `results/final/`. Tệp tóm tắt `results/tables/final_eval_T.json` được tạo lập.
+- **Số liệu mốc gốc bất biến trên Split T (D69):**
+  - Tổng số đối tượng Ground Truth Car Hard: **3,212** xe trên 10 drive có xe (khớp tuyệt đối giữa 3 detector).
+  - True Positives và False Negatives:
+    + `yolo11s_640` (conf 0.70): $n_{\text{TP}} = 2,712$, $n_{\text{FN}} = 500$ (Recall 84.43%), $n_{\text{fallback}} = 36$ (1.33%). CQR Pooled Coverage: **95.58%**, Macro: **92.29%**, Mean Width Ratio: 1.327, Mean Winkler: 0.8607.
+    + `yolov8s_640` (conf 0.79): $n_{\text{TP}} = 2,660$, $n_{\text{FN}} = 552$ (Recall 82.81%), $n_{\text{fallback}} = 36$ (1.35%). CQR Pooled Coverage: **96.32%**, Macro: **96.41%**, Mean Width Ratio: 1.362, Mean Winkler: 0.8868.
+    + `yolov5su_640` (conf 0.74): $n_{\text{TP}} = 2,674$, $n_{\text{FN}} = 538$ (Recall 83.25%), $n_{\text{fallback}} = 36$ (1.35%). CQR Pooled Coverage: **95.74%**, Macro: **97.57%**, Mean Width Ratio: 1.341, Mean Winkler: 0.8807.
+  - Cả 3 detector đều đạt độ phủ danh nghĩa $\ge 90\%$ trên Split T với $n_{\text{crossings}} = 0$.
+- **Khởi động T13 (D70):** Toàn bộ phân tích bảng chính, đối sánh phương án (a)–(g), paired cluster bootstrap và tương quan RQ2 được thực thi tự động từ `results/final/*` mà không chạm vào dữ liệu thô Split T.
 
 ### W2-7 — 09/10/2026: T10 & T11 Đóng Băng Cấu Hình Pipeline Toàn Diện, Runner Nghiệm Thu Split T và Chuẩn Bị Tag final-config-v1 (D55–D68)
 - **Chuỗi tác vụ đường găng đóng Tuần 2 (T10, T11):**

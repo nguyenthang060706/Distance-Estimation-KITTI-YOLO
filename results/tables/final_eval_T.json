@@ -1,0 +1,80 @@
+{
+  "yolo11s_640": {
+    "n_tp": 2712,
+    "n_fallback": 36,
+    "metrics": {
+      "absrel_f": 0.6213090331610994,
+      "standard_cqr": {
+        "pooled_coverage": 0.9557522123893806,
+        "macro_coverage": 0.9228875826240543,
+        "mean_width_ratio": 1.3269729187752046,
+        "mean_winkler": 0.8607246262908465,
+        "n_crossings": 0
+      },
+      "split_conformal": {
+        "pooled_coverage": 0.9653392330383481,
+        "macro_coverage": 0.965787518595923,
+        "mean_width_ratio": 3.367522735933133,
+        "n_crossings": 0
+      },
+      "mondrian_cqr": {
+        "pooled_coverage": 0.9646017699115044,
+        "macro_coverage": 0.8800823789925853,
+        "mean_width_ratio": 4.426422557284404,
+        "n_crossings": 0
+      }
+    }
+  },
+  "yolov8s_640": {
+    "n_tp": 2660,
+    "n_fallback": 36,
+    "metrics": {
+      "absrel_f": 0.6173776629436103,
+      "standard_cqr": {
+        "pooled_coverage": 0.9631578947368421,
+        "macro_coverage": 0.9640659463802412,
+        "mean_width_ratio": 1.3622933366374923,
+        "mean_winkler": 0.886780793701044,
+        "n_crossings": 0
+      },
+      "split_conformal": {
+        "pooled_coverage": 0.9695488721804512,
+        "macro_coverage": 0.9678029206289424,
+        "mean_width_ratio": 3.4457527386929425,
+        "n_crossings": 0
+      },
+      "mondrian_cqr": {
+        "pooled_coverage": 0.9714285714285714,
+        "macro_coverage": 0.9805211731888491,
+        "mean_width_ratio": 4.669610488243811,
+        "n_crossings": 0
+      }
+    }
+  },
+  "yolov5su_640": {
+    "n_tp": 2674,
+    "n_fallback": 36,
+    "metrics": {
+      "absrel_f": 0.6145800561961289,
+      "standard_cqr": {
+        "pooled_coverage": 0.9573672400897532,
+        "macro_coverage": 0.9757168697278396,
+        "mean_width_ratio": 1.3413410106584838,
+        "mean_winkler": 0.8806623078683201,
+        "n_crossings": 0
+      },
+      "split_conformal": {
+        "pooled_coverage": 0.968960359012715,
+        "macro_coverage": 0.9761724029532679,
+        "mean_width_ratio": 3.4108365585445104,
+        "n_crossings": 0
+      },
+      "mondrian_cqr": {
+        "pooled_coverage": 0.9719521316379955,
+        "macro_coverage": 0.983019006136565,
+        "mean_width_ratio": 4.484466732890857,
+        "n_crossings": 0
+      }
+    }
+  }
+}
