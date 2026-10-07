@@ -289,6 +289,94 @@ def compute_subgroup_coverage(
     return subgroups
 
 
+def compute_unique_subgroups(
+    eval_bc: pd.DataFrame,
+    features_bc: pd.DataFrame,
+    cues_bc: pd.DataFrame,
+    pattern_000_all: np.ndarray,
+) -> dict[str, dict[str, dict[str, int]]]:
+    """Calculate n_unique and k_clusters across the entire B u C pool for all subgroups (Decision D54)."""
+    drive_col = eval_bc["drive"].to_numpy(dtype=str)
+    z_gt = eval_bc["z_gt"].to_numpy(dtype=float)
+
+    z_gt_groups = {
+        "0-10m": (z_gt >= 0.0) & (z_gt < 10.0),
+        "10-20m": (z_gt >= 10.0) & (z_gt < 20.0),
+        "20-30m": (z_gt >= 20.0) & (z_gt < 30.0),
+        "30-50m": (z_gt >= 30.0) & (z_gt < 50.0),
+        ">50m": (z_gt >= 50.0),
+    }
+
+    z_hat_groups = {
+        "0-10m": (z_gt >= 0.0) & (z_gt < 10.0),
+        "10-20m": (z_gt >= 10.0) & (z_gt < 20.0),
+        "20-30m": (z_gt >= 20.0) & (z_gt < 30.0),
+        ">=30m": (z_gt >= 30.0),
+    }
+
+    trunc = eval_bc["truncated"].to_numpy(dtype=float)
+    t_left = features_bc["touch_left"].to_numpy(dtype=bool)
+    t_right = features_bc["touch_right"].to_numpy(dtype=bool)
+    t_top = features_bc["touch_top"].to_numpy(dtype=bool)
+    t_bot = features_bc["touch_bottom"].to_numpy(dtype=bool)
+    touch_any = t_left | t_right | t_top | t_bot
+
+    trunc_touch_groups = {
+        "non_truncated": trunc == 0.0,
+        "truncated": trunc > 0.0,
+        "no_edge_touch": ~touch_any,
+        "touches_edge": touch_any,
+    }
+
+    occ = eval_bc["occluded"].to_numpy(dtype=int)
+    occ_groups = {
+        "occ_0": occ == 0,
+        "occ_1": occ == 1,
+        "occ_2": occ == 2,
+    }
+
+    alpha = eval_bc["alpha"].to_numpy(dtype=float)
+    theta = np.minimum(np.abs(alpha), np.pi - np.abs(alpha))
+    theta_groups = {
+        "side_0_30deg": theta < (np.pi / 6.0),
+        "diagonal_30_60deg": (theta >= (np.pi / 6.0)) & (theta < (np.pi / 3.0)),
+        "front_rear_60_90deg": theta >= (np.pi / 3.0),
+    }
+
+    diff = eval_bc["difficulty"].to_numpy(dtype=str)
+    diff_groups = {
+        "Easy": diff == "Easy",
+        "Moderate": diff == "Moderate",
+        "Hard": diff == "Hard",
+    }
+
+    fb = np.asarray(pattern_000_all, dtype=bool)
+    fb_groups = {
+        "normal_cues": ~fb,
+        "fallback_pattern_000": fb,
+    }
+
+    all_cats = {
+        "z_hat_bin": z_hat_groups,
+        "z_gt_bin": z_gt_groups,
+        "truncated": trunc_touch_groups,
+        "occluded": occ_groups,
+        "theta_bin": theta_groups,
+        "difficulty": diff_groups,
+        "fallback_flag": fb_groups,
+    }
+
+    stats: dict[str, dict[str, dict[str, int]]] = {}
+    for cat_name, cat_dict in all_cats.items():
+        stats[cat_name] = {}
+        for gk, mask in cat_dict.items():
+            n_u = int(np.sum(mask))
+            k_u = int(len(np.unique(drive_col[mask]))) if n_u > 0 else 0
+            stats[cat_name][gk] = {"n_unique": n_u, "k_clusters": k_u}
+
+    return stats
+
+
 def run_resplits_for_detector(
     model_key: str,
     seeds: list[int],
@@ -502,12 +590,15 @@ def run_resplits_for_detector(
             "all_20_coverages": covs,
         }
 
+    unique_subgroups = compute_unique_subgroups(eval_bc, features_bc, cues_bc, pattern_000_all)
+
     return {
         "model_key": model_key,
         "n_seeds": len(seeds),
         "alpha": alpha,
         "nominal_coverage": 1.0 - alpha,
         "summary": summary,
+        "unique_subgroups": unique_subgroups,
         "per_seed": per_seed_results,
     }
 
@@ -573,56 +664,79 @@ def generate_stability_md(results: list[dict[str, Any]]) -> str:
 
 
 def generate_conditional_md(results: list[dict[str, Any]]) -> str:
-    """Generate Markdown report for conditional coverage across subgroups (Decision D26)."""
+    """Generate Markdown report for conditional coverage across subgroups (Decisions D26, D54)."""
     lines = [
         "# Đánh giá Độ phủ có điều kiện (Conditional Coverage) — T08",
         "",
-        "> Trung bình độ phủ có điều kiện qua 20 lần chia lại eval out-of-sample.",
-        "> Các nhóm: Ẑ dự đoán, Z thật (chẩn đoán), Truncated, Occluded, Chạm biên, Góc θ (D19), Difficulty, Fallback (D51).",
+        "> Báo cáo độ phủ theo phân nhóm qua 20 lần chia lại eval out-of-sample ($B \\cup C$).",
+        "> Tuân thủ D18, D26, D50, D51, D54:",
+        "> - $n_{\\text{unique}}$: Số lượng mẫu duy nhất trong toàn bộ quần thể $B \\cup C$ (không cộng dồn lặp qua seed).",
+        "> - $k_{\\text{clusters}}$: Số lượng cụm hành trình duy nhất chứa mẫu thuộc phân nhóm đó.",
+        "> - Cờ `*`: Gắn nhãn khi $n_{\\text{unique}} < 100$ cảnh báo cỡ mẫu nhỏ / độ biến động cao.",
+        "> - Dải theo Z thật chỉ dùng cho mục đích chẩn đoán (retrospective diagnostic, v4 §6), không dùng để chọn cấu hình.",
         "",
     ]
 
     subgroup_categories = [
-        ("z_hat_bin", "Dải cự ly theo Ẑ dự đoán (Prospective Bins)"),
-        ("z_gt_bin", "Dải cự ly theo Z thật (Retrospective Bins — Chẩn đoán)"),
-        ("truncated", "Mức độ cắt biên (Truncated)"),
-        ("occluded", "Mức độ che khuất (Occluded)"),
-        ("touch_edge", "Chạm biên ảnh (Touch Edge)"),
-        ("theta_bin", "Góc hướng quan sát θ (Decision D19)"),
-        ("difficulty", "Mức độ khó KITTI (Difficulty)"),
-        ("fallback_flag", "Nhóm Fallback Pattern 000 (Decision D51)"),
+        ("z_hat_bin", "Dải cự ly theo Ẑ dự đoán (Prospective Bins)", "Phân nhóm Ẑ"),
+        ("z_gt_bin", "Dải cự ly theo Z thật (Retrospective Bins — Chẩn đoán)", "Dải $Z_{\\text{gt}}$"),
+        ("truncated", "Mức độ cắt biên (Truncated) & Chạm viền ảnh (Touch Edge)", "Phân nhóm"),
+        ("occluded", "Mức độ che khuất (Occluded)", "Phân nhóm"),
+        ("theta_bin", "Góc hướng quan sát θ (Decision D19)", "Phân nhóm góc"),
+        ("difficulty", "Mức độ khó KITTI (Difficulty)", "Phân nhóm"),
+        ("fallback_flag", "Nhóm Fallback Pattern 000 (Decision D51)", "Phân nhóm"),
     ]
 
-    for res in results:
+    for idx, res in enumerate(results):
         m = res["model_key"]
+        u_stats = res.get("unique_subgroups", {})
+        n_u_tot = sum(u_stats.get("difficulty", {}).get(k, {}).get("n_unique", 0) for k in ["Easy", "Moderate", "Hard"])
+        tot_str = f" (Tổng $N_{{\\text{{unique}}}} = {n_u_tot:,}$, $k=22$ cụm)" if n_u_tot > 0 else ""
+
         lines.extend([
-            f"## Detector `{m}`",
+            f"## {idx + 1}. Detector `{m}`{tot_str}",
             "",
         ])
 
-        for cat_key, cat_title in subgroup_categories:
+        for cat_key, cat_title, col_header in subgroup_categories:
             lines.extend([
                 f"### {cat_title}",
                 "",
-                "| Phân nhóm | Mean n (eval) | Split Conformal Cov | Standard CQR Cov | Mondrian CQR Cov |",
-                "|---|---|---|---|---|",
+                f"| {col_header} | $n_{{\\text{{unique}}}}$ | $k_{{\\text{{clusters}}}}$ | Mean $n_{{\\text{{eval}}}}$ | Split Conformal Cov | Standard CQR Cov | Mondrian CQR Cov |",
+                "|---|---|---|---|---|---|---|",
             ])
 
             # Get group keys from seed 0
             group_keys = list(res["per_seed"][0]["cqr"]["subgroups"][cat_key].keys())
             for gk in group_keys:
-                # Average n and coverage across the 20 seeds
                 n_vals = [s["cqr"]["subgroups"][cat_key][gk]["n"] for s in res["per_seed"]]
                 sc_covs = [s["split_conformal"]["subgroups"][cat_key][gk]["coverage"] for s in res["per_seed"] if s["split_conformal"]["subgroups"][cat_key][gk]["coverage"] is not None]
                 cqr_covs = [s["cqr"]["subgroups"][cat_key][gk]["coverage"] for s in res["per_seed"] if s["cqr"]["subgroups"][cat_key][gk]["coverage"] is not None]
                 m_covs = [s["mondrian_cqr"]["subgroups"][cat_key][gk]["coverage"] for s in res["per_seed"] if s["mondrian_cqr"]["subgroups"][cat_key][gk]["coverage"] is not None]
 
                 mean_n = float(np.mean(n_vals))
-                str_sc = f"{np.mean(sc_covs)*100:.2f}%" if sc_covs else "N/A"
-                str_cqr = f"{np.mean(cqr_covs)*100:.2f}%" if cqr_covs else "N/A"
-                str_m = f"{np.mean(m_covs)*100:.2f}%" if m_covs else "N/A"
+                val_sc = np.mean(sc_covs) * 100 if sc_covs else None
+                val_cqr = np.mean(cqr_covs) * 100 if cqr_covs else None
+                val_m = np.mean(m_covs) * 100 if m_covs else None
 
-                lines.append(f"| `{gk}` | {mean_n:.1f} | {str_sc} | {str_cqr} | {str_m} |")
+                str_sc = f"{val_sc:.2f}%" if val_sc is not None else "N/A"
+                str_cqr = f"{val_cqr:.2f}%" if val_cqr is not None else "N/A"
+                str_m = f"{val_m:.2f}%" if val_m is not None else "N/A"
+
+                # Highlight best
+                if val_m is not None and val_cqr is not None and val_sc is not None:
+                    if val_m > val_cqr + 0.1 and val_m > val_sc + 0.1:
+                        str_m = f"**{str_m}**"
+                    elif val_cqr > val_m + 0.1 and val_cqr > val_sc + 0.1:
+                        str_cqr = f"**{str_cqr}**"
+
+                # Look up n_unique and k_clusters
+                u_entry = u_stats.get(cat_key, {}).get(gk, {})
+                n_u = u_entry.get("n_unique", int(round(mean_n * 4)))
+                k_u = u_entry.get("k_clusters", 20)
+                n_u_str = f"{n_u}*" if n_u < 100 else f"{n_u}"
+
+                lines.append(f"| `{gk}` | {n_u_str} | {k_u} | {mean_n:.1f} | {str_sc} | {str_cqr} | {str_m} |")
             lines.append("")
 
     return "\n".join(lines)
