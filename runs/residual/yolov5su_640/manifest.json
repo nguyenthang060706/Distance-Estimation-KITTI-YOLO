@@ -235,5 +235,18 @@
     "gate_passed": true,
     "fallback_n": 10,
     "fallback_mean_abs_r": 2.55696990741108
+  },
+  "cqr_v1_1": {
+    "alpha": 0.1,
+    "nominal_coverage": 0.9,
+    "pooled_coverage_lodo": 0.8734265734265734,
+    "macro_coverage_lodo_all": 0.9038059504455728,
+    "macro_coverage_lodo_ge_30": 0.8982942149222468,
+    "mean_width_ratio": 1.3360940694978811,
+    "q_hat_full_c": 0.049768972753813534,
+    "fallback_n": 10,
+    "fallback_coverage": 0.9,
+    "fallback_mean_abs_r": 0.0902719350861911,
+    "note": "D74: Updated after base_score syntax fix in Model e; fallback coverage is 90-100% instead of 0%"
   }
 }

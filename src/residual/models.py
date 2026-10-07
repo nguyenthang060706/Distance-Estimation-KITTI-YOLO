@@ -13,6 +13,7 @@ Key specifications:
 from __future__ import annotations
 
 import itertools
+import json
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -458,6 +459,25 @@ def predict_e(
     return z_hat, ln_z_hat
 
 
+def _validate_xgboost_json(path: str | Path) -> None:
+    """Decision D77: Verify that serialized XGBoost JSON contains valid scalar base_score without brackets."""
+    p = Path(path)
+    with open(p, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    bs = data.get("learner", {}).get("learner_model_param", {}).get("base_score")
+    if bs is not None:
+        bs_str = str(bs)
+        if "[" in bs_str or "]" in bs_str:
+            raise ValueError(
+                f"Corrupted base_score serialization in {p.name}: {bs_str}. "
+                "Contains array brackets which causes XGBoost C++ parser fallback to 0.5 (Decision D71/D77)."
+            )
+        try:
+            float(bs_str)
+        except ValueError as err:
+            raise ValueError(f"Invalid base_score float format in {p.name}: {bs_str}") from err
+
+
 def save_model_f(model: xgb.XGBRegressor, path: str | Path) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -465,6 +485,7 @@ def save_model_f(model: xgb.XGBRegressor, path: str | Path) -> None:
 
 
 def load_model_f(path: str | Path) -> xgb.XGBRegressor:
+    _validate_xgboost_json(path)
     model = xgb.XGBRegressor()
     model.load_model(str(path))
     return model
@@ -477,6 +498,7 @@ def save_model_e(model: xgb.XGBRegressor, path: str | Path) -> None:
 
 
 def load_model_e(path: str | Path) -> xgb.XGBRegressor:
+    _validate_xgboost_json(path)
     model = xgb.XGBRegressor()
     model.load_model(str(path))
     return model

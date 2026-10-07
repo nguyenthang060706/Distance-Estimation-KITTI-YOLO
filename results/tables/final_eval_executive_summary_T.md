@@ -1,12 +1,12 @@
 # Split T Final Evaluation Executive Summary (Post-hoc Verified v1.1)
 
-## 1. Summary of Bug Identification & Implementation Fix (Decision D71)
+## 1. Tóm tắt Kiểm toán và Khắc phục Lỗi Triển khai (Decisions D71, D74)
 
-- **Bug Identified**: In the frozen `model_f.json` and `model_e.json` artifacts, the field `learner.learner_model_param.base_score` contained array brackets (e.g., `'[1.9926282E-2]'`). The C++ parser silently defaulted `base_score` to 0.5, causing a constant +0.5 shift in log residuals. This artificially inflated AbsRel of Model (f) to ~0.62 and Model (e) to ~0.92, while also distorting Split Conformal (3.37x) and Mondrian bin assignments (34x in bin 0-10m).
-- **Resolution (D71)**: Brackets were removed to restore the intended scalar string (e.g., `'1.9926282E-2'`). No retraining, parameter tuning, or YOLO inference was rerun. Post-hoc predictions were recomputed strictly from static saved parquets without unlocking Split T (`runs/final_T.lock` preserved).
-- **Scientific Integrity**: Both v1 (original frozen with bug) and v1.1 (corrected syntax) are reported side-by-side below.
+- **Phát hiện lỗi**: Trong các tệp artifact đóng băng `model_f.json` và `model_e.json`, trường `learner.learner_model_param.base_score` bị serialize dưới dạng chuỗi mảng (ví dụ `'[1.9926282E-2]'`). Parser C++ của XGBoost khi nạp gặp lỗi parse nên silently fallback về giá trị mặc định 0.5, gây lệch hằng số +0.5 trong log residuals $\hat{r}$ (AbsRel Model f tăng lên ~0.62, Model e lên ~0.92, Split Conformal nở rộng 3.37x). Đồng thời, hiện tượng fallback pattern 000 ở T07/T08 có coverage = 0% thực chất là do cùng bug này khi nạp `model_e.json` (D74).
+- **Khắc phục (D71, D74)**: Đã xóa ngoặc vuông để khôi phục chuỗi số vô hướng gốc. Không huấn luyện lại, không chỉnh sửa tham số, không chạy lại inference trên Split T (`runs/final_T.lock` được giữ nguyên vẹn 100%). Dữ liệu v1.1 được tính lại post-hoc từ các file parquet tĩnh.
+- **Minh bạch học thuật**: Toàn bộ bảng dưới đây báo cáo song song kết quả v1 (có bug) và v1.1 (đã sửa).
 
-## 2. Key Point Estimation Metrics on Split T (v1.1 Fixed)
+## 2. Ước lượng Điểm trên Split T (Bản v1.1 Chuẩn hóa)
 
 | Detector | Model (d) Fused | Model (f0) Ridge | Model (f) Residual | Model (e) Direct | Delta1 (f) |
 |---|---|---|---|---|---|
@@ -14,16 +14,22 @@
 | yolov8s_640 | 0.0641 | 0.0551 | **0.0461** | 0.0459 | 0.9970 |
 | yolov5su_640 | 0.0642 | 0.0560 | **0.0474** | 0.0474 | 0.9951 |
 
-## 3. Conformal Prediction Intervals (Nominal 90% Coverage)
+## 3. Khoảng Tin cậy Conformal (Mức danh nghĩa 90%)
 
-| Detector | Standard CQR Coverage (Pooled) | Macro Coverage | Mean Width | Split Conformal Width | Mondrian Width |
-|---|---|---|---|---|---|
-| yolo11s_640 | 96.4% | 87.9% | 1.319x | 1.322x | 1.294x |
-| yolov8s_640 | 97.1% | 96.9% | 1.352x | 1.345x | 1.353x |
-| yolov5su_640 | 96.6% | 97.9% | 1.332x | 1.351x | 1.316x |
+| Detector | CQR Pooled | CQR Macro (10 drives) | CQR Macro (n≥30, 8 drives) | CQR Width | SC Width | Mondrian Width |
+|---|---|---|---|---|---|---|
+| yolo11s_640 | 96.4% | 87.9% | 97.4% | 1.319x | 1.322x | 1.294x |
+| yolov8s_640 | 97.1% | 96.9% | 97.5% | 1.352x | 1.345x | 1.353x |
+| yolov5su_640 | 96.6% | 97.9% | 97.4% | 1.332x | 1.351x | 1.316x |
 
-## 4. Methodological Notes and Caveats
+## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75)
 
-- **Conditioning on True Positives**: Interval and point metrics are conditioned on matched detections (recall 83.2% - 84.4%). There were 515–553 False Negatives (FN) per detector.
-- **Distance-dependent Coverage**: While overall CQR coverage is 96.4%–97.1%, coverage in the near band (0–10m) is lower (~80.5%), as expected due to perspective distortion and fewer near-range calibration samples.
-- **Cluster Structure**: Split T contains K=10 drive clusters. Paired bootstrap CIs are coarse and should be interpreted descriptively. RQ2 correlations are weak (|r| <= 0.15), and naive p-values suffer from pseudo-replication across frames within drives.
+- **Điều kiện hóa trên True Positives**: Toàn bộ chỉ số điểm và khoảng được tính trên các phát hiện TP vượt ngưỡng tin cậy (Recall 82.8%–84.4%). Số lượng False Negatives tương ứng của 3 detector là 500 / 552 / 538 mẫu GT.
+- **Độ phủ thực nghiệm & Tính chất bảo thủ**: Standard CQR đạt độ phủ tổng gộp 96.4%–97.1%, cao hơn mức danh nghĩa 90% khoảng 6–7 điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, không phải khoảng thắt chặt.
+- **Độ phủ dải gần 0–10m (RQ3)**: Đạt 91.6% / 93.6% / 89.4% (dải 89.4%–93.6%), vẫn đạt xấp xỉ và duy trì quanh mức danh nghĩa 90%.
+- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n=2$ mẫu TP. Trên `yolo11s`, cả 2 mẫu đều không được cover (0/2), kéo macro coverage trung bình không trọng số của yolo11s xuống 87.9%. Khi tính macro trên 8 cụm có $n \ge 30$, độ phủ đạt 97.4% đồng đều ở cả 3 detector.
+- **So sánh Cặp Bootstrap (10 cụm drive, B=1000)**:
+  * Model (f) vs Model (d): CI thô loại trừ 0 (ước lượng $\Delta \approx -0.018$) $\to$ Residual phi tuyến cải thiện rõ so với mô hình hình học thuần túy (d).
+  * Model (f) vs Model (f0): CI thô loại trừ 0 (ước lượng $\Delta \approx -0.009$) $\to$ Residual phi tuyến cải thiện so với baseline tuyến tính (f0).
+  * Model (f) vs Model (e): CI thô chứa 0 (ước lượng $\Delta \approx -0.0002$, 95% CI [-0.0012, +0.0023]) $\to$ Residual (f) không phân biệt được với hồi quy trực tiếp (e) trên Split T (Limitations #8).
+- **Tương quan RQ2**: Tương quan giữa sai số AbsRel và các đặc trưng phát hiện là rất yếu ($|r| \le 0.15$). Tương quan với kích thước bbox bị nhiễu mạnh bởi cự ly $Z$ thực tế (hiệu ứng phối cảnh $h \propto 1/Z$ theo D21). Sai số tiếp đất $\Delta y_2$ có tương quan thực nghiệm rất nhỏ.

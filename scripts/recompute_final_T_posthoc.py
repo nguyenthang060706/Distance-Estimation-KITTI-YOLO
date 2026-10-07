@@ -214,8 +214,11 @@ def recompute_for_detector(model_key: str) -> dict[str, dict[str, float]]:
         cov_sc = (source_df["z_lo_sc"] <= zg) & (zg <= source_df["z_hi_sc"])
         cov_m = (source_df["z_lo_mondrian"] <= zg) & (zg <= source_df["z_hi_mondrian"])
 
+        valid_d = np.isfinite(zd) & (zd > 0)
+        absrel_d_val = float(np.mean(np.abs(zd[valid_d] - zg[valid_d]) / zg[valid_d])) if np.any(valid_d) else float("nan")
+
         return {
-            "absrel_d": float(np.mean(np.abs(zd - zg) / zg)),
+            "absrel_d": absrel_d_val,
             "absrel_f0": float(np.mean(np.abs(zf0 - zg) / zg)),
             "absrel_f": float(np.mean(np.abs(zf - zg) / zg)),
             "absrel_e": float(np.mean(np.abs(ze - zg) / zg)),
@@ -254,6 +257,36 @@ def main():
     with open(out_summary, "w", encoding="utf-8") as f:
         json.dump(all_res, f, indent=2)
     print(f"\nSaved comparison summary to: {out_summary}")
+
+    # Decision D71 & AGENT_RULES §5: Append log record to runs/pipeline_log.jsonl
+    log_file = PROJECT_ROOT / "runs" / "pipeline_log.jsonl"
+    from datetime import datetime, timezone
+    import subprocess
+    try:
+        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True).strip()
+    except Exception:
+        git_commit = "unknown"
+
+    log_record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "event": "RECOMPUTE_FINAL_T_POSTHOC",
+        "decision": "D71",
+        "git_commit": git_commit,
+        "tag": "final-config-v1.1",
+        "status": "COMPLETED",
+        "detectors": {
+            m: {
+                "absrel_f_v1": all_res[m]["v1_buggy"]["absrel_f"],
+                "absrel_f_v1_1": all_res[m]["v1_1_fixed"]["absrel_f"],
+                "absrel_e_v1_1": all_res[m]["v1_1_fixed"]["absrel_e"],
+                "cqr_cov_v1_1": all_res[m]["v1_1_fixed"]["cqr_cov"],
+            }
+            for m in DETECTORS
+        },
+    }
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_record) + "\n")
+    print(f"Logged post-hoc execution to: {log_file.name}")
     print("\n✓ Post-hoc recomputation completed successfully for all 3 detectors!")
 
 

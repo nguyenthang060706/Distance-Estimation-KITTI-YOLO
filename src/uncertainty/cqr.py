@@ -11,6 +11,7 @@ Theoretical Foundation:
 from __future__ import annotations
 
 from pathlib import Path
+import json
 from typing import Any
 import numpy as np
 import pandas as pd
@@ -273,6 +274,25 @@ def assert_disjoint_drives(
         )
 
 
+def _validate_xgboost_json(path: str | Path) -> None:
+    """Decision D77: Verify that serialized XGBoost JSON contains valid scalar base_score without brackets."""
+    p = Path(path)
+    with open(p, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    bs = data.get("learner", {}).get("learner_model_param", {}).get("base_score")
+    if bs is not None:
+        bs_str = str(bs)
+        if "[" in bs_str or "]" in bs_str:
+            raise ValueError(
+                f"Corrupted base_score serialization in {p.name}: {bs_str}. "
+                "Contains array brackets which causes XGBoost C++ parser fallback to 0.5 (Decision D71/D77)."
+            )
+        try:
+            float(bs_str)
+        except ValueError as err:
+            raise ValueError(f"Invalid base_score float format in {p.name}: {bs_str}") from err
+
+
 def save_quantile_model(model: xgb.XGBRegressor, path: str | Path) -> None:
     """Save XGBoost quantile model in JSON format."""
     p = Path(path)
@@ -282,6 +302,7 @@ def save_quantile_model(model: xgb.XGBRegressor, path: str | Path) -> None:
 
 def load_quantile_model(path: str | Path) -> xgb.XGBRegressor:
     """Load XGBoost quantile model from JSON format."""
+    _validate_xgboost_json(path)
     model = xgb.XGBRegressor()
     model.load_model(str(path))
     return model

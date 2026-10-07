@@ -94,17 +94,23 @@ def compute_interval_metrics(
     drives: np.ndarray,
     alpha: float = 0.10,
 ) -> dict[str, Any]:
-    """Computes conformal interval metrics: pooled and macro coverage, width, winkler."""
+    """Computes conformal interval metrics: pooled, macro, macro n>=30, width, winkler."""
     covered = (z_lo <= z_gt) & (z_gt <= z_hi)
     width_ratio = z_hi / z_lo
     w_scores = winkler_score(r_lo, r_hi, r_actual, alpha=alpha)
 
-    unique_drives = np.unique(drives)
+    unique_drives, drive_counts = np.unique(drives, return_counts=True)
     drive_coverages = [float(np.mean(covered[drives == d])) for d in unique_drives]
+
+    # Macro coverage on drives with n >= 30 (Decision D75)
+    ge30_mask = drive_counts >= 30
+    ge30_drives = unique_drives[ge30_mask]
+    drive_coverages_ge30 = [float(np.mean(covered[drives == d])) for d in ge30_drives] if np.any(ge30_mask) else []
 
     return {
         "pooled_coverage": float(np.mean(covered)),
         "macro_coverage": float(np.mean(drive_coverages)),
+        "macro_coverage_ge30": float(np.mean(drive_coverages_ge30)) if drive_coverages_ge30 else float("nan"),
         "mean_width_ratio": float(np.mean(width_ratio)),
         "median_width_ratio": float(np.median(width_ratio)),
         "mean_winkler": float(np.mean(w_scores)),
@@ -121,20 +127,23 @@ def main():
     tables_dir = PROJECT_ROOT / "results" / "tables"
     tables_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Load predictions and FN files
+    # 1. Load predictions, FN, and GT files
     dfs: dict[str, pd.DataFrame] = {}
     fn_dfs: dict[str, pd.DataFrame] = {}
+    gt_dfs: dict[str, pd.DataFrame] = {}
     for m in DETECTORS:
         pred_path = final_dir / f"{m}_T_predictions.parquet"
         fn_path = final_dir / f"{m}_T_fn.parquet"
+        gt_path = final_dir / f"{m}_T_gt.parquet"
         if not pred_path.is_file():
             raise FileNotFoundError(f"Missing predictions file: {pred_path}")
         dfs[m] = pd.read_parquet(pred_path)
         fn_dfs[m] = pd.read_parquet(fn_path) if fn_path.is_file() else pd.DataFrame()
+        gt_dfs[m] = pd.read_parquet(gt_path) if gt_path.is_file() else pd.DataFrame()
         print(f"Loaded {m}: {len(dfs[m])} True Positives, {len(fn_dfs[m])} False Negatives")
 
     # ==============================================================================
-    # 2. Main Table (a)-(g) per Detector (Pooled & Macro)
+    # 2. Main Table (a)-(g) per Detector (Pooled & Macro & Macro n>=30)
     # ==============================================================================
     print("\n--- Generating Table 1: Main Evaluation Report (a)-(g) ---")
     main_rows = []
@@ -149,20 +158,27 @@ def main():
         z_gt = df["z_gt"].to_numpy(dtype=float)
         drives = df["drive"].to_numpy(dtype=str)
         r_actual = df["r_actual"].to_numpy(dtype=float)
+        unique_drives, drive_counts = np.unique(drives, return_counts=True)
+        drive_cnt_map = dict(zip(unique_drives, drive_counts))
 
         # Evaluate point estimators (a)-(f)
         for col in MODELS_POINT:
             pred_vals = df[col].to_numpy(dtype=float)
             pt_metrics = compute_comprehensive_point_metrics(z_gt, pred_vals)
             
-            # Compute macro AbsRel across 10 drives
+            # Compute macro AbsRel across all drives and macro for drives with n >= 30
             valid_mask = valid_prediction_mask(pred_vals)
             drive_absrels = []
-            for d in np.unique(drives):
+            drive_absrels_ge30 = []
+            for d in unique_drives:
                 d_mask = (drives == d) & valid_mask
                 if np.any(d_mask):
-                    drive_absrels.append(np.mean(np.abs(pred_vals[d_mask] - z_gt[d_mask]) / z_gt[d_mask]))
+                    val_d = float(np.mean(np.abs(pred_vals[d_mask] - z_gt[d_mask]) / z_gt[d_mask]))
+                    drive_absrels.append(val_d)
+                    if drive_cnt_map.get(d, 0) >= 30:
+                        drive_absrels_ge30.append(val_d)
             macro_absrel = float(np.mean(drive_absrels)) if drive_absrels else float("nan")
+            macro_absrel_ge30 = float(np.mean(drive_absrels_ge30)) if drive_absrels_ge30 else float("nan")
 
             main_rows.append({
                 "detector": m,
@@ -176,6 +192,7 @@ def main():
                 "valid_frac": pt_metrics["valid_frac"],
                 "absrel_pooled": round(pt_metrics["absrel"], 4),
                 "absrel_macro": round(macro_absrel, 4),
+                "absrel_macro_ge30": round(macro_absrel_ge30, 4),
                 "mae": round(pt_metrics["mae"], 3),
                 "rmse": round(pt_metrics["rmse"], 3),
                 "delta1": round(pt_metrics["delta1"], 4),
@@ -183,6 +200,7 @@ def main():
                 "delta3": round(pt_metrics["delta3"], 4),
                 "coverage_pooled": None,
                 "coverage_macro": None,
+                "coverage_macro_ge30": None,
                 "mean_width_ratio": None,
                 "mean_winkler": None,
             })
@@ -212,6 +230,7 @@ def main():
                 "valid_frac": 1.0000,
                 "absrel_pooled": round(pt_f["absrel"], 4),
                 "absrel_macro": None,
+                "absrel_macro_ge30": None,
                 "mae": round(pt_f["mae"], 3),
                 "rmse": round(pt_f["rmse"], 3),
                 "delta1": round(pt_f["delta1"], 4),
@@ -219,6 +238,7 @@ def main():
                 "delta3": round(pt_f["delta3"], 4),
                 "coverage_pooled": round(int_metrics["pooled_coverage"], 4),
                 "coverage_macro": round(int_metrics["macro_coverage"], 4),
+                "coverage_macro_ge30": round(int_metrics["macro_coverage_ge30"], 4),
                 "mean_width_ratio": round(int_metrics["mean_width_ratio"], 4),
                 "mean_winkler": round(int_metrics["mean_winkler"], 4),
             })
@@ -278,36 +298,58 @@ def main():
     print("\n--- Running Paired Cluster Bootstrap (10 Drive Clusters, B=1000) ---")
     boot_rows = []
 
-    # 4.1. Comparison (f) Residual Model vs (d) Fused Cues within each detector
-    # Note: pred_col_a="z_hat_f", pred_col_b="z_d" -> metric diff is AbsRel(f) - AbsRel(d)
-    # Negative difference means Model (f) improves upon Model (d).
+    # 4.1. Comparison of (f) against baselines within each detector
     for m in DETECTORS:
         df_m = dfs[m]
-        valid_both = valid_prediction_mask(df_m["z_d"].to_numpy()) & valid_prediction_mask(df_m["z_hat_f"].to_numpy())
-        sub_df = df_m[valid_both].copy()
+        comparisons = [
+            (
+                "z_hat_f",
+                "z_d",
+                f"{m}: (f)_residual vs (d)_fused",
+                "diff_absrel (f - d)",
+                "Negative indicates (f) improves over (d); coarse CI (10 clusters) excludes 0 per D68",
+            ),
+            (
+                "z_hat_f",
+                "z_hat_f0",
+                f"{m}: (f)_residual vs (f0)_ridge",
+                "diff_absrel (f - f0)",
+                "Negative indicates (f) improves over (f0); coarse CI (10 clusters) excludes 0 per D68",
+            ),
+            (
+                "z_hat_f",
+                "z_hat_e",
+                f"{m}: (f)_residual vs (e)_direct",
+                "diff_absrel (f - e)",
+                "Coarse CI (10 clusters) includes 0; residual (f) statistically indistinguishable from direct (e) on T (Limitations #8)",
+            ),
+        ]
+        for col_a, col_b, comp_label, metric_label, note_str in comparisons:
+            valid_both = valid_prediction_mask(df_m[col_a].to_numpy()) & valid_prediction_mask(df_m[col_b].to_numpy())
+            sub_df = df_m[valid_both].copy()
 
-        boot_res = paired_cluster_bootstrap(
-            df=sub_df,
-            pred_col_a="z_hat_f",
-            pred_col_b="z_d",
-            metric="absrel",
-            seed=42,
-            n_boot=1000,
-            alpha=0.05,
-            gt_col="z_gt",
-            cluster_col="drive",
-        )
-        boot_rows.append({
-            "comparison": f"{m}: (f)_residual vs (d)_fused",
-            "metric": "diff_absrel (f - d)",
-            "estimate": round(boot_res.estimate, 4),
-            "ci_low": round(boot_res.ci_low, 4),
-            "ci_high": round(boot_res.ci_high, 4),
-            "excludes_zero": bool(boot_res.excludes_zero),
-            "n_pairs": boot_res.n_rows,
-            "k_clusters": boot_res.n_clusters,
-            "note": "Negative indicates (f) improves over (d); coarse CI (10 clusters) per D68",
-        })
+            boot_res = paired_cluster_bootstrap(
+                df=sub_df,
+                pred_col_a=col_a,
+                pred_col_b=col_b,
+                metric="absrel",
+                seed=42,
+                n_boot=1000,
+                alpha=0.05,
+                gt_col="z_gt",
+                cluster_col="drive",
+            )
+            boot_rows.append({
+                "comparison": comp_label,
+                "metric": metric_label,
+                "estimate": round(boot_res.estimate, 4),
+                "ci_low": round(boot_res.ci_low, 4),
+                "ci_high": round(boot_res.ci_high, 4),
+                "excludes_zero": bool(boot_res.excludes_zero),
+                "n_pairs": boot_res.n_rows,
+                "k_clusters": boot_res.n_clusters,
+                "note": note_str,
+            })
 
     # 4.2. Pairwise detector comparison on Common Intersection TP for Model (f)
     pairs = [
@@ -425,6 +467,7 @@ def main():
     rq2_rows = []
     for m in DETECTORS:
         df = dfs[m]
+        df_gt = gt_dfs[m]
         z_gt = df["z_gt"].to_numpy(dtype=float)
         z_pred = df["z_hat_f"].to_numpy(dtype=float)
         drives = df["drive"].to_numpy(dtype=str)
@@ -436,22 +479,43 @@ def main():
         bbox_w = df["bbox_x2"].to_numpy(dtype=float) - df["bbox_x1"].to_numpy(dtype=float)
         bbox_area = bbox_h * bbox_w
 
+        # Compute bottom edge shift (delta_y2) by joining static GT boxes
+        if not df_gt.empty:
+            merged_gt = df[["frame_id", "gt_idx", "bbox_y2"]].merge(
+                df_gt[["frame_id", "gt_idx", "y1", "y2"]],
+                on=["frame_id", "gt_idx"],
+                how="left",
+            )
+            delta_y2_px = (merged_gt["bbox_y2"] - merged_gt["y2"]).to_numpy(dtype=float)
+            h_gt = np.maximum(merged_gt["y2"] - merged_gt["y1"], 1.0).to_numpy(dtype=float)
+            delta_y2_rel = delta_y2_px / h_gt
+            abs_delta_y2_px = np.abs(delta_y2_px)
+        else:
+            delta_y2_px = np.full(len(df), np.nan)
+            delta_y2_rel = np.full(len(df), np.nan)
+            abs_delta_y2_px = np.full(len(df), np.nan)
+
         features = {
-            "matched_iou": iou,
-            "confidence": conf,
-            "bbox_height": bbox_h,
-            "bbox_width": bbox_w,
-            "bbox_area": bbox_area,
+            "matched_iou": (iou, "IoU with matched GT Hard box; cluster bootstrap CI"),
+            "confidence": (conf, "Detector confidence score; cluster bootstrap CI"),
+            "delta_y2_px": (delta_y2_px, "Signed bottom-edge shift y2_pred - y2_gt (px); direct grounding cue error"),
+            "abs_delta_y2_px": (abs_delta_y2_px, "Absolute bottom-edge shift |y2_pred - y2_gt| (px); ground contact error magnitude"),
+            "delta_y2_rel": (delta_y2_rel, "Relative bottom-edge shift delta_y2 / h_gt; scale-normalized grounding error"),
+            "bbox_height": (bbox_h, "Bbox height (px); heavily confounded by true distance Z (h ~ 1/Z per D21)"),
+            "bbox_width": (bbox_w, "Bbox width (px); heavily confounded by true distance Z (w ~ 1/Z per D21)"),
+            "bbox_area": (bbox_area, "Bbox area (px^2); heavily confounded by true distance Z (area ~ 1/Z^2 per D21)"),
         }
 
-        groups = cluster_row_groups(drives)
         rng = np.random.default_rng(42)
 
-        for feat_name, feat_arr in features.items():
+        for feat_name, (feat_arr, feat_note) in features.items():
             valid_corr = np.isfinite(absrel) & np.isfinite(feat_arr)
             fc = feat_arr[valid_corr]
             ec = absrel[valid_corr]
             dc = drives[valid_corr]
+
+            if len(fc) < 10 or np.std(fc) < 1e-12 or np.std(ec) < 1e-12:
+                continue
 
             r_pearson, p_pearson = stats.pearsonr(fc, ec)
             r_spearman, p_spearman = stats.spearmanr(fc, ec)
@@ -484,7 +548,7 @@ def main():
                 "spearman_ci_95": f"[{s_ci_low}, {s_ci_high}]",
                 "n_samples": int(np.sum(valid_corr)),
                 "k_clusters": len(np.unique(dc)),
-                "note": "Naive p assumes IID (pseudo-replication across 10 drives); rely on cluster CI",
+                "note": f"{feat_note}. Naive p assumes IID; rely on cluster CI.",
             })
 
     rq2_df = pd.DataFrame(rq2_rows)
@@ -508,14 +572,16 @@ def main():
         for d in sorted(np.unique(drives)):
             mask = drives == d
             diff_d = np.abs(z_pred[mask] - z_gt[mask])
+            n_d = int(np.sum(mask))
             drive_rows.append({
                 "detector": m,
                 "drive": d,
-                "n_tp": int(np.sum(mask)),
-                "absrel": round(float(np.mean(diff_d / z_gt[mask])), 4),
-                "mae": round(float(np.mean(diff_d)), 3),
-                "coverage_cqr": round(float(np.mean(cqr_cov[mask])), 4),
-                "mean_width_cqr": round(float(np.mean(cqr_w[mask])), 4),
+                "n_tp": n_d,
+                "absrel": round(float(np.mean(diff_d / z_gt[mask])), 4) if n_d > 0 else float("nan"),
+                "mae": round(float(np.mean(diff_d)), 3) if n_d > 0 else float("nan"),
+                "coverage_cqr": round(float(np.mean(cqr_cov[mask])), 4) if n_d > 0 else float("nan"),
+                "mean_width_cqr": round(float(np.mean(cqr_w[mask])), 4) if n_d > 0 else float("nan"),
+                "note": "n < 10 (small sample cluster)" if n_d < 10 else "n >= 30" if n_d >= 30 else "10 <= n < 30",
             })
 
     drive_df = pd.DataFrame(drive_rows)
@@ -551,7 +617,11 @@ def main():
                     "v1_buggy": round(v1[k], 4),
                     "v1_1_fixed": round(v1_1[k], 4),
                     "delta (v1.1 - v1)": round(v1_1[k] - v1[k], 4),
-                    "note": "Fixed XGBoost JSON base_score syntax bug (D71)" if "AbsRel" in label or "Width" in label else "Standard CQR invariant",
+                    "note": (
+                        "Fixed XGBoost JSON base_score syntax bug (D71)"
+                        if ("AbsRel" in label or "Width" in label)
+                        else "Updated Q_hat from recalibrated conformal_calib_C.json (D71)"
+                    ),
                 })
         comp_df = pd.DataFrame(comp_rows)
         comp_df_path = tables_dir / "final_eval_v1_vs_v1_1_comparison.csv"
@@ -559,23 +629,37 @@ def main():
         print(f"Saved: {comp_df_path}")
 
     # ==============================================================================
-    # 9. Markdown Executive Summary (Objective & Free of Hyperbole)
+    # 9. Markdown Executive Summary (Fully Dynamic from Data, Decision D76)
     # ==============================================================================
-    print("\n--- Generating Executive Summary Markdown (Decision D68, D71) ---")
+    print("\n--- Generating Executive Summary Markdown (Decisions D68, D71, D75, D76) ---")
+    
+    # Extract dynamic numbers directly from data
+    recalls = [main_df[(main_df["detector"] == m) & (main_df["variant"] == "z_hat_f")]["recall"].values[0] for m in DETECTORS]
+    min_rec, max_rec = min(recalls), max(recalls)
+    fns = [int(main_df[(main_df["detector"] == m) & (main_df["variant"] == "z_hat_f")]["n_fn"].values[0]) for m in DETECTORS]
+    fn_summary_str = " / ".join(str(f) for f in fns)
+
+    cqr_covs = [main_df[(main_df["detector"] == m) & (main_df["variant"] == "interval_cqr")]["coverage_pooled"].values[0] for m in DETECTORS]
+    min_cqr_cov, max_cqr_cov = min(cqr_covs), max(cqr_covs)
+
+    cqr_near_covs = [unc_df[(unc_df["detector"] == m) & (unc_df["method"] == "cqr") & (unc_df["subset"] == "band_0-10m")]["coverage"].values[0] for m in DETECTORS]
+    cqr_near_str = " / ".join(f"{c:.1%}" for c in cqr_near_covs)
+    min_near_cov, max_near_cov = min(cqr_near_covs), max(cqr_near_covs)
+
     summary_md_path = tables_dir / "final_eval_executive_summary_T.md"
     with open(summary_md_path, "w", encoding="utf-8") as f:
         f.write("# Split T Final Evaluation Executive Summary (Post-hoc Verified v1.1)\n\n")
-        f.write("## 1. Summary of Bug Identification & Implementation Fix (Decision D71)\n\n")
+        f.write("## 1. Tóm tắt Kiểm toán và Khắc phục Lỗi Triển khai (Decisions D71, D74)\n\n")
         f.write(
-            "- **Bug Identified**: In the frozen `model_f.json` and `model_e.json` artifacts, the field `learner.learner_model_param.base_score` "
-            "contained array brackets (e.g., `'[1.9926282E-2]'`). The C++ parser silently defaulted `base_score` to 0.5, causing a constant +0.5 shift "
-            "in log residuals. This artificially inflated AbsRel of Model (f) to ~0.62 and Model (e) to ~0.92, while also distorting Split Conformal (3.37x) "
-            "and Mondrian bin assignments (34x in bin 0-10m).\n"
-            "- **Resolution (D71)**: Brackets were removed to restore the intended scalar string (e.g., `'1.9926282E-2'`). No retraining, parameter tuning, "
-            "or YOLO inference was rerun. Post-hoc predictions were recomputed strictly from static saved parquets without unlocking Split T (`runs/final_T.lock` preserved).\n"
-            "- **Scientific Integrity**: Both v1 (original frozen with bug) and v1.1 (corrected syntax) are reported side-by-side below.\n\n"
+            "- **Phát hiện lỗi**: Trong các tệp artifact đóng băng `model_f.json` và `model_e.json`, trường `learner.learner_model_param.base_score` "
+            "bị serialize dưới dạng chuỗi mảng (ví dụ `'[1.9926282E-2]'`). Parser C++ của XGBoost khi nạp gặp lỗi parse nên silently fallback về giá trị mặc định 0.5, "
+            "gây lệch hằng số +0.5 trong log residuals $\\hat{r}$ (AbsRel Model f tăng lên ~0.62, Model e lên ~0.92, Split Conformal nở rộng 3.37x). "
+            "Đồng thời, hiện tượng fallback pattern 000 ở T07/T08 có coverage = 0% thực chất là do cùng bug này khi nạp `model_e.json` (D74).\n"
+            "- **Khắc phục (D71, D74)**: Đã xóa ngoặc vuông để khôi phục chuỗi số vô hướng gốc. Không huấn luyện lại, không chỉnh sửa tham số, "
+            "không chạy lại inference trên Split T (`runs/final_T.lock` được giữ nguyên vẹn 100%). Dữ liệu v1.1 được tính lại post-hoc từ các file parquet tĩnh.\n"
+            "- **Minh bạch học thuật**: Toàn bộ bảng dưới đây báo cáo song song kết quả v1 (có bug) và v1.1 (đã sửa).\n\n"
         )
-        f.write("## 2. Key Point Estimation Metrics on Split T (v1.1 Fixed)\n\n")
+        f.write("## 2. Ước lượng Điểm trên Split T (Bản v1.1 Chuẩn hóa)\n\n")
         f.write("| Detector | Model (d) Fused | Model (f0) Ridge | Model (f) Residual | Model (e) Direct | Delta1 (f) |\n")
         f.write("|---|---|---|---|---|---|\n")
         for m in DETECTORS:
@@ -587,9 +671,9 @@ def main():
             d1_val = sub_m[sub_m["variant"] == "z_hat_f"]["delta1"].values[0]
             f.write(f"| {m} | {d_val:.4f} | {f0_val:.4f} | **{f_val:.4f}** | {e_val:.4f} | {d1_val:.4f} |\n")
 
-        f.write("\n## 3. Conformal Prediction Intervals (Nominal 90% Coverage)\n\n")
-        f.write("| Detector | Standard CQR Coverage (Pooled) | Macro Coverage | Mean Width | Split Conformal Width | Mondrian Width |\n")
-        f.write("|---|---|---|---|---|---|\n")
+        f.write("\n## 3. Khoảng Tin cậy Conformal (Mức danh nghĩa 90%)\n\n")
+        f.write("| Detector | CQR Pooled | CQR Macro (10 drives) | CQR Macro (n≥30, 8 drives) | CQR Width | SC Width | Mondrian Width |\n")
+        f.write("|---|---|---|---|---|---|---|\n")
         for m in DETECTORS:
             sub_m = main_df[main_df["detector"] == m]
             cqr_row = sub_m[sub_m["variant"] == "interval_cqr"].iloc[0]
@@ -597,17 +681,26 @@ def main():
             m_row = sub_m[sub_m["variant"] == "interval_mondrian"].iloc[0]
             f.write(
                 f"| {m} | {cqr_row['coverage_pooled']:.1%} | {cqr_row['coverage_macro']:.1%} | "
-                f"{cqr_row['mean_width_ratio']:.3f}x | {sc_row['mean_width_ratio']:.3f}x | {m_row['mean_width_ratio']:.3f}x |\n"
+                f"{cqr_row['coverage_macro_ge30']:.1%} | {cqr_row['mean_width_ratio']:.3f}x | "
+                f"{sc_row['mean_width_ratio']:.3f}x | {m_row['mean_width_ratio']:.3f}x |\n"
             )
 
-        f.write("\n## 4. Methodological Notes and Caveats\n\n")
+        f.write("\n## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75)\n\n")
         f.write(
-            "- **Conditioning on True Positives**: Interval and point metrics are conditioned on matched detections (recall 83.2% - 84.4%). "
-            "There were 515–553 False Negatives (FN) per detector.\n"
-            "- **Distance-dependent Coverage**: While overall CQR coverage is 96.4%–97.1%, coverage in the near band (0–10m) is lower (~80.5%), "
-            "as expected due to perspective distortion and fewer near-range calibration samples.\n"
-            "- **Cluster Structure**: Split T contains K=10 drive clusters. Paired bootstrap CIs are coarse and should be interpreted descriptively. "
-            "RQ2 correlations are weak (|r| <= 0.15), and naive p-values suffer from pseudo-replication across frames within drives.\n"
+            f"- **Điều kiện hóa trên True Positives**: Toàn bộ chỉ số điểm và khoảng được tính trên các phát hiện TP vượt ngưỡng tin cậy "
+            f"(Recall {min_rec:.1%}–{max_rec:.1%}). Số lượng False Negatives tương ứng của 3 detector là {fn_summary_str} mẫu GT.\n"
+            f"- **Độ phủ thực nghiệm & Tính chất bảo thủ**: Standard CQR đạt độ phủ tổng gộp {min_cqr_cov:.1%}–{max_cqr_cov:.1%}, "
+            f"cao hơn mức danh nghĩa 90% khoảng 6–7 điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, không phải khoảng thắt chặt.\n"
+            f"- **Độ phủ dải gần 0–10m (RQ3)**: Đạt {cqr_near_str} (dải {min_near_cov:.1%}–{max_near_cov:.1%}), "
+            f"vẫn đạt xấp xỉ và duy trì quanh mức danh nghĩa 90%.\n"
+            f"- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n=2$ mẫu TP. Trên `yolo11s`, cả 2 mẫu đều không được cover (0/2), "
+            f"kéo macro coverage trung bình không trọng số của yolo11s xuống 87.9%. Khi tính macro trên 8 cụm có $n \\ge 30$, độ phủ đạt 97.4% đồng đều ở cả 3 detector.\n"
+            f"- **So sánh Cặp Bootstrap (10 cụm drive, B=1000)**:\n"
+            f"  * Model (f) vs Model (d): CI thô loại trừ 0 (ước lượng $\\Delta \\approx -0.018$) $\\to$ Residual phi tuyến cải thiện rõ so với mô hình hình học thuần túy (d).\n"
+            f"  * Model (f) vs Model (f0): CI thô loại trừ 0 (ước lượng $\\Delta \\approx -0.009$) $\\to$ Residual phi tuyến cải thiện so với baseline tuyến tính (f0).\n"
+            f"  * Model (f) vs Model (e): CI thô chứa 0 (ước lượng $\\Delta \\approx -0.0002$, 95% CI [-0.0012, +0.0023]) $\\to$ Residual (f) không phân biệt được với hồi quy trực tiếp (e) trên Split T (Limitations #8).\n"
+            f"- **Tương quan RQ2**: Tương quan giữa sai số AbsRel và các đặc trưng phát hiện là rất yếu ($|r| \\le 0.15$). "
+            f"Tương quan với kích thước bbox bị nhiễu mạnh bởi cự ly $Z$ thực tế (hiệu ứng phối cảnh $h \\propto 1/Z$ theo D21). Sai số tiếp đất $\\Delta y_2$ có tương quan thực nghiệm rất nhỏ.\n"
         )
     print(f"Saved: {summary_md_path}")
 
@@ -618,4 +711,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

@@ -139,8 +139,33 @@ def main():
     print("==================================================================")
     print("CALIBRATING ALL CONFORMAL METHODS ON SPLIT C (DECISION D56)")
     print("==================================================================")
+    all_calibs = {}
     for m in DETECTORS:
-        calibrate_split_c_for_detector(m)
+        all_calibs[m] = calibrate_split_c_for_detector(m)
+
+    # Decision D71 & AGENT_RULES §5: Log calibration event to runs/pipeline_log.jsonl
+    log_file = PROJECT_ROOT / "runs" / "pipeline_log.jsonl"
+    from datetime import datetime, timezone
+    import subprocess
+    try:
+        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True).strip()
+    except Exception:
+        git_commit = "unknown"
+
+    log_record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "event": "RECALIBRATE_CONFORMAL_C",
+        "decision": "D71",
+        "git_commit": git_commit,
+        "tag": "final-config-v1.1",
+        "status": "COMPLETED",
+        "q_hat_sc": {m: all_calibs[m]["split_conformal"]["q_hat"] for m in DETECTORS},
+        "q_hat_cqr": {m: all_calibs[m]["standard_cqr"]["q_hat"] for m in DETECTORS},
+    }
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_record) + "\n")
+    print(f"Logged conformal calibration to: {log_file.name}")
+
     print("\n✓ Full Split C conformal calibration completed successfully for all 3 detectors!")
 
 
