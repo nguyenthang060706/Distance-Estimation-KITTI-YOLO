@@ -17,9 +17,11 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
+import traceback
 from pathlib import Path
 from typing import Any
 import numpy as np
@@ -122,7 +124,10 @@ def check_guard_2_clean_tree():
         # Ignore runtime files in runs/ and results/
         dirty_lines = [
             line for line in status.splitlines()
-            if not (line[3:].startswith("runs/") or line[3:].startswith("results/"))
+            if not (
+                line[3:].replace("\\", "/").startswith("runs/")
+                or line[3:].replace("\\", "/").startswith("results/")
+            )
         ]
         if dirty_lines:
             raise RuntimeError(
@@ -179,6 +184,39 @@ def check_guard_3_hashes(frozen_cfg_path: Path):
             raise ValueError(f"Guard 3 FAILED: Config file SHA mismatch for {cfg_rel}!")
 
     print("  [Guard 3 PASS] All split hashes, checkpoint SHAs, trained model SHAs, calibrations, and config SHAs match frozen configuration.")
+
+
+def check_guard_preflight(output_dir: Path) -> None:
+    """Preflight check before locking: verifies disk space, write permissions, and GPU (Decision D67)."""
+    # 1. Directory write permission
+    output_dir.mkdir(parents=True, exist_ok=True)
+    test_file = output_dir / ".preflight_write_test.tmp"
+    try:
+        with open(test_file, "w", encoding="utf-8") as f:
+            f.write("preflight ok")
+        if test_file.exists():
+            test_file.unlink()
+    except Exception as e:
+        raise PermissionError(f"Preflight FAILED: Output directory {output_dir} is not writable: {e}")
+
+    # 2. Disk space check (require at least 1 GB)
+    usage = shutil.disk_usage(output_dir)
+    free_gb = usage.free / (1024 ** 3)
+    if free_gb < 1.0:
+        raise RuntimeError(f"Preflight FAILED: Insufficient disk space on {output_dir}. Free: {free_gb:.2f} GB (required >= 1.0 GB).")
+
+    # 3. GPU availability check
+    try:
+        import torch
+        if torch.cuda.is_available():
+            gpu_name = torch.cuda.get_device_name(0)
+            print(f"  [Preflight PASS] GPU detected: {gpu_name} (CUDA available)")
+        else:
+            print("  [Preflight WARNING] CUDA not available, inference will run on CPU.")
+    except ImportError:
+        print("  [Preflight WARNING] PyTorch not importable in preflight check.")
+
+    print(f"  [Preflight PASS] Disk space {free_gb:.2f} GB available, directory {output_dir} writable.")
 
 
 def check_and_create_guard_4_lock(dry_run: bool, confirm_flag: str | None):
@@ -325,15 +363,16 @@ def execute_pipeline_for_detector(
         z_base, r_hat_f, q_hat_sc
     )
 
-    # 3. Mondrian CQR (Descriptive baseline)
+    # 3. Mondrian CQR (Descriptive baseline - Decoupled from test data, Decision D67)
     mondrian_spec = calib["mondrian_cqr"]
-    binning = MondrianBinning(
-        calib_z_hat=z_hat_f,  # dummy for init
-        base_edges=mondrian_spec["bin_edges"],
-        min_samples=mondrian_spec["min_samples_per_bin"],
-    )
-    # Ensure edges match the frozen calibrated spec
-    binning.edges = mondrian_spec["bin_edges"]
+    binning = MondrianBinning.__new__(MondrianBinning)
+    binning.edges = list(mondrian_spec["bin_edges"])
+    binning.min_samples = int(mondrian_spec.get("min_samples_per_bin", 50))
+    binning.labels = list(mondrian_spec.get("bin_labels", [
+        f">={int(binning.edges[i])}m" if i == len(binning.edges) - 1 else f"{int(binning.edges[i])}-{int(binning.edges[i+1])}m"
+        for i in range(len(binning.edges))
+    ]))
+    binning.n_bins = len(binning.labels)
     mondrian_q_hats = {int(k): float(v) for k, v in mondrian_spec["q_hat_per_bin"].items()}
     mondrian_bins = binning.assign_bins(z_hat_f)
     z_lo_m, z_hi_m, r_lo_m, r_hi_m, n_cross_m = predict_interval_mondrian(
@@ -559,11 +598,13 @@ def main():
     print("STARTING OFFICIAL FINAL TEST EVALUATION ON SPLIT T (DECISION D27)")
     print("==================================================================")
 
-    # 1. Check all 4 safety guards
+    # 1. Check all 4 safety guards and preflight requirements
     print("\nChecking Safety Guards...")
     check_guard_1_tag()
     check_guard_2_clean_tree()
     check_guard_3_hashes(frozen_cfg_path)
+    final_out_dir = PROJECT_ROOT / "results" / "final"
+    check_guard_preflight(final_out_dir)
     check_and_create_guard_4_lock(dry_run=False, confirm_flag=args.confirm)
 
     try:
@@ -571,7 +612,7 @@ def main():
     except Exception:
         git_commit = "unknown"
 
-    # Log START event (Decision D65)
+    # Log START event (Decisions D65, D67)
     t_start_time = time.time()
     log_final_t_event({
         "event": "START",
@@ -586,21 +627,35 @@ def main():
         "status": "STARTED",
     })
 
-    # 2. Execute on Split T
+    # 2. Execute on Split T with exception handling (Decision D67)
     final_results = {}
-    final_out_dir = PROJECT_ROOT / "results" / "final"
-    for m in DETECTORS:
-        res = execute_pipeline_for_detector(
-            model_key=m,
-            split="T",
-            output_dir=final_out_dir,
-            allow_test=True,
-            conf_min=conf_min,
-            iou_nms=iou_nms,
-            iou_match=iou_match,
-            dontcare_mode=dontcare_mode,
-        )
-        final_results[m] = res
+    try:
+        for m in DETECTORS:
+            res = execute_pipeline_for_detector(
+                model_key=m,
+                split="T",
+                output_dir=final_out_dir,
+                allow_test=True,
+                conf_min=conf_min,
+                iou_nms=iou_nms,
+                iou_match=iou_match,
+                dontcare_mode=dontcare_mode,
+            )
+            final_results[m] = res
+    except Exception as e:
+        total_elapsed = time.time() - t_start_time
+        tb_str = traceback.format_exc()
+        log_final_t_event({
+            "event": "FAILED",
+            "timestamp": pd.Timestamp.now().isoformat(),
+            "split": "T",
+            "elapsed_seconds": round(total_elapsed, 2),
+            "error": repr(e),
+            "traceback": tb_str,
+            "status": "FAILED",
+        })
+        print(f"\n❌ Execution on Split T FAILED: {repr(e)}")
+        raise
 
     total_elapsed = time.time() - t_start_time
 

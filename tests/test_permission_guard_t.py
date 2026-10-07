@@ -5,6 +5,7 @@ Ensures Split T is strictly locked by default and can only be accessed with allo
 
 import pytest
 from pathlib import Path
+from typing import Any
 from scripts.run_inference import run_inference_for_model, run_inference_core
 from src.pipeline.build_dataset import load_artifacts
 from src.pipeline.apply_frozen import apply_frozen_pipeline
@@ -57,34 +58,28 @@ def test_allow_test_bypasses_permission_guard(tmp_path: Path):
         apply_frozen_pipeline("yolo11s_640", "T", data_dir=tmp_path, allow_test=True)
 
 
-def test_run_inference_core_allow_test_passes_load_split(monkeypatch, tmp_path: Path):
-    """Confirm run_inference_core(split='T', allow_test=True) does not raise PermissionError in load_split."""
-    from scripts.run_inference import run_inference_core
-    from unittest.mock import MagicMock
+def test_run_inference_core_allow_test_passes_load_split(monkeypatch):
+    """Confirm run_inference_core(split='T', allow_test=True) passes allow_test to load_split without touching T data (Decision D66)."""
+    import scripts.run_inference as ri
 
-    # Mock verify_checkpoint and Ultralytics YOLO to avoid heavy model execution
-    monkeypatch.setattr("scripts.run_inference.verify_checkpoint", lambda *args, **kwargs: "dummy_sha")
-    
-    # Mock KITTILoader and YOLO to abort safely after load_split
-    class MockYOLO:
-        def __init__(self, *args, **kwargs):
-            pass
-        def predict(self, *args, **kwargs):
-            return [MagicMock(boxes=None)]
-
-    monkeypatch.setattr("scripts.run_inference.YOLO", MockYOLO)
-
-    # Calling run_inference_core with split="T" and allow_test=True must NOT raise PermissionError
-    # (If load_split was called with allow_test=False, it would fail with PermissionError)
-    out_dir = tmp_path / "preds"
-    # To run quickly, pass empty frame_ids via mock or real split
-    try:
-        run_inference_core("yolo11s", "T", output_dir=str(out_dir), allow_test=True)
-    except PermissionError:
-        pytest.fail("run_inference_core raised PermissionError despite allow_test=True!")
-    except Exception:
-        # Any other exception (e.g. data path/images not found) is acceptable, as long as PermissionError was NOT raised
+    class Sentinel(Exception):
         pass
+
+    seen: dict[str, Any] = {}
+
+    def fake_load_split(splits_dir, split, allow_test=False):
+        seen["allow_test"] = allow_test
+        seen["split"] = split
+        raise Sentinel("Aborting test execution before loading any Split T frames!")
+
+    monkeypatch.setattr(ri, "verify_checkpoint", lambda *args, **kwargs: "dummy_sha")
+    monkeypatch.setattr(ri, "load_split", fake_load_split)
+
+    with pytest.raises(Sentinel):
+        ri.run_inference_core("yolo11s", "T", allow_test=True)
+
+    assert seen["allow_test"] is True
+    assert seen["split"] == "T"
 
 
 def test_guard_3_hashes_verification_passes_and_detects_tampering(tmp_path: Path):

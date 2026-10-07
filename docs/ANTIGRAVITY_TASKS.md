@@ -211,7 +211,7 @@ Ra `results/tables/sensitivity_{drive0059,floor,eps}.md`.
 **Làm:**
 1. Refactor `run_inference.py` (additive): tách lõi `run_inference_core(..., allow_test: bool = False)`; `run_inference_for_model` giữ nguyên chữ ký, vẫn `PermissionError` với T; `tests/test_inference.py` phải xanh nguyên vẹn. **Diff này cần bạn review kỹ.**
 2. `configs/pipeline_frozen_v1.yaml` (bản nháp): danh sách model, hash split A/V/B/C/T, SHA checkpoint, ngưỡng conf, hash `geometry_params.yaml`, cấu hình residual đã chọn/detector, SHA model đã fit, α, bin Mondrian, eps, seed.
-3. `scripts/run_final_T.py`: trước khi chạy kiểm (a) tag `final-config-v1` tồn tại và trùng HEAD, cây làm việc sạch (bỏ qua `runs/`, `results/`), (b) hash split + SHA checkpoint + SHA model residual khớp config, (c) tạo `runs/final_T.lock` bằng `open(..., "x")`, lỗi nếu đã tồn tại, (d) cờ `--confirm FINAL_T_RUN` bắt buộc. Quy trình: inference T → `build_dataset` → hình học → Z_base → (f) → CQR/split/Mondrian → ghi `results/final/*` + một dòng `runs/final_T_log.jsonl`. Không có tham số tinh chỉnh.
+3. `scripts/run_final_T.py`: trước khi chạy kiểm (a) tag `final-config-v1` tồn tại và trùng HEAD, cây làm việc sạch (bỏ qua `runs/`, `results/`), (b) hash split + SHA checkpoint + SHA model residual khớp config, (c) kiểm tra preflight (đĩa trống >= 1GB, thư mục ghi được, GPU có mặt) trước khi tạo lock (D67), (d) tạo `runs/final_T.lock` bằng `open(..., "x")`, lỗi nếu đã tồn tại, (e) cờ `--confirm FINAL_T_RUN` bắt buộc. Quy trình: inference T → `build_dataset` → hình học → Z_base → (f) → CQR/split/Mondrian → ghi `results/final/*` + một cặp sự kiện START/COMPLETED trong `runs/final_T_log.jsonl` (hoặc FAILED nếu sự cố). Không có tham số tinh chỉnh.
 4. Chế độ `--dry-run C` (không tạo lock, không chạm T): chạy đúng quy trình trên C.
 **Xong khi:** dry-run C tái lập **đúng** số liệu dev của T07/T08 trên C (lệch thì dừng); test cho lock/tag/hash (dùng thư mục tạm).
 
@@ -223,7 +223,7 @@ Ra `results/tables/sensitivity_{drive0059,floor,eps}.md`.
 ### T12 — Chạy T một lần (W3-1) — **người chạy, KHÔNG giao agent**
 1. `git status` sạch; `git rev-parse HEAD` trùng `git rev-parse final-config-v1`; `runs/final_T.lock` chưa tồn tại.
 2. Chạy: `python scripts/run_final_T.py --confirm FINAL_T_RUN` (không thêm tham số).
-3. Sau khi xong: kiểm `runs/final_T.lock`, đúng một dòng trong `runs/final_T_log.jsonl`, đủ file trong `results/final/`; commit kết quả, `git tag final-run-T-v1`.
+3. Sau khi xong: kiểm `runs/final_T.lock`, đúng một cặp sự kiện START/COMPLETED trong `runs/final_T_log.jsonl`, đủ file trong `results/final/`; commit kết quả, `git tag final-run-T-v1`.
 4. Nếu script sập vì lỗi hạ tầng (đĩa, OOM) mà chưa sinh kết quả: chỉ chạy lại sau khi bạn ghi nhật ký lý do (D-mới) và tự xóa lock. Không chạy lại vì kết quả "xấu".
 
 ### T13 — Bảng chính trên T (W3-1)
@@ -247,7 +247,7 @@ Ra `results/tables/sensitivity_{drive0059,floor,eps}.md`.
 **Cấm:** claim "đầu tiên", "có ý nghĩa thống kê" (k < 20), trích dẫn bịa.
 
 ### T18 — Audit checklist §11 (W3-6..7)
-**Làm:** `docs/CHECKLIST_AUDIT.md`: với từng mục §11 của v4, ghi bằng chứng (lệnh + kết quả, file, test) hoặc FAIL. Tối thiểu có các kiểm tra tự động: (1) không cột GT trong mọi `*_features.parquet`; (2) hash A/V/B/C/T khớp metadata; (3) T chỉ được chạm một lần (một dòng log, có lock, tag khớp); (4) `grep` toàn repo: không đường code nào ngoài `run_final_T.py` mở T; (5) mọi bảng chính có n, n_valid, k cụm; (6) không còn cụm "có ý nghĩa thống kê"/"đầu tiên" trong tài liệu bài.
+**Làm:** `docs/CHECKLIST_AUDIT.md`: với từng mục §11 của v4, ghi bằng chứng (lệnh + kết quả, file, test) hoặc FAIL. Tối thiểu có các kiểm tra tự động: (1) không cột GT trong mọi `*_features.parquet`; (2) hash A/V/B/C/T khớp metadata; (3) T chỉ được chạm một lần (một cặp sự kiện START/COMPLETED trong `runs/final_T_log.jsonl`, có lock, tag khớp); (4) `grep` toàn repo: không đường code nào ngoài `run_final_T.py` mở T; (5) mọi bảng chính có n, n_valid, k cụm; (6) không còn cụm "có ý nghĩa thống kê"/"đầu tiên" trong tài liệu bài.
 **Gate người:** FAIL nào cũng phải xử lý hoặc ghi vào Limitations.
 
 ---

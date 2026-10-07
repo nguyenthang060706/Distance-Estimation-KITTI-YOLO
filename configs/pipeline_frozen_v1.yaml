@@ -150,7 +150,7 @@ pipeline_parameters:
   border_eps: 2.0
   alpha: 0.1
   seed: 42
-  seed_quantile: 42
+  seed_quantile: 42  # Note: q05 uses seed 42, q95 uses seed 43 (seed + 1) per Decision D26 / run_cqr.py
 config_files_sha256:
   configs/geometry_params.yaml: 916d0b8af48c7f00d6702f924b903a585334b9535ec16e81d3b08c3b36f095bc
   configs/detector/checkpoints.yaml: 0d07276d984de615e4a3d3aeb43b29488a705d5b6c61b133adedfdbd624a36f5
