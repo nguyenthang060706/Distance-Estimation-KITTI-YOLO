@@ -3,6 +3,7 @@
     {
       "feature_key": "z_hat_f",
       "feature_name": "Độ sâu dự đoán Ẑ (m)",
+      "is_binary": false,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 24.6901,
@@ -10,12 +11,12 @@
       "std_c": 10.4755,
       "std_t": 10.7175,
       "ks_statistic": 0.0543,
-      "p_value": 0.006526195119259209,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     },
     {
       "feature_key": "z_gt",
       "feature_name": "Độ sâu thực tế Z_gt (m)",
+      "is_binary": false,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 24.3676,
@@ -23,12 +24,12 @@
       "std_c": 10.3086,
       "std_t": 10.5299,
       "ks_statistic": 0.0485,
-      "p_value": 0.020951238669367482,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     },
     {
       "feature_key": "confidence",
       "feature_name": "Độ tin cậy detector (confidence)",
+      "is_binary": false,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 0.9003,
@@ -36,51 +37,51 @@
       "std_c": 0.0433,
       "std_t": 0.0444,
       "ks_statistic": 0.048,
-      "p_value": 0.02296174407650831,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: T > C)"
     },
     {
       "feature_key": "valid_w",
       "feature_name": "Cờ hợp lệ Cue Chiều rộng (valid_w)",
+      "is_binary": true,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 0.9563,
       "mean_t": 0.9565,
       "std_c": 0.2043,
       "std_t": 0.204,
-      "ks_statistic": 0.0001,
-      "p_value": 1.0,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 0.01%)"
     },
     {
       "feature_key": "valid_h",
       "feature_name": "Cờ hợp lệ Cue Chiều cao (valid_h)",
+      "is_binary": true,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 0.9436,
       "mean_t": 0.9587,
       "std_c": 0.2307,
       "std_t": 0.199,
-      "ks_statistic": 0.0151,
-      "p_value": 0.9775578404974685,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 1.51%)"
     },
     {
       "feature_key": "valid_g",
       "feature_name": "Cờ hợp lệ Cue Cạnh dưới (valid_g)",
+      "is_binary": true,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 0.9436,
       "mean_t": 0.9587,
       "std_c": 0.2307,
       "std_t": 0.199,
-      "ks_statistic": 0.0151,
-      "p_value": 0.9775578404974685,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 1.51%)"
     },
     {
       "feature_key": "abs_r",
       "feature_name": "Sai số log-residual |r| = |ln Z_gt - ln Z_base|",
+      "is_binary": false,
       "n_c": 1489,
       "n_t": 2712,
       "mean_c": 0.0851,
@@ -88,14 +89,14 @@
       "std_c": 0.0675,
       "std_t": 0.0674,
       "ks_statistic": 0.1536,
-      "p_value": 3.03383589393373e-20,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     }
   ],
   "yolov8s_640": [
     {
       "feature_key": "z_hat_f",
       "feature_name": "Độ sâu dự đoán Ẑ (m)",
+      "is_binary": false,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 24.1795,
@@ -103,12 +104,12 @@
       "std_c": 10.2402,
       "std_t": 10.6431,
       "ks_statistic": 0.0548,
-      "p_value": 0.006880519913650393,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     },
     {
       "feature_key": "z_gt",
       "feature_name": "Độ sâu thực tế Z_gt (m)",
+      "is_binary": false,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 23.8754,
@@ -116,12 +117,12 @@
       "std_c": 9.9865,
       "std_t": 10.3434,
       "ks_statistic": 0.0536,
-      "p_value": 0.008794827734500998,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     },
     {
       "feature_key": "confidence",
       "feature_name": "Độ tin cậy detector (confidence)",
+      "is_binary": false,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 0.9102,
@@ -129,51 +130,51 @@
       "std_c": 0.0327,
       "std_t": 0.033,
       "ks_statistic": 0.0545,
-      "p_value": 0.007334820978366815,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: T > C)"
     },
     {
       "feature_key": "valid_w",
       "feature_name": "Cờ hợp lệ Cue Chiều rộng (valid_w)",
+      "is_binary": true,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 0.9557,
       "mean_t": 0.9583,
       "std_c": 0.2057,
       "std_t": 0.2,
-      "ks_statistic": 0.0026,
-      "p_value": 1.0,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 0.26%)"
     },
     {
       "feature_key": "valid_h",
       "feature_name": "Cờ hợp lệ Cue Chiều cao (valid_h)",
+      "is_binary": true,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 0.9446,
       "mean_t": 0.9594,
       "std_c": 0.2287,
       "std_t": 0.1974,
-      "ks_statistic": 0.0148,
-      "p_value": 0.9845467048374098,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 1.48%)"
     },
     {
       "feature_key": "valid_g",
       "feature_name": "Cờ hợp lệ Cue Cạnh dưới (valid_g)",
+      "is_binary": true,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 0.9446,
       "mean_t": 0.9594,
       "std_c": 0.2287,
       "std_t": 0.1974,
-      "ks_statistic": 0.0148,
-      "p_value": 0.9845467048374098,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 1.48%)"
     },
     {
       "feature_key": "abs_r",
       "feature_name": "Sai số log-residual |r| = |ln Z_gt - ln Z_base|",
+      "is_binary": false,
       "n_c": 1445,
       "n_t": 2660,
       "mean_c": 0.0827,
@@ -181,14 +182,14 @@
       "std_c": 0.0637,
       "std_t": 0.0681,
       "ks_statistic": 0.1621,
-      "p_value": 6.019946125114921e-22,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     }
   ],
   "yolov5su_640": [
     {
       "feature_key": "z_hat_f",
       "feature_name": "Độ sâu dự đoán Ẑ (m)",
+      "is_binary": false,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 24.1645,
@@ -196,12 +197,12 @@
       "std_c": 10.0835,
       "std_t": 10.5594,
       "ks_statistic": 0.0535,
-      "p_value": 0.009204095151207462,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     },
     {
       "feature_key": "z_gt",
       "feature_name": "Độ sâu thực tế Z_gt (m)",
+      "is_binary": false,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 23.8778,
@@ -209,12 +210,12 @@
       "std_c": 10.0239,
       "std_t": 10.5073,
       "ks_statistic": 0.0507,
-      "p_value": 0.016018126749156356,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     },
     {
       "feature_key": "confidence",
       "feature_name": "Độ tin cậy detector (confidence)",
+      "is_binary": false,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 0.9028,
@@ -222,51 +223,51 @@
       "std_c": 0.039,
       "std_t": 0.0389,
       "ks_statistic": 0.0446,
-      "p_value": 0.047034241662930625,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: T > C)"
     },
     {
       "feature_key": "valid_w",
       "feature_name": "Cờ hợp lệ Cue Chiều rộng (valid_w)",
+      "is_binary": true,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 0.9524,
       "mean_t": 0.9574,
       "std_c": 0.2128,
       "std_t": 0.202,
-      "ks_statistic": 0.0049,
-      "p_value": 1.0,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 0.49%)"
     },
     {
       "feature_key": "valid_h",
       "feature_name": "Cờ hợp lệ Cue Chiều cao (valid_h)",
+      "is_binary": true,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 0.9476,
       "mean_t": 0.9604,
       "std_c": 0.2229,
       "std_t": 0.1951,
-      "ks_statistic": 0.0128,
-      "p_value": 0.9974162443966712,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 1.28%)"
     },
     {
       "feature_key": "valid_g",
       "feature_name": "Cờ hợp lệ Cue Cạnh dưới (valid_g)",
+      "is_binary": true,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 0.9476,
       "mean_t": 0.9604,
       "std_c": 0.2229,
       "std_t": 0.1951,
-      "ks_statistic": 0.0128,
-      "p_value": 0.9974162443966712,
-      "significant_diff": false
+      "ks_statistic": null,
+      "note": "Biến nhị phân (chênh lệch 1.28%)"
     },
     {
       "feature_key": "abs_r",
       "feature_name": "Sai số log-residual |r| = |ln Z_gt - ln Z_base|",
+      "is_binary": false,
       "n_c": 1430,
       "n_t": 2674,
       "mean_c": 0.0812,
@@ -274,8 +275,7 @@
       "std_c": 0.0651,
       "std_t": 0.0689,
       "ks_statistic": 0.1427,
-      "p_value": 5.221225014575708e-17,
-      "significant_diff": true
+      "note": "KS mô tả (hướng: C > T)"
     }
   ]
 }

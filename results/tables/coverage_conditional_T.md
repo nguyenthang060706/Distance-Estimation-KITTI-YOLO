@@ -16,6 +16,8 @@
 
 ### 1.1 Dải cự ly theo Ẑ dự đoán (Prospective Distance Bins)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0-10` | 256 | 14 | 270 | 94.8% | **91.8%** | 1.429 | 0.4149 | 89.5% | 1.322 | 94.1% | 1.473 | 8 |  |
@@ -27,6 +29,8 @@
 
 ### 1.2 Dải cự ly theo Z thật (Retrospective Distance Bins — Chẩn đoán, v4 §6)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0-10` | 261 | 14 | 275 | 94.9% | **91.6%** | 1.428 | 0.4116 | 88.9% | 1.322 | 92.7% | 1.464 | 8 |  |
@@ -37,6 +41,8 @@
 | `>30 (grouped)` | 816 | 313 | 1,129 | 72.3% | **95.8%** | 1.289 | 0.2790 | 96.8% | 1.322 | 96.8% | 1.315 | 8 |  |
 
 ### 1.3 Mức độ cắt biên (Truncation) & Chạm viền ảnh (Touch Edges, D84)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -50,6 +56,8 @@
 
 ### 1.4 Mức độ che khuất (Occlusion Levels)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0 (Fully visible)` | 1,624 | 65 | 1,689 | 96.2% | **96.6%** | 1.304 | 0.2886 | 97.0% | 1.322 | 96.0% | 1.284 | 10 |  |
@@ -58,6 +66,8 @@
 
 ### 1.5 Góc hướng quan sát θ (Viewing Angle Bins, D19)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `Side (<30°)` | 362 | 99 | 461 | 78.5% | **93.7%** | 1.363 | 0.3473 | 93.1% | 1.322 | 92.8% | 1.304 | 5 |  |
@@ -65,6 +75,8 @@
 | `Front/Rear (>60°)` | 2,101 | 320 | 2,421 | 86.8% | **96.9%** | 1.305 | 0.2847 | 97.3% | 1.322 | 96.1% | 1.284 | 9 |  |
 
 ### 1.6 Mức độ khó KITTI (Nested & Disjoint Difficulty)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -77,6 +89,8 @@
 | `Hard (disjoint)` | 374 | 209 | 583 | 64.1% | **93.6%** | 1.396 | 0.3793 | 90.6% | 1.322 | 92.8% | 1.359 | 9 |  |
 
 ### 1.7 Nhóm Fallback Pattern 000 (Decision D74)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -92,6 +106,8 @@
 
 ### 1.1 Dải cự ly theo Ẑ dự đoán (Prospective Distance Bins)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0-10` | 273 | 9 | 282 | 96.8% | **93.4%** | 1.447 | 0.4140 | 91.6% | 1.345 | 99.6% | 1.816 | 8 |  |
@@ -103,6 +119,8 @@
 
 ### 1.2 Dải cự ly theo Z thật (Retrospective Distance Bins — Chẩn đoán, v4 §6)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0-10` | 266 | 9 | 275 | 96.7% | **93.6%** | 1.452 | 0.4161 | 89.8% | 1.345 | 97.7% | 1.796 | 8 |  |
@@ -113,6 +131,8 @@
 | `>30 (grouped)` | 778 | 351 | 1,129 | 68.9% | **96.8%** | 1.336 | 0.3044 | 97.2% | 1.345 | 97.3% | 1.363 | 8 |  |
 
 ### 1.3 Mức độ cắt biên (Truncation) & Chạm viền ảnh (Touch Edges, D84)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -126,6 +146,8 @@
 
 ### 1.4 Mức độ che khuất (Occlusion Levels)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0 (Fully visible)` | 1,609 | 80 | 1,689 | 95.3% | **97.9%** | 1.340 | 0.3015 | 98.0% | 1.345 | 98.1% | 1.353 | 10 |  |
@@ -134,6 +156,8 @@
 
 ### 1.5 Góc hướng quan sát θ (Viewing Angle Bins, D19)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `Side (<30°)` | 347 | 114 | 461 | 75.3% | **93.7%** | 1.359 | 0.3472 | 94.8% | 1.345 | 93.1% | 1.302 | 5 |  |
@@ -141,6 +165,8 @@
 | `Front/Rear (>60°)` | 2,070 | 351 | 2,421 | 85.5% | **97.8%** | 1.348 | 0.3068 | 97.9% | 1.345 | 97.8% | 1.354 | 9 |  |
 
 ### 1.6 Mức độ khó KITTI (Nested & Disjoint Difficulty)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -153,6 +179,8 @@
 | `Hard (disjoint)` | 349 | 234 | 583 | 59.9% | **94.3%** | 1.418 | 0.3794 | 92.0% | 1.345 | 95.1% | 1.436 | 9 |  |
 
 ### 1.7 Nhóm Fallback Pattern 000 (Decision D74)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -168,6 +196,8 @@
 
 ### 1.1 Dải cự ly theo Ẑ dự đoán (Prospective Distance Bins)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0-10` | 269 | 11 | 280 | 96.1% | **89.6%** | 1.418 | 0.4327 | 91.1% | 1.351 | 91.8% | 1.464 | 8 |  |
@@ -179,6 +209,8 @@
 
 ### 1.2 Dải cự ly theo Z thật (Retrospective Distance Bins — Chẩn đoán, v4 §6)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0-10` | 264 | 11 | 275 | 96.0% | **89.4%** | 1.423 | 0.4290 | 89.4% | 1.351 | 90.9% | 1.462 | 8 |  |
@@ -189,6 +221,8 @@
 | `>30 (grouped)` | 794 | 335 | 1,129 | 70.3% | **97.1%** | 1.319 | 0.2935 | 97.4% | 1.351 | 97.4% | 1.357 | 8 |  |
 
 ### 1.3 Mức độ cắt biên (Truncation) & Chạm viền ảnh (Touch Edges, D84)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -202,6 +236,8 @@
 
 ### 1.4 Mức độ che khuất (Occlusion Levels)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `0 (Fully visible)` | 1,615 | 74 | 1,689 | 95.6% | **97.5%** | 1.316 | 0.2875 | 98.2% | 1.351 | 97.0% | 1.307 | 10 |  |
@@ -210,6 +246,8 @@
 
 ### 1.5 Góc hướng quan sát θ (Viewing Angle Bins, D19)
 
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `Side (<30°)` | 350 | 111 | 461 | 75.9% | **93.7%** | 1.364 | 0.3546 | 94.9% | 1.351 | 92.9% | 1.317 | 5 |  |
@@ -217,6 +255,8 @@
 | `Front/Rear (>60°)` | 2,081 | 340 | 2,421 | 86.0% | **97.4%** | 1.319 | 0.2879 | 98.1% | 1.351 | 97.0% | 1.308 | 9 |  |
 
 ### 1.6 Mức độ khó KITTI (Nested & Disjoint Difficulty)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -229,6 +269,8 @@
 | `Hard (disjoint)` | 352 | 231 | 583 | 60.4% | **92.9%** | 1.410 | 0.3960 | 90.6% | 1.351 | 92.0% | 1.382 | 9 |  |
 
 ### 1.7 Nhóm Fallback Pattern 000 (Decision D74)
+
+> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|

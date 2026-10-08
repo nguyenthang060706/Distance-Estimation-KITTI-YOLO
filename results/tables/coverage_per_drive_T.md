@@ -1,7 +1,8 @@
 # Bóc Tách Độ Phủ Theo Cụm Drive trên Split T (Tác vụ T15)
 
-> **Quy chuẩn Macro Kép & Tính Không Đồng Nhất (Decisions D50, D75, D79):**
+> **Quy chuẩn Macro Kép & Tính Không Đồng Nhất (Decisions D50, D75, D79, D86):**
 > - Báo cáo chi tiết trên toàn bộ 10 cụm drive của Split T.
+> - Ngưỡng cờ cỡ mẫu cảnh báo: (*) cờ drive $n < 30$ (phục vụ đối chiếu Macro ge30 theo D50, D75, D86); các phân nhóm cự ly/danh mục sử dụng ngưỡng $n < 100$ theo D54.
 > - Công bố song song `Macro Coverage (10 drive)` và `Macro Coverage ge30 (8 drive)` loại trừ các drive $n < 30$ (ví dụ `drive_0002` $n=2$).
 > - Winkler score đo lường độ sắc nét khoảng trong không gian log ($r$).
 

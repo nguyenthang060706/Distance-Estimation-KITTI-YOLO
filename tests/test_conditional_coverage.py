@@ -195,7 +195,7 @@ def test_drive_level_coverage_table_ge30():
 
 
 def test_exchangeability_ks_diagnostics():
-    """Verify 2-sample KS test between two DataFrames returns valid stats."""
+    """Verify exchangeability diagnostics between two DataFrames returns valid descriptive stats."""
     df_c, _ = make_mock_predictions_and_fn(100)
     df_t, _ = make_mock_predictions_and_fn(120)
 
@@ -203,10 +203,14 @@ def test_exchangeability_ks_diagnostics():
     assert len(ks_rows) >= 5
 
     for r in ks_rows:
-        assert 0.0 <= r["ks_statistic"] <= 1.0
-        assert 0.0 <= r["p_value"] <= 1.0
         assert r["n_c"] == 100
         assert r["n_t"] == 120
+        if r["is_binary"]:
+            assert r["ks_statistic"] is None
+            assert "Biến nhị phân" in r["note"]
+        else:
+            assert 0.0 <= r["ks_statistic"] <= 1.0
+            assert "KS mô tả" in r["note"]
 
 
 def test_cluster_bootstrap_coverage_ci():

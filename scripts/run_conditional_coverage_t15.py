@@ -47,6 +47,8 @@ def format_subgroup_table_md(rows: list[dict[str, Any]], title: str) -> str:
     lines = [
         f"### {title}",
         "",
+        "> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.",
+        "",
         "| Phân nhóm | $n_{\\text{TP}}$ | $n_{\\text{FN}}$ | $n_{\\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |",
         "|---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|",
     ]
@@ -139,12 +141,13 @@ def generate_conditional_report_md(all_results: dict[str, Any]) -> str:
 
 
 def generate_drive_level_report_md(all_drive_data: dict[str, Any]) -> str:
-    """Generate Markdown report for per-drive breakdown (Decisions D50, D75)."""
+    """Generate Markdown report for per-drive breakdown (Decisions D50, D75, D86)."""
     lines = [
         "# Bóc Tách Độ Phủ Theo Cụm Drive trên Split T (Tác vụ T15)",
         "",
-        "> **Quy chuẩn Macro Kép & Tính Không Đồng Nhất (Decisions D50, D75, D79):**",
+        "> **Quy chuẩn Macro Kép & Tính Không Đồng Nhất (Decisions D50, D75, D79, D86):**",
         "> - Báo cáo chi tiết trên toàn bộ 10 cụm drive của Split T.",
+        "> - Ngưỡng cờ cỡ mẫu cảnh báo: (*) cờ drive $n < 30$ (phục vụ đối chiếu Macro ge30 theo D50, D75, D86); các phân nhóm cự ly/danh mục sử dụng ngưỡng $n < 100$ theo D54.",
         "> - Công bố song song `Macro Coverage (10 drive)` và `Macro Coverage ge30 (8 drive)` loại trừ các drive $n < 30$ (ví dụ `drive_0002` $n=2$).",
         "> - Winkler score đo lường độ sắc nét khoảng trong không gian log ($r$).",
         "",
@@ -204,17 +207,14 @@ def generate_drive_level_report_md(all_drive_data: dict[str, Any]) -> str:
 
 
 def generate_exchangeability_report_md(all_ks_data: dict[str, list[dict[str, Any]]]) -> str:
-    """Generate Markdown report for Exchangeability Diagnostics (Decisions D26, D79)."""
+    """Generate Markdown report for Exchangeability Diagnostics (Decisions D26, D68, D79, D87)."""
     lines = [
-        "# Kiểm Định Tính Khả Hoán $C \\leftrightarrow T$ (Exchangeability Diagnostics)",
+        "# Chẩn Đoán Tính Khả Hoán $C \\leftrightarrow T$ (Exchangeability Diagnostics)",
         "",
-        "> **Cơ Sở Lý Thuyết & Giải Trình Hiện Tượng Over-coverage Bảo Thủ Ngoài Mẫu (Decision D79):**",
-        "> - **Lý thuyết Conformal:** Giả định tính khả hoán (exchangeability) giữa tập hiệu chuẩn (Calibration set - Split C) và tập kiểm định (Test set - Split T) là điều kiện tiên quyết để bảo đảm độ phủ danh nghĩa $1 - \\alpha = 90.0\\%$.",
-        "> - **Hiện tượng thực nghiệm trên Split T:** Standard CQR đạt độ phủ thực nghiệm **$96.4\\% - 97.1\\%$** (vượt mức danh nghĩa $+6.4$ đến $+7.1$ điểm phần trăm).",
-        "> - **Giải trình định lượng từ Kiểm định 2-mẫu Kolmogorov-Smirnov (KS-test):**",
-        ">   * Split C khó hơn Split T đáng kể: sai số AbsRel(d) trên C là 0.0862 vs 0.0640 trên T (KS stat = 0.1573, $p = 4.65 \\times 10^{-21}$); đồng thời Split C tập trung 2 cụm lệch khó (`drive_0057` và `drive_0004` chiếm 39.3% mẫu).",
-        ">   * Hiệu chuẩn trên C khiến ngưỡng nonconformity $\\hat{Q}$ nở rộng để bao phủ các cụm khó. Khi áp sang Split T (gồm các cụm đường rộng, ít rung lắc viền hơn), khoảng tin cậy trở nên bảo thủ (+6–7% độ phủ).",
-        ">   * Bảng dưới đây đối chiếu phân bố của 7 biến quan sát test-time giữa Split C và Split T.",
+        "> **Cơ Sở Lý Thuyết & Bản Chất Post-hoc / Exploratory của Hiện Tượng Over-coverage (Decisions D68, D79, D87):**",
+        "> - **Đối chiếu tiên đoán Tiền đăng ký (D68):** Ban đầu, D68 dự báo nguy cơ *under-coverage* ngoài mẫu do phân tích độ ổn định 20 resplits (T08) chỉ đạt 84–87%. Tuy nhiên, kết quả thực tế trên Split T đạt độ phủ danh nghĩa vượt mức: **96.4%–97.1%** (over-coverage).",
+        "> - **Tính chất Diễn giải Hậu nghiệm (Post-hoc / Exploratory):** Giả thuyết *'Split C có độ khó cao hơn Split T khiến ngưỡng sai số không tương đồng $\\hat{Q}$ bị nới rộng, dẫn đến bảo thủ ngoài mẫu'* là suy luận post-hoc được hình thành sau khi quan sát dữ liệu Split T, không phải kiểm chứng tiên nghiệm. Thông điệp phương pháp luận chính của RQ3 là: *Độ phủ biên không chuyển giao ổn định giữa các cụm khi số lượng cụm drive còn nhỏ (~10 cụm); hướng lệch (under hay over) phụ thuộc vào thành phần drive của tập hiệu chuẩn C so với tập kiểm định T.*",
+        "> - **Cảnh báo Phương pháp luận về Tránh Lỗi Pseudo-replication (AGENT_RULES §6.2, Decisions D20, D73):** Bounding box trong KITTI gom theo các cụm driving sequence có tương quan chuỗi mạnh. Việc tính p-value giả định các hàng độc lập (i.i.d) tạo ra p-value ngụy tạo ($p \\approx 10^{-20}$). Do đó, bảng bên dưới chỉ báo cáo chỉ số thống kê Kolmogorov-Smirnov $D_{\\text{KS}} = \\sup |F_C(x) - F_T(x)|$ mang tính **mô tả phân kỳ phân bố thực nghiệm (descriptive empirical divergence)**; đối với các cờ nhị phân (`valid_*`), chỉ báo cáo tỷ lệ trung bình (mean proportion).",
         "",
     ]
 
@@ -224,18 +224,18 @@ def generate_exchangeability_report_md(all_ks_data: dict[str, list[dict[str, Any
         lines.extend([
             f"## Detector `{model_key}`",
             "",
-            "| Đặc trưng quan sát | $N_C$ | $N_T$ | Mean C | Mean T | Std C | Std T | KS Statistic | $p$-value | Lệch có ý nghĩa ($p < 0.05$)? |",
-            "|---|---|---|---|---|---|---|---|---|:---:|",
+            "| Đặc trưng quan sát | $N_C$ | $N_T$ | Mean C | Mean T | Std C | Std T | KS Stat (mô tả) | Ghi chú diễn giải |",
+            "|---|---|---|---|---|---|---|---|---|",
         ])
 
         for r in ks_rows:
-            p_str = f"{r['p_value']:.2e}" if r['p_value'] < 0.001 else f"{r['p_value']:.4f}"
-            sig_str = "⚠️ CÓ" if r['significant_diff'] else "Không"
+            ks_val_str = f"**{r['ks_statistic']:.4f}**" if r.get("ks_statistic") is not None else "---"
+            note_str = r.get("note", "")
             lines.append(
                 f"| **{r['feature_name']}** | {r['n_c']:,} | {r['n_t']:,} | "
                 f"{r['mean_c']:.3f} | {r['mean_t']:.3f} | "
                 f"{r['std_c']:.3f} | {r['std_t']:.3f} | "
-                f"**{r['ks_statistic']:.4f}** | {p_str} | {sig_str} |"
+                f"{ks_val_str} | {note_str} |"
             )
 
         lines.append("")
@@ -353,7 +353,7 @@ def main() -> None:
     if split_meta_path.is_file():
         with open(split_meta_path, "r", encoding="utf-8") as f:
             s_meta = json.load(f)
-            split_t_hash = s_meta.get("T", {}).get("hash", "")
+            split_t_hash = s_meta.get("splits", {}).get("T", {}).get("hash", "")
 
     log_record = make_log_record(
         split="T",

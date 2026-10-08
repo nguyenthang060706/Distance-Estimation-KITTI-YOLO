@@ -408,22 +408,30 @@ def compute_exchangeability_ks_diagnostics(
     df_t: pd.DataFrame,
 ) -> list[dict[str, Any]]:
     """
-    Perform 2-sample Kolmogorov-Smirnov test (scipy.stats.ks_2samp) between Split C and Split T (Decision D79).
+    Perform diagnostic comparison between Split C and Split T (Decision D79, D87).
     Compares observable test-time distributions to identify breakdown of exchangeability.
+
+    NOTE ON METHODOLOGY (AGENT_RULES §6.2, D20, D73):
+    Because KITTI driving sequences exhibit strong temporal autocorrelation within drives,
+    treating individual bounding boxes as independent samples severely inflates nominal p-values
+    (pseudo-replication). Therefore, KS statistics (D_KS = sup |F_C(x) - F_T(x)|) are reported
+    purely as descriptive measures of empirical distribution divergence, without claiming formal
+    hypothesis testing significance. For binary indicators (valid_*), distribution divergence
+    is described by mean proportion differences.
     """
     features_to_test = [
-        ("z_hat_f", "Độ sâu dự đoán Ẑ (m)"),
-        ("z_gt", "Độ sâu thực tế Z_gt (m)"),
-        ("confidence", "Độ tin cậy detector (confidence)"),
-        ("valid_w", "Cờ hợp lệ Cue Chiều rộng (valid_w)"),
-        ("valid_h", "Cờ hợp lệ Cue Chiều cao (valid_h)"),
-        ("valid_g", "Cờ hợp lệ Cue Cạnh dưới (valid_g)"),
-        ("abs_r", "Sai số log-residual |r| = |ln Z_gt - ln Z_base|"),
+        ("z_hat_f", "Độ sâu dự đoán Ẑ (m)", False),
+        ("z_gt", "Độ sâu thực tế Z_gt (m)", False),
+        ("confidence", "Độ tin cậy detector (confidence)", False),
+        ("valid_w", "Cờ hợp lệ Cue Chiều rộng (valid_w)", True),
+        ("valid_h", "Cờ hợp lệ Cue Chiều cao (valid_h)", True),
+        ("valid_g", "Cờ hợp lệ Cue Cạnh dưới (valid_g)", True),
+        ("abs_r", "Sai số log-residual |r| = |ln Z_gt - ln Z_base|", False),
     ]
 
     results: list[dict[str, Any]] = []
 
-    for feat_key, feat_name in features_to_test:
+    for feat_key, feat_name, is_binary in features_to_test:
         if feat_key == "abs_r":
             val_c = np.abs(df_c["r_actual"].to_numpy(dtype=float)) if "r_actual" in df_c.columns else None
             val_t = np.abs(df_t["r_actual"].to_numpy(dtype=float)) if "r_actual" in df_t.columns else None
@@ -441,22 +449,33 @@ def compute_exchangeability_ks_diagnostics(
         if len(clean_c) == 0 or len(clean_t) == 0:
             continue
 
-        ks_res = stats.ks_2samp(clean_c, clean_t)
-        ks_stat = float(ks_res.statistic)
-        p_val = float(ks_res.pvalue)
+        mean_c = float(np.mean(clean_c))
+        mean_t = float(np.mean(clean_t))
+        std_c = float(np.std(clean_c))
+        std_t = float(np.std(clean_t))
+
+        if is_binary:
+            diff_pct = abs(mean_c - mean_t) * 100
+            note = f"Biến nhị phân (chênh lệch {diff_pct:.2f}%)"
+            ks_stat = None
+        else:
+            ks_res = stats.ks_2samp(clean_c, clean_t)
+            ks_stat = float(ks_res.statistic)
+            direction = "C > T" if mean_c > mean_t else ("T > C" if mean_t > mean_c else "C ≈ T")
+            note = f"KS mô tả (hướng: {direction})"
 
         results.append({
             "feature_key": feat_key,
             "feature_name": feat_name,
+            "is_binary": is_binary,
             "n_c": len(clean_c),
             "n_t": len(clean_t),
-            "mean_c": round(float(np.mean(clean_c)), 4),
-            "mean_t": round(float(np.mean(clean_t)), 4),
-            "std_c": round(float(np.std(clean_c)), 4),
-            "std_t": round(float(np.std(clean_t)), 4),
-            "ks_statistic": round(ks_stat, 4),
-            "p_value": p_val,
-            "significant_diff": bool(p_val < 0.05),
+            "mean_c": round(mean_c, 4),
+            "mean_t": round(mean_t, 4),
+            "std_c": round(std_c, 4),
+            "std_t": round(std_t, 4),
+            "ks_statistic": round(ks_stat, 4) if ks_stat is not None else None,
+            "note": note,
         })
 
     return results
