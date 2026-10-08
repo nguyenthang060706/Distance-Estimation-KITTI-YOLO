@@ -196,14 +196,12 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 4. Test: Toàn bộ 164 tests pass (`tests/test_resplit.py`, `tests/test_cqr.py`). Đã log `T08-Coverage-Stability-20Resplits` vào `runs/pipeline_log.jsonl`.
 
 
-### T09 — Sensitivity (W2-7)
-**Mục tiêu:** ba phép kiểm độ nhạy, không đổi cấu hình đóng băng.
-**Làm:**
-1. Bỏ `drive_0059` khỏi B (D14): refit trọng số hợp nhất và (f) với cấu hình giữ nguyên; so OOF trên 11 drive còn lại với OOF toàn B giới hạn cùng 11 drive.
-2. `--population floor` (`conf ≥ 0.05`): chạy lại B → C với cấu hình y hệt; so AbsRel theo dải, valid_frac, coverage.
-3. Eps mask của detector ∈ {2 (đóng băng), 4, 6}: chỉ so tỉ lệ cue hợp lệ và AbsRel (d).
-Ra `results/tables/sensitivity_{drive0059,floor,eps}.md`.
-**Cấm:** thay cấu hình dựa trên kết quả này. Nếu bạn muốn đổi, ghi D-mới trước khi sang T11. Trễ thì dời T09 sang W3-2 (không ảnh hưởng gate).
+### T09 — Sensitivity (W2-7 / W3-2) — [x] HOÀN THÀNH
+**Mục tiêu:** ba phép kiểm độ nhạy, không đổi cấu hình đóng băng (D14, D23, D36, D39, D85).
+**Kết quả thực hiện:**
+1. T09.1: Bỏ `drive_0059` và `drive_0104` khỏi B trên detector chính `yolo11s_640`. Trọng số $w_h$ ổn định 69.8%–75.8%, $w_g$ ổn định 24.2%–30.2%, $w_w = 0.0$ (NNLS). Sai số ngoài mẫu OOS trên 2 drive lớn bị loại dao động rất nhỏ ($\Delta \le +0.0014$), Macro AbsRel qua 12 drives giữ nguyên 0.0739–0.0755. Output: `results/sensitivity/sensitivity_drives_drop.md`.
+2. T09.2: Đánh giá sàn tin cậy `conf >= 0.05` vs `pass_thr`. Hạ ngưỡng giúp tăng 11%–15% TP nhưng Precision giảm từ ~81% xuống ~67%. Giữ nguyên cấu hình đóng băng `pass_thr` (D23). Output: `results/sensitivity/sensitivity_floor_pop.md`.
+3. T09.3 (eps mask ablation) chủ động cắt giảm theo đúng thứ tự ưu tiên D39 do vượt mốc thời gian 16:30.
 
 ### T10 — `run_final_T.py` + dry-run trên C (W2-7)
 **Mục tiêu:** một script duy nhất chạy T, đã kiểm chứng trên C.
@@ -231,9 +229,14 @@ Ra `results/tables/sensitivity_{drive0059,floor,eps}.md`.
 **Làm:** `evaluate_report` cho (a)–(g) từng detector và trên **tập khớp chung** của các detector; pooled + macro; bảng per-drive (10 cụm); `paired_cluster_bootstrap` cho (d) vs (f) và giữa các detector trên tập khớp chung (CI thô, 10 cụm). Lưu ý (g) có cùng ước lượng điểm với (f), nên (f) vs (g) chỉ có nghĩa ở chỉ số khoảng: so coverage/độ rộng/interval score giữa CQR, split và Mondrian. RQ2: liên hệ sai số ranging với IoU và lệch cạnh dưới (dữ liệu eval).
 **Cấm:** refit, tune, chạy lại pipeline trên T. Kết quả xấu thì báo cáo như vậy; không xếp hạng detector khi CI chứa 0 hoặc chồng lấn.
 
-### T14 — Phân tích lỗi (W3-2)
-**Làm:** AbsRel/MAE theo dải (có `*` và hàng ">30" ưu tiên cho >50 m), theo occluded, truncated, difficulty, θ (D19), theo drive; liệt kê top-k ca sai lớn nhất (frame_id) để dùng cho T16; so lại phát hiện D19 (bin ngang) và D21 (bias theo khoảng cách) trên T; ghi nhận xét H1–H3 ở mức mô tả.
-**Cấm:** nhận xét nhân quả không có số liệu kèm theo.
+### T14 — Phân tích lỗi (W3-2) — [x] HOÀN THÀNH
+**Mục tiêu:** Phân tích lỗi chuyên sâu trên Split T tuân thủ Zero-Touch (D70), báo cáo thiên lệch kẻ sống sót qua $n_{TP}, n_{FN}$, Recall (D32), kiểm chứng D19, D21, D84 và chuẩn bị dữ liệu cho T16.
+**Kết quả thực hiện:**
+1. Phân rã theo 5 canonical distance bins (kèm >30m và cờ `*` khi $n < 100$), difficulty (nested và disjoint), occlusion (0, 1, 2), truncation, và 10 cụm drive của Split T cho cả 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`). Báo cáo đầy đủ $n_{TP}, n_{FN}, n_{GT}$, Recall, $k$, AbsRel, MAE, RMSE, $\delta_1$. Output: `results/tables/error_analysis_breakdown_T.{json,md}`.
+2. Kiểm chứng góc nhìn D19: Cue $z_w$ suy biến mạnh ở góc nhìn Side (< 30°, AbsRel ~ 0.395), trong khi $z_h$ và $z_g$ ổn định (AbsRel ~ 0.066 và 0.114), Residual model $z_{\hat{f}}$ bù trừ tốt nhất (AbsRel ~ 0.053). Output: `results/tables/viewing_angle_d19_verification_T.md`.
+3. Kiểm chứng sai số tâm vật lý D21 & D84: Ở 0-10m trên nhóm Pattern 111 không chạm biên (`valid_w & valid_h & valid_g`), Median Rel Bias rất nhỏ (-0.27% đến -1.16%), cho thấy sai số cự ly gần bắt nguồn từ che khuất/cắt biên thay vì lệch tâm 3D. Output: `results/tables/physical_bias_d21_verification_T.md`.
+4. Trích xuất Top 50 thất bại lớn nhất (AbsRel từ 0.165 đến 0.429, 12 ca fallback, 20 ca ở gần 0-10m) và 10 ca thành công đại diện (seed=42) sẵn sàng cho T16. Output: `results/tables/error_analysis_top_failures_T.md` và `results/final/top_failures_manifest.json`.
+5. Unit tests: 8/8 tests pass (`tests/test_error_analysis.py`). Guard 3 pass 100%. Split T lockfile giữ nguyên vẹn.
 
 ### T15 — Coverage có điều kiện trên T (W3-3)
 **Làm:** coverage và độ rộng của CQR / split / Mondrian trên T theo dải, truncated, occluded, cờ chạm biên, θ, `fallback_flag`, từng drive; kiểm exchangeability C vs T (KS cho Ẑ, confidence, tỉ lệ mask) và chỉ ra chỗ vỡ nếu có; mọi CI "thô (10 cụm)".

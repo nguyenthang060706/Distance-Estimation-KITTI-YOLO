@@ -478,10 +478,23 @@ def _validate_xgboost_json(path: str | Path) -> None:
             raise ValueError(f"Invalid base_score float format in {p.name}: {bs_str}") from err
 
 
+def _sanitize_xgboost_json(path: str | Path) -> None:
+    """Decision D83: Sanitize array brackets from base_score when saving a new model (prevents bracketed JSONs)."""
+    p = Path(path)
+    with open(p, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    bs = data.get("learner", {}).get("learner_model_param", {}).get("base_score")
+    if bs is not None and ("[" in str(bs) or "]" in str(bs)):
+        data["learner"]["learner_model_param"]["base_score"] = str(bs).replace("[", "").replace("]", "").strip()
+        with open(p, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+
 def save_model_f(model: xgb.XGBRegressor, path: str | Path) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     model.save_model(str(p))
+    _sanitize_xgboost_json(p)
 
 
 def load_model_f(path: str | Path) -> xgb.XGBRegressor:
@@ -495,6 +508,7 @@ def save_model_e(model: xgb.XGBRegressor, path: str | Path) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     model.save_model(str(p))
+    _sanitize_xgboost_json(p)
 
 
 def load_model_e(path: str | Path) -> xgb.XGBRegressor:

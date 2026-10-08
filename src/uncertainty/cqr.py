@@ -294,10 +294,17 @@ def _validate_xgboost_json(path: str | Path) -> None:
 
 
 def save_quantile_model(model: xgb.XGBRegressor, path: str | Path) -> None:
-    """Save XGBoost quantile model in JSON format."""
+    """Save XGBoost quantile model in JSON format (Decision D83: sanitized scalar base_score)."""
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     model.save_model(str(p))
+    with open(p, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    bs = data.get("learner", {}).get("learner_model_param", {}).get("base_score")
+    if bs is not None and ("[" in str(bs) or "]" in str(bs)):
+        data["learner"]["learner_model_param"]["base_score"] = str(bs).replace("[", "").replace("]", "").strip()
+        with open(p, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
 
 
 def load_quantile_model(path: str | Path) -> xgb.XGBRegressor:

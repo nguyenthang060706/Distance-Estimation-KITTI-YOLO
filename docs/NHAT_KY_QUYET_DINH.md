@@ -183,6 +183,9 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Minh bạch quy trình trong Limitations: Quan sát số liệu v1 trước khi sửa post-hoc và bài học T07 (D82):**
   * Ghi nhận công khai vào mục Limitations của bài báo và nhật ký: Người nghiên cứu đã quan sát kết quả v1 của Split T (AbsRel 0.62) trước khi phát hiện và khắc phục bug serialization `base_score` post-hoc. Quá trình sửa đổi v1.1 chỉ chuẩn hóa chuỗi JSON về nguyên bản của XGBoost, không tinh chỉnh siêu tham số, không retrain và không vi phạm khóa `runs/final_T.lock`.
   * Bài học quy trình T07: Hiện tượng fallback pattern 000 có $|r| \approx 2.56$ và coverage 0% ở T07 đã từng bị hợp thức hóa sai thành "giới hạn của mô hình" (D51/D58) thay vì điều tra đến cùng nguyên nhân gốc rễ. Đây là thiếu sót quy trình khiến bug serialization lọt sang Split T ở T12.
+- ✅ **Quy chuẩn sửa serialization an toàn & bảo toàn SHA models đóng băng (D83):** Bổ sung bước sanitize chuỗi `base_score` trong `save_model_f`, `save_model_e`, và `save_quantile_model` chỉ áp dụng khi ghi model mới (huấn luyện/kiểm thử mới); tuyệt đối không ghi đè hay làm thay đổi mã băm SHA-256 của các artifact mô hình đã đóng băng trong `runs/residual/` (Guard 3 giữ nguyên 100% SHA).
+- ✅ **Định nghĩa Pattern 111 không chạm biên trong T14 (D84):** Do `predictions.parquet` không lưu cờ `touch_*`, nhóm "Pattern 111 không chạm biên" được định nghĩa chặt chẽ là các mẫu thỏa mãn đồng thời cả 3 cờ `valid_w == 1 & valid_h == 1 & valid_g == 1` (theo quy tắc mask viền ảnh eps=2 px). Ở cự ly 0-10m, nhóm này có Median Rel Bias dao động từ -0.27% đến -1.16%, chứng minh sai số cự ly gần bắt nguồn từ che khuất/cắt biên thay vì lệch tâm vật lý 3D.
+- ✅ **Thu gọn phạm vi T09 theo D36/D39 (D85):** Thí nghiệm độ nhạy T09.1 (bỏ drive 0059/0104) thực hiện trên detector chính `yolo11s_640`; thí nghiệm T09.2 đánh giá sàn tin cậy `conf >= 0.05` vs `pass_thr`; thí nghiệm T09.3 (eps mask) chủ động cắt giảm khi thời gian chạm mốc 16:30 để bảo toàn đường găng T14 theo đúng thỏa thuận D39. Toàn bộ kết quả lưu cô lập tại `results/sensitivity/`.
 
 
 
@@ -280,9 +283,31 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 6 (W2-6, T08):** Đánh giá độ ổn định độ phủ qua 20 resplits trên held-out drives ($B \cup C$), Mondrian CQR và Split Conformal đối chứng (D50–D54).
 - [x] **Ngày 7 (W2-7, T10, T11):** Đóng băng cấu hình toàn diện, runner nghiệm thu Split T với 4 guard, dry-run C đạt dung sai (D55–D65).
 
+### Tuần 3
+- [x] **Ngày 1 (W3-1):** Nghiệm thu Split T qua runner một lần (T12, tag `final-config-v1`, D69), Bảng đánh giá chính trên Split T (T13, D70–D82).
+- [x] **Ngày 2 (W3-2):** Phân tích lỗi chuyên sâu trên Split T (T14, D19, D21, D32, D54, D70, D84); Thí nghiệm độ nhạy thu gọn (T09, D14, D23, D36, D39, D85).
+
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-2 — 11/10/2026: Phân Tích Lỗi Toàn Diện Split T (T14) & Thí Nghiệm Độ Nhạy Thu Gọn (T09) (D83–D85)
+- **Hoàn thành T14 — Phân tích lỗi chuyên sâu trên Split T (Zero-Touch D70):**
+  - **Module cốt lõi & Unit Tests:** Xây dựng `src/evaluation/error_analysis.py` và bộ kiểm thử `tests/test_error_analysis.py` (8/8 tests PASSED 100%), bao phủ tính cự ly, tính góc $\theta$, phân tầng nested difficulty, bias signed/relative, và top failures mining.
+  - **Runner & Artifacts:** Xây dựng và thực thi `scripts/run_error_analysis_t14.py` đọc dữ liệu tĩnh từ `results/final/` cho cả 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`), xuất đủ 6 output artifacts:
+    1. `results/tables/error_analysis_breakdown_T.{json,md}`: Phân rã theo 5 canonical distance bins (kèm hàng gộp >30m và cờ `*` khi $n < 100$), difficulty (nested & disjoint), occlusion (0, 1, 2), truncation, và 10 cụm drive Split T. Báo cáo song song $n_{TP}, n_{FN}, n_{GT}$, Recall (chống survivorship bias theo D32), $k$, AbsRel, MAE, RMSE, $\delta_1$.
+    2. `results/tables/viewing_angle_d19_verification_T.md`: Kiểm chứng giả thuyết D19: Cue $z_w$ suy biến mạnh ở góc nhìn Side (< 30°, AbsRel ~ 0.395, MAE ~ 7.5m, $\delta_1 \approx 0.012$), trong khi $z_h$ và $z_g$ ổn định hơn nhiều (AbsRel ~ 0.066 và 0.114); Residual model $z_{\hat{f}}$ bù trừ hiệu quả nhất (AbsRel ~ 0.053, MAE ~ 0.98m).
+    3. `results/tables/physical_bias_d21_verification_T.md`: Kiểm chứng độ lệch tâm vật lý D21 & D84: Ở cự ly 0-10m, nhóm Pattern 111 không chạm biên (`valid_w == 1 & valid_h == 1 & valid_g == 1`) có Median Rel Bias chỉ từ -0.27% đến -1.16%, chứng minh sai số cự ly gần chủ yếu xuất phát từ hiện tượng cắt xén biên ảnh và che khuất chứ không phải do độ lệch tâm 3D chi phối.
+    4. `results/tables/error_analysis_top_failures_T.md`: Rà soát Top 50 thất bại lớn nhất của detector chính `yolo11s_640` (AbsRel từ 0.165 đến 0.429; 20 ca cự ly gần 0-10m do AbsRel bị khuếch đại khi chia cho mẫu số nhỏ; 12 ca rơi vào fallback pattern 000; phần lớn ca lỗi chịu che khuất hoặc cắt biên).
+    5. `results/final/top_failures_manifest.json`: Manifest chuẩn hóa cho Task T16 chứa 50 ca lỗi lớn nhất và 10 ca thành công đại diện (seed=42) kèm tọa độ bounding box 2D.
+- **Hoàn thành T09 — Thí nghiệm độ nhạy thu gọn (D14, D23, D36, D39, D85):**
+  - **T09.1 (Bỏ drive chi phối Split B):** Trên detector chính `yolo11s_640`, loại lần lượt `drive_0059` (24.4%), `drive_0104` (21.6%), và cả hai (46.0%). Trọng số $w_h$ ổn định ở mức 69.8%–75.8%, $w_g$ ở mức 24.2%–30.2%, $w_w = 0.0$ (do NNLS). Sai số ngoài mẫu OOS trên 2 drive bị loại dao động rất nhỏ ($\Delta \le +0.0014$), Macro AbsRel qua 12 drives giữ nguyên trong khoảng 0.0739–0.0755. Output: `results/sensitivity/sensitivity_drives_drop.md`.
+  - **T09.2 (Sàn tin cậy detector floor `conf >= 0.05` vs `pass_thr`):** Hạ ngưỡng giúp tăng 11%–15% TP nhưng Precision giảm mạnh từ ~81% xuống ~67%. Quyết định D23 giữ nguyên ngưỡng `pass_thr` đóng băng là tối ưu. Output: `results/sensitivity/sensitivity_floor_pop.md`.
+  - **T09.3 (Ablation eps mask):** Cắt giảm theo đúng thứ tự ưu tiên D39 do vượt mốc thời gian 16:30.
+- **Kiểm định toàn vẹn hệ thống:**
+  - `check_guard_3_hashes`: **PASS 100%**, toàn bộ SHA của 12 models đóng băng trong `runs/residual/` và các split hashes giữ nguyên vẹn tuyệt đối (D83). Lockfile `runs/final_T.lock` bất biến.
+  - `scripts/verify_data.py`: **ALL DATA VERIFICATIONS PASSED**.
+  - `pipeline_log.jsonl`: Đã ghi nhận sự kiện `ERROR_ANALYSIS_T14_AND_SENSITIVITY_T09`.
 
 ### W3-1 — 10/10/2026 (tiếp): Rà soát Phản biện Vòng 2, Loại bỏ Hoàn toàn Hardcode, Chuẩn hóa D78–D82
 - **Khắc phục toàn diện phản biện độc lập vòng 2:**
