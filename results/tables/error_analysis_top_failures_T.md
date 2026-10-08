@@ -3,10 +3,13 @@
 > **Methodology:** Top 50 failure cases ranked by relative absolute error AbsRel = $|Z_{pred} - Z_{gt}| / Z_{gt}$.
 > Dữ liệu phục vụ chẩn đoán định tính lỗi phát hiện/khoảng cách và làm dữ liệu nguồn cho Task T16 (Visualization).
 
-## 1. Summary of Top 50 Failures
+## 1. Summary of Top 50 Failures & Comparison with Background Population
 - **Tổng số ca thất bại lớn nhất được phân tích:** 50
-- **Số ca kích hoạt Fallback:** 12 / 50
-- **Phân bố cự ly thực tế ($Z_{gt}$):**
+- **Các ca kích hoạt Fallback (Pattern 000):** 12 / 50 (24.0%) — **so với tỷ lệ nền toàn Split T là 36 / 2,712 (1.33%)**.
+  - *Nhận xét:* Nhóm Fallback bị over-represented **gấp ~18 lần** trong top 50 lỗi nặng nhất, cho thấy việc mất toàn bộ 3 cue hình học là nguồn rủi ro sai số lớn nhất.
+- **Các ca cự ly gần (0–10m):** 20 / 50 (40.0%) — **so với tỷ lệ nền toàn Split T là 261 / 2,712 (9.62%)**.
+  - *Nhận xét:* Nhóm 0–10m bị over-represented **gấp ~4.2 lần** do mẫu số $Z_{gt}$ nhỏ khiến sai số mét tuyệt đối (1.5–2.5m) bị khuếch đại thành AbsRel cao (20%–43%).
+- **Chi tiết phân bố cự ly thực tế ($Z_{{gt}}$):**
   - Cự ly `0-10`: 20 ca (40.0%)
   - Cự ly `20-30`: 15 ca (30.0%)
   - Cự ly `30-50`: 10 ca (20.0%)
@@ -67,7 +70,7 @@
 | 50 | `006548` | `2011_09_26_drive_0039_sync` | 33.31 | 27.84 | 27.6 | 0.164 | 84.9° | 0 | 0.00 | Easy | False | w:1,h:1,g:1 |
 
 ## 3. Qualitative Failure Patterns Identified
-Từ việc rà soát 50 ca có sai số tương đối AbsRel cao nhất:
-1. **Đặc điểm cự ly và tỷ lệ sai số tương đối:** 20 ca (40%) tập trung ở cự ly gần 0-10m. Mặc dù sai số mét tuyệt đối ở dải này chỉ từ 1.5m đến 2.5m, nhưng do khoảng cách $Z_{gt}$ nhỏ (5-8m) nên giá trị AbsRel bị khuếch đại lên 20% - 43%. 25 ca còn lại phân bố ở cự ly 20-50m với sai số tuyệt đối lớn hơn (5m - 9m).
-2. **Tác động đồng thời của che khuất và cắt xén biên:** Đa phần các ca lỗi hàng đầu chịu che khuất (Occlusion = 1 hoặc 2) hoặc cắt xén biên ảnh (Truncation lên tới 0.40 - 0.50), làm mất mát cạnh đáy tiếp đất hoặc co hẹp diện tích xe.
-3. **Kích hoạt cơ chế Fallback (12 / 50 ca):** Có 12 ca rơi vào trạng thái Fallback (toàn bộ 3 cue hình học đều không hợp lệ `w:0, h:0, g:0`), buộc pipeline phải dựa vào giá trị dự đoán phụ trợ (hoặc default) dẫn tới sai số dự đoán cao hơn.
+Từ việc rà soát 50 ca có sai số tương đối AbsRel cao nhất đối chiếu với toàn bộ tập mẫu:
+1. **Thiên lệch mạnh vào nhóm Fallback (24.0% vs 1.33% nền):** 12 ca mất sạch cả 3 cue hình học buộc phải dùng mô hình phụ trợ, dẫn tới độ phân tán sai số lớn nhất.
+2. **Thiên lệch vào cự ly gần do hiệu ứng mẫu số (40.0% vs 9.62% nền):** 20 ca cự ly 0–10m có sai số mét thực tế không quá lớn (1.5–2.5m) nhưng AbsRel cao.
+3. **Tác động của che khuất và cắt xén:** 28/50 ca có Occlusion $\ge 1$ và 19/50 ca có Truncation $> 0$.

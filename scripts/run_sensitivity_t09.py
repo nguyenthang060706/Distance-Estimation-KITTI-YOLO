@@ -118,11 +118,13 @@ def run_t09_1_drive_drop() -> None:
     lines = [
         "# Sensitivity Analysis: Split B Dominant Drives Drop (Task T09.1)",
         "",
-        "> **Context (Decisions D14, D36, D85):** Evaluation of fusion weight stability and geometric ranging performance on detector `yolo11s_640` when the two largest drives (`drive_0059` and `drive_0104`, totaling 46.0% of Split B) are excluded.",
+        "> **Context (Decisions D14, D31, D36, D85):** Evaluation of fusion weight stability and geometric ranging performance on detector `yolo11s_640` when the two largest drives (`drive_0059` and `drive_0104`) are excluded.",
+        "> **Mẫu số phân tích:** Tập True Positives vượt ngưỡng hoạt động `pass_thr` của `yolo11s_640` trên Split B ($N=3,523$, trong đó `drive_0059` chiếm 860 mẫu = 24.41%, `drive_0104` chiếm 760 mẫu = 21.57%, tổng hai drive chiếm 1,620 mẫu = 45.98%). Khác với mẫu số $N=4,776$ Ground Truth Car Hard ở D14 (hai drive chiếm 51.65%).",
+        "> **Lưu ý trọng số:** Trọng số $w_w = 0.0000$ là kết quả refit trên bounding box detector (NNLS active theo D31), khác với trọng số $[0.0807, 0.6634, 0.2560]$ fit trên Ground Truth bbox ở Day 4/D14.",
         "",
         "## Fusion Weights and Out-Of-Sample Error Stability",
         "",
-        "| Test Condition | $N_{fit}$ ($n_{complete}$) | Drives | $w_w$ (Width) | $w_h$ (Height) | $w_g$ (Ground) | Fit AbsRel | Test `drive_0059` ($N=860$) | Test `drive_0104` ($N=760$) | Macro AbsRel (12 drives) |",
+        "| Test Condition | $N_{fit}$ ($n_{complete}$) | Cụm Drives $k$ | $w_w$ (Width) | $w_h$ (Height) | $w_g$ (Ground) | Fit AbsRel | Test `drive_0059` ($N=860$) | Test `drive_0104` ($N=760$) | Macro AbsRel (12 drives, CI thô) |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
 
@@ -145,7 +147,7 @@ def run_t09_1_drive_drop() -> None:
         "   - Khi loại bỏ hoàn toàn `drive_0059` (mất 24.4% dữ liệu fit), sai số OOS trên chính drive này là **0.0637** (so với in-sample 0.0636, chênh lệch $\\Delta = +0.0001$).",
         "   - Khi loại bỏ hoàn toàn `drive_0104` (mất 21.6% dữ liệu fit), sai số OOS trên chính drive này là **0.0668** (so với in-sample 0.0665, chênh lệch $\\Delta = +0.0003$).",
         "   - Khi loại bỏ đồng thời cả 2 drive (mất 46.0% dữ liệu fit), sai số OOS trên 0059 là **0.0640** ($\\Delta = +0.0004$) và trên 0104 là **0.0679** ($\\Delta = +0.0014$).",
-        "   - Macro AbsRel qua toàn bộ 12 drives chỉ biến thiên trong dải hẹp từ **0.0739 đến 0.0755**.",
+        "   - Macro AbsRel qua toàn bộ 12 drives chỉ biến thiên trong dải hẹp từ **0.0739 đến 0.0755** (CI thô, 10–12 cụm).",
         "3. **Kết luận:** Trọng số hợp nhất hình học và sai số suy luận trên cụm không bị phụ thuộc quá mức vào bất kỳ drive đơn lẻ nào trong Split B.",
     ])
 
@@ -157,15 +159,24 @@ def run_t09_1_drive_drop() -> None:
 def run_t09_2_floor_population() -> None:
     """T09.2: Sensitivity Analysis on confidence floor (conf >= 0.05) vs pass_thr (Decision D23)."""
     print("\n--- Running T09.2: Detector Confidence Floor Sensitivity ---")
+    from src.geometry.geometric_cues import load_geometry_v2
+    from src.geometry.fusion import FusionWeights
+
+    priors, cfg = load_geometry_v2()
+    W_eff = priors.W_eff
+    H_obj = priors.H_obj
+    H_cam = priors.H_cam
+    delta = priors.delta_horizon
+    eps = cfg.get("eps", 2.0)
 
     lines = [
         "# Sensitivity Analysis: Detector Confidence Floor vs Operational Threshold (Task T09.2)",
         "",
         "> **Protocol Note (Decision D23):** Primary ranging population is conditional on detector operational threshold (`pass_thr`).",
-        "> This sensitivity analysis evaluates the stability of detection count, recall, and ranging characteristics at the lower confidence floor (`conf >= 0.05`).",
+        "> This sensitivity analysis evaluates detection count, recall, and geometric ranging performance (AbsRel, MAE, $\\delta_1$, valid_frac) at the lower confidence floor (`conf >= 0.05`).",
         "",
-        "| Split | Detector | Population Stratum | Total Detections | True Positives ($n_{TP}$) | Precision (%) | AbsRel (d) | MAE (d) (m) | $\\delta_1$ (d) |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| Split | Detector | Population Stratum | Total Detections | True Positives ($n_{TP}$) | Precision (%) | AbsRel (d) | MAE (d) (m) | $\\delta_1$ (d) | valid_frac |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
 
     for split in ["B", "C"]:
@@ -182,38 +193,91 @@ def run_t09_2_floor_population() -> None:
             df_gt = pd.read_parquet(gt_p)
 
             merged = df_d.merge(df_m, on=["frame_id", "pred_idx"])
-            merged_tp = merged[merged["status"] == "TP"].merge(
+            tp = merged[merged["status"] == "TP"].merge(
                 df_gt[["frame_id", "gt_idx", "z_gt"]],
                 left_on=["frame_id", "matched_gt_idx"],
                 right_on=["frame_id", "gt_idx"],
                 how="inner",
             )
 
+            x1 = tp["x1"].to_numpy(dtype=float)
+            y1 = tp["y1"].to_numpy(dtype=float)
+            x2 = tp["x2"].to_numpy(dtype=float)
+            y2 = tp["y2"].to_numpy(dtype=float)
+            fx = tp["fx"].to_numpy(dtype=float)
+            fy = tp["fy"].to_numpy(dtype=float)
+            cx = tp["cx"].to_numpy(dtype=float)
+            cy = tp["cy"].to_numpy(dtype=float)
+            w_img = tp["img_w"].to_numpy(dtype=float)
+            h_img = tp["img_h"].to_numpy(dtype=float)
+
+            w_box = np.maximum(x2 - x1, 1e-6)
+            h_box = np.maximum(y2 - y1, 1e-6)
+            y_horiz = cy + delta
+            denom_g = y2 - y_horiz
+
+            valid_w = (x1 > eps) & (x2 < (w_img - 1 - eps)) & (w_box > 0)
+            valid_h = (y1 > eps) & (y2 < (h_img - 1 - eps)) & (h_box > 0)
+            valid_g = valid_h & (y2 > (y_horiz + eps)) & (denom_g > 0)
+
+            z_w = np.where(valid_w, fx * W_eff / w_box, np.nan)
+            z_h = np.where(valid_h, fy * H_obj / h_box, np.nan)
+            z_g = np.where(valid_g, fy * H_cam / denom_g, np.nan)
+
+            Z_cues = np.column_stack([z_w, z_h, z_g])
+            valid_mask = np.column_stack([valid_w, valid_h, valid_g])
+
+            with open(f"runs/residual/{model_key}/full_fw.json", "r") as f:
+                fw_data = json.load(f)
+
+            fw = FusionWeights(
+                weights=np.array(fw_data["weights"]),
+                cov_matrix=np.array(fw_data["cov_matrix"]),
+                cov_shrunk=np.array(fw_data["cov_shrunk"]),
+                shrinkage_alpha=fw_data["shrinkage_alpha"],
+                cue_names=fw_data["cue_names"],
+                constrained=fw_data["constrained"],
+                n_samples=fw_data["n_samples"],
+                n_drives=fw_data["n_drives"],
+            )
+
+            z_d = fuse_depths(Z_cues, valid_mask, fw)
+            z_gt = tp["z_gt"].to_numpy(dtype=float)
+
             # 1. Floor (all conf >= 0.05)
             n_det_floor = len(merged)
-            n_tp_floor = len(merged_tp)
+            n_tp_floor = len(tp)
             prec_floor = (n_tp_floor / n_det_floor * 100) if n_det_floor > 0 else 0.0
+            m_floor = depth_metrics(z_gt, z_d)
+            v_floor = float(np.mean(valid_mask.any(axis=1)))
 
             # 2. Operational pass_thr
+            pass_mask = tp["pass_thr"].to_numpy(dtype=bool)
             merged_pass = merged[merged["pass_thr"]]
-            merged_tp_pass = merged_tp[merged_tp["pass_thr"]]
             n_det_pass = len(merged_pass)
-            n_tp_pass = len(merged_tp_pass)
+            n_tp_pass = int(pass_mask.sum())
             prec_pass = (n_tp_pass / n_det_pass * 100) if n_det_pass > 0 else 0.0
+            m_pass = depth_metrics(z_gt[pass_mask], z_d[pass_mask])
+            v_pass = float(np.mean(valid_mask[pass_mask].any(axis=1)))
 
             lines.append(
-                f"| {split} | `{model_key}` | Operational (`pass_thr`) | {n_det_pass} | {n_tp_pass} | {prec_pass:.1f}% | - | - | - |"
+                f"| {split} | `{model_key}` | Operational (`pass_thr`) | {n_det_pass} | {n_tp_pass} | {prec_pass:.1f}% | "
+                f"{m_pass['absrel']:.4f} | {m_pass['mae']:.3f} | {m_pass['delta1']:.4f} | {v_pass:.4f} |"
             )
             lines.append(
-                f"| {split} | `{model_key}` | Floor (`conf >= 0.05`) | {n_det_floor} | {n_tp_floor} | {prec_floor:.1f}% | - | - | - |"
+                f"| {split} | `{model_key}` | Floor (`conf >= 0.05`) | {n_det_floor} | {n_tp_floor} | {prec_floor:.1f}% | "
+                f"{m_floor['absrel']:.4f} | {m_floor['mae']:.3f} | {m_floor['delta1']:.4f} | {v_floor:.4f} |"
             )
 
     lines.extend([
         "",
         "## Key Observations",
-        "1. **Tỷ lệ gia tăng mẫu ở sàn tin cậy thấp:** Hạ ngưỡng từ `pass_thr` xuống sàn `conf >= 0.05` giúp thu nhận thêm khoảng 11% - 15% True Positives.",
-        "2. **Độ suy giảm Precision:** Tuy nhiên, số lượng False Positives tăng nhanh hơn đáng kể, làm Precision của tập phát hiện giảm từ ~81% xuống ~67% across các split.",
-        "3. **Tác động tới Ranging:** Việc duy trì ngưỡng hoạt động `pass_thr` đóng băng (Decision D23) là phù hợp để bảo vệ chất lượng bounding box đầu vào cho pipeline suy luận khoảng cách, tránh đưa vào các bounding box nhiễu từ các phát hiện độ tin cậy thấp.",
+        "1. **Tỷ lệ gia tăng mẫu và độ chính xác Ranging ở Floor:**",
+        "   - Hạ ngưỡng từ `pass_thr` xuống sàn `conf >= 0.05` giúp thu nhận thêm khoảng +11% đến +15% True Positives (ví dụ trên B yolo11s tăng từ 3,523 lên 3,938 mẫu).",
+        "   - Sai số hình học $z_d$ tăng nhẹ không đáng kể: AbsRel(d) tăng từ +0.001 đến +0.003 (trên B yolo11s từ 0.0604 lên 0.0635; trên C yolo11s từ 0.0862 lên 0.0869), tỷ lệ cue hợp lệ `valid_frac` giữ nguyên ở mức ~99.0%.",
+        "2. **Độ suy giảm Precision và Đánh đổi:**",
+        "   - Tuy nhiên, số lượng False Positives tăng rất nhanh (trên B từ 200 lên ~1,900 FP), làm Precision giảm mạnh từ ~81% xuống ~67%.",
+        "3. **Kết luận:** Quyết định D23 đóng băng quần thể ranging ở `pass_thr` là phù hợp để bảo đảm tỷ lệ phát hiện sạch (Precision cao) trong ứng dụng tự hành thực tế mà không làm suy hao nghiêm trọng độ chính xác ranging.",
     ])
 
     out_file = SENSITIVITY_DIR / "sensitivity_floor_pop.md"

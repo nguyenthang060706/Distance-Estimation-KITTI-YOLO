@@ -306,14 +306,42 @@ def compute_physical_bias_analysis(
     near_all = clean_df[near_mask]
     near_p111 = clean_df[near_mask & p111_mask]
 
+    # Helper for cue bias
+    def _cue_bias_stats(sub_df: pd.DataFrame, col: str) -> dict[str, Any]:
+        if col not in sub_df.columns:
+            return {"n": 0, "bias_mean_m": None, "bias_median_m": None, "bias_rel_mean": None, "bias_rel_median": None}
+        c_val = sub_df[col].to_numpy(dtype=float)
+        g_val = sub_df[target_col].to_numpy(dtype=float)
+        v_mask = np.isfinite(c_val) & (c_val > 0) & np.isfinite(g_val) & (g_val > 0)
+        if not v_mask.any():
+            return {"n": 0, "bias_mean_m": None, "bias_median_m": None, "bias_rel_mean": None, "bias_rel_median": None}
+        c_diff = c_val[v_mask] - g_val[v_mask]
+        c_rel = c_diff / g_val[v_mask]
+        return {
+            "n": int(v_mask.sum()),
+            "bias_mean_m": round(float(np.mean(c_diff)), 3),
+            "bias_median_m": round(float(np.median(c_diff)), 3),
+            "bias_rel_mean": round(float(np.mean(c_rel)), 4),
+            "bias_rel_median": round(float(np.median(c_rel)), 4),
+        }
+
+    cues_to_test = ["z_w", "z_h", "z_g", "z_d", pred_col]
+
+    all_cues_near_all = {c: _cue_bias_stats(near_all, c) for c in cues_to_test}
+    all_cues_near_p111 = {c: _cue_bias_stats(near_p111, c) for c in cues_to_test}
+
     pattern_111_verification = {
         "near_0_10m_all": {
             "n": len(near_all),
+            "n_total": len(near_all),
+            "cues": all_cues_near_all,
             "bias_rel_mean": round(float(np.mean(near_all["bias_rel"])), 4) if len(near_all) > 0 else None,
             "bias_rel_median": round(float(np.median(near_all["bias_rel"])), 4) if len(near_all) > 0 else None,
         },
         "near_0_10m_pattern_111_no_border_cut": {
             "n": len(near_p111),
+            "n_total": len(near_p111),
+            "cues": all_cues_near_p111,
             "bias_rel_mean": round(float(np.mean(near_p111["bias_rel"])), 4) if len(near_p111) > 0 else None,
             "bias_rel_median": round(float(np.median(near_p111["bias_rel"])), 4) if len(near_p111) > 0 else None,
         },

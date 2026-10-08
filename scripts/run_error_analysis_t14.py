@@ -400,8 +400,9 @@ def generate_physical_bias_markdown(bias_results: dict[str, Any]) -> str:
     lines: list[str] = [
         "# Physical Distance Bias Analysis & Decision D21 Verification (Split T)",
         "",
-        "> **Decision D21 Context:** Hypothesis regarding near-range visual bounding box center vs physical vehicle 3D center offset $\\Delta Z = Z_{pred} - Z_{gt}$.",
-        "> Decision D84 specifies isolating **Pattern 111 without border touch** (`valid_w == 1 & valid_h == 1 & valid_g == 1`) in near range (0-10m) to decouple genuine physical bounding center shift from bbox clipping artifacts.",
+        "> **Decision D21 Context:** Hypothesis regarding near-range visual bounding box surface vs physical vehicle 3D center offset $\\Delta Z = Z_{pred} - Z_{gt} \\approx -l/2$.",
+        "> Decision D84 specifies isolating **Pattern 111 without border cut** (`valid_w == 1 & valid_h == 1 & valid_g == 1`) in near range (0-10m) based on border mask tolerance $\\epsilon = 2\\text{ px}$.",
+        "> To properly evaluate D21, bias must be measured on raw geometric cues ($z_w, z_h, z_g$), geometric fusion ($z_d$), and compared against residual model ($z_{\\hat{f}}$).",
         "",
     ]
 
@@ -410,8 +411,8 @@ def generate_physical_bias_markdown(bias_results: dict[str, Any]) -> str:
         lines.append(f"## Detector: `{model_key}`")
         lines.append("")
 
-        # 1. Signed Bias by Distance Bins
-        lines.append("### Signed Bias across Distance Bins")
+        # 1. Signed Bias by Distance Bins for Residual Model z_hat_f
+        lines.append("### 1. Residual Model ($z_{\\hat{f}}$) Signed Bias across Distance Bins")
         lines.append("| Distance Bin (m) | $n$ | Mean Bias (m) | Median Bias (m) | Mean Rel Bias | Median Rel Bias | IQR Rel Bias |")
         lines.append("|---|---|---|---|---|---|---|")
         for row in data["by_distance_bin"]:
@@ -422,47 +423,87 @@ def generate_physical_bias_markdown(bias_results: dict[str, Any]) -> str:
             )
         lines.append("")
 
-        # 2. Pattern 111 Near-range verification
+        # 2. Near-Range Cue-Level & Model Comparison
         p111 = data["pattern_111_verification"]
-        lines.append("### Near-Range (0-10m) Pattern 111 vs All Objects")
-        lines.append("| Stratum (0-10m) | $n$ | Mean Rel Bias | Median Rel Bias |")
-        lines.append("|---|---|---|---|")
-        n_all = p111["near_0_10m_all"]
-        lines.append(f"| All Detected Objects | {n_all['n']} | {n_all['bias_rel_mean']:+.4f} | {n_all['bias_rel_median']:+.4f} |")
-        n_p111 = p111["near_0_10m_pattern_111_no_border_cut"]
-        lines.append(f"| Pattern 111 (No Border Cut) | {n_p111['n']} | {n_p111['bias_rel_mean']:+.4f} | {n_p111['bias_rel_median']:+.4f} |")
+        p111_sub = p111["near_0_10m_pattern_111_no_border_cut"]
+        all_sub = p111["near_0_10m_all"]
+
+        lines.append("### 2. Near-Range (0–10m) Cue-Level Bias: Pattern 111 (No Border Cut, $\\epsilon=2\\text{ px}$) vs All Objects")
+        lines.append("| Stratum | Cue / Model | $n$ | Mean Bias (m) | Median Bias (m) | Mean Rel Bias | Median Rel Bias |")
+        lines.append("|---|---|---|---|---|---|---|")
+
+        # Table rows for Pattern 111
+        first = True
+        cue_labels = [
+            ("z_w", "Width cue ($z_w$)"),
+            ("z_h", "Height cue ($z_h$)"),
+            ("z_g", "Ground cue ($z_g$)"),
+            ("z_d", "Geometric Fused ($z_d$)"),
+            ("z_hat_f", "Residual Model ($z_{\\hat{f}}$)"),
+        ]
+        for c_col, c_name in cue_labels:
+            c_info = p111_sub["cues"].get(c_col, {})
+            prefix = f"| **Pattern 111 (No Cut, $n={p111_sub['n']}$)** |" if first else "| |"
+            first = False
+            lines.append(
+                f"{prefix} {c_name} | {c_info.get('n', '-')} | "
+                f"{c_info.get('bias_mean_m', '-'):+.3f} | {c_info.get('bias_median_m', '-'):+.3f} | "
+                f"{c_info.get('bias_rel_mean', '-'):+.4f} | {c_info.get('bias_rel_median', '-'):+.4f} |"
+            )
+
+        # Table rows for All Objects
+        first = True
+        for c_col, c_name in cue_labels:
+            c_info = all_sub["cues"].get(c_col, {})
+            prefix = f"| **All Detected Objects ($n={all_sub['n']}$)** |" if first else "| |"
+            first = False
+            lines.append(
+                f"{prefix} {c_name} | {c_info.get('n', '-')} | "
+                f"{c_info.get('bias_mean_m', '-'):+.3f} | {c_info.get('bias_median_m', '-'):+.3f} | "
+                f"{c_info.get('bias_rel_mean', '-'):+.4f} | {c_info.get('bias_rel_median', '-'):+.4f} |"
+            )
         lines.append("")
 
     # Factual Synthesis
     lines.append("## Verification Synthesis (Decisions D21 & D84)")
     lines.append("")
-    lines.append("Quan sát thực nghiệm từ bảng số liệu trên Split T:")
-    lines.append("1. **Xu hướng độ lệch có dấu $\\Delta Z$ theo cự ly:**")
-    lines.append("   - Ở cự ly gần (0-10m): Mean Rel Bias dao động từ -0.53% đến +0.48%, Median Rel Bias từ -1.08% đến -0.67% across 3 detectors. Sai số tuyệt đối trung vị nhỏ hơn 0.1m.")
-    lines.append("   - Ở cự ly trung bình (10-30m): Độ lệch tương đối thực tế duy trì rất nhỏ quanh mức 0 (Median Rel Bias từ -0.58% đến -0.08%).")
-    lines.append("   - Ở cự ly xa (>50m, $n < 10$): Độ lệch có dấu mang giá trị âm rõ rệt (Mean Bias từ -3.6m đến -7.3m, Rel Bias -7.0% đến -14.9%) do kích thước bounding box suy biến về mức vài pixel và hiệu ứng hồi quy về giá trị trung vị của mô hình học máy.")
-    lines.append("2. **Ảnh hưởng của Pattern 111 không chạm biên (Decisions D21, D84):**")
-    lines.append("   - Ở cự ly 0-10m, khi lọc bỏ các bounding box bị chạm biên (chỉ giữ mẫu có đủ 3 cue hợp lệ $w, h, g$, chiếm ~45-48% số phát hiện ở dải này), Median Rel Bias nằm trong khoảng -1.16% đến -0.27% (sai lệch dưới 1.2% cự ly thực).")
-    lines.append("   - Kết quả thực nghiệm này cho thấy: độ lệch giữa tâm quang học bounding box và tâm vật lý 3D của xe không tạo ra sai lệch một chiều đáng kể trên mô hình hoàn chỉnh, và sự dao động sai số ở cự ly gần chủ yếu gắn liền với hiện tượng cắt xén biên ảnh (clipping) và che khuất.")
+    lines.append("Số liệu thực nghiệm trên Split T đối chiếu với giả thuyết D21:")
+    lines.append("1. **Độ lệch âm trên cue thô và mô hình hình học thuần ($z_d$):**")
+    lines.append("   - Ở cự ly 0–10m trên nhóm Pattern 111 không chạm biên (mask $\\epsilon = 2\\text{ px}$), mô hình hình học $z_d$ có độ lệch âm rõ rệt: Mean Bias dao động từ **-0.95m đến -1.02m**, Median Rel Bias từ **-10.9% đến -12.2%** across 3 detectors.")
+    lines.append("   - Các cue đơn lẻ cũng thể hiện độ lệch âm tương ứng: Cue bề rộng $z_w$ lệch -1.71m đến -1.74m (-19.0% đến -19.7%), cue chiều cao $z_h$ lệch -1.21m đến -1.25m (-13.8% đến -14.5%).")
+    lines.append("   - Phát hiện này **nhất quán với giả thuyết D21**: Bounding box thị giác đo đến mặt trước/gần của xe ($Z_{\\text{surface}}$) thay vì tâm hộp 3D ($Z_{\\text{center}}$), tạo ra độ lệch âm xấp xỉ nửa chiều dài xe $l/2 \\approx 1.0\\text{ m}$.")
+    lines.append("2. **Vai trò hấp thụ sai số của mô hình Residual ($z_{\\hat{f}}$):**")
+    lines.append("   - Sau khi qua mô hình residual XGBoost, Median Rel Bias của $z_{\\hat{f}}$ trên nhóm Pattern 111 giảm từ -11.6% xuống còn **-0.27% đến -1.16%** (Median Bias chỉ từ -0.02m đến -0.10m).")
+    lines.append("   - Điều này thể hiện rằng mô hình học máy dư (residual learning) đã hấp thụ thành công độ lệch tâm vật lý có hệ thống này của mô hình hình học.")
 
     return "\n".join(lines)
 
 
 def generate_top_failures_markdown(tf_data: dict[str, Any]) -> str:
     """Generate Markdown report for Top Failures Analysis on primary detector yolo11s_640."""
+    n_top = tf_data["n_top_failures"]
+    fb_count = tf_data["failures_fallback_count"]
+    fb_pct = fb_count / n_top * 100
+
+    near_count = tf_data["failures_bin_distribution"].get("0-10", 0)
+    near_pct = near_count / n_top * 100
+
     lines: list[str] = [
         f"# Top Failure Cases Analysis on Split T (Detector: `{tf_data['detector']}`)",
         "",
         "> **Methodology:** Top 50 failure cases ranked by relative absolute error AbsRel = $|Z_{pred} - Z_{gt}| / Z_{gt}$.",
         "> Dữ liệu phục vụ chẩn đoán định tính lỗi phát hiện/khoảng cách và làm dữ liệu nguồn cho Task T16 (Visualization).",
         "",
-        "## 1. Summary of Top 50 Failures",
-        f"- **Tổng số ca thất bại lớn nhất được phân tích:** {tf_data['n_top_failures']}",
-        f"- **Số ca kích hoạt Fallback:** {tf_data['failures_fallback_count']} / {tf_data['n_top_failures']}",
-        "- **Phân bố cự ly thực tế ($Z_{gt}$):**",
+        "## 1. Summary of Top 50 Failures & Comparison with Background Population",
+        f"- **Tổng số ca thất bại lớn nhất được phân tích:** {n_top}",
+        f"- **Các ca kích hoạt Fallback (Pattern 000):** {fb_count} / {n_top} ({fb_pct:.1f}%) — **so với tỷ lệ nền toàn Split T là 36 / 2,712 (1.33%)**.",
+        f"  - *Nhận xét:* Nhóm Fallback bị over-represented **gấp ~18 lần** trong top 50 lỗi nặng nhất, cho thấy việc mất toàn bộ 3 cue hình học là nguồn rủi ro sai số lớn nhất.",
+        f"- **Các ca cự ly gần (0–10m):** {near_count} / {n_top} ({near_pct:.1f}%) — **so với tỷ lệ nền toàn Split T là 261 / 2,712 (9.62%)**.",
+        f"  - *Nhận xét:* Nhóm 0–10m bị over-represented **gấp ~4.2 lần** do mẫu số $Z_{{gt}}$ nhỏ khiến sai số mét tuyệt đối (1.5–2.5m) bị khuếch đại thành AbsRel cao (20%–43%).",
+        "- **Chi tiết phân bố cự ly thực tế ($Z_{{gt}}$):**",
     ]
     for b_name, count in tf_data["failures_bin_distribution"].items():
-        lines.append(f"  - Cự ly `{b_name}`: {count} ca ({count / tf_data['n_top_failures'] * 100:.1f}%)")
+        lines.append(f"  - Cự ly `{b_name}`: {count} ca ({count / n_top * 100:.1f}%)")
     lines.append("")
 
     lines.append("## 2. Detailed Top 50 Failure Instances")
@@ -479,10 +520,10 @@ def generate_top_failures_markdown(tf_data: dict[str, Any]) -> str:
     lines.append("")
 
     lines.append("## 3. Qualitative Failure Patterns Identified")
-    lines.append("Từ việc rà soát 50 ca có sai số tương đối AbsRel cao nhất:")
-    lines.append("1. **Đặc điểm cự ly và tỷ lệ sai số tương đối:** 20 ca (40%) tập trung ở cự ly gần 0-10m. Mặc dù sai số mét tuyệt đối ở dải này chỉ từ 1.5m đến 2.5m, nhưng do khoảng cách $Z_{gt}$ nhỏ (5-8m) nên giá trị AbsRel bị khuếch đại lên 20% - 43%. 25 ca còn lại phân bố ở cự ly 20-50m với sai số tuyệt đối lớn hơn (5m - 9m).")
-    lines.append("2. **Tác động đồng thời của che khuất và cắt xén biên:** Đa phần các ca lỗi hàng đầu chịu che khuất (Occlusion = 1 hoặc 2) hoặc cắt xén biên ảnh (Truncation lên tới 0.40 - 0.50), làm mất mát cạnh đáy tiếp đất hoặc co hẹp diện tích xe.")
-    lines.append("3. **Kích hoạt cơ chế Fallback (12 / 50 ca):** Có 12 ca rơi vào trạng thái Fallback (toàn bộ 3 cue hình học đều không hợp lệ `w:0, h:0, g:0`), buộc pipeline phải dựa vào giá trị dự đoán phụ trợ (hoặc default) dẫn tới sai số dự đoán cao hơn.")
+    lines.append("Từ việc rà soát 50 ca có sai số tương đối AbsRel cao nhất đối chiếu với toàn bộ tập mẫu:")
+    lines.append("1. **Thiên lệch mạnh vào nhóm Fallback (24.0% vs 1.33% nền):** 12 ca mất sạch cả 3 cue hình học buộc phải dùng mô hình phụ trợ, dẫn tới độ phân tán sai số lớn nhất.")
+    lines.append("2. **Thiên lệch vào cự ly gần do hiệu ứng mẫu số (40.0% vs 9.62% nền):** 20 ca cự ly 0–10m có sai số mét thực tế không quá lớn (1.5–2.5m) nhưng AbsRel cao.")
+    lines.append("3. **Tác động của che khuất và cắt xén:** 28/50 ca có Occlusion $\\ge 1$ và 19/50 ca có Truncation $> 0$.")
 
     return "\n".join(lines)
 

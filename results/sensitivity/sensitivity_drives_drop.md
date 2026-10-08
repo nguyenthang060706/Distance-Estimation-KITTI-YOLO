@@ -1,10 +1,12 @@
 # Sensitivity Analysis: Split B Dominant Drives Drop (Task T09.1)
 
-> **Context (Decisions D14, D36, D85):** Evaluation of fusion weight stability and geometric ranging performance on detector `yolo11s_640` when the two largest drives (`drive_0059` and `drive_0104`, totaling 46.0% of Split B) are excluded.
+> **Context (Decisions D14, D31, D36, D85):** Evaluation of fusion weight stability and geometric ranging performance on detector `yolo11s_640` when the two largest drives (`drive_0059` and `drive_0104`) are excluded.
+> **Mẫu số phân tích:** Tập True Positives vượt ngưỡng hoạt động `pass_thr` của `yolo11s_640` trên Split B ($N=3,523$, trong đó `drive_0059` chiếm 860 mẫu = 24.41%, `drive_0104` chiếm 760 mẫu = 21.57%, tổng hai drive chiếm 1,620 mẫu = 45.98%). Khác với mẫu số $N=4,776$ Ground Truth Car Hard ở D14 (hai drive chiếm 51.65%).
+> **Lưu ý trọng số:** Trọng số $w_w = 0.0000$ là kết quả refit trên bounding box detector (NNLS active theo D31), khác với trọng số $[0.0807, 0.6634, 0.2560]$ fit trên Ground Truth bbox ở Day 4/D14.
 
 ## Fusion Weights and Out-Of-Sample Error Stability
 
-| Test Condition | $N_{fit}$ ($n_{complete}$) | Drives | $w_w$ (Width) | $w_h$ (Height) | $w_g$ (Ground) | Fit AbsRel | Test `drive_0059` ($N=860$) | Test `drive_0104` ($N=760$) | Macro AbsRel (12 drives) |
+| Test Condition | $N_{fit}$ ($n_{complete}$) | Cụm Drives $k$ | $w_w$ (Width) | $w_h$ (Height) | $w_g$ (Ground) | Fit AbsRel | Test `drive_0059` ($N=860$) | Test `drive_0104` ($N=760$) | Macro AbsRel (12 drives, CI thô) |
 |---|---|---|---|---|---|---|---|---|---|
 | **Baseline (All 12 drives)** | 3523 (3361) | 12 | 0.0000 | 0.6984 | 0.3016 | 0.0604 | 0.0636 [in-sample] | 0.0665 [in-sample] | 0.0755 |
 | **Exclude drive_0059 (Top-1, 24.4%)** | 2663 (2552) | 11 | 0.0000 | 0.7142 | 0.2858 | 0.0593 | 0.0637 [OOS] | 0.0668 [in-sample] | 0.0750 |
@@ -21,5 +23,5 @@
    - Khi loại bỏ hoàn toàn `drive_0059` (mất 24.4% dữ liệu fit), sai số OOS trên chính drive này là **0.0637** (so với in-sample 0.0636, chênh lệch $\Delta = +0.0001$).
    - Khi loại bỏ hoàn toàn `drive_0104` (mất 21.6% dữ liệu fit), sai số OOS trên chính drive này là **0.0668** (so với in-sample 0.0665, chênh lệch $\Delta = +0.0003$).
    - Khi loại bỏ đồng thời cả 2 drive (mất 46.0% dữ liệu fit), sai số OOS trên 0059 là **0.0640** ($\Delta = +0.0004$) và trên 0104 là **0.0679** ($\Delta = +0.0014$).
-   - Macro AbsRel qua toàn bộ 12 drives chỉ biến thiên trong dải hẹp từ **0.0739 đến 0.0755**.
+   - Macro AbsRel qua toàn bộ 12 drives chỉ biến thiên trong dải hẹp từ **0.0739 đến 0.0755** (CI thô, 10–12 cụm).
 3. **Kết luận:** Trọng số hợp nhất hình học và sai số suy luận trên cụm không bị phụ thuộc quá mức vào bất kỳ drive đơn lẻ nào trong Split B.
