@@ -71,25 +71,37 @@ def assign_theta_bin(alpha: float | np.ndarray) -> str | np.ndarray:
 
 def compute_interval_subgroup_metrics(
     sub_df: pd.DataFrame,
-    n_fn: int = 0,
+    n_fn: Optional[int] = None,
     alpha: float = 0.10,
     drive_col: str = "drive",
 ) -> dict[str, Any]:
     """
     Compute comprehensive interval metrics (coverage, width, Winkler, crossings)
     and survivorship metrics (n_TP, n_FN, Recall) for a subgroup subset.
+
+    NOTE ON RECALL (D91):
+    Recall = n_tp / (n_tp + n_fn) is mathematically well-defined only when the subgroup
+    is partitioned by Ground Truth attributes (Z_gt, Truncation, Occlusion, Theta, Difficulty),
+    where False Negatives (FN) also belong to a known stratum.
+    For subgroups defined by detection-dependent attributes (Z_hat, valid_* flags, fallback_flag),
+    FN cannot be attributed, so n_fn, n_gt, and recall are set to None.
     """
     n_tp = len(sub_df)
-    n_gt = n_tp + n_fn
-    recall = float(n_tp / n_gt) if n_gt > 0 else 0.0
     n_clusters = int(sub_df[drive_col].nunique()) if drive_col in sub_df.columns and n_tp > 0 else 0
     low_n = bool(n_tp < 100)
+
+    if n_fn is not None:
+        n_gt = n_tp + n_fn
+        recall = round(float(n_tp / n_gt), 4) if n_gt > 0 else 0.0
+    else:
+        n_gt = None
+        recall = None
 
     res: dict[str, Any] = {
         "n_tp": n_tp,
         "n_fn": n_fn,
         "n_gt": n_gt,
-        "recall": round(recall, 4),
+        "recall": recall,
         "k_clusters": n_clusters,
         "low_n": low_n,
     }
@@ -185,17 +197,15 @@ def compute_conditional_coverage_breakdown(
     for b_name, _, _ in CANONICAL_DISTANCE_BINS:
         mask = pred_df_copy["z_hat_bin"] == b_name
         sub_p = pred_df_copy[mask]
-        fn_count = int(np.sum(assign_distance_bin(fn_df["z_gt"].to_numpy(dtype=float)) == b_name)) if not fn_df.empty else 0
-        m_dict = compute_interval_subgroup_metrics(sub_p, n_fn=fn_count, alpha=alpha, drive_col=drive_col)
+        m_dict = compute_interval_subgroup_metrics(sub_p, n_fn=None, alpha=alpha, drive_col=drive_col)
         m_dict["subgroup"] = b_name
         z_hat_bins_rows.append(m_dict)
 
-    # Grouped row >30m
-    mask_gt30 = pred_df_copy["z_hat_f"] > 30.0
+    # Grouped row >=30m (D3)
+    mask_gt30 = pred_df_copy["z_hat_f"] >= 30.0
     sub_gt30 = pred_df_copy[mask_gt30]
-    fn_gt30 = int(np.sum(fn_df["z_gt"].to_numpy(dtype=float) > 30.0)) if not fn_df.empty else 0
-    m_gt30 = compute_interval_subgroup_metrics(sub_gt30, n_fn=fn_gt30, alpha=alpha, drive_col=drive_col)
-    m_gt30["subgroup"] = ">30 (grouped)"
+    m_gt30 = compute_interval_subgroup_metrics(sub_gt30, n_fn=None, alpha=alpha, drive_col=drive_col)
+    m_gt30["subgroup"] = ">=30 (grouped)"
     z_hat_bins_rows.append(m_gt30)
     categories["z_hat_prospective"] = z_hat_bins_rows
 
@@ -214,11 +224,11 @@ def compute_conditional_coverage_breakdown(
         m_dict["subgroup"] = b_name
         z_gt_bins_rows.append(m_dict)
 
-    mask_gt30_ret = pred_df_copy["z_gt"] > 30.0
+    mask_gt30_ret = pred_df_copy["z_gt"] >= 30.0
     sub_gt30_ret = pred_df_copy[mask_gt30_ret]
-    fn_gt30_ret = int(np.sum(fn_df["z_gt"].to_numpy(dtype=float) > 30.0)) if not fn_df.empty else 0
+    fn_gt30_ret = int(np.sum(fn_df["z_gt"].to_numpy(dtype=float) >= 30.0)) if not fn_df.empty else 0
     m_gt30_ret = compute_interval_subgroup_metrics(sub_gt30_ret, n_fn=fn_gt30_ret, alpha=alpha, drive_col=drive_col)
-    m_gt30_ret["subgroup"] = ">30 (grouped)"
+    m_gt30_ret["subgroup"] = ">=30 (grouped)"
     z_gt_bins_rows.append(m_gt30_ret)
     categories["z_gt_retrospective"] = z_gt_bins_rows
 
@@ -252,7 +262,7 @@ def compute_conditional_coverage_breakdown(
     ]
     for name, p_mask in touch_bins:
         sub_p = pred_df[p_mask]
-        m_dict = compute_interval_subgroup_metrics(sub_p, n_fn=0, alpha=alpha, drive_col=drive_col)
+        m_dict = compute_interval_subgroup_metrics(sub_p, n_fn=None, alpha=alpha, drive_col=drive_col)
         m_dict["subgroup"] = name
         trunc_rows.append(m_dict)
 
@@ -326,11 +336,11 @@ def compute_conditional_coverage_breakdown(
     sub_fb = pred_df[fb_mask]
     sub_norm = pred_df[~fb_mask]
 
-    m_fb = compute_interval_subgroup_metrics(sub_fb, n_fn=0, alpha=alpha, drive_col=drive_col)
+    m_fb = compute_interval_subgroup_metrics(sub_fb, n_fn=None, alpha=alpha, drive_col=drive_col)
     m_fb["subgroup"] = "Fallback (Pattern 000)"
     fb_rows.append(m_fb)
 
-    m_norm = compute_interval_subgroup_metrics(sub_norm, n_fn=len(fn_df), alpha=alpha, drive_col=drive_col)
+    m_norm = compute_interval_subgroup_metrics(sub_norm, n_fn=None, alpha=alpha, drive_col=drive_col)
     m_norm["subgroup"] = "Fused Geometric (>=1 cue)"
     fb_rows.append(m_norm)
     categories["fallback_pattern_000"] = fb_rows

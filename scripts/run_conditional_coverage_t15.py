@@ -47,7 +47,8 @@ def format_subgroup_table_md(rows: list[dict[str, Any]], title: str) -> str:
     lines = [
         f"### {title}",
         "",
-        "> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.",
+        "> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.",
+        "> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị \"---\" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).",
         "",
         "| Phân nhóm | $n_{\\text{TP}}$ | $n_{\\text{FN}}$ | $n_{\\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |",
         "|---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|",
@@ -60,9 +61,14 @@ def format_subgroup_table_md(rows: list[dict[str, Any]], title: str) -> str:
             continue
 
         n_tp = r.get("n_tp", 0)
-        n_fn = r.get("n_fn", 0)
-        n_gt = r.get("n_gt", 0)
-        rec = f"{r.get('recall', 0.0)*100:.1f}%" if n_gt > 0 else "0.0%"
+        n_fn = r.get("n_fn")
+        n_gt = r.get("n_gt")
+        recall_val = r.get("recall")
+
+        n_fn_str = f"{n_fn:,}" if n_fn is not None else "---"
+        n_gt_str = f"{n_gt:,}" if n_gt is not None else "---"
+        rec_str = f"{recall_val*100:.1f}%" if recall_val is not None else "---"
+
         k = r.get("k_clusters", 0)
         flag = "*" if r.get("low_n", False) else ""
 
@@ -77,7 +83,7 @@ def format_subgroup_table_md(rows: list[dict[str, Any]], title: str) -> str:
         mon_w = f"{r['mondrian']['mean_width']:.3f}" if r['mondrian']['mean_width'] is not None else "N/A"
 
         lines.append(
-            f"| `{sg}` | {n_tp:,} | {n_fn:,} | {n_gt:,} | {rec} | "
+            f"| `{sg}` | {n_tp:,} | {n_fn_str} | {n_gt_str} | {rec_str} | "
             f"**{cqr_cov}** | {cqr_w} | {cqr_wink} | "
             f"{sc_cov} | {sc_w} | "
             f"{mon_cov} | {mon_w} | {k} | {flag} |"

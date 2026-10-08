@@ -16,20 +16,22 @@
 
 ### 1.1 Dải cự ly theo Ẑ dự đoán (Prospective Distance Bins)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
-| `0-10` | 256 | 14 | 270 | 94.8% | **91.8%** | 1.429 | 0.4149 | 89.5% | 1.322 | 94.1% | 1.473 | 8 |  |
-| `10-20` | 835 | 65 | 900 | 92.8% | **97.7%** | 1.319 | 0.2880 | 98.1% | 1.322 | 95.1% | 1.242 | 9 |  |
-| `20-30` | 801 | 107 | 908 | 88.2% | **96.8%** | 1.311 | 0.2969 | 96.1% | 1.322 | 94.8% | 1.259 | 8 |  |
-| `30-50` | 815 | 288 | 1,103 | 73.9% | **96.3%** | 1.293 | 0.2748 | 97.2% | 1.322 | 97.4% | 1.323 | 8 |  |
-| `>50` | 5 | 26 | 31 | 16.1% | **60.0%** | 1.381 | 0.5174 | 40.0% | 1.322 | 60.0% | 1.414 | 2 | * |
-| `>30 (grouped)` | 820 | 313 | 1,133 | 72.4% | **96.1%** | 1.293 | 0.2763 | 96.8% | 1.322 | 97.2% | 1.324 | 8 |  |
+| `0-10` | 256 | --- | --- | --- | **91.8%** | 1.429 | 0.4149 | 89.5% | 1.322 | 94.1% | 1.473 | 8 |  |
+| `10-20` | 835 | --- | --- | --- | **97.7%** | 1.319 | 0.2880 | 98.1% | 1.322 | 95.1% | 1.242 | 9 |  |
+| `20-30` | 801 | --- | --- | --- | **96.8%** | 1.311 | 0.2969 | 96.1% | 1.322 | 94.8% | 1.259 | 8 |  |
+| `30-50` | 815 | --- | --- | --- | **96.3%** | 1.293 | 0.2748 | 97.2% | 1.322 | 97.4% | 1.323 | 8 |  |
+| `>50` | 5 | --- | --- | --- | **60.0%** | 1.381 | 0.5174 | 40.0% | 1.322 | 60.0% | 1.414 | 2 | * |
+| `>=30 (grouped)` | 820 | --- | --- | --- | **96.1%** | 1.293 | 0.2763 | 96.8% | 1.322 | 97.2% | 1.324 | 8 |  |
 
 ### 1.2 Dải cự ly theo Z thật (Retrospective Distance Bins — Chẩn đoán, v4 §6)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -38,25 +40,27 @@
 | `20-30` | 804 | 107 | 911 | 88.2% | **97.3%** | 1.315 | 0.2942 | 96.5% | 1.322 | 95.7% | 1.267 | 8 |  |
 | `30-50` | 809 | 288 | 1,097 | 73.8% | **96.2%** | 1.289 | 0.2762 | 97.0% | 1.322 | 97.2% | 1.315 | 8 |  |
 | `>50` | 7 | 26 | 33 | 21.2% | **57.1%** | 1.317 | 0.6059 | 71.4% | 1.322 | 57.1% | 1.348 | 3 | * |
-| `>30 (grouped)` | 816 | 313 | 1,129 | 72.3% | **95.8%** | 1.289 | 0.2790 | 96.8% | 1.322 | 96.8% | 1.315 | 8 |  |
+| `>=30 (grouped)` | 816 | 314 | 1,130 | 72.2% | **95.8%** | 1.289 | 0.2790 | 96.8% | 1.322 | 96.8% | 1.315 | 8 |  |
 
 ### 1.3 Mức độ cắt biên (Truncation) & Chạm viền ảnh (Touch Edges, D84)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `No Truncation (0.0)` | 2,516 | 483 | 2,999 | 83.9% | **96.9%** | 1.305 | 0.2841 | 97.3% | 1.322 | 96.0% | 1.276 | 10 |  |
 | `Mild (0.0 < t <= 0.15)` | 71 | 5 | 76 | 93.4% | **91.5%** | 1.468 | 0.4240 | 88.7% | 1.322 | 95.8% | 1.485 | 7 | * |
 | `Moderate/Severe (0.15 < t <= 0.50)` | 125 | 12 | 137 | 91.2% | **88.0%** | 1.521 | 0.5289 | 80.0% | 1.322 | 86.4% | 1.536 | 8 |  |
-| `No Edge Touch (Pattern 111)` | 2,518 | 0 | 2,518 | 100.0% | **97.0%** | 1.305 | 0.2830 | 97.4% | 1.322 | 96.1% | 1.276 | 10 |  |
-| `Touch Horizontal (valid_w=0)` | 82 | 0 | 82 | 100.0% | **87.8%** | 1.408 | 0.4175 | 80.5% | 1.322 | 85.4% | 1.378 | 7 | * |
-| `Touch Vertical (valid_h=0 or valid_g=0)` | 76 | 0 | 76 | 100.0% | **93.4%** | 1.587 | 0.5234 | 92.1% | 1.322 | 96.0% | 1.636 | 8 | * |
-| `Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))` | 36 | 0 | 36 | 100.0% | **77.8%** | 1.572 | 0.6823 | 63.9% | 1.322 | 80.6% | 1.620 | 6 | * |
+| `No Edge Touch (Pattern 111)` | 2,518 | --- | --- | --- | **97.0%** | 1.305 | 0.2830 | 97.4% | 1.322 | 96.1% | 1.276 | 10 |  |
+| `Touch Horizontal (valid_w=0)` | 82 | --- | --- | --- | **87.8%** | 1.408 | 0.4175 | 80.5% | 1.322 | 85.4% | 1.378 | 7 | * |
+| `Touch Vertical (valid_h=0 or valid_g=0)` | 76 | --- | --- | --- | **93.4%** | 1.587 | 0.5234 | 92.1% | 1.322 | 96.0% | 1.636 | 8 | * |
+| `Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))` | 36 | --- | --- | --- | **77.8%** | 1.572 | 0.6823 | 63.9% | 1.322 | 80.6% | 1.620 | 6 | * |
 
 ### 1.4 Mức độ che khuất (Occlusion Levels)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -66,7 +70,8 @@
 
 ### 1.5 Góc hướng quan sát θ (Viewing Angle Bins, D19)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -76,7 +81,8 @@
 
 ### 1.6 Mức độ khó KITTI (Nested & Disjoint Difficulty)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -90,12 +96,13 @@
 
 ### 1.7 Nhóm Fallback Pattern 000 (Decision D74)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
-| `Fallback (Pattern 000)` | 36 | 0 | 36 | 100.0% | **77.8%** | 1.572 | 0.6823 | 63.9% | 1.322 | 80.6% | 1.620 | 6 | * |
-| `Fused Geometric (>=1 cue)` | 2,676 | 500 | 3,176 | 84.3% | **96.6%** | 1.316 | 0.2939 | 96.8% | 1.322 | 95.7% | 1.289 | 10 |  |
+| `Fallback (Pattern 000)` | 36 | --- | --- | --- | **77.8%** | 1.572 | 0.6823 | 63.9% | 1.322 | 80.6% | 1.620 | 6 | * |
+| `Fused Geometric (>=1 cue)` | 2,676 | --- | --- | --- | **96.6%** | 1.316 | 0.2939 | 96.8% | 1.322 | 95.7% | 1.289 | 10 |  |
 
 ## 1. Detector `yolov8s_640`
 
@@ -106,20 +113,22 @@
 
 ### 1.1 Dải cự ly theo Ẑ dự đoán (Prospective Distance Bins)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
-| `0-10` | 273 | 9 | 282 | 96.8% | **93.4%** | 1.447 | 0.4140 | 91.6% | 1.345 | 99.6% | 1.816 | 8 |  |
-| `10-20` | 845 | 60 | 905 | 93.4% | **98.2%** | 1.356 | 0.3117 | 97.8% | 1.345 | 96.0% | 1.268 | 9 |  |
-| `20-30` | 754 | 131 | 885 | 85.2% | **97.8%** | 1.328 | 0.2940 | 98.0% | 1.345 | 96.4% | 1.261 | 8 |  |
-| `30-50` | 784 | 321 | 1,105 | 71.0% | **97.1%** | 1.339 | 0.3003 | 97.2% | 1.345 | 98.1% | 1.372 | 8 |  |
-| `>50` | 4 | 31 | 35 | 11.4% | **25.0%** | 1.393 | 0.9782 | 25.0% | 1.345 | 25.0% | 1.427 | 2 | * |
-| `>30 (grouped)` | 788 | 351 | 1,139 | 69.2% | **96.7%** | 1.339 | 0.3038 | 96.8% | 1.345 | 97.7% | 1.372 | 8 |  |
+| `0-10` | 273 | --- | --- | --- | **93.4%** | 1.447 | 0.4140 | 91.6% | 1.345 | 99.6% | 1.816 | 8 |  |
+| `10-20` | 845 | --- | --- | --- | **98.2%** | 1.356 | 0.3117 | 97.8% | 1.345 | 96.0% | 1.268 | 9 |  |
+| `20-30` | 754 | --- | --- | --- | **97.8%** | 1.328 | 0.2940 | 98.0% | 1.345 | 96.4% | 1.261 | 8 |  |
+| `30-50` | 784 | --- | --- | --- | **97.1%** | 1.339 | 0.3003 | 97.2% | 1.345 | 98.1% | 1.372 | 8 |  |
+| `>50` | 4 | --- | --- | --- | **25.0%** | 1.393 | 0.9782 | 25.0% | 1.345 | 25.0% | 1.427 | 2 | * |
+| `>=30 (grouped)` | 788 | --- | --- | --- | **96.7%** | 1.339 | 0.3038 | 96.8% | 1.345 | 97.7% | 1.372 | 8 |  |
 
 ### 1.2 Dải cự ly theo Z thật (Retrospective Distance Bins — Chẩn đoán, v4 §6)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -128,25 +137,27 @@
 | `20-30` | 780 | 131 | 911 | 85.6% | **98.0%** | 1.332 | 0.2942 | 97.8% | 1.345 | 97.0% | 1.271 | 8 |  |
 | `30-50` | 776 | 321 | 1,097 | 70.7% | **96.8%** | 1.336 | 0.3044 | 97.2% | 1.345 | 97.3% | 1.363 | 8 |  |
 | `>50` | 2 | 31 | 33 | 6.1% | **100.0%** | 1.346 | 0.2964 | 100.0% | 1.345 | 100.0% | 1.379 | 1 | * |
-| `>30 (grouped)` | 778 | 351 | 1,129 | 68.9% | **96.8%** | 1.336 | 0.3044 | 97.2% | 1.345 | 97.3% | 1.363 | 8 |  |
+| `>=30 (grouped)` | 778 | 352 | 1,130 | 68.8% | **96.8%** | 1.336 | 0.3044 | 97.2% | 1.345 | 97.3% | 1.363 | 8 |  |
 
 ### 1.3 Mức độ cắt biên (Truncation) & Chạm viền ảnh (Touch Edges, D84)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `No Truncation (0.0)` | 2,463 | 536 | 2,999 | 82.1% | **97.5%** | 1.339 | 0.3024 | 97.9% | 1.345 | 97.1% | 1.319 | 10 |  |
 | `Mild (0.0 < t <= 0.15)` | 72 | 4 | 76 | 94.7% | **88.9%** | 1.464 | 0.5010 | 87.5% | 1.345 | 97.2% | 1.717 | 7 | * |
 | `Moderate/Severe (0.15 < t <= 0.50)` | 125 | 12 | 137 | 91.2% | **94.4%** | 1.545 | 0.4534 | 83.2% | 1.345 | 95.2% | 1.809 | 8 |  |
-| `No Edge Touch (Pattern 111)` | 2,477 | 0 | 2,477 | 100.0% | **97.6%** | 1.339 | 0.3014 | 97.9% | 1.345 | 97.1% | 1.321 | 10 |  |
-| `Touch Horizontal (valid_w=0)` | 75 | 0 | 75 | 100.0% | **92.0%** | 1.405 | 0.3777 | 80.0% | 1.345 | 89.3% | 1.459 | 7 | * |
-| `Touch Vertical (valid_h=0 or valid_g=0)` | 72 | 0 | 72 | 100.0% | **91.7%** | 1.615 | 0.5479 | 93.1% | 1.345 | 100.0% | 2.027 | 8 | * |
-| `Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))` | 36 | 0 | 36 | 100.0% | **86.1%** | 1.609 | 0.6405 | 69.4% | 1.345 | 97.2% | 2.020 | 6 | * |
+| `No Edge Touch (Pattern 111)` | 2,477 | --- | --- | --- | **97.6%** | 1.339 | 0.3014 | 97.9% | 1.345 | 97.1% | 1.321 | 10 |  |
+| `Touch Horizontal (valid_w=0)` | 75 | --- | --- | --- | **92.0%** | 1.405 | 0.3777 | 80.0% | 1.345 | 89.3% | 1.459 | 7 | * |
+| `Touch Vertical (valid_h=0 or valid_g=0)` | 72 | --- | --- | --- | **91.7%** | 1.615 | 0.5479 | 93.1% | 1.345 | 100.0% | 2.027 | 8 | * |
+| `Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))` | 36 | --- | --- | --- | **86.1%** | 1.609 | 0.6405 | 69.4% | 1.345 | 97.2% | 2.020 | 6 | * |
 
 ### 1.4 Mức độ che khuất (Occlusion Levels)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -156,7 +167,8 @@
 
 ### 1.5 Góc hướng quan sát θ (Viewing Angle Bins, D19)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -166,7 +178,8 @@
 
 ### 1.6 Mức độ khó KITTI (Nested & Disjoint Difficulty)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -180,12 +193,13 @@
 
 ### 1.7 Nhóm Fallback Pattern 000 (Decision D74)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
-| `Fallback (Pattern 000)` | 36 | 0 | 36 | 100.0% | **86.1%** | 1.609 | 0.6405 | 69.4% | 1.345 | 97.2% | 2.020 | 6 | * |
-| `Fused Geometric (>=1 cue)` | 2,624 | 552 | 3,176 | 82.6% | **97.3%** | 1.349 | 0.3104 | 97.3% | 1.345 | 97.0% | 1.344 | 10 |  |
+| `Fallback (Pattern 000)` | 36 | --- | --- | --- | **86.1%** | 1.609 | 0.6405 | 69.4% | 1.345 | 97.2% | 2.020 | 6 | * |
+| `Fused Geometric (>=1 cue)` | 2,624 | --- | --- | --- | **97.3%** | 1.349 | 0.3104 | 97.3% | 1.345 | 97.0% | 1.344 | 10 |  |
 
 ## 1. Detector `yolov5su_640`
 
@@ -196,20 +210,22 @@
 
 ### 1.1 Dải cự ly theo Ẑ dự đoán (Prospective Distance Bins)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
-| `0-10` | 269 | 11 | 280 | 96.1% | **89.6%** | 1.418 | 0.4327 | 91.1% | 1.351 | 91.8% | 1.464 | 8 |  |
-| `10-20` | 837 | 61 | 898 | 93.2% | **97.6%** | 1.328 | 0.2941 | 97.9% | 1.351 | 96.3% | 1.265 | 9 |  |
-| `20-30` | 776 | 130 | 906 | 85.7% | **96.5%** | 1.314 | 0.2964 | 97.4% | 1.351 | 94.8% | 1.269 | 8 |  |
-| `30-50` | 789 | 312 | 1,101 | 71.7% | **98.0%** | 1.323 | 0.2877 | 97.9% | 1.351 | 98.6% | 1.366 | 8 |  |
-| `>50` | 3 | 24 | 27 | 11.1% | **100.0%** | 1.483 | 0.3923 | 100.0% | 1.351 | 100.0% | 1.532 | 2 | * |
-| `>30 (grouped)` | 792 | 335 | 1,127 | 70.3% | **98.0%** | 1.323 | 0.2881 | 97.9% | 1.351 | 98.6% | 1.367 | 8 |  |
+| `0-10` | 269 | --- | --- | --- | **89.6%** | 1.418 | 0.4327 | 91.1% | 1.351 | 91.8% | 1.464 | 8 |  |
+| `10-20` | 837 | --- | --- | --- | **97.6%** | 1.328 | 0.2941 | 97.9% | 1.351 | 96.3% | 1.265 | 9 |  |
+| `20-30` | 776 | --- | --- | --- | **96.5%** | 1.314 | 0.2964 | 97.4% | 1.351 | 94.8% | 1.269 | 8 |  |
+| `30-50` | 789 | --- | --- | --- | **98.0%** | 1.323 | 0.2877 | 97.9% | 1.351 | 98.6% | 1.366 | 8 |  |
+| `>50` | 3 | --- | --- | --- | **100.0%** | 1.483 | 0.3923 | 100.0% | 1.351 | 100.0% | 1.532 | 2 | * |
+| `>=30 (grouped)` | 792 | --- | --- | --- | **98.0%** | 1.323 | 0.2881 | 97.9% | 1.351 | 98.6% | 1.367 | 8 |  |
 
 ### 1.2 Dải cự ly theo Z thật (Retrospective Distance Bins — Chẩn đoán, v4 §6)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -218,25 +234,27 @@
 | `20-30` | 781 | 130 | 911 | 85.7% | **98.0%** | 1.317 | 0.2831 | 98.1% | 1.351 | 96.8% | 1.276 | 8 |  |
 | `30-50` | 785 | 312 | 1,097 | 71.6% | **97.5%** | 1.318 | 0.2905 | 98.0% | 1.351 | 97.7% | 1.356 | 8 |  |
 | `>50` | 9 | 24 | 33 | 27.3% | **66.7%** | 1.425 | 0.5522 | 44.4% | 1.351 | 66.7% | 1.472 | 3 | * |
-| `>30 (grouped)` | 794 | 335 | 1,129 | 70.3% | **97.1%** | 1.319 | 0.2935 | 97.4% | 1.351 | 97.4% | 1.357 | 8 |  |
+| `>=30 (grouped)` | 794 | 336 | 1,130 | 70.3% | **97.1%** | 1.319 | 0.2935 | 97.4% | 1.351 | 97.4% | 1.357 | 8 |  |
 
 ### 1.3 Mức độ cắt biên (Truncation) & Chạm viền ảnh (Touch Edges, D84)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
 | `No Truncation (0.0)` | 2,478 | 521 | 2,999 | 82.6% | **97.3%** | 1.317 | 0.2901 | 98.1% | 1.351 | 96.8% | 1.299 | 10 |  |
 | `Mild (0.0 < t <= 0.15)` | 72 | 4 | 76 | 94.7% | **87.5%** | 1.470 | 0.5064 | 90.3% | 1.351 | 90.3% | 1.490 | 7 | * |
 | `Moderate/Severe (0.15 < t <= 0.50)` | 124 | 13 | 137 | 90.5% | **87.1%** | 1.538 | 0.5276 | 80.7% | 1.351 | 86.3% | 1.556 | 8 |  |
-| `No Edge Touch (Pattern 111)` | 2,490 | 0 | 2,490 | 100.0% | **97.4%** | 1.317 | 0.2904 | 98.1% | 1.351 | 96.8% | 1.299 | 10 |  |
-| `Touch Horizontal (valid_w=0)` | 78 | 0 | 78 | 100.0% | **87.2%** | 1.442 | 0.4084 | 83.3% | 1.351 | 87.2% | 1.421 | 7 | * |
-| `Touch Vertical (valid_h=0 or valid_g=0)` | 70 | 0 | 70 | 100.0% | **84.3%** | 1.591 | 0.6147 | 90.0% | 1.351 | 87.1% | 1.643 | 8 | * |
-| `Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))` | 36 | 0 | 36 | 100.0% | **86.1%** | 1.581 | 0.6291 | 69.4% | 1.351 | 86.1% | 1.632 | 5 | * |
+| `No Edge Touch (Pattern 111)` | 2,490 | --- | --- | --- | **97.4%** | 1.317 | 0.2904 | 98.1% | 1.351 | 96.8% | 1.299 | 10 |  |
+| `Touch Horizontal (valid_w=0)` | 78 | --- | --- | --- | **87.2%** | 1.442 | 0.4084 | 83.3% | 1.351 | 87.2% | 1.421 | 7 | * |
+| `Touch Vertical (valid_h=0 or valid_g=0)` | 70 | --- | --- | --- | **84.3%** | 1.591 | 0.6147 | 90.0% | 1.351 | 87.1% | 1.643 | 8 | * |
+| `Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))` | 36 | --- | --- | --- | **86.1%** | 1.581 | 0.6291 | 69.4% | 1.351 | 86.1% | 1.632 | 5 | * |
 
 ### 1.4 Mức độ che khuất (Occlusion Levels)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -246,7 +264,8 @@
 
 ### 1.5 Góc hướng quan sát θ (Viewing Angle Bins, D19)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -256,7 +275,8 @@
 
 ### 1.6 Mức độ khó KITTI (Nested & Disjoint Difficulty)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
@@ -270,9 +290,10 @@
 
 ### 1.7 Nhóm Fallback Pattern 000 (Decision D74)
 
-> (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (*) Cờ cảnh báo cỡ mẫu phân nhóm: $n < 100$ theo Decision D54.
+> - (**) Recall chỉ áp dụng cho các phân nhóm xác định bằng thuộc tính Ground Truth (Z_gt, Truncation, Occlusion, θ, Difficulty). Các phân nhóm theo thuộc tính suy luận test-time (Ẑ, cờ hợp lệ valid_*, Fallback) hiển thị "---" vì False Negatives không có thông tin dự đoán tương ứng (Decision D91).
 
 | Phân nhóm | $n_{\text{TP}}$ | $n_{\text{FN}}$ | $n_{\text{GT}}$ | Recall | CQR Cov | CQR Width | CQR Winkler | SC Cov | SC Width | Mondrian Cov | Mondrian Width | $k$ | Cờ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|:---:|
-| `Fallback (Pattern 000)` | 36 | 0 | 36 | 100.0% | **86.1%** | 1.581 | 0.6291 | 69.4% | 1.351 | 86.1% | 1.632 | 5 | * |
-| `Fused Geometric (>=1 cue)` | 2,638 | 538 | 3,176 | 83.1% | **96.7%** | 1.328 | 0.3025 | 97.4% | 1.351 | 96.2% | 1.312 | 10 |  |
+| `Fallback (Pattern 000)` | 36 | --- | --- | --- | **86.1%** | 1.581 | 0.6291 | 69.4% | 1.351 | 86.1% | 1.632 | 5 | * |
+| `Fused Geometric (>=1 cue)` | 2,638 | --- | --- | --- | **96.7%** | 1.328 | 0.3025 | 97.4% | 1.351 | 96.2% | 1.312 | 10 |  |

@@ -223,3 +223,30 @@ def test_cluster_bootstrap_coverage_ci():
     assert 0.0 <= ci[0] <= ci[1] <= 1.0
     assert boot_res["n_clusters"] == 3
     assert "CI thô" in boot_res["note"]
+
+
+def test_detection_dependent_subgroups_have_none_recall():
+    """Verify subgroups defined by detection attributes have n_fn=None and recall=None (Decision D91)."""
+    df, fn_df = make_mock_predictions_and_fn(100)
+    cats = compute_conditional_coverage_breakdown(df, fn_df)
+
+    # 1. Prospective Bins (Ẑ) must have None n_fn and None recall
+    for r in cats["z_hat_prospective"]:
+        assert r["n_fn"] is None, f"Expected None n_fn for {r['subgroup']}"
+        assert r["recall"] is None, f"Expected None recall for {r['subgroup']}"
+
+    # 2. Touch-edge subgroups must have None n_fn and None recall
+    for r in cats["truncation_and_edges"]:
+        if "Touch" in r["subgroup"]:
+            assert r["n_fn"] is None, f"Expected None n_fn for {r['subgroup']}"
+            assert r["recall"] is None, f"Expected None recall for {r['subgroup']}"
+
+    # 3. Fallback rows must have None n_fn and None recall
+    for r in cats["fallback_pattern_000"]:
+        assert r["n_fn"] is None, f"Expected None n_fn for {r['subgroup']}"
+        assert r["recall"] is None, f"Expected None recall for {r['subgroup']}"
+
+    # 4. Retrospective Bins (Z_gt) must have valid n_fn and recall
+    for r in cats["z_gt_retrospective"]:
+        assert r["n_fn"] is not None
+        assert r["recall"] is not None

@@ -4,9 +4,9 @@
       "z_hat_prospective": [
         {
           "n_tp": 256,
-          "n_fn": 14,
-          "n_gt": 270,
-          "recall": 0.9481,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -34,9 +34,9 @@
         },
         {
           "n_tp": 835,
-          "n_fn": 65,
-          "n_gt": 900,
-          "recall": 0.9278,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 9,
           "low_n": false,
           "cqr": {
@@ -64,9 +64,9 @@
         },
         {
           "n_tp": 801,
-          "n_fn": 107,
-          "n_gt": 908,
-          "recall": 0.8822,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -94,9 +94,9 @@
         },
         {
           "n_tp": 815,
-          "n_fn": 288,
-          "n_gt": 1103,
-          "recall": 0.7389,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -124,9 +124,9 @@
         },
         {
           "n_tp": 5,
-          "n_fn": 26,
-          "n_gt": 31,
-          "recall": 0.1613,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 2,
           "low_n": true,
           "cqr": {
@@ -154,9 +154,9 @@
         },
         {
           "n_tp": 820,
-          "n_fn": 313,
-          "n_gt": 1133,
-          "recall": 0.7237,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -180,7 +180,7 @@
             "mean_winkler": 0.2923,
             "crossings": 0
           },
-          "subgroup": ">30 (grouped)"
+          "subgroup": ">=30 (grouped)"
         }
       ],
       "z_gt_retrospective": [
@@ -336,9 +336,9 @@
         },
         {
           "n_tp": 816,
-          "n_fn": 313,
-          "n_gt": 1129,
-          "recall": 0.7228,
+          "n_fn": 314,
+          "n_gt": 1130,
+          "recall": 0.7221,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -362,7 +362,7 @@
             "mean_winkler": 0.2952,
             "crossings": 0
           },
-          "subgroup": ">30 (grouped)"
+          "subgroup": ">=30 (grouped)"
         }
       ],
       "truncation_and_edges": [
@@ -458,9 +458,9 @@
         },
         {
           "n_tp": 2518,
-          "n_fn": 0,
-          "n_gt": 2518,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 10,
           "low_n": false,
           "cqr": {
@@ -488,9 +488,9 @@
         },
         {
           "n_tp": 82,
-          "n_fn": 0,
-          "n_gt": 82,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 7,
           "low_n": true,
           "cqr": {
@@ -518,9 +518,9 @@
         },
         {
           "n_tp": 76,
-          "n_fn": 0,
-          "n_gt": 76,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": true,
           "cqr": {
@@ -548,9 +548,9 @@
         },
         {
           "n_tp": 36,
-          "n_fn": 0,
-          "n_gt": 36,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 6,
           "low_n": true,
           "cqr": {
@@ -949,9 +949,9 @@
       "fallback_pattern_000": [
         {
           "n_tp": 36,
-          "n_fn": 0,
-          "n_gt": 36,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 6,
           "low_n": true,
           "cqr": {
@@ -979,9 +979,9 @@
         },
         {
           "n_tp": 2676,
-          "n_fn": 500,
-          "n_gt": 3176,
-          "recall": 0.8426,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 10,
           "low_n": false,
           "cqr": {
@@ -1056,9 +1056,9 @@
       "z_hat_prospective": [
         {
           "n_tp": 273,
-          "n_fn": 9,
-          "n_gt": 282,
-          "recall": 0.9681,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -1086,9 +1086,9 @@
         },
         {
           "n_tp": 845,
-          "n_fn": 60,
-          "n_gt": 905,
-          "recall": 0.9337,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 9,
           "low_n": false,
           "cqr": {
@@ -1116,9 +1116,9 @@
         },
         {
           "n_tp": 754,
-          "n_fn": 131,
-          "n_gt": 885,
-          "recall": 0.852,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -1146,9 +1146,9 @@
         },
         {
           "n_tp": 784,
-          "n_fn": 321,
-          "n_gt": 1105,
-          "recall": 0.7095,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -1176,9 +1176,9 @@
         },
         {
           "n_tp": 4,
-          "n_fn": 31,
-          "n_gt": 35,
-          "recall": 0.1143,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 2,
           "low_n": true,
           "cqr": {
@@ -1206,9 +1206,9 @@
         },
         {
           "n_tp": 788,
-          "n_fn": 351,
-          "n_gt": 1139,
-          "recall": 0.6918,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -1232,7 +1232,7 @@
             "mean_winkler": 0.3214,
             "crossings": 0
           },
-          "subgroup": ">30 (grouped)"
+          "subgroup": ">=30 (grouped)"
         }
       ],
       "z_gt_retrospective": [
@@ -1388,9 +1388,9 @@
         },
         {
           "n_tp": 778,
-          "n_fn": 351,
-          "n_gt": 1129,
-          "recall": 0.6891,
+          "n_fn": 352,
+          "n_gt": 1130,
+          "recall": 0.6885,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -1414,7 +1414,7 @@
             "mean_winkler": 0.3234,
             "crossings": 0
           },
-          "subgroup": ">30 (grouped)"
+          "subgroup": ">=30 (grouped)"
         }
       ],
       "truncation_and_edges": [
@@ -1510,9 +1510,9 @@
         },
         {
           "n_tp": 2477,
-          "n_fn": 0,
-          "n_gt": 2477,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 10,
           "low_n": false,
           "cqr": {
@@ -1540,9 +1540,9 @@
         },
         {
           "n_tp": 75,
-          "n_fn": 0,
-          "n_gt": 75,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 7,
           "low_n": true,
           "cqr": {
@@ -1570,9 +1570,9 @@
         },
         {
           "n_tp": 72,
-          "n_fn": 0,
-          "n_gt": 72,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": true,
           "cqr": {
@@ -1600,9 +1600,9 @@
         },
         {
           "n_tp": 36,
-          "n_fn": 0,
-          "n_gt": 36,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 6,
           "low_n": true,
           "cqr": {
@@ -2001,9 +2001,9 @@
       "fallback_pattern_000": [
         {
           "n_tp": 36,
-          "n_fn": 0,
-          "n_gt": 36,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 6,
           "low_n": true,
           "cqr": {
@@ -2031,9 +2031,9 @@
         },
         {
           "n_tp": 2624,
-          "n_fn": 552,
-          "n_gt": 3176,
-          "recall": 0.8262,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 10,
           "low_n": false,
           "cqr": {
@@ -2108,9 +2108,9 @@
       "z_hat_prospective": [
         {
           "n_tp": 269,
-          "n_fn": 11,
-          "n_gt": 280,
-          "recall": 0.9607,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -2138,9 +2138,9 @@
         },
         {
           "n_tp": 837,
-          "n_fn": 61,
-          "n_gt": 898,
-          "recall": 0.9321,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 9,
           "low_n": false,
           "cqr": {
@@ -2168,9 +2168,9 @@
         },
         {
           "n_tp": 776,
-          "n_fn": 130,
-          "n_gt": 906,
-          "recall": 0.8565,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -2198,9 +2198,9 @@
         },
         {
           "n_tp": 789,
-          "n_fn": 312,
-          "n_gt": 1101,
-          "recall": 0.7166,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -2228,9 +2228,9 @@
         },
         {
           "n_tp": 3,
-          "n_fn": 24,
-          "n_gt": 27,
-          "recall": 0.1111,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 2,
           "low_n": true,
           "cqr": {
@@ -2258,9 +2258,9 @@
         },
         {
           "n_tp": 792,
-          "n_fn": 335,
-          "n_gt": 1127,
-          "recall": 0.7028,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -2284,7 +2284,7 @@
             "mean_winkler": 0.315,
             "crossings": 0
           },
-          "subgroup": ">30 (grouped)"
+          "subgroup": ">=30 (grouped)"
         }
       ],
       "z_gt_retrospective": [
@@ -2440,9 +2440,9 @@
         },
         {
           "n_tp": 794,
-          "n_fn": 335,
-          "n_gt": 1129,
-          "recall": 0.7033,
+          "n_fn": 336,
+          "n_gt": 1130,
+          "recall": 0.7027,
           "k_clusters": 8,
           "low_n": false,
           "cqr": {
@@ -2466,7 +2466,7 @@
             "mean_winkler": 0.3221,
             "crossings": 0
           },
-          "subgroup": ">30 (grouped)"
+          "subgroup": ">=30 (grouped)"
         }
       ],
       "truncation_and_edges": [
@@ -2562,9 +2562,9 @@
         },
         {
           "n_tp": 2490,
-          "n_fn": 0,
-          "n_gt": 2490,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 10,
           "low_n": false,
           "cqr": {
@@ -2592,9 +2592,9 @@
         },
         {
           "n_tp": 78,
-          "n_fn": 0,
-          "n_gt": 78,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 7,
           "low_n": true,
           "cqr": {
@@ -2622,9 +2622,9 @@
         },
         {
           "n_tp": 70,
-          "n_fn": 0,
-          "n_gt": 70,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 8,
           "low_n": true,
           "cqr": {
@@ -2652,9 +2652,9 @@
         },
         {
           "n_tp": 36,
-          "n_fn": 0,
-          "n_gt": 36,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 5,
           "low_n": true,
           "cqr": {
@@ -3053,9 +3053,9 @@
       "fallback_pattern_000": [
         {
           "n_tp": 36,
-          "n_fn": 0,
-          "n_gt": 36,
-          "recall": 1.0,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 5,
           "low_n": true,
           "cqr": {
@@ -3083,9 +3083,9 @@
         },
         {
           "n_tp": 2638,
-          "n_fn": 538,
-          "n_gt": 3176,
-          "recall": 0.8306,
+          "n_fn": null,
+          "n_gt": null,
+          "recall": null,
           "k_clusters": 10,
           "low_n": false,
           "cqr": {
