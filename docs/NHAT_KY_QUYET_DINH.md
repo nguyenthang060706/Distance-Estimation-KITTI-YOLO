@@ -200,6 +200,15 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   1. Khoảng Bootstrap CI 10 cụm trên T chỉ phản ánh biến thiên giữa các drive của T khi coi $\hat{Q}$ từ C là cố định, mang tính lạc quan so với độ biến thiên thực tế giữa các cách chia drive ($\sigma \approx 7\text{--}9\%$ ở T08); không dùng nó để tuyên bố sai calibration.
   2. Hiện tượng over-coverage tổng thể (96–97%) che khuất việc một số nhóm ca khó vẫn bị under-coverage: Truncation vừa/nặng (88.0%–91.5%), Touch Multi-edge / Fallback (77.8%–86.1%), Disjoint Hard (92.9%–94.3%).
   3. Mondrian CQR tăng độ phủ gần nhưng làm nở rộng khoảng tin cậy (width tăng từ $1.45\times$ lên $1.80\times$), chỉ báo cáo mô tả không xếp hạng.
+- ✅ **Chuẩn đo đạc độ trễ Tier 1 chính thức theo per-image end-to-end latency (D94):**
+  * Khắc phục triệt để 4 lỗi phương pháp luận của bản sơ bộ T06: (1) Loại bỏ double-counting tiền xử lý trên GPU (bản T06 đo tiền xử lý riêng rồi lại đo bên trong Ultralytics forward); (2) Đo tổng thời gian end-to-end $t_{\text{total}}^{(i)}$ trên từng ảnh $i$ độc lập, tính trực tiếp Median, Mean, P95, IQR, FPS trên chuỗi tổng, loại bỏ hoàn toàn lỗi sum of medians (tính tổng từ các trung vị đơn lẻ, bỏ qua tương quan đa biến và tính phi cộng của hàm vị trí); (3) Trích xuất đặc trưng residual vector hóa 17 features thực tế với confidence thật và P2 camera intrinsics từng frame (loại bỏ đường tắt random mock feature của T06); (4) Đo đạc đầy đủ khâu ước lượng khoảng bất định Conformal Quantile Regression (CQR: 2 mô hình LightGBM $q_{0.05}$ và $q_{0.95}$, áp dụng scaling log-residual và $\hat{Q}$).
+  * Thực nghiệm 200 ảnh Split B (20 warmup) xác nhận tính phi cộng của trung vị trên dữ liệu thực tế ($t_{\text{total}}$ thực tế lớn hơn tổng các trung vị đơn lẻ từ +0.03 ms đến +0.46 ms). Khâu hậu detector (Hình học ~0.18 ms, Residual ~0.62 ms, CQR ~0.59 ms) chỉ tốn ~1.4 ms/ảnh (<2.5% tổng thời gian GPU), khẳng định tính gọn nhẹ và khả năng ứng dụng thời gian thực của pipeline hybrid/conformal trên hệ thống ADAS (GPU RTX 5060 đạt 15.7–21.8 FPS; CPU 4 luồng đạt 6.3–7.7 FPS).
+- ✅ **Quy chuẩn báo cáo song song Count Parity và IoU Match Rate theo AGENT_RULES §1.9 (D95):**
+  * Trong kiểm định tương đồng PyTorch vs ONNX Runtime (Parity Check, D44), báo cáo độc lập cả hai số liệu: Count Parity (tỷ lệ số lượng detection) và IoU Match Rate (tỷ lệ detection có ít nhất một ứng viên IoU $\ge 0.90$).
+  * Kết quả thực nghiệm: Count Parity đạt chuẩn [0.95, 1.05] (0.974–1.009), nhưng IoU Match Rate đạt 0.9095–0.9437 (dưới ngưỡng 0.95). Nguyên nhân kỹ thuật do khác biệt chiến lược đệm ảnh: PyTorch Ultralytics sử dụng dynamic rectangular letterbox (ví dụ $384 \times 640$) khớp sát tỉ lệ KITTI ($1242 \times 375$), trong khi ONNX Runtime export cố định input shape vuông ($640 \times 640$) dẫn đến sai lệch nội suy bilinear và grid anchor ở biên xe. Tuân thủ nghiêm ngặt AGENT_RULES §1.9: Không tự ý hạ ngưỡng, báo cáo trung thực số liệu thực nghiệm và giải trình nguyên nhân trong Limitations.
+- ✅ **Thẩm định trực quan định tính 8 ca trên Split T tuân thủ nghiêm ngặt Zero-Touch D90 (D96):**
+  * Tuyệt đối bảo vệ tính toàn vẹn của Split T: Script `scripts/make_qualitative.py` chỉ đọc read-only tệp ảnh PNG gốc (`data/kitti/image_2/{frame_id}.png`) theo `frame_id` và các bản ghi dự đoán tĩnh từ `yolo11s_640_T_predictions.parquet`. Không gọi `load_split`, không rerun model, không đọc nhãn annotation mới. Khóa `runs/final_T.lock` giữ nguyên vẹn 100%.
+  * Thẩm định trực quan 8 ca đại diện: (1) Side view ($\theta = 8.6^\circ < 30^\circ$, D19); (2) Near physical bias (0–10m Pattern 111, D21/D92, under-predicts -11.2%, residual bù chuẩn xác); (3) Truncation bottom edge touch (D84, CQR nới rộng $[4.08, 7.07]$m chứa an toàn GT 6.37m); (4) Fallback pattern 000 (D74, CQR $[7.22, 10.33]$m chứa an toàn GT 7.91m); (5) Top-1 failure outlier (AbsRel 42.92%); (6) Thành công 10–20m (AbsRel 0.04%); (7) Thành công 20–30m (AbsRel 1.69%); (8) Thành công Hard (AbsRel 2.59%). Xuất 8 ảnh đơn lẻ 300 DPI, 1 ảnh lưới tổng hợp 4x2 `qualitative_grid_summary.png` và manifest JSON `qualitative_manifest.json`.
 
 
 
@@ -304,10 +313,43 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 1 (W3-1):** Nghiệm thu Split T qua runner một lần (T12, tag `final-config-v1`, D69), Bảng đánh giá chính trên Split T (T13, D70–D82).
 - [x] **Ngày 2 (W3-2):** Phân tích lỗi chuyên sâu trên Split T (T14, D19, D21, D32, D54, D70, D84); Thí nghiệm độ nhạy thu gọn (T09, D14, D23, D36, D39, D85).
 - [x] **Ngày 3 (W3-3):** Độ phủ có điều kiện trên Split T và kiểm định tính khả hoán $C \leftrightarrow T$ (T15, D19, D47, D50, D54, D55, D74, D75, D79, D86–D88).
+- [x] **Ngày 4 (W3-4):** Benchmark độ trễ Tier 1 chính thức (GPU FP16 + CPU ORT) và Hình ảnh định tính Split T (T16, D40, D44, D90, D94–D96).
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-4 — 13/10/2026: Benchmark Độ Trễ Tier 1 Chuẩn & Hình Ảnh Định Tính Split T (T16) (D94–D96)
+- **Hoàn thành T16 — Đo độ trễ Tier 1 chính thức & Trực quan hóa định tính Split T (Zero-Touch D70, D90):**
+  - **Tái cấu trúc Benchmark Độ trễ Tier 1 (`scripts/bench_latency.py`, D94):**
+    * Khắc phục 4 lỗi phương pháp luận của bản sơ bộ T06:
+      1. Tách rạch ròi tiền xử lý riêng (`cv2.cvtColor`, letterbox, CHW, float32/fp16 scale), đo model forward thô bằng `model_pt.model(x)` (PyTorch CUDA Half FP16 có `torch.cuda.synchronize()`), decode postprocess NMS riêng, loại bỏ hoàn toàn hiện tượng double-counting tiền xử lý.
+      2. Tính thời gian $t_{\text{total}}^{(i)}$ end-to-end trên từng ảnh $i$ độc lập, tính trực tiếp Median, Mean, P95, IQR, FPS trên chuỗi tổng per-image, khắc phục lỗi toán học sum-of-medians. Dữ liệu thực nghiệm xác nhận tính phi cộng của trung vị: $t_{\text{total}}$ thực tế lớn hơn tổng các trung vị đơn lẻ từ +0.03 ms đến +0.46 ms.
+      3. Đo khâu residual với 17 đặc trưng vector hóa thực tế từ bbox và confidence thật, dùng ma trận P2 frame tương ứng, xử lý fallback $Z_e$ trực tiếp (loại bỏ đường tắt mock feature của T06).
+      4. Bổ sung khâu CQR timing đầy đủ (2 mô hình LightGBM $q_{0.05}$ và $q_{0.95}$, áp dụng scaling log-residual và ngưỡng nonconformity $\hat{Q}$).
+    * Đo đạc chính thức trên 200 ảnh Split B (20 warmup):
+      - `yolo11s_640`: GPU = **63.64 ms (P95: 72.05 ms, 15.7 FPS)**; CPU = **130.52 ms (P95: 138.52 ms, 7.7 FPS)**.
+      - `yolov8s_640`: GPU = **45.77 ms (P95: 56.31 ms, 21.8 FPS)**; CPU = **158.39 ms (P95: 168.38 ms, 6.3 FPS)**.
+      - `yolov5su_640`: GPU = **48.37 ms (P95: 86.26 ms, 20.7 FPS)**; CPU = **136.16 ms (P95: 141.76 ms, 7.3 FPS)**.
+      - Chi phí khâu hậu detector: Hình học ~0.18–0.19 ms, Residual ~0.60–0.64 ms, CQR ~0.59–0.60 ms (tổng cộng ~1.4 ms/ảnh, <2.5% thời gian GPU), chứng minh overhead của hybrid và conformal là không đáng kể.
+    * Kiểm tra tương đồng PyTorch vs ONNX Runtime (Parity Check, D95): Count Parity đạt chuẩn [0.95, 1.05] (0.974–1.009), IoU Match Rate đạt 0.9095–0.9437 (dưới ngưỡng 0.95 do khác biệt letterbox dynamic vs static square 640). Báo cáo độc lập cả hai số liệu theo AGENT_RULES §1.9.
+    * Đã xuất `results/tables/latency_tier1.json`, `results/tables/latency_tier1.md` và ghi nhận log `runs/pipeline_log.jsonl`.
+  - **Trực quan hóa Định tính Split T (`scripts/make_qualitative.py`, D90, D96):**
+    * Tuân thủ nghiêm ngặt Zero-Touch Split T (D70, D90): Chỉ mở read-only các tệp ảnh PNG gốc (`data/kitti/image_2/{frame_id}.png`) theo `frame_id` và bảng kết quả dự đoán tĩnh `yolo11s_640_T_predictions.parquet`. Khóa `runs/final_T.lock` giữ nguyên vẹn 100%.
+    * Xử lý đọc/ghi an toàn Unicode path Windows (`cv2_imread_unicode`, `cv2_imwrite_unicode`).
+    * Kết xuất thành công 8 trường hợp nghiên cứu điển hình 300 DPI + 1 lưới tổng hợp 4x2 (`qualitative_grid_summary.png`) + manifest JSON (`results/figures/qualitative_manifest.json`):
+      1. `qualitative_01_side_view_d19.png`: Nhìn ngang ($\theta = 8.6^\circ < 30^\circ$, D19, frame `000006`, $Z_{\text{gt}}=15.42$m, $Z_w=28.18$m lệch +82.7%, $\hat{Z}_f=14.47$m, CQR $[12.28, 17.58]$m).
+      2. `qualitative_02_near_physical_bias_d21.png`: Lệch tâm vật lý 3D dải 0–10m (D21/D92, frame `000385`, $Z_d=7.02$m lệch -11.2%, $\hat{Z}_f=7.99$m, $Z_{\text{gt}}=7.91$m, CQR $[6.79, 9.71]$m).
+      3. `qualitative_03_truncated_edge_d84.png`: Cắt biên ảnh chạm đáy (D84, frame `000152`, truncation 0.35, CQR nở rộng $[4.08, 7.07]$m chứa an toàn $Z_{\text{gt}}=6.37$m).
+      4. `qualitative_04_fallback_pattern000_d74.png`: Fallback mất sạch cue hình học (D74, frame `000211`, $\hat{Z}_e=7.75$m, CQR $[7.22, 10.33]$m chứa an toàn $Z_{\text{gt}}=7.91$m).
+      5. `qualitative_05_top1_failure.png`: Ca lỗi lớn nhất (frame `001414`, $Z_{\text{gt}}=5.40$m, $\hat{Z}_f=7.71$m, AbsRel 42.92%, do bóng tối che khuất nửa thân xe).
+      6. `qualitative_06_success_10_20m.png`: Thành công 10–20m (frame `003811`, $Z_{\text{gt}}=14.28$m, $\hat{Z}_f=14.29$m, AbsRel 0.04%).
+      7. `qualitative_07_success_20_30m.png`: Thành công 20–30m (frame `004233`, $Z_{\text{gt}}=22.92$m, $\hat{Z}_f=22.53$m, AbsRel 1.69%).
+      8. `qualitative_08_success_hard.png`: Thành công ca khó Hard KITTI (frame `004401`, $Z_{\text{gt}}=15.53$m, $\hat{Z}_f=15.13$m, AbsRel 2.59%).
+  - **Kiểm thử và Hồi quy:**
+    * Tạo `tests/test_latency_bench.py`: 7/7 tests pass.
+    * Tạo `tests/test_qualitative.py`: 11/11 tests pass.
+    * Toàn bộ test suite dự án `pytest -q`: **214 passed** 100% trong 62.67s.
 
 ### W3-3 — 12/10/2026: Đánh Giá Độ Phủ Có Điều Kiện & Kiểm Định Tính Khả Hoán Split T (T15) (D86–D88)
 - **Hoàn thành T15 — Độ phủ có điều kiện & Kiểm định khả hoán trên Split T (Zero-Touch D70):**
