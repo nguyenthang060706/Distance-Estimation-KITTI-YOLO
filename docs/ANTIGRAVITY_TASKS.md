@@ -238,9 +238,14 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 4. Trích xuất Top 50 thất bại lớn nhất (AbsRel từ 0.165 đến 0.429, 12 ca fallback, 20 ca ở gần 0-10m) và 10 ca thành công đại diện (seed=42) sẵn sàng cho T16. Output: `results/tables/error_analysis_top_failures_T.md` và `results/final/top_failures_manifest.json`.
 5. Unit tests: 8/8 tests pass (`tests/test_error_analysis.py`). Guard 3 pass 100%. Split T lockfile giữ nguyên vẹn.
 
-### T15 — Coverage có điều kiện trên T (W3-3)
-**Làm:** coverage và độ rộng của CQR / split / Mondrian trên T theo dải, truncated, occluded, cờ chạm biên, θ, `fallback_flag`, từng drive; kiểm exchangeability C vs T (KS cho Ẑ, confidence, tỉ lệ mask) và chỉ ra chỗ vỡ nếu có; mọi CI "thô (10 cụm)".
-**Cấm:** hiệu chỉnh lại khoảng trên T.
+### T15 — Coverage có điều kiện trên T (W3-3) — [x] HOÀN THÀNH
+**Mục tiêu:** coverage và độ rộng của CQR / split / Mondrian trên T theo dải, truncated, occluded, cờ chạm biên, θ, `fallback_flag`, từng drive; kiểm exchangeability C vs T (KS cho Ẑ, confidence, tỉ lệ mask) và chỉ ra chỗ vỡ nếu có; mọi CI "thô (10 cụm)".
+**Kết quả thực hiện:**
+1. Bóc tách độ phủ qua 7 phân nhóm có điều kiện trên cả 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`). Báo cáo đầy đủ $n_{\text{TP}}, n_{\text{FN}}, n_{\text{GT}}$, Recall, $k$, Coverage, Mean Width, Winkler score trong log-space và 0 crossing. Output: `results/tables/coverage_conditional_T.{json,md}`.
+2. Bóc tách theo cụm drive và Macro kép (D50, D75): Cụm `drive_0002` ($n=2$) kéo macro 10 drive của YOLO11s xuống 87.93%, trong khi trên 8 drive có $n \ge 30$, macro coverage đạt 97.41%–97.50% đồng đều ở cả 3 detector. Output: `results/tables/coverage_per_drive_T.{json,md}`.
+3. Kiểm định khả hoán $C \leftrightarrow T$ (KS-test): Chứng minh định lượng tính bảo thủ over-coverage ngoài mẫu (96.4%–97.1%) do Split C có sai số $|r|$ cao hơn T rõ rệt (KS stat = 0.1427–0.1621, $p \le 5.22 \times 10^{-17}$), trong khi các cờ mask biên hoàn toàn đồng nhất ($p \ge 0.97$). Output: `results/tables/exchangeability_c_vs_t.{json,md}`.
+4. Xác nhận độ phủ nhóm Fallback Pattern 000 ($n=36$) đạt 77.8%–86.1%, củng cố việc sửa lỗi cú pháp `base_score` v1.1 theo D74.
+5. Unit tests: 8/8 tests pass (`tests/test_conditional_coverage.py`). Toàn bộ repo đạt 195 passed tests. Đã ghi log `T15-Conditional-Coverage-T` vào `runs/pipeline_log.jsonl`.
 
 ### T16 — Latency cuối + hình định tính (W3-4)
 **Làm:** (1) hoàn thiện `latency_tier1` với khâu CQR; (2) `scripts/make_qualitative.py`: 6–10 hình (ảnh gốc từ `data/kitti/image_2`, bbox, Ẑ, khoảng [Z_lo, Z_hi], Z thật) gồm xe ngang, dốc, bị cắt biên và vài ca đúng, chọn từ danh sách top-k của T14 + một số ca ngẫu nhiên có seed; ghi `results/figures/qualitative_*.png`. Tier 2 (INT8 YOLO11n) chỉ khi thầy xác nhận; chưa có xác nhận thì bỏ qua.

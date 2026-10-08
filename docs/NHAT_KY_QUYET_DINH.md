@@ -186,6 +186,9 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Quy chuẩn sửa serialization an toàn & bảo toàn SHA models đóng băng (D83):** Bổ sung bước sanitize chuỗi `base_score` trong `save_model_f`, `save_model_e`, và `save_quantile_model` chỉ áp dụng khi ghi model mới (huấn luyện/kiểm thử mới); tuyệt đối không ghi đè hay làm thay đổi mã băm SHA-256 của các artifact mô hình đã đóng băng trong `runs/residual/` (Guard 3 giữ nguyên 100% SHA).
 - ✅ **Định nghĩa Pattern 111 không chạm biên trong T14 (D84):** Do `predictions.parquet` không lưu cờ `touch_*`, nhóm "Pattern 111 không chạm biên" được định nghĩa chặt chẽ là các mẫu thỏa mãn đồng thời cả 3 cờ `valid_w == 1 & valid_h == 1 & valid_g == 1` (theo quy tắc mask viền ảnh eps=2 px). Ở cự ly 0-10m, nhóm này có Median Rel Bias dao động từ -0.27% đến -1.16%, chứng minh sai số cự ly gần bắt nguồn từ che khuất/cắt biên thay vì lệch tâm vật lý 3D.
 - ✅ **Thu gọn phạm vi T09 theo D36/D39 (D85):** Thí nghiệm độ nhạy T09.1 (bỏ drive 0059/0104) thực hiện trên detector chính `yolo11s_640`; thí nghiệm T09.2 đánh giá sàn tin cậy `conf >= 0.05` vs `pass_thr`; thí nghiệm T09.3 (eps mask) chủ động cắt giảm khi thời gian chạm mốc 16:30 để bảo toàn đường găng T14 theo đúng thỏa thuận D39. Toàn bộ kết quả lưu cô lập tại `results/sensitivity/`.
+- ✅ **Quy chuẩn phân tầng độ phủ có điều kiện và xử lý cỡ mẫu nhỏ trên Split T (D86):** Mọi bảng độ phủ phân nhóm trên Split T bắt buộc báo cáo song song số mẫu duy nhất ($n_{\text{TP}}$), số mẫu bỏ sót ($n_{\text{FN}}$), Recall, số cụm drive ($k$) và gắn cờ `*` cảnh báo khi $n_{\text{TP}} < 100$. Tuyệt đối không suy diễn kết luận trên các phân nhóm cỡ mẫu nhỏ (đặc biệt dải $>50$ m chỉ có $n \le 9$ TP, pooled coverage 57.1%–60.0% với $k \le 3$).
+- ✅ **Kiểm định tính khả hoán C vs T và giải trình cơ chế over-coverage bảo thủ ngoài mẫu (D87):** Kiểm định 2-mẫu Kolmogorov-Smirnov giữa Split C và Split T trên Ẑ, confidence, tỷ lệ mask cue và sai số $|r|$ xác nhận: Các cờ mask biên ảnh hoàn toàn đồng nhất giữa C và T ($p \ge 0.97$), nhưng sai số $|r|$ lệch rất lớn (KS stat = 0.1427–0.1621, $p \le 5.22 \times 10^{-17}$, Mean $|r|$ trên C là 0.081–0.085 vs 0.067 trên T). Hiện tượng Standard CQR đạt độ phủ $96.4\% - 97.1\%$ trên Split T (vượt mức danh nghĩa 90%) bắt nguồn từ việc Split C có độ khó cao hơn, nới rộng ngưỡng $\hat{Q}$ hiệu chuẩn, tạo tính bảo thủ ngoài mẫu khi kiểm định trên T.
+- ✅ **Đánh giá hiệu quả bù trừ cục bộ của Mondrian CQR trên Split T (D88):** Mondrian CQR hiệu chuẩn riêng theo từng bin cự ly Ẑ mang lại cải thiện độ phủ ở dải gần $0\text{--}10$ m (tăng từ 91.8% lên 94.1% ở YOLO11s, từ 93.4% lên 99.6% ở YOLOv8s) và nhóm cắt biên nặng (tăng từ 77.8% lên 80.6% ở fallback pattern 000). Tuy nhiên, độ rộng khoảng tăng tương ứng ở dải gần ($1.473\times$ đến $1.816\times$), và trên toàn bộ tập T, khoảng tin cậy Bootstrap 95% giữa CQR và Mondrian chồng lấn nhau (D52), do đó Standard CQR vẫn giữ vai trò phương án chính tiên nghiệm.
 
 
 
@@ -286,10 +289,23 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ### Tuần 3
 - [x] **Ngày 1 (W3-1):** Nghiệm thu Split T qua runner một lần (T12, tag `final-config-v1`, D69), Bảng đánh giá chính trên Split T (T13, D70–D82).
 - [x] **Ngày 2 (W3-2):** Phân tích lỗi chuyên sâu trên Split T (T14, D19, D21, D32, D54, D70, D84); Thí nghiệm độ nhạy thu gọn (T09, D14, D23, D36, D39, D85).
+- [x] **Ngày 3 (W3-3):** Độ phủ có điều kiện trên Split T và kiểm định tính khả hoán $C \leftrightarrow T$ (T15, D19, D47, D50, D54, D55, D74, D75, D79, D86–D88).
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-3 — 12/10/2026: Đánh Giá Độ Phủ Có Điều Kiện & Kiểm Định Tính Khả Hoán Split T (T15) (D86–D88)
+- **Hoàn thành T15 — Độ phủ có điều kiện & Kiểm định khả hoán trên Split T (Zero-Touch D70):**
+  - **Module cốt lõi & Unit Tests:** Xây dựng `src/uncertainty/conditional_coverage.py` và bộ kiểm thử `tests/test_conditional_coverage.py` (8/8 tests PASSED 100%), bao phủ tính coverage, width ratio, Winkler score log-space, crossing counter không silent clip, phân rã 7 phân nhóm điều kiện, drive-level breakdown, 2-sample KS-test và cluster bootstrap CI (10 cụm).
+  - **Runner & Artifacts:** Xây dựng và thực thi `scripts/run_conditional_coverage_t15.py` đọc dữ liệu tĩnh từ `results/final/` và `results/predictions/` cho cả 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`), xuất đủ 6 output artifacts:
+    1. `results/tables/coverage_conditional_T.{json,md}`: Phân rã độ phủ qua 7 phân nhóm: Ẑ prospective bins, $Z_{\text{gt}}$ retrospective bins, truncation & touch edges (D84), occlusion, viewing angle $\theta$ (D19), difficulty (nested & disjoint), và fallback pattern 000 (D74). Báo cáo song song $n_{\text{TP}}, n_{\text{FN}}, n_{\text{GT}}$, Recall (chống survivorship bias theo D32), $k$, Coverage, Mean Width, Winkler score trong log-space và 0 crossing.
+    2. `results/tables/coverage_per_drive_T.{json,md}`: Bóc tách theo 10 cụm drive của Split T và Macro kép (D50, D75): Cụm `drive_0002` ($n=2$) kéo macro 10 drive của YOLO11s xuống 87.93%, trong khi trên 8 drive có $n \ge 30$, macro coverage đạt 97.41%–97.50% đồng đều ở cả 3 detector.
+    3. `results/tables/exchangeability_c_vs_t.{json,md}`: Kiểm định 2-mẫu Kolmogorov-Smirnov ($C \leftrightarrow T$) trên 7 biến quan sát: Xác nhận các cờ mask biên ảnh hoàn toàn đồng nhất ($p \ge 0.97$), nhưng sai số $|r|$ lệch rất lớn (KS stat = 0.1427–0.1621, $p \le 5.22 \times 10^{-17}$, Mean $|r|$ trên C là 0.081–0.085 vs 0.067 trên T). Giải trình định lượng cơ chế over-coverage bảo thủ ngoài mẫu (96.4%–97.1%) trên Split T (D79).
+  - **Kiểm chứng bổ sung:**
+    * Nhóm Fallback Pattern 000 ($n=36$) đạt độ phủ 77.8%–86.1%, tái lập vững chắc tính đúng đắn của việc khắc phục bug `base_score` v1.1 theo D74.
+    * Mondrian CQR cải thiện độ phủ ở cự ly gần 0–10m (94.1% ở 11s, 99.6% ở v8s so với 91.8% và 93.4% của CQR) và nhóm cắt biên nặng (80.6% vs 77.8%), với bề rộng khoảng tăng tương ứng. Standard CQR vẫn giữ vai trò phương án chính tiên nghiệm theo D55/D88.
+  - **Kiểm thử hồi quy:** Toàn bộ test suite `pytest -q` đạt 195/195 tests xanh 100%. Ghi nhận bản ghi log `T15-Conditional-Coverage-T` vào `runs/pipeline_log.jsonl`.
 
 ### W3-2 — 11/10/2026: Phân Tích Lỗi Toàn Diện Split T (T14) & Thí Nghiệm Độ Nhạy Thu Gọn (T09) (D83–D85)
 - **Hoàn thành T14 — Phân tích lỗi chuyên sâu trên Split T (Zero-Touch D70):**

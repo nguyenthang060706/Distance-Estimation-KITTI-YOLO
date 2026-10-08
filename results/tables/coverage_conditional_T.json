@@ -1,0 +1,3158 @@
+{
+  "yolo11s_640": {
+    "categories": {
+      "z_hat_prospective": [
+        {
+          "n_tp": 256,
+          "n_fn": 14,
+          "n_gt": 270,
+          "recall": 0.9481,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.918,
+            "mean_width": 1.429,
+            "median_width": 1.37,
+            "mean_winkler": 0.4149,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8945,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.4185,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9414,
+            "mean_width": 1.473,
+            "median_width": 1.412,
+            "mean_winkler": 0.4251,
+            "crossings": 0
+          },
+          "subgroup": "0-10"
+        },
+        {
+          "n_tp": 835,
+          "n_fn": 65,
+          "n_gt": 900,
+          "recall": 0.9278,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9772,
+            "mean_width": 1.319,
+            "median_width": 1.314,
+            "mean_winkler": 0.288,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9808,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2909,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9509,
+            "mean_width": 1.242,
+            "median_width": 1.237,
+            "mean_winkler": 0.246,
+            "crossings": 0
+          },
+          "subgroup": "10-20"
+        },
+        {
+          "n_tp": 801,
+          "n_fn": 107,
+          "n_gt": 908,
+          "recall": 0.8822,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9675,
+            "mean_width": 1.311,
+            "median_width": 1.319,
+            "mean_winkler": 0.2969,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9613,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2976,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9476,
+            "mean_width": 1.259,
+            "median_width": 1.267,
+            "mean_winkler": 0.2725,
+            "crossings": 0
+          },
+          "subgroup": "20-30"
+        },
+        {
+          "n_tp": 815,
+          "n_fn": 288,
+          "n_gt": 1103,
+          "recall": 0.7389,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9632,
+            "mean_width": 1.293,
+            "median_width": 1.286,
+            "mean_winkler": 0.2748,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9718,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2913,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9742,
+            "mean_width": 1.323,
+            "median_width": 1.317,
+            "mean_winkler": 0.2914,
+            "crossings": 0
+          },
+          "subgroup": "30-50"
+        },
+        {
+          "n_tp": 5,
+          "n_fn": 26,
+          "n_gt": 31,
+          "recall": 0.1613,
+          "k_clusters": 2,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.6,
+            "mean_width": 1.381,
+            "median_width": 1.372,
+            "mean_winkler": 0.5174,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.4,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.6993,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.6,
+            "mean_width": 1.414,
+            "median_width": 1.405,
+            "mean_winkler": 0.4465,
+            "crossings": 0
+          },
+          "subgroup": ">50"
+        },
+        {
+          "n_tp": 820,
+          "n_fn": 313,
+          "n_gt": 1133,
+          "recall": 0.7237,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.961,
+            "mean_width": 1.293,
+            "median_width": 1.287,
+            "mean_winkler": 0.2763,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9683,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2938,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.972,
+            "mean_width": 1.324,
+            "median_width": 1.317,
+            "mean_winkler": 0.2923,
+            "crossings": 0
+          },
+          "subgroup": ">30 (grouped)"
+        }
+      ],
+      "z_gt_retrospective": [
+        {
+          "n_tp": 261,
+          "n_fn": 14,
+          "n_gt": 275,
+          "recall": 0.9491,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9157,
+            "mean_width": 1.428,
+            "median_width": 1.37,
+            "mean_winkler": 0.4116,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8889,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.4192,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9272,
+            "mean_width": 1.464,
+            "median_width": 1.401,
+            "mean_winkler": 0.4282,
+            "crossings": 0
+          },
+          "subgroup": "0-10"
+        },
+        {
+          "n_tp": 831,
+          "n_fn": 65,
+          "n_gt": 896,
+          "recall": 0.9275,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9759,
+            "mean_width": 1.32,
+            "median_width": 1.314,
+            "mean_winkler": 0.2881,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9795,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2884,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9507,
+            "mean_width": 1.245,
+            "median_width": 1.24,
+            "mean_winkler": 0.2459,
+            "crossings": 0
+          },
+          "subgroup": "10-20"
+        },
+        {
+          "n_tp": 804,
+          "n_fn": 107,
+          "n_gt": 911,
+          "recall": 0.8825,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9726,
+            "mean_width": 1.315,
+            "median_width": 1.321,
+            "mean_winkler": 0.2942,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9652,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.299,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9565,
+            "mean_width": 1.267,
+            "median_width": 1.269,
+            "mean_winkler": 0.2679,
+            "crossings": 0
+          },
+          "subgroup": "20-30"
+        },
+        {
+          "n_tp": 809,
+          "n_fn": 288,
+          "n_gt": 1097,
+          "recall": 0.7375,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9617,
+            "mean_width": 1.289,
+            "median_width": 1.284,
+            "mean_winkler": 0.2762,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9703,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2928,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9716,
+            "mean_width": 1.315,
+            "median_width": 1.313,
+            "mean_winkler": 0.2931,
+            "crossings": 0
+          },
+          "subgroup": "30-50"
+        },
+        {
+          "n_tp": 7,
+          "n_fn": 26,
+          "n_gt": 33,
+          "recall": 0.2121,
+          "k_clusters": 3,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.5714,
+            "mean_width": 1.317,
+            "median_width": 1.28,
+            "mean_winkler": 0.6059,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.7143,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.4232,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.5714,
+            "mean_width": 1.348,
+            "median_width": 1.311,
+            "mean_winkler": 0.5282,
+            "crossings": 0
+          },
+          "subgroup": ">50"
+        },
+        {
+          "n_tp": 816,
+          "n_fn": 313,
+          "n_gt": 1129,
+          "recall": 0.7228,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9583,
+            "mean_width": 1.289,
+            "median_width": 1.284,
+            "mean_winkler": 0.279,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9681,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.294,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9681,
+            "mean_width": 1.315,
+            "median_width": 1.313,
+            "mean_winkler": 0.2952,
+            "crossings": 0
+          },
+          "subgroup": ">30 (grouped)"
+        }
+      ],
+      "truncation_and_edges": [
+        {
+          "n_tp": 2516,
+          "n_fn": 483,
+          "n_gt": 2999,
+          "recall": 0.8389,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9694,
+            "mean_width": 1.305,
+            "median_width": 1.304,
+            "mean_winkler": 0.2841,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9734,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2912,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9599,
+            "mean_width": 1.276,
+            "median_width": 1.27,
+            "mean_winkler": 0.2684,
+            "crossings": 0
+          },
+          "subgroup": "No Truncation (0.0)"
+        },
+        {
+          "n_tp": 71,
+          "n_fn": 5,
+          "n_gt": 76,
+          "recall": 0.9342,
+          "k_clusters": 7,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.9155,
+            "mean_width": 1.468,
+            "median_width": 1.435,
+            "mean_winkler": 0.424,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8873,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.537,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9577,
+            "mean_width": 1.485,
+            "median_width": 1.465,
+            "mean_winkler": 0.4133,
+            "crossings": 0
+          },
+          "subgroup": "Mild (0.0 < t <= 0.15)"
+        },
+        {
+          "n_tp": 125,
+          "n_fn": 12,
+          "n_gt": 137,
+          "recall": 0.9124,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.88,
+            "mean_width": 1.521,
+            "median_width": 1.516,
+            "mean_winkler": 0.5289,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.468,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.864,
+            "mean_width": 1.536,
+            "median_width": 1.537,
+            "mean_winkler": 0.5415,
+            "crossings": 0
+          },
+          "subgroup": "Moderate/Severe (0.15 < t <= 0.50)"
+        },
+        {
+          "n_tp": 2518,
+          "n_fn": 0,
+          "n_gt": 2518,
+          "recall": 1.0,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9702,
+            "mean_width": 1.305,
+            "median_width": 1.305,
+            "mean_winkler": 0.283,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9742,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2904,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9607,
+            "mean_width": 1.276,
+            "median_width": 1.27,
+            "mean_winkler": 0.2671,
+            "crossings": 0
+          },
+          "subgroup": "No Edge Touch (Pattern 111)"
+        },
+        {
+          "n_tp": 82,
+          "n_fn": 0,
+          "n_gt": 82,
+          "recall": 1.0,
+          "k_clusters": 7,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.878,
+            "mean_width": 1.408,
+            "median_width": 1.402,
+            "mean_winkler": 0.4175,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8049,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.4141,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8537,
+            "mean_width": 1.378,
+            "median_width": 1.356,
+            "mean_winkler": 0.4324,
+            "crossings": 0
+          },
+          "subgroup": "Touch Horizontal (valid_w=0)"
+        },
+        {
+          "n_tp": 76,
+          "n_fn": 0,
+          "n_gt": 76,
+          "recall": 1.0,
+          "k_clusters": 8,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.9342,
+            "mean_width": 1.587,
+            "median_width": 1.606,
+            "mean_winkler": 0.5234,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9211,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3666,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9605,
+            "mean_width": 1.636,
+            "median_width": 1.655,
+            "mean_winkler": 0.5359,
+            "crossings": 0
+          },
+          "subgroup": "Touch Vertical (valid_h=0 or valid_g=0)"
+        },
+        {
+          "n_tp": 36,
+          "n_fn": 0,
+          "n_gt": 36,
+          "recall": 1.0,
+          "k_clusters": 6,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.7778,
+            "mean_width": 1.572,
+            "median_width": 1.58,
+            "mean_winkler": 0.6823,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.6389,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 1.0047,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8056,
+            "mean_width": 1.62,
+            "median_width": 1.628,
+            "mean_winkler": 0.6514,
+            "crossings": 0
+          },
+          "subgroup": "Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))"
+        }
+      ],
+      "occlusion": [
+        {
+          "n_tp": 1624,
+          "n_fn": 65,
+          "n_gt": 1689,
+          "recall": 0.9615,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9661,
+            "mean_width": 1.304,
+            "median_width": 1.294,
+            "mean_winkler": 0.2886,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9704,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3003,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.96,
+            "mean_width": 1.284,
+            "median_width": 1.263,
+            "mean_winkler": 0.2733,
+            "crossings": 0
+          },
+          "subgroup": "0 (Fully visible)"
+        },
+        {
+          "n_tp": 790,
+          "n_fn": 231,
+          "n_gt": 1021,
+          "recall": 0.7738,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9595,
+            "mean_width": 1.335,
+            "median_width": 1.325,
+            "mean_winkler": 0.3088,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9506,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3076,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9456,
+            "mean_width": 1.306,
+            "median_width": 1.286,
+            "mean_winkler": 0.3024,
+            "crossings": 0
+          },
+          "subgroup": "1 (Partly occluded)"
+        },
+        {
+          "n_tp": 298,
+          "n_fn": 204,
+          "n_gt": 502,
+          "recall": 0.5936,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9631,
+            "mean_width": 1.365,
+            "median_width": 1.359,
+            "mean_winkler": 0.3303,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9564,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3307,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9564,
+            "mean_width": 1.314,
+            "median_width": 1.303,
+            "mean_winkler": 0.3007,
+            "crossings": 0
+          },
+          "subgroup": "2 (Largely occluded)"
+        }
+      ],
+      "viewing_angle_theta": [
+        {
+          "n_tp": 362,
+          "n_fn": 99,
+          "n_gt": 461,
+          "recall": 0.7852,
+          "k_clusters": 5,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9365,
+            "mean_width": 1.363,
+            "median_width": 1.356,
+            "mean_winkler": 0.3473,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9309,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3523,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9282,
+            "mean_width": 1.304,
+            "median_width": 1.291,
+            "mean_winkler": 0.3302,
+            "crossings": 0
+          },
+          "subgroup": "Side (<30°)"
+        },
+        {
+          "n_tp": 249,
+          "n_fn": 81,
+          "n_gt": 330,
+          "recall": 0.7545,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9598,
+            "mean_width": 1.375,
+            "median_width": 1.359,
+            "mean_winkler": 0.3501,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9277,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3373,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9478,
+            "mean_width": 1.36,
+            "median_width": 1.348,
+            "mean_winkler": 0.3436,
+            "crossings": 0
+          },
+          "subgroup": "Diagonal (30–60°)"
+        },
+        {
+          "n_tp": 2101,
+          "n_fn": 320,
+          "n_gt": 2421,
+          "recall": 0.8678,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9691,
+            "mean_width": 1.305,
+            "median_width": 1.296,
+            "mean_winkler": 0.2847,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9729,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.294,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.961,
+            "mean_width": 1.284,
+            "median_width": 1.264,
+            "mean_winkler": 0.27,
+            "crossings": 0
+          },
+          "subgroup": "Front/Rear (>60°)"
+        }
+      ],
+      "difficulty": [
+        {
+          "n_tp": 1004,
+          "n_fn": 20,
+          "n_gt": 1024,
+          "recall": 0.9805,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9811,
+            "mean_width": 1.298,
+            "median_width": 1.298,
+            "mean_winkler": 0.2759,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9851,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2873,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9661,
+            "mean_width": 1.249,
+            "median_width": 1.238,
+            "mean_winkler": 0.2437,
+            "crossings": 0
+          },
+          "subgroup": "Easy (nested)"
+        },
+        {
+          "n_tp": 2338,
+          "n_fn": 291,
+          "n_gt": 2629,
+          "recall": 0.8893,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9683,
+            "mean_width": 1.307,
+            "median_width": 1.301,
+            "mean_winkler": 0.2862,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9722,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2952,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9598,
+            "mean_width": 1.283,
+            "median_width": 1.269,
+            "mean_winkler": 0.2729,
+            "crossings": 0
+          },
+          "subgroup": "Moderate (nested)"
+        },
+        {
+          "n_tp": 2712,
+          "n_fn": 500,
+          "n_gt": 3212,
+          "recall": 0.8443,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9639,
+            "mean_width": 1.319,
+            "median_width": 1.31,
+            "mean_winkler": 0.2991,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9631,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3058,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9554,
+            "mean_width": 1.294,
+            "median_width": 1.277,
+            "mean_winkler": 0.2848,
+            "crossings": 0
+          },
+          "subgroup": "Hard (nested)"
+        },
+        {
+          "subgroup": "---"
+        },
+        {
+          "n_tp": 1004,
+          "n_fn": 20,
+          "n_gt": 1024,
+          "recall": 0.9805,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9811,
+            "mean_width": 1.298,
+            "median_width": 1.298,
+            "mean_winkler": 0.2759,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9851,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2873,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9661,
+            "mean_width": 1.249,
+            "median_width": 1.238,
+            "mean_winkler": 0.2437,
+            "crossings": 0
+          },
+          "subgroup": "Easy (disjoint)"
+        },
+        {
+          "n_tp": 1334,
+          "n_fn": 271,
+          "n_gt": 1605,
+          "recall": 0.8312,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9588,
+            "mean_width": 1.314,
+            "median_width": 1.305,
+            "mean_winkler": 0.294,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9625,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3012,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.955,
+            "mean_width": 1.308,
+            "median_width": 1.296,
+            "mean_winkler": 0.2949,
+            "crossings": 0
+          },
+          "subgroup": "Moderate (disjoint)"
+        },
+        {
+          "n_tp": 374,
+          "n_fn": 209,
+          "n_gt": 583,
+          "recall": 0.6415,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9358,
+            "mean_width": 1.396,
+            "median_width": 1.368,
+            "mean_winkler": 0.3793,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9064,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.3718,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9278,
+            "mean_width": 1.359,
+            "median_width": 1.318,
+            "mean_winkler": 0.3587,
+            "crossings": 0
+          },
+          "subgroup": "Hard (disjoint)"
+        }
+      ],
+      "fallback_pattern_000": [
+        {
+          "n_tp": 36,
+          "n_fn": 0,
+          "n_gt": 36,
+          "recall": 1.0,
+          "k_clusters": 6,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.7778,
+            "mean_width": 1.572,
+            "median_width": 1.58,
+            "mean_winkler": 0.6823,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.6389,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 1.0047,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8056,
+            "mean_width": 1.62,
+            "median_width": 1.628,
+            "mean_winkler": 0.6514,
+            "crossings": 0
+          },
+          "subgroup": "Fallback (Pattern 000)"
+        },
+        {
+          "n_tp": 2676,
+          "n_fn": 500,
+          "n_gt": 3176,
+          "recall": 0.8426,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9664,
+            "mean_width": 1.316,
+            "median_width": 1.308,
+            "mean_winkler": 0.2939,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9675,
+            "mean_width": 1.322,
+            "median_width": 1.322,
+            "mean_winkler": 0.2964,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9574,
+            "mean_width": 1.289,
+            "median_width": 1.276,
+            "mean_winkler": 0.2798,
+            "crossings": 0
+          },
+          "subgroup": "Fused Geometric (>=1 cue)"
+        }
+      ]
+    },
+    "bootstrap_ci_95": {
+      "cqr": {
+        "method": "cqr",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9472,
+          0.9801
+        ],
+        "width_ci_95": [
+          1.296,
+          1.343
+        ],
+        "note": "CI thô (10 cụm)"
+      },
+      "sc": {
+        "method": "sc",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9452,
+          0.9799
+        ],
+        "width_ci_95": [
+          1.322,
+          1.322
+        ],
+        "note": "CI thô (10 cụm)"
+      },
+      "mondrian": {
+        "method": "mondrian",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9347,
+          0.9801
+        ],
+        "width_ci_95": [
+          1.28,
+          1.313
+        ],
+        "note": "CI thô (10 cụm)"
+      }
+    }
+  },
+  "yolov8s_640": {
+    "categories": {
+      "z_hat_prospective": [
+        {
+          "n_tp": 273,
+          "n_fn": 9,
+          "n_gt": 282,
+          "recall": 0.9681,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9341,
+            "mean_width": 1.447,
+            "median_width": 1.371,
+            "mean_winkler": 0.414,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9158,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.4113,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9963,
+            "mean_width": 1.816,
+            "median_width": 1.721,
+            "mean_winkler": 0.5908,
+            "crossings": 0
+          },
+          "subgroup": "0-10"
+        },
+        {
+          "n_tp": 845,
+          "n_fn": 60,
+          "n_gt": 905,
+          "recall": 0.9337,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9822,
+            "mean_width": 1.356,
+            "median_width": 1.356,
+            "mean_winkler": 0.3117,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9775,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3107,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9598,
+            "mean_width": 1.268,
+            "median_width": 1.268,
+            "mean_winkler": 0.2629,
+            "crossings": 0
+          },
+          "subgroup": "10-20"
+        },
+        {
+          "n_tp": 754,
+          "n_fn": 131,
+          "n_gt": 885,
+          "recall": 0.852,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9775,
+            "mean_width": 1.328,
+            "median_width": 1.338,
+            "mean_winkler": 0.294,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9801,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3051,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9642,
+            "mean_width": 1.261,
+            "median_width": 1.271,
+            "mean_winkler": 0.2587,
+            "crossings": 0
+          },
+          "subgroup": "20-30"
+        },
+        {
+          "n_tp": 784,
+          "n_fn": 321,
+          "n_gt": 1105,
+          "recall": 0.7095,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9707,
+            "mean_width": 1.339,
+            "median_width": 1.337,
+            "mean_winkler": 0.3003,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9719,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3122,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9809,
+            "mean_width": 1.372,
+            "median_width": 1.369,
+            "mean_winkler": 0.3189,
+            "crossings": 0
+          },
+          "subgroup": "30-50"
+        },
+        {
+          "n_tp": 4,
+          "n_fn": 31,
+          "n_gt": 35,
+          "recall": 0.1143,
+          "k_clusters": 2,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.25,
+            "mean_width": 1.393,
+            "median_width": 1.396,
+            "mean_winkler": 0.9782,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.25,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.833,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.25,
+            "mean_width": 1.427,
+            "median_width": 1.43,
+            "mean_winkler": 0.821,
+            "crossings": 0
+          },
+          "subgroup": ">50"
+        },
+        {
+          "n_tp": 788,
+          "n_fn": 351,
+          "n_gt": 1139,
+          "recall": 0.6918,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.967,
+            "mean_width": 1.339,
+            "median_width": 1.337,
+            "mean_winkler": 0.3038,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9683,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3148,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9772,
+            "mean_width": 1.372,
+            "median_width": 1.37,
+            "mean_winkler": 0.3214,
+            "crossings": 0
+          },
+          "subgroup": ">30 (grouped)"
+        }
+      ],
+      "z_gt_retrospective": [
+        {
+          "n_tp": 266,
+          "n_fn": 9,
+          "n_gt": 275,
+          "recall": 0.9673,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9361,
+            "mean_width": 1.452,
+            "median_width": 1.38,
+            "mean_winkler": 0.4161,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8985,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.4169,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9774,
+            "mean_width": 1.796,
+            "median_width": 1.726,
+            "mean_winkler": 0.5859,
+            "crossings": 0
+          },
+          "subgroup": "0-10"
+        },
+        {
+          "n_tp": 836,
+          "n_fn": 60,
+          "n_gt": 896,
+          "recall": 0.933,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9785,
+            "mean_width": 1.356,
+            "median_width": 1.354,
+            "mean_winkler": 0.3116,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9809,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3092,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9641,
+            "mean_width": 1.28,
+            "median_width": 1.269,
+            "mean_winkler": 0.269,
+            "crossings": 0
+          },
+          "subgroup": "10-20"
+        },
+        {
+          "n_tp": 780,
+          "n_fn": 131,
+          "n_gt": 911,
+          "recall": 0.8562,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9795,
+            "mean_width": 1.332,
+            "median_width": 1.343,
+            "mean_winkler": 0.2942,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9782,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3084,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9705,
+            "mean_width": 1.271,
+            "median_width": 1.278,
+            "mean_winkler": 0.2556,
+            "crossings": 0
+          },
+          "subgroup": "20-30"
+        },
+        {
+          "n_tp": 776,
+          "n_fn": 321,
+          "n_gt": 1097,
+          "recall": 0.7074,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9678,
+            "mean_width": 1.336,
+            "median_width": 1.334,
+            "mean_winkler": 0.3044,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9716,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3125,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9729,
+            "mean_width": 1.363,
+            "median_width": 1.364,
+            "mean_winkler": 0.3234,
+            "crossings": 0
+          },
+          "subgroup": "30-50"
+        },
+        {
+          "n_tp": 2,
+          "n_fn": 31,
+          "n_gt": 33,
+          "recall": 0.0606,
+          "k_clusters": 1,
+          "low_n": true,
+          "cqr": {
+            "coverage": 1.0,
+            "mean_width": 1.346,
+            "median_width": 1.346,
+            "mean_winkler": 0.2964,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 1.0,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.2963,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 1.0,
+            "mean_width": 1.379,
+            "median_width": 1.379,
+            "mean_winkler": 0.3206,
+            "crossings": 0
+          },
+          "subgroup": ">50"
+        },
+        {
+          "n_tp": 778,
+          "n_fn": 351,
+          "n_gt": 1129,
+          "recall": 0.6891,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9679,
+            "mean_width": 1.336,
+            "median_width": 1.334,
+            "mean_winkler": 0.3044,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9717,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3124,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.973,
+            "mean_width": 1.363,
+            "median_width": 1.364,
+            "mean_winkler": 0.3234,
+            "crossings": 0
+          },
+          "subgroup": ">30 (grouped)"
+        }
+      ],
+      "truncation_and_edges": [
+        {
+          "n_tp": 2463,
+          "n_fn": 536,
+          "n_gt": 2999,
+          "recall": 0.8213,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9752,
+            "mean_width": 1.339,
+            "median_width": 1.343,
+            "mean_winkler": 0.3024,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9789,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3094,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9708,
+            "mean_width": 1.319,
+            "median_width": 1.296,
+            "mean_winkler": 0.292,
+            "crossings": 0
+          },
+          "subgroup": "No Truncation (0.0)"
+        },
+        {
+          "n_tp": 72,
+          "n_fn": 4,
+          "n_gt": 76,
+          "recall": 0.9474,
+          "k_clusters": 7,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8889,
+            "mean_width": 1.464,
+            "median_width": 1.423,
+            "mean_winkler": 0.501,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.875,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.5362,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9722,
+            "mean_width": 1.717,
+            "median_width": 1.746,
+            "mean_winkler": 0.5346,
+            "crossings": 0
+          },
+          "subgroup": "Mild (0.0 < t <= 0.15)"
+        },
+        {
+          "n_tp": 125,
+          "n_fn": 12,
+          "n_gt": 137,
+          "recall": 0.9124,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.944,
+            "mean_width": 1.545,
+            "median_width": 1.519,
+            "mean_winkler": 0.4534,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.832,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.419,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.952,
+            "mean_width": 1.809,
+            "median_width": 1.874,
+            "mean_winkler": 0.5917,
+            "crossings": 0
+          },
+          "subgroup": "Moderate/Severe (0.15 < t <= 0.50)"
+        },
+        {
+          "n_tp": 2477,
+          "n_fn": 0,
+          "n_gt": 2477,
+          "recall": 1.0,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9762,
+            "mean_width": 1.339,
+            "median_width": 1.344,
+            "mean_winkler": 0.3014,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9794,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3077,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9713,
+            "mean_width": 1.321,
+            "median_width": 1.296,
+            "mean_winkler": 0.2922,
+            "crossings": 0
+          },
+          "subgroup": "No Edge Touch (Pattern 111)"
+        },
+        {
+          "n_tp": 75,
+          "n_fn": 0,
+          "n_gt": 75,
+          "recall": 1.0,
+          "k_clusters": 7,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.92,
+            "mean_width": 1.405,
+            "median_width": 1.382,
+            "mean_winkler": 0.3777,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.4405,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8933,
+            "mean_width": 1.459,
+            "median_width": 1.346,
+            "mean_winkler": 0.4286,
+            "crossings": 0
+          },
+          "subgroup": "Touch Horizontal (valid_w=0)"
+        },
+        {
+          "n_tp": 72,
+          "n_fn": 0,
+          "n_gt": 72,
+          "recall": 1.0,
+          "k_clusters": 8,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.9167,
+            "mean_width": 1.615,
+            "median_width": 1.663,
+            "mean_winkler": 0.5479,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9306,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3822,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 1.0,
+            "mean_width": 2.027,
+            "median_width": 2.087,
+            "mean_winkler": 0.7017,
+            "crossings": 0
+          },
+          "subgroup": "Touch Vertical (valid_h=0 or valid_g=0)"
+        },
+        {
+          "n_tp": 36,
+          "n_fn": 0,
+          "n_gt": 36,
+          "recall": 1.0,
+          "k_clusters": 6,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8611,
+            "mean_width": 1.609,
+            "median_width": 1.617,
+            "mean_winkler": 0.6405,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.6944,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.8426,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9722,
+            "mean_width": 2.02,
+            "median_width": 2.029,
+            "mean_winkler": 0.7035,
+            "crossings": 0
+          },
+          "subgroup": "Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))"
+        }
+      ],
+      "occlusion": [
+        {
+          "n_tp": 1609,
+          "n_fn": 80,
+          "n_gt": 1689,
+          "recall": 0.9526,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9789,
+            "mean_width": 1.34,
+            "median_width": 1.337,
+            "mean_winkler": 0.3015,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9801,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3088,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9814,
+            "mean_width": 1.353,
+            "median_width": 1.294,
+            "mean_winkler": 0.3033,
+            "crossings": 0
+          },
+          "subgroup": "0 (Fully visible)"
+        },
+        {
+          "n_tp": 776,
+          "n_fn": 245,
+          "n_gt": 1021,
+          "recall": 0.76,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9626,
+            "mean_width": 1.367,
+            "median_width": 1.356,
+            "mean_winkler": 0.3283,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9485,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3324,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.951,
+            "mean_width": 1.361,
+            "median_width": 1.313,
+            "mean_winkler": 0.3319,
+            "crossings": 0
+          },
+          "subgroup": "1 (Partly occluded)"
+        },
+        {
+          "n_tp": 275,
+          "n_fn": 227,
+          "n_gt": 502,
+          "recall": 0.5478,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9527,
+            "mean_width": 1.383,
+            "median_width": 1.382,
+            "mean_winkler": 0.355,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9636,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3571,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9564,
+            "mean_width": 1.332,
+            "median_width": 1.307,
+            "mean_winkler": 0.3136,
+            "crossings": 0
+          },
+          "subgroup": "2 (Largely occluded)"
+        }
+      ],
+      "viewing_angle_theta": [
+        {
+          "n_tp": 347,
+          "n_fn": 114,
+          "n_gt": 461,
+          "recall": 0.7527,
+          "k_clusters": 5,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9366,
+            "mean_width": 1.359,
+            "median_width": 1.352,
+            "mean_winkler": 0.3472,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9481,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3697,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9308,
+            "mean_width": 1.302,
+            "median_width": 1.274,
+            "mean_winkler": 0.3153,
+            "crossings": 0
+          },
+          "subgroup": "Side (<30°)"
+        },
+        {
+          "n_tp": 243,
+          "n_fn": 87,
+          "n_gt": 330,
+          "recall": 0.7364,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9671,
+            "mean_width": 1.38,
+            "median_width": 1.355,
+            "mean_winkler": 0.3375,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9136,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3625,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9547,
+            "mean_width": 1.418,
+            "median_width": 1.35,
+            "mean_winkler": 0.3587,
+            "crossings": 0
+          },
+          "subgroup": "Diagonal (30–60°)"
+        },
+        {
+          "n_tp": 2070,
+          "n_fn": 351,
+          "n_gt": 2421,
+          "recall": 0.855,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9778,
+            "mean_width": 1.348,
+            "median_width": 1.346,
+            "mean_winkler": 0.3068,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9792,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3075,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9783,
+            "mean_width": 1.354,
+            "median_width": 1.308,
+            "mean_winkler": 0.3069,
+            "crossings": 0
+          },
+          "subgroup": "Front/Rear (>60°)"
+        }
+      ],
+      "difficulty": [
+        {
+          "n_tp": 1010,
+          "n_fn": 14,
+          "n_gt": 1024,
+          "recall": 0.9863,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9851,
+            "mean_width": 1.328,
+            "median_width": 1.336,
+            "mean_winkler": 0.2912,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9911,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.2995,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9842,
+            "mean_width": 1.311,
+            "median_width": 1.268,
+            "mean_winkler": 0.2745,
+            "crossings": 0
+          },
+          "subgroup": "Easy (nested)"
+        },
+        {
+          "n_tp": 2311,
+          "n_fn": 318,
+          "n_gt": 2629,
+          "recall": 0.879,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9758,
+            "mean_width": 1.343,
+            "median_width": 1.342,
+            "mean_winkler": 0.3051,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9766,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3108,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9727,
+            "mean_width": 1.341,
+            "median_width": 1.297,
+            "mean_winkler": 0.3031,
+            "crossings": 0
+          },
+          "subgroup": "Moderate (nested)"
+        },
+        {
+          "n_tp": 2660,
+          "n_fn": 552,
+          "n_gt": 3212,
+          "recall": 0.8281,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9714,
+            "mean_width": 1.352,
+            "median_width": 1.348,
+            "mean_winkler": 0.3148,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9692,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3207,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9699,
+            "mean_width": 1.353,
+            "median_width": 1.302,
+            "mean_winkler": 0.3127,
+            "crossings": 0
+          },
+          "subgroup": "Hard (nested)"
+        },
+        {
+          "subgroup": "---"
+        },
+        {
+          "n_tp": 1010,
+          "n_fn": 14,
+          "n_gt": 1024,
+          "recall": 0.9863,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9851,
+            "mean_width": 1.328,
+            "median_width": 1.336,
+            "mean_winkler": 0.2912,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9911,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.2995,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9842,
+            "mean_width": 1.311,
+            "median_width": 1.268,
+            "mean_winkler": 0.2745,
+            "crossings": 0
+          },
+          "subgroup": "Easy (disjoint)"
+        },
+        {
+          "n_tp": 1301,
+          "n_fn": 304,
+          "n_gt": 1605,
+          "recall": 0.8106,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9685,
+            "mean_width": 1.354,
+            "median_width": 1.346,
+            "mean_winkler": 0.3159,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9654,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3197,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9639,
+            "mean_width": 1.364,
+            "median_width": 1.333,
+            "mean_winkler": 0.3253,
+            "crossings": 0
+          },
+          "subgroup": "Moderate (disjoint)"
+        },
+        {
+          "n_tp": 349,
+          "n_fn": 234,
+          "n_gt": 583,
+          "recall": 0.5986,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9427,
+            "mean_width": 1.418,
+            "median_width": 1.389,
+            "mean_winkler": 0.3794,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9198,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3857,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9513,
+            "mean_width": 1.436,
+            "median_width": 1.318,
+            "mean_winkler": 0.3762,
+            "crossings": 0
+          },
+          "subgroup": "Hard (disjoint)"
+        }
+      ],
+      "fallback_pattern_000": [
+        {
+          "n_tp": 36,
+          "n_fn": 0,
+          "n_gt": 36,
+          "recall": 1.0,
+          "k_clusters": 6,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8611,
+            "mean_width": 1.609,
+            "median_width": 1.617,
+            "mean_winkler": 0.6405,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.6944,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.8426,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9722,
+            "mean_width": 2.02,
+            "median_width": 2.029,
+            "mean_winkler": 0.7035,
+            "crossings": 0
+          },
+          "subgroup": "Fallback (Pattern 000)"
+        },
+        {
+          "n_tp": 2624,
+          "n_fn": 552,
+          "n_gt": 3176,
+          "recall": 0.8262,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9729,
+            "mean_width": 1.349,
+            "median_width": 1.347,
+            "mean_winkler": 0.3104,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9729,
+            "mean_width": 1.345,
+            "median_width": 1.345,
+            "mean_winkler": 0.3135,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9699,
+            "mean_width": 1.344,
+            "median_width": 1.301,
+            "mean_winkler": 0.3073,
+            "crossings": 0
+          },
+          "subgroup": "Fused Geometric (>=1 cue)"
+        }
+      ]
+    },
+    "bootstrap_ci_95": {
+      "cqr": {
+        "method": "cqr",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9528,
+          0.987
+        ],
+        "width_ci_95": [
+          1.325,
+          1.374
+        ],
+        "note": "CI thô (10 cụm)"
+      },
+      "sc": {
+        "method": "sc",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9494,
+          0.9846
+        ],
+        "width_ci_95": [
+          1.345,
+          1.345
+        ],
+        "note": "CI thô (10 cụm)"
+      },
+      "mondrian": {
+        "method": "mondrian",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9522,
+          0.9858
+        ],
+        "width_ci_95": [
+          1.324,
+          1.376
+        ],
+        "note": "CI thô (10 cụm)"
+      }
+    }
+  },
+  "yolov5su_640": {
+    "categories": {
+      "z_hat_prospective": [
+        {
+          "n_tp": 269,
+          "n_fn": 11,
+          "n_gt": 280,
+          "recall": 0.9607,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.8959,
+            "mean_width": 1.418,
+            "median_width": 1.351,
+            "mean_winkler": 0.4327,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9108,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.4083,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9182,
+            "mean_width": 1.464,
+            "median_width": 1.395,
+            "mean_winkler": 0.435,
+            "crossings": 0
+          },
+          "subgroup": "0-10"
+        },
+        {
+          "n_tp": 837,
+          "n_fn": 61,
+          "n_gt": 898,
+          "recall": 0.9321,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9761,
+            "mean_width": 1.328,
+            "median_width": 1.315,
+            "mean_winkler": 0.2941,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9785,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3134,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.963,
+            "mean_width": 1.265,
+            "median_width": 1.253,
+            "mean_winkler": 0.2598,
+            "crossings": 0
+          },
+          "subgroup": "10-20"
+        },
+        {
+          "n_tp": 776,
+          "n_fn": 130,
+          "n_gt": 906,
+          "recall": 0.8565,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9652,
+            "mean_width": 1.314,
+            "median_width": 1.313,
+            "mean_winkler": 0.2964,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9742,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3309,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9485,
+            "mean_width": 1.269,
+            "median_width": 1.268,
+            "mean_winkler": 0.2775,
+            "crossings": 0
+          },
+          "subgroup": "20-30"
+        },
+        {
+          "n_tp": 789,
+          "n_fn": 312,
+          "n_gt": 1101,
+          "recall": 0.7166,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9797,
+            "mean_width": 1.323,
+            "median_width": 1.317,
+            "mean_winkler": 0.2877,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9785,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3088,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9861,
+            "mean_width": 1.366,
+            "median_width": 1.361,
+            "mean_winkler": 0.3146,
+            "crossings": 0
+          },
+          "subgroup": "30-50"
+        },
+        {
+          "n_tp": 3,
+          "n_fn": 24,
+          "n_gt": 27,
+          "recall": 0.1111,
+          "k_clusters": 2,
+          "low_n": true,
+          "cqr": {
+            "coverage": 1.0,
+            "mean_width": 1.483,
+            "median_width": 1.431,
+            "mean_winkler": 0.3923,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 1.0,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3008,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 1.0,
+            "mean_width": 1.532,
+            "median_width": 1.478,
+            "mean_winkler": 0.4245,
+            "crossings": 0
+          },
+          "subgroup": ">50"
+        },
+        {
+          "n_tp": 792,
+          "n_fn": 335,
+          "n_gt": 1127,
+          "recall": 0.7028,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9798,
+            "mean_width": 1.323,
+            "median_width": 1.318,
+            "mean_winkler": 0.2881,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9785,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3088,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9861,
+            "mean_width": 1.367,
+            "median_width": 1.361,
+            "mean_winkler": 0.315,
+            "crossings": 0
+          },
+          "subgroup": ">30 (grouped)"
+        }
+      ],
+      "z_gt_retrospective": [
+        {
+          "n_tp": 264,
+          "n_fn": 11,
+          "n_gt": 275,
+          "recall": 0.96,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.8939,
+            "mean_width": 1.423,
+            "median_width": 1.367,
+            "mean_winkler": 0.429,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8939,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.4103,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9091,
+            "mean_width": 1.462,
+            "median_width": 1.395,
+            "mean_winkler": 0.4392,
+            "crossings": 0
+          },
+          "subgroup": "0-10"
+        },
+        {
+          "n_tp": 835,
+          "n_fn": 61,
+          "n_gt": 896,
+          "recall": 0.9319,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9713,
+            "mean_width": 1.328,
+            "median_width": 1.315,
+            "mean_winkler": 0.3034,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.982,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3177,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9593,
+            "mean_width": 1.268,
+            "median_width": 1.255,
+            "mean_winkler": 0.2695,
+            "crossings": 0
+          },
+          "subgroup": "10-20"
+        },
+        {
+          "n_tp": 781,
+          "n_fn": 130,
+          "n_gt": 911,
+          "recall": 0.8573,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9795,
+            "mean_width": 1.317,
+            "median_width": 1.316,
+            "mean_winkler": 0.2831,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9808,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3133,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.968,
+            "mean_width": 1.276,
+            "median_width": 1.271,
+            "mean_winkler": 0.2595,
+            "crossings": 0
+          },
+          "subgroup": "20-30"
+        },
+        {
+          "n_tp": 785,
+          "n_fn": 312,
+          "n_gt": 1097,
+          "recall": 0.7156,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9745,
+            "mean_width": 1.318,
+            "median_width": 1.311,
+            "mean_winkler": 0.2905,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9796,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3184,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9771,
+            "mean_width": 1.356,
+            "median_width": 1.351,
+            "mean_winkler": 0.3203,
+            "crossings": 0
+          },
+          "subgroup": "30-50"
+        },
+        {
+          "n_tp": 9,
+          "n_fn": 24,
+          "n_gt": 33,
+          "recall": 0.2727,
+          "k_clusters": 3,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.6667,
+            "mean_width": 1.425,
+            "median_width": 1.393,
+            "mean_winkler": 0.5522,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.4444,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.5872,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.6667,
+            "mean_width": 1.472,
+            "median_width": 1.438,
+            "mean_winkler": 0.4771,
+            "crossings": 0
+          },
+          "subgroup": ">50"
+        },
+        {
+          "n_tp": 794,
+          "n_fn": 335,
+          "n_gt": 1129,
+          "recall": 0.7033,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.971,
+            "mean_width": 1.319,
+            "median_width": 1.313,
+            "mean_winkler": 0.2935,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9736,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3214,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9736,
+            "mean_width": 1.357,
+            "median_width": 1.351,
+            "mean_winkler": 0.3221,
+            "crossings": 0
+          },
+          "subgroup": ">30 (grouped)"
+        }
+      ],
+      "truncation_and_edges": [
+        {
+          "n_tp": 2478,
+          "n_fn": 521,
+          "n_gt": 2999,
+          "recall": 0.8263,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9734,
+            "mean_width": 1.317,
+            "median_width": 1.312,
+            "mean_winkler": 0.2901,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9806,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.316,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9677,
+            "mean_width": 1.299,
+            "median_width": 1.289,
+            "mean_winkler": 0.2815,
+            "crossings": 0
+          },
+          "subgroup": "No Truncation (0.0)"
+        },
+        {
+          "n_tp": 72,
+          "n_fn": 4,
+          "n_gt": 76,
+          "recall": 0.9474,
+          "k_clusters": 7,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.875,
+            "mean_width": 1.47,
+            "median_width": 1.432,
+            "mean_winkler": 0.5064,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9028,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.4551,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9028,
+            "mean_width": 1.49,
+            "median_width": 1.465,
+            "mean_winkler": 0.484,
+            "crossings": 0
+          },
+          "subgroup": "Mild (0.0 < t <= 0.15)"
+        },
+        {
+          "n_tp": 124,
+          "n_fn": 13,
+          "n_gt": 137,
+          "recall": 0.9051,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.871,
+            "mean_width": 1.538,
+            "median_width": 1.525,
+            "mean_winkler": 0.5276,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8065,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.4644,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8629,
+            "mean_width": 1.556,
+            "median_width": 1.562,
+            "mean_winkler": 0.5401,
+            "crossings": 0
+          },
+          "subgroup": "Moderate/Severe (0.15 < t <= 0.50)"
+        },
+        {
+          "n_tp": 2490,
+          "n_fn": 0,
+          "n_gt": 2490,
+          "recall": 1.0,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9739,
+            "mean_width": 1.317,
+            "median_width": 1.312,
+            "mean_winkler": 0.2904,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9807,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3162,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9679,
+            "mean_width": 1.299,
+            "median_width": 1.29,
+            "mean_winkler": 0.2816,
+            "crossings": 0
+          },
+          "subgroup": "No Edge Touch (Pattern 111)"
+        },
+        {
+          "n_tp": 78,
+          "n_fn": 0,
+          "n_gt": 78,
+          "recall": 1.0,
+          "k_clusters": 7,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8718,
+            "mean_width": 1.442,
+            "median_width": 1.434,
+            "mean_winkler": 0.4084,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.8333,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3819,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8718,
+            "mean_width": 1.421,
+            "median_width": 1.43,
+            "mean_winkler": 0.4324,
+            "crossings": 0
+          },
+          "subgroup": "Touch Horizontal (valid_w=0)"
+        },
+        {
+          "n_tp": 70,
+          "n_fn": 0,
+          "n_gt": 70,
+          "recall": 1.0,
+          "k_clusters": 8,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8429,
+            "mean_width": 1.591,
+            "median_width": 1.625,
+            "mean_winkler": 0.6147,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.4118,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8714,
+            "mean_width": 1.643,
+            "median_width": 1.678,
+            "mean_winkler": 0.6015,
+            "crossings": 0
+          },
+          "subgroup": "Touch Vertical (valid_h=0 or valid_g=0)"
+        },
+        {
+          "n_tp": 36,
+          "n_fn": 0,
+          "n_gt": 36,
+          "recall": 1.0,
+          "k_clusters": 5,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8611,
+            "mean_width": 1.581,
+            "median_width": 1.608,
+            "mean_winkler": 0.6291,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.6944,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.7658,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8611,
+            "mean_width": 1.632,
+            "median_width": 1.66,
+            "mean_winkler": 0.6166,
+            "crossings": 0
+          },
+          "subgroup": "Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0))"
+        }
+      ],
+      "occlusion": [
+        {
+          "n_tp": 1615,
+          "n_fn": 74,
+          "n_gt": 1689,
+          "recall": 0.9562,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9746,
+            "mean_width": 1.316,
+            "median_width": 1.302,
+            "mean_winkler": 0.2875,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.982,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3152,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9703,
+            "mean_width": 1.307,
+            "median_width": 1.28,
+            "mean_winkler": 0.279,
+            "crossings": 0
+          },
+          "subgroup": "0 (Fully visible)"
+        },
+        {
+          "n_tp": 781,
+          "n_fn": 240,
+          "n_gt": 1021,
+          "recall": 0.7649,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9526,
+            "mean_width": 1.346,
+            "median_width": 1.331,
+            "mean_winkler": 0.329,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9526,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3417,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9475,
+            "mean_width": 1.328,
+            "median_width": 1.312,
+            "mean_winkler": 0.3273,
+            "crossings": 0
+          },
+          "subgroup": "1 (Partly occluded)"
+        },
+        {
+          "n_tp": 278,
+          "n_fn": 224,
+          "n_gt": 502,
+          "recall": 0.5538,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9532,
+            "mean_width": 1.379,
+            "median_width": 1.37,
+            "mean_winkler": 0.3579,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9532,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3511,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.946,
+            "mean_width": 1.337,
+            "median_width": 1.323,
+            "mean_winkler": 0.335,
+            "crossings": 0
+          },
+          "subgroup": "2 (Largely occluded)"
+        }
+      ],
+      "viewing_angle_theta": [
+        {
+          "n_tp": 350,
+          "n_fn": 111,
+          "n_gt": 461,
+          "recall": 0.7592,
+          "k_clusters": 5,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9371,
+            "mean_width": 1.364,
+            "median_width": 1.353,
+            "mean_winkler": 0.3546,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9486,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3624,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9286,
+            "mean_width": 1.317,
+            "median_width": 1.301,
+            "mean_winkler": 0.3405,
+            "crossings": 0
+          },
+          "subgroup": "Side (<30°)"
+        },
+        {
+          "n_tp": 243,
+          "n_fn": 87,
+          "n_gt": 330,
+          "recall": 0.7364,
+          "k_clusters": 8,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9383,
+            "mean_width": 1.397,
+            "median_width": 1.377,
+            "mean_winkler": 0.4011,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9136,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3949,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.93,
+            "mean_width": 1.39,
+            "median_width": 1.367,
+            "mean_winkler": 0.4067,
+            "crossings": 0
+          },
+          "subgroup": "Diagonal (30–60°)"
+        },
+        {
+          "n_tp": 2081,
+          "n_fn": 340,
+          "n_gt": 2421,
+          "recall": 0.8596,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9741,
+            "mean_width": 1.319,
+            "median_width": 1.307,
+            "mean_winkler": 0.2879,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9808,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3127,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9702,
+            "mean_width": 1.308,
+            "median_width": 1.289,
+            "mean_winkler": 0.2793,
+            "crossings": 0
+          },
+          "subgroup": "Front/Rear (>60°)"
+        }
+      ],
+      "difficulty": [
+        {
+          "n_tp": 1009,
+          "n_fn": 15,
+          "n_gt": 1024,
+          "recall": 0.9854,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9802,
+            "mean_width": 1.3,
+            "median_width": 1.3,
+            "mean_winkler": 0.2702,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.995,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3032,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9732,
+            "mean_width": 1.263,
+            "median_width": 1.25,
+            "mean_winkler": 0.243,
+            "crossings": 0
+          },
+          "subgroup": "Easy (nested)"
+        },
+        {
+          "n_tp": 2322,
+          "n_fn": 307,
+          "n_gt": 2629,
+          "recall": 0.8832,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9716,
+            "mean_width": 1.32,
+            "median_width": 1.31,
+            "mean_winkler": 0.2934,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9802,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3172,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9673,
+            "mean_width": 1.306,
+            "median_width": 1.289,
+            "mean_winkler": 0.2862,
+            "crossings": 0
+          },
+          "subgroup": "Moderate (nested)"
+        },
+        {
+          "n_tp": 2674,
+          "n_fn": 538,
+          "n_gt": 3212,
+          "recall": 0.8325,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.966,
+            "mean_width": 1.332,
+            "median_width": 1.317,
+            "mean_winkler": 0.3069,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9705,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3267,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9611,
+            "mean_width": 1.316,
+            "median_width": 1.298,
+            "mean_winkler": 0.2989,
+            "crossings": 0
+          },
+          "subgroup": "Hard (nested)"
+        },
+        {
+          "subgroup": "---"
+        },
+        {
+          "n_tp": 1009,
+          "n_fn": 15,
+          "n_gt": 1024,
+          "recall": 0.9854,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9802,
+            "mean_width": 1.3,
+            "median_width": 1.3,
+            "mean_winkler": 0.2702,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.995,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3032,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9732,
+            "mean_width": 1.263,
+            "median_width": 1.25,
+            "mean_winkler": 0.243,
+            "crossings": 0
+          },
+          "subgroup": "Easy (disjoint)"
+        },
+        {
+          "n_tp": 1313,
+          "n_fn": 292,
+          "n_gt": 1605,
+          "recall": 0.8181,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.965,
+            "mean_width": 1.335,
+            "median_width": 1.322,
+            "mean_winkler": 0.3113,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9688,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3279,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9627,
+            "mean_width": 1.34,
+            "median_width": 1.326,
+            "mean_winkler": 0.3194,
+            "crossings": 0
+          },
+          "subgroup": "Moderate (disjoint)"
+        },
+        {
+          "n_tp": 352,
+          "n_fn": 231,
+          "n_gt": 583,
+          "recall": 0.6038,
+          "k_clusters": 9,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.929,
+            "mean_width": 1.41,
+            "median_width": 1.382,
+            "mean_winkler": 0.396,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9062,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.389,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9205,
+            "mean_width": 1.382,
+            "median_width": 1.338,
+            "mean_winkler": 0.3829,
+            "crossings": 0
+          },
+          "subgroup": "Hard (disjoint)"
+        }
+      ],
+      "fallback_pattern_000": [
+        {
+          "n_tp": 36,
+          "n_fn": 0,
+          "n_gt": 36,
+          "recall": 1.0,
+          "k_clusters": 5,
+          "low_n": true,
+          "cqr": {
+            "coverage": 0.8611,
+            "mean_width": 1.581,
+            "median_width": 1.608,
+            "mean_winkler": 0.6291,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.6944,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.7658,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.8611,
+            "mean_width": 1.632,
+            "median_width": 1.66,
+            "mean_winkler": 0.6166,
+            "crossings": 0
+          },
+          "subgroup": "Fallback (Pattern 000)"
+        },
+        {
+          "n_tp": 2638,
+          "n_fn": 538,
+          "n_gt": 3176,
+          "recall": 0.8306,
+          "k_clusters": 10,
+          "low_n": false,
+          "cqr": {
+            "coverage": 0.9674,
+            "mean_width": 1.328,
+            "median_width": 1.316,
+            "mean_winkler": 0.3025,
+            "crossings": 0
+          },
+          "sc": {
+            "coverage": 0.9742,
+            "mean_width": 1.351,
+            "median_width": 1.351,
+            "mean_winkler": 0.3207,
+            "crossings": 0
+          },
+          "mondrian": {
+            "coverage": 0.9625,
+            "mean_width": 1.312,
+            "median_width": 1.296,
+            "mean_winkler": 0.2946,
+            "crossings": 0
+          },
+          "subgroup": "Fused Geometric (>=1 cue)"
+        }
+      ]
+    },
+    "bootstrap_ci_95": {
+      "cqr": {
+        "method": "cqr",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9515,
+          0.9827
+        ],
+        "width_ci_95": [
+          1.31,
+          1.355
+        ],
+        "note": "CI thô (10 cụm)"
+      },
+      "sc": {
+        "method": "sc",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9575,
+          0.9835
+        ],
+        "width_ci_95": [
+          1.351,
+          1.351
+        ],
+        "note": "CI thô (10 cụm)"
+      },
+      "mondrian": {
+        "method": "mondrian",
+        "n_clusters": 10,
+        "coverage_ci_95": [
+          0.9437,
+          0.9814
+        ],
+        "width_ci_95": [
+          1.302,
+          1.335
+        ],
+        "note": "CI thô (10 cụm)"
+      }
+    }
+  }
+}
