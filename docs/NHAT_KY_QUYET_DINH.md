@@ -307,6 +307,10 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   * Tiêu đề mục Limitation 8 đổi thành *"Empirical Indistinguishability of Residual and Direct Regression under 10-Cluster Sample"*.
 - ✅ **Cấm kiểm thử hình thức (Vacuous Tests) trong đối soát dữ liệu (D118):**
   * Mọi bài test kiểm tra tính nhất quán giữa CSV và LaTeX booktabs (`test_csv_tex_value_consistency`) bắt buộc phải trỏ đúng tên cột số liệu thực tế trong DataFrame (`absrel_pooled`, `pooled_coverage`) và có câu lệnh assert số lượng hàng đã kiểm tra $> 0$ (tối thiểu 15 hàng cho Bảng 3 và 9 hàng cho Bảng 5), triệt tiêu hoàn toàn rủi ro test rỗng/hình thức lọt qua CI.
+- ✅ **Thể chế hóa kết quả kiểm toán độc lập T18 theo 14 tiêu chí §11 (D119):**
+  * Xây dựng `scripts/audit_checklist.py` và `tests/test_audit_checklist.py` tự động hóa 100% kiểm chứng 14 tiêu chí tại §11 của `KE_HOACH_V4.md`.
+  * Xác nhận 6 chốt chặn cốt lõi PASS 100%: (1) Zero feature leakage trên 6 file `*_features.parquet`; (2) 141 drive và 5 split A/V/B/C/T hoàn toàn rời rạc; (3) Khóa `runs/final_T.lock` bất biến và đúng 1 cặp START/COMPLETED trong `runs/final_T_log.jsonl`; (4) `src/` và `scripts/` hoàn toàn cô lập, không bypass mở Split T; (5) Có đủ 7 cặp bảng CSV & LaTeX booktabs tại `results/tables/final/`, Bảng 6 có cờ sao `*`; (6) Bản thảo bài báo sạch 100% từ ngữ tâng bốc cấm và mã nội bộ `Dxx`.
+  * Xuất bản tài liệu chính thức `docs/CHECKLIST_AUDIT.md` (14/14 PASS). Toàn bộ 237 unit tests trên repo pass 100%.
 
 ---
 
@@ -410,10 +414,18 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 2 (W3-2):** Phân tích lỗi chuyên sâu trên Split T (T14, D19, D21, D32, D54, D70, D84); Thí nghiệm độ nhạy thu gọn (T09, D14, D23, D36, D39, D85).
 - [x] **Ngày 3 (W3-3):** Độ phủ có điều kiện trên Split T và kiểm định tính khả hoán $C \leftrightarrow T$ (T15, D19, D47, D50, D54, D55, D74, D75, D79, D86–D88).
 - [x] **Ngày 4 (W3-4):** Benchmark độ trễ Tier 1 chính thức (GPU FP16 + CPU ORT) và Hình ảnh định tính Split T (T16, D40, D44, D90, D94–D96).
+- [x] **Ngày 5–6 (W3-5..6, T17 & T18):** Xuất bản 7 cặp bảng CSV/LaTeX booktabs, 5 figures publication 300 DPI, numbers manifest 81 metrics, bản thảo bài báo không placeholder và đủ 14 Limitations (T17, D108–D118). Hoàn tất kiểm toán độc lập 14 tiêu chí §11 đạt 14/14 PASS tại `docs/CHECKLIST_AUDIT.md` (T18, D119).
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-6 — 15/10/2026: Triển Khai T18 — Kiểm Toán Liêm Chính Học Thuật Độc Lập §11 & Xuất Bản CHECKLIST_AUDIT.md (D119)
+- **Hoàn thành toàn diện T18 — Tự động hóa kiểm toán 14 tiêu chí §11 Kế hoạch v4 (Zero-Touch Split T):**
+  - **Khóa Split T bất biến:** `runs/final_T.lock` giữ nguyên tuyệt đối; `runs/final_T_log.jsonl` có đúng 1 cặp sự kiện `["START", "COMPLETED"]` tại commit `e3ead56`.
+  - **Xây dựng module kiểm toán tự động (`scripts/audit_checklist.py`):** Cài đặt đầy đủ 6 chốt chặn kỹ thuật bắt buộc: (1) Data Leakage Guard (quét 6 file `*_features.parquet`, 0 cột GT); (2) Split Hashes & Disjointness (141 drives không rò rỉ, 5 split rời rạc); (3) Lockfile & single run audit; (4) Grep codebase (src/ và scripts/ hoàn toàn cô lập, không code nào mở T ngoài `run_final_T.py`); (5) Tiêu chuẩn bảng biểu (đủ 7 cặp bảng booktabs, Bảng 6 có cờ `*`); (6) Language Guard (MANUSCRIPT_DRAFT.md sạch 100% từ cấm và mã `Dxx`).
+  - **Xuất bản Bảng kiểm toán chính thức (`docs/CHECKLIST_AUDIT.md`):** Đạt **14/14 tiêu chí PASS 100%**, đính kèm đầy đủ lệnh CLI, tệp kiểm chứng và mã SHA-256.
+  - **Kiểm thử đơn vị:** Bổ sung `tests/test_audit_checklist.py` (8 tests pass). Toàn bộ test suite dự án `pytest -q`: **237 passed** 100%.
 
 ### W3-5 — 14/10/2026: Triển Khai T17 (Pha 2) — Bảng Phụ, Đồ Họa Khoa Học & Hoàn Thiện Bản Thảo Bài Báo (D111–D113)
 - **Hoàn thành toàn diện T17 Pha 2 — Đóng gói bảng phụ, đồ họa xuất bản và hệ thống trích dẫn (Zero-Touch Split T):**
