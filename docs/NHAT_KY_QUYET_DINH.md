@@ -275,6 +275,22 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
     12. **Sự đánh đổi phồng độ rộng khoảng tin cậy của Mondrian CQR (Decisions D88, D93)**: khôi phục độ phủ cự ly gần nhưng làm phồng độ rộng khoảng tin cậy từ $1.45\times$ lên $1.80\times$.
     13. Loại bỏ các baseline không bảo đảm độ phủ hữu hạn (Discard of Non-Conformal Baselines).
     14. Giới hạn benchmark phần cứng và độ trễ (Decisions D98, D100, D104): padding vuông $640 \times 640$ làm tăng khối lượng xử lý pixel $\approx 2.9\times$ so với letterbox thực tế $640 \times 224$; nhãn `PRELIMINARY-v2`.
+- ✅ **Chuẩn hóa Bảng 7 Độ trễ Tier 1 Real-time & Parity Check (D111):**
+  * Xuất bản `results/tables/final/tab_07_latency_tier1_realtime.{csv,tex}` tuân thủ nghiêm ngặt chuẩn `booktabs` (không kẻ dọc `|`), mang nhãn bắt buộc `PRELIMINARY-v2`.
+  * Phân rã độ trễ chi tiết: Preprocess in-memory, Detector Forward, Postprocess/NMS, Geometry, Residual, CQR, Total GPU/CPU (Median, P95, FPS).
+  * Khẳng định chi phí hậu xử lý của phương pháp lai (Geometry + Residual + CQR) chỉ chiếm $\approx 1.35$ ms/ảnh ($< 4.2\%$ tổng GPU time), chứng minh tính khả thi triển khai thời gian thực không làm chậm detector.
+  * Ghi nhận Parity check: Count ratio đạt $[0.95, 1.05]$, IoU match rate $< 0.95$ do sai khác đệm ảnh tĩnh $640 \times 640$ vs dynamic $640 \times 224$ (D99, D100, D104).
+- ✅ **Quy chuẩn hóa 5 Hình vẽ khoa học xuất bản & Figures Manifest (D112):**
+  * Xuất bản 5 hình vẽ đạt chuẩn $\ge 300$ DPI, bảng màu colorblind-safe (Tol/Wong) vào `results/figures/final/`:
+    1. `fig_01_hybrid_architecture.png`: Sơ đồ kiến trúc tổng thể 4 tầng (Detection, Pinhole Geometry, Residual Learning, Conformal UQ).
+    2. `fig_02_splits_spatial_distribution.png`: Phân bổ frame và Car Hard qua 5 split A/V/B/C/T, bảo toàn tính không rò rỉ drive.
+    3. `fig_03_ranging_error_by_distance.png`: So sánh sai số AbsRel theo 5 dải khoảng cách (0–10, 10–20, 20–30, 30–50, >50m).
+    4. `fig_04_conformal_intervals_and_coverage.png`: Biểu đồ độ phủ thực nghiệm CQR và độ rộng khoảng tin cậy theo phân nhóm ODD.
+    5. `fig_05_qualitative_case_studies.png`: Lưới 8 trường hợp điển hình kèm banner Disclaimer (D102, D105).
+  * Tích hợp `results/figures/final/figures_manifest.json` ghi nhận mã băm SHA-256 của từng hình ảnh, loại bỏ hoàn toàn đồ họa trôi nổi.
+- ✅ **Chuẩn hóa hệ thống trích dẫn học thuật BibTeX (D113):**
+  * Xây dựng `docs/paper/references.bib` chứa 8 mục thư mục học thuật chuẩn mực (Ni et al. 2026, Dist-YOLO 2022, DisNet 2023, DECADE 2024, MonoLoco 2019, CQR 2019, f-Cal 2021, KITTI 2012).
+  * Loại bỏ 100% nhãn trích dẫn thô `[CẦN TRÍCH DẪN]` khỏi bản thảo bài báo khoa học.
 
 ---
 
@@ -382,6 +398,15 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-5 — 14/10/2026: Triển Khai T17 (Pha 2) — Bảng Phụ, Đồ Họa Khoa Học & Hoàn Thiện Bản Thảo Bài Báo (D111–D113)
+- **Hoàn thành toàn diện T17 Pha 2 — Đóng gói bảng phụ, đồ họa xuất bản và hệ thống trích dẫn (Zero-Touch Split T):**
+  - **Khóa Split T bất biến:** `runs/final_T.lock` giữ nguyên tuyệt đối, không nạp loader, không chạy lại inference trên Split T.
+  - **Xuất bản Bảng 7 (Latency Tier 1 & Parity Check, D111):** Bổ sung hàm `export_table_7()` vào `scripts/export_final_tables.py`, xuất bản cặp tệp `tab_07_latency_tier1_realtime.{csv,tex}` chuẩn `booktabs` mang nhãn bắt buộc `PRELIMINARY-v2`. Nêu rõ chi phí của 3 khâu hậu xử lý (Geometry + Residual + CQR) chỉ tốn $\approx 1.35$ ms/ảnh ($< 4.2\%$ GPU pipeline).
+  - **Đồng bộ hóa 5 Hình vẽ khoa học xuất bản (`scripts/export_final_figures.py`, D112):** Xuất bản 5 hình vẽ đạt chuẩn $\ge 300$ DPI, bảng màu colorblind-safe vào `results/figures/final/`: `fig_01` (Kiến trúc tổng thể), `fig_02` (Phân bổ split A/V/B/C/T), `fig_03` (Sai số AbsRel theo 5 dải khoảng cách), `fig_04` (Độ phủ CQR và độ rộng khoảng tin cậy theo ODD), và `fig_05` (Lưới 8 trường hợp định tính kèm Disclaimer). Tích hợp bản đồ đồ họa `results/figures/final/figures_manifest.json` có mã băm SHA-256.
+  - **Chuẩn hóa hệ thống trích dẫn học thuật BibTeX (D113):** Tạo `docs/paper/references.bib` với 8 mục trích dẫn chuẩn mực. Loại bỏ 100% nhãn trích dẫn thô `[CẦN TRÍCH DẪN]` trong `docs/paper/MANUSCRIPT_TEMPLATE.md`, cập nhật Section 5.4 (Latency) và Full Bibliography, biên dịch ra `docs/paper/MANUSCRIPT_DRAFT.md` không còn bất kỳ placeholder hay nhãn thô nào.
+  - **Mở rộng Numbers Manifest:** Cập nhật `scripts/build_numbers_manifest.py` trích xuất đầy đủ 81 metrics (thêm 18 chỉ số latency GPU/CPU).
+  - **Kiểm thử đơn vị mở rộng:** Cập nhật `tests/test_final_tables_and_manifest.py` (10 tests) pass 100%. Toàn bộ test suite dự án pass 100%.
 
 ### W3-5 — 14/10/2026: Triển Khai T17 (Pha 1) — Đóng Gói Tư Liệu Bài Báo, Xuất Bảng Chuẩn Xuất Bản & Xây Dựng Numbers Manifest (D108–D110)
 - **Hoàn thành T17 Pha 1 — Đóng gói tư liệu, bảng LaTeX và bản thảo bài báo (Zero-Touch Split T):**

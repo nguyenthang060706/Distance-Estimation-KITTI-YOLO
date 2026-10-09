@@ -1,7 +1,7 @@
 """
-Unit and integration tests for final paper tables, numbers manifest, and manuscript draft.
+Unit and integration tests for final paper tables, numbers manifest, figures, and manuscript draft.
 Validates zero data hallucination, LaTeX booktabs compliance, SHA-256 provenance,
-and complete limitation coverage according to AGENT_RULES and T17 requirements.
+complete limitation coverage, BibTeX citations, and publication figures according to AGENT_RULES and T17 requirements.
 """
 
 from __future__ import annotations
@@ -16,7 +16,10 @@ import pytest
 
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
 TABLES_DIR = WORKSPACE_ROOT / "results" / "tables" / "final"
+FIGURES_DIR = WORKSPACE_ROOT / "results" / "figures" / "final"
 MANIFEST_PATH = WORKSPACE_ROOT / "results" / "final" / "numbers_manifest.json"
+FIGURES_MANIFEST_PATH = FIGURES_DIR / "figures_manifest.json"
+BIBTEX_PATH = WORKSPACE_ROOT / "docs" / "paper" / "references.bib"
 MANUSCRIPT_DRAFT_PATH = WORKSPACE_ROOT / "docs" / "paper" / "MANUSCRIPT_DRAFT.md"
 LOCK_PATH = WORKSPACE_ROOT / "runs" / "final_T.lock"
 
@@ -27,11 +30,31 @@ EXPECTED_TABLE_STEMS = [
     "tab_04_rq2_detector_correlation",
     "tab_05_conformal_coverage_t",
     "tab_06_conditional_coverage_odd",
+    "tab_07_latency_tier1_realtime",
+]
+
+EXPECTED_FIGURE_NAMES = [
+    "fig_01_hybrid_architecture.png",
+    "fig_02_splits_spatial_distribution.png",
+    "fig_03_ranging_error_by_distance.png",
+    "fig_04_conformal_intervals_and_coverage.png",
+    "fig_05_qualitative_case_studies.png",
+]
+
+EXPECTED_BIBTEX_KEYS = [
+    "ni2026calibrated",
+    "vajgl2022distyolo",
+    "haseeb2023disnet",
+    "decade2024monocular",
+    "bertoni2019monoloco",
+    "romano2019cqr",
+    "bhatt2021fcal",
+    "geiger2012kitti",
 ]
 
 
 def test_final_tables_exist() -> None:
-    """Verify all 6 table pairs (.csv and .tex) exist in results/tables/final/."""
+    """Verify all 7 table pairs (.csv and .tex) exist in results/tables/final/."""
     assert TABLES_DIR.is_dir(), f"Tables directory missing: {TABLES_DIR}"
     for stem in EXPECTED_TABLE_STEMS:
         csv_path = TABLES_DIR / f"{stem}.csv"
@@ -62,6 +85,20 @@ def test_latex_booktabs_format() -> None:
         assert r"\bottomrule" in content, f"Missing \\bottomrule in {stem}.tex"
 
 
+def test_table_07_latency_preliminary_label() -> None:
+    """Verify Table 7 carries the mandatory PRELIMINARY-v2 label and contains all 3 detectors."""
+    tex_path = TABLES_DIR / "tab_07_latency_tier1_realtime.tex"
+    csv_path = TABLES_DIR / "tab_07_latency_tier1_realtime.csv"
+    tex_text = tex_path.read_text(encoding="utf-8")
+    csv_text = csv_path.read_text(encoding="utf-8")
+
+    assert "PRELIMINARY-v2" in tex_text, "Missing PRELIMINARY-v2 status in Table 7 LaTeX"
+    assert "PRELIMINARY-v2" in csv_text, "Missing PRELIMINARY-v2 status in Table 7 CSV"
+
+    for det in ["YOLO11s", "YOLOv8s", "YOLOv5su"]:
+        assert det in tex_text, f"Missing {det} in Table 7 LaTeX"
+
+
 def test_manifest_provenance_and_hash() -> None:
     """Verify 100% of manifest entries have valid source files and matching SHA-256 hashes."""
     assert MANIFEST_PATH.exists(), f"Numbers manifest missing: {MANIFEST_PATH}"
@@ -69,7 +106,7 @@ def test_manifest_provenance_and_hash() -> None:
         data = json.load(f)
 
     metrics = data.get("numbers", {})
-    assert len(metrics) >= 50, f"Expected at least 50 metrics, found {len(metrics)}"
+    assert len(metrics) >= 70, f"Expected at least 70 metrics, found {len(metrics)}"
 
     # Check that every metric has source provenance and hash matches
     checked_files: dict[str, str] = {}
@@ -108,7 +145,6 @@ def test_csv_tex_value_consistency() -> None:
     for row in csv_rows:
         absrel = row.get("AbsRel")
         if absrel and absrel != "-":
-            # Formatted in tex as float e.g. 0.0463
             float_val = f"{float(absrel):.4f}"
             assert float_val in tex_text, f"AbsRel {float_val} from CSV not found in Tab 3 TEX"
 
@@ -123,6 +159,43 @@ def test_csv_tex_value_consistency() -> None:
         if cov:
             float_cov = f"{float(cov):.1f}"
             assert float_cov in tex_text_5, f"Coverage {float_cov}% from CSV not found in Tab 5 TEX"
+
+
+def test_final_figures_and_manifest() -> None:
+    """Verify all 5 publication figures exist and their SHA-256 hashes match the figures manifest."""
+    assert FIGURES_DIR.is_dir(), f"Figures directory missing: {FIGURES_DIR}"
+    assert FIGURES_MANIFEST_PATH.exists(), f"Figures manifest missing: {FIGURES_MANIFEST_PATH}"
+
+    with open(FIGURES_MANIFEST_PATH, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    figures_data = manifest.get("figures", {})
+
+    for fname in EXPECTED_FIGURE_NAMES:
+        fpath = FIGURES_DIR / fname
+        assert fpath.exists(), f"Missing publication figure: {fpath}"
+        assert fpath.stat().st_size > 0, f"Figure is empty: {fpath}"
+        assert fname in figures_data, f"Figure {fname} missing from figures_manifest.json"
+
+        # Verify hash
+        hasher = hashlib.sha256()
+        with open(fpath, "rb") as ff:
+            while chunk := ff.read(65536):
+                hasher.update(chunk)
+        expected_sha = figures_data[fname]["sha256"]
+        assert hasher.hexdigest() == expected_sha, f"SHA-256 mismatch for figure {fname}"
+
+
+def test_bibtex_and_citations() -> None:
+    """Verify that references.bib contains all required entries and manuscript has zero raw citation tags."""
+    assert BIBTEX_PATH.exists(), f"BibTeX file missing: {BIBTEX_PATH}"
+    bib_text = BIBTEX_PATH.read_text(encoding="utf-8")
+
+    for key in EXPECTED_BIBTEX_KEYS:
+        assert key in bib_text, f"Missing BibTeX key '{key}' in references.bib"
+
+    # Verify manuscript draft does not contain unresolved citation markers
+    draft_text = MANUSCRIPT_DRAFT_PATH.read_text(encoding="utf-8")
+    assert "CẦN TRÍCH DẪN" not in draft_text, "Found raw [CẦN TRÍCH DẪN] in MANUSCRIPT_DRAFT.md"
 
 
 def test_manuscript_draft_completeness_and_no_placeholders() -> None:

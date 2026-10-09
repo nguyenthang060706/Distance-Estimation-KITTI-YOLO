@@ -284,6 +284,62 @@ def build_manifest() -> dict:
         "data_path": "n_gt.iloc[0]"
     }
 
+    # 6. Trích xuất Tier 1 Latency Benchmark metrics từ latency_tier1.json (D94, D98, D100, D104)
+    latency_json_path = REPO_ROOT / "results" / "tables" / "latency_tier1.json"
+    if latency_json_path.exists():
+        latency_json_sha = compute_sha256(latency_json_path)
+        with open(latency_json_path, "r", encoding="utf-8") as f:
+            lat_data = json.load(f)
+        detectors_lat = lat_data.get("detectors", {})
+        for model_key in ["yolo11s_640", "yolov8s_640", "yolov5su_640"]:
+            prefix = model_key.split("_")[0]
+            if model_key in detectors_lat:
+                lat = detectors_lat[model_key].get("latency", {})
+                gpu_tot = lat.get("total_pipeline_gpu", {})
+                cpu_tot = lat.get("total_pipeline_cpu", {})
+                manifest["numbers"][f"{prefix}_latency_gpu_median"] = {
+                    "value": float(gpu_tot.get("median_ms", 0.0)),
+                    "display_str": f"{float(gpu_tot.get('median_ms', 0.0)):.2f} ms",
+                    "source_file": str(latency_json_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": latency_json_sha,
+                    "data_path": f"detectors.{model_key}.latency.total_pipeline_gpu.median_ms"
+                }
+                manifest["numbers"][f"{prefix}_latency_gpu_p95"] = {
+                    "value": float(gpu_tot.get("p95_ms", 0.0)),
+                    "display_str": f"{float(gpu_tot.get('p95_ms', 0.0)):.2f} ms",
+                    "source_file": str(latency_json_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": latency_json_sha,
+                    "data_path": f"detectors.{model_key}.latency.total_pipeline_gpu.p95_ms"
+                }
+                manifest["numbers"][f"{prefix}_latency_gpu_fps"] = {
+                    "value": float(gpu_tot.get("fps_median", 1000.0 / gpu_tot.get("median_ms", 1.0))),
+                    "display_str": f"{float(gpu_tot.get('fps_median', 1000.0 / gpu_tot.get('median_ms', 1.0))):.1f} FPS",
+                    "source_file": str(latency_json_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": latency_json_sha,
+                    "data_path": f"detectors.{model_key}.latency.total_pipeline_gpu.fps_median"
+                }
+                manifest["numbers"][f"{prefix}_latency_cpu_median"] = {
+                    "value": float(cpu_tot.get("median_ms", 0.0)),
+                    "display_str": f"{float(cpu_tot.get('median_ms', 0.0)):.2f} ms",
+                    "source_file": str(latency_json_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": latency_json_sha,
+                    "data_path": f"detectors.{model_key}.latency.total_pipeline_cpu.median_ms"
+                }
+                manifest["numbers"][f"{prefix}_latency_cpu_p95"] = {
+                    "value": float(cpu_tot.get("p95_ms", 0.0)),
+                    "display_str": f"{float(cpu_tot.get('p95_ms', 0.0)):.2f} ms",
+                    "source_file": str(latency_json_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": latency_json_sha,
+                    "data_path": f"detectors.{model_key}.latency.total_pipeline_cpu.p95_ms"
+                }
+                manifest["numbers"][f"{prefix}_latency_cpu_fps"] = {
+                    "value": float(cpu_tot.get("fps_median", 1000.0 / cpu_tot.get("median_ms", 1.0))),
+                    "display_str": f"{float(cpu_tot.get('fps_median', 1000.0 / cpu_tot.get('median_ms', 1.0))):.1f} FPS",
+                    "source_file": str(latency_json_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": latency_json_sha,
+                    "data_path": f"detectors.{model_key}.latency.total_pipeline_cpu.fps_median"
+                }
+
     with open(OUTPUT_MANIFEST, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
         

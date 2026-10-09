@@ -1,0 +1,4 @@
+detector,display_name,preprocess_gpu_ms,detector_forward_gpu_ms,postprocess_gpu_ms,geometry_gpu_ms,residual_gpu_ms,cqr_gpu_ms,total_gpu_median_ms,total_gpu_p95_ms,total_gpu_fps,total_cpu_median_ms,total_cpu_p95_ms,total_cpu_fps,parity_count_ratio,parity_high_iou_match_rate,status
+yolo11s_640,YOLO11s (640),9.73,26.05,0.61,0.18,0.58,0.6,37.99,48.49,26.3,116.17,122.82,8.6,0.974,0.9437,PRELIMINARY-v2
+yolov8s_640,YOLOv8s (640),10.13,19.53,0.61,0.18,0.57,0.59,32.05,60.14,31.2,143.37,148.59,7.0,1.009,0.9417,PRELIMINARY-v2
+yolov5su_640,YOLOv5su (640),9.81,21.01,0.59,0.18,0.57,0.59,33.01,64.84,30.3,120.48,124.56,8.3,0.9914,0.9095,PRELIMINARY-v2

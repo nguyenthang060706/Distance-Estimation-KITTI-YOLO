@@ -544,6 +544,96 @@ def export_table_6():
     notes = "Evaluated on YOLO11s across Split T. Target nominal coverage is 90.0\\%. Asterisk (*) denotes small sample size ($n_{\\text{TP}} < 100$). Per Decision D91, Recall is reported only for ground-truth subsets where False Negatives are well-defined. Fallback pattern 000 group ($n=36$) achieves 77.8\\% coverage."
     write_table_pair("tab_06_conditional_coverage_odd", "Conditional Conformal Coverage across Operational Design Domains (ODD) on Split T", "tab:conditional_coverage_odd", headers, latex_rows, "llrrrrrrrr", df_raw, notes)
 
+def export_table_7():
+    """Bảng 7: Benchmark Độ trễ Tier 1 Real-time & Kiểm tra Parity (D94, D98, D100, D104)."""
+    src_json = REPO_ROOT / "results" / "tables" / "latency_tier1.json"
+    if not src_json.exists():
+        print("Warning: latency_tier1.json not found, skipping Table 7.")
+        return
+        
+    with open(src_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        
+    detectors = data.get("detectors", {})
+    # Thứ tự trình bày chuẩn
+    detector_order = [
+        ("yolo11s_640", "YOLO11s (640)"),
+        ("yolov8s_640", "YOLOv8s (640)"),
+        ("yolov5su_640", "YOLOv5su (640)"),
+    ]
+    
+    csv_rows = []
+    latex_rows = []
+    
+    for key, name in detector_order:
+        if key not in detectors:
+            continue
+        d_info = detectors[key]
+        lat = d_info.get("latency", {})
+        par = d_info.get("parity", {})
+        
+        pre_gpu = lat.get("preprocess_gpu", {}).get("median_ms", 0.0)
+        det_gpu = lat.get("detector_gpu_fp16", {}).get("median_ms", 0.0)
+        post_gpu = lat.get("postprocess_gpu", {}).get("median_ms", 0.0)
+        geom_gpu = lat.get("geometry_gpu", {}).get("median_ms", 0.0)
+        res_gpu = lat.get("residual_gpu", {}).get("median_ms", 0.0)
+        cqr_gpu = lat.get("cqr_gpu", {}).get("median_ms", 0.0)
+        
+        tot_gpu_med = lat.get("total_pipeline_gpu", {}).get("median_ms", 0.0)
+        tot_gpu_p95 = lat.get("total_pipeline_gpu", {}).get("p95_ms", 0.0)
+        tot_gpu_fps = lat.get("total_pipeline_gpu", {}).get("fps_median", 1000.0 / tot_gpu_med if tot_gpu_med > 0 else 0.0)
+        
+        tot_cpu_med = lat.get("total_pipeline_cpu", {}).get("median_ms", 0.0)
+        tot_cpu_p95 = lat.get("total_pipeline_cpu", {}).get("p95_ms", 0.0)
+        tot_cpu_fps = lat.get("total_pipeline_cpu", {}).get("fps_median", 1000.0 / tot_cpu_med if tot_cpu_med > 0 else 0.0)
+        
+        count_ratio = par.get("count_ratio", 0.0)
+        iou_rate = par.get("high_iou_match_rate", 0.0)
+        
+        csv_rows.append({
+            "detector": key,
+            "display_name": name,
+            "preprocess_gpu_ms": round(pre_gpu, 2),
+            "detector_forward_gpu_ms": round(det_gpu, 2),
+            "postprocess_gpu_ms": round(post_gpu, 2),
+            "geometry_gpu_ms": round(geom_gpu, 2),
+            "residual_gpu_ms": round(res_gpu, 2),
+            "cqr_gpu_ms": round(cqr_gpu, 2),
+            "total_gpu_median_ms": round(tot_gpu_med, 2),
+            "total_gpu_p95_ms": round(tot_gpu_p95, 2),
+            "total_gpu_fps": round(tot_gpu_fps, 1),
+            "total_cpu_median_ms": round(tot_cpu_med, 2),
+            "total_cpu_p95_ms": round(tot_cpu_p95, 2),
+            "total_cpu_fps": round(tot_cpu_fps, 1),
+            "parity_count_ratio": round(count_ratio, 4),
+            "parity_high_iou_match_rate": round(iou_rate, 4),
+            "status": "PRELIMINARY-v2"
+        })
+        
+        latex_rows.append([
+            name,
+            f"{pre_gpu:.1f}",
+            f"{det_gpu:.1f}",
+            f"{post_gpu:.2f}",
+            f"{geom_gpu:.2f}",
+            f"{res_gpu:.2f}",
+            f"{cqr_gpu:.2f}",
+            f"{tot_gpu_med:.1f} / {tot_gpu_p95:.1f}",
+            f"{tot_gpu_fps:.1f}",
+            f"{tot_cpu_med:.1f} / {tot_cpu_p95:.1f}",
+            f"{tot_cpu_fps:.1f}",
+            f"{count_ratio:.3f}",
+            f"{iou_rate*100:.1f}\\%"
+        ])
+        
+    df_raw = pd.DataFrame(csv_rows)
+    headers = [
+        "Detector", "Pre (GPU)", "Det (GPU)", "Post (GPU)", "Geom", "Resid", "CQR",
+        "GPU Total (Med/P95)", "GPU FPS", "CPU Total (Med/P95)", "CPU FPS", "Parity Count", "Parity IoU"
+    ]
+    notes = "\\textbf{Status: PRELIMINARY-v2.} Evaluated on 200 in-memory frames of Split B with 40 warmup iterations on RTX 5060 Laptop GPU (FP16 CUDA) and AMD CPU (ONNX Runtime FP32, 4 threads). Per Decision D98, no detector throughput ranking is claimed. Count parity reaches [0.95, 1.05]; IoU match rate $< 0.95$ due to static $640 \\times 640$ padding vs dynamic $640 \\times 224$ letterbox (D99, D100, D104). Post-detector stages (geometry + residual + CQR) add only $\\approx 1.35$ ms total ($< 4.2\\%$ of GPU pipeline)."
+    write_table_pair("tab_07_latency_tier1_realtime", "Tier 1 End-to-End Real-Time Latency Breakdown and PyTorch/ONNX Parity Verification", "tab:latency_tier1_realtime", headers, latex_rows, "lrrrrrrrrrrrr", df_raw, notes)
+
 def main():
     print("Exporting publication-ready tables to results/tables/final/...")
     export_table_1()
@@ -552,7 +642,8 @@ def main():
     export_table_4()
     export_table_5()
     export_table_6()
-    print("All 6 publication tables successfully exported!")
+    export_table_7()
+    print("All 7 publication tables successfully exported!")
 
 if __name__ == "__main__":
     main()

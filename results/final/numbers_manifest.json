@@ -482,6 +482,132 @@
       "source_file": "results/tables/final_eval_main_T.csv",
       "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
       "data_path": "n_gt.iloc[0]"
+    },
+    "yolo11s_latency_gpu_median": {
+      "value": 37.987,
+      "display_str": "37.99 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolo11s_640.latency.total_pipeline_gpu.median_ms"
+    },
+    "yolo11s_latency_gpu_p95": {
+      "value": 48.493,
+      "display_str": "48.49 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolo11s_640.latency.total_pipeline_gpu.p95_ms"
+    },
+    "yolo11s_latency_gpu_fps": {
+      "value": 26.3,
+      "display_str": "26.3 FPS",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolo11s_640.latency.total_pipeline_gpu.fps_median"
+    },
+    "yolo11s_latency_cpu_median": {
+      "value": 116.168,
+      "display_str": "116.17 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolo11s_640.latency.total_pipeline_cpu.median_ms"
+    },
+    "yolo11s_latency_cpu_p95": {
+      "value": 122.824,
+      "display_str": "122.82 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolo11s_640.latency.total_pipeline_cpu.p95_ms"
+    },
+    "yolo11s_latency_cpu_fps": {
+      "value": 8.6,
+      "display_str": "8.6 FPS",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolo11s_640.latency.total_pipeline_cpu.fps_median"
+    },
+    "yolov8s_latency_gpu_median": {
+      "value": 32.05,
+      "display_str": "32.05 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov8s_640.latency.total_pipeline_gpu.median_ms"
+    },
+    "yolov8s_latency_gpu_p95": {
+      "value": 60.143,
+      "display_str": "60.14 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov8s_640.latency.total_pipeline_gpu.p95_ms"
+    },
+    "yolov8s_latency_gpu_fps": {
+      "value": 31.2,
+      "display_str": "31.2 FPS",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov8s_640.latency.total_pipeline_gpu.fps_median"
+    },
+    "yolov8s_latency_cpu_median": {
+      "value": 143.368,
+      "display_str": "143.37 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov8s_640.latency.total_pipeline_cpu.median_ms"
+    },
+    "yolov8s_latency_cpu_p95": {
+      "value": 148.595,
+      "display_str": "148.59 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov8s_640.latency.total_pipeline_cpu.p95_ms"
+    },
+    "yolov8s_latency_cpu_fps": {
+      "value": 7.0,
+      "display_str": "7.0 FPS",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov8s_640.latency.total_pipeline_cpu.fps_median"
+    },
+    "yolov5su_latency_gpu_median": {
+      "value": 33.013,
+      "display_str": "33.01 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov5su_640.latency.total_pipeline_gpu.median_ms"
+    },
+    "yolov5su_latency_gpu_p95": {
+      "value": 64.842,
+      "display_str": "64.84 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov5su_640.latency.total_pipeline_gpu.p95_ms"
+    },
+    "yolov5su_latency_gpu_fps": {
+      "value": 30.3,
+      "display_str": "30.3 FPS",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov5su_640.latency.total_pipeline_gpu.fps_median"
+    },
+    "yolov5su_latency_cpu_median": {
+      "value": 120.476,
+      "display_str": "120.48 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov5su_640.latency.total_pipeline_cpu.median_ms"
+    },
+    "yolov5su_latency_cpu_p95": {
+      "value": 124.555,
+      "display_str": "124.56 ms",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov5su_640.latency.total_pipeline_cpu.p95_ms"
+    },
+    "yolov5su_latency_cpu_fps": {
+      "value": 8.3,
+      "display_str": "8.3 FPS",
+      "source_file": "results/tables/latency_tier1.json",
+      "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
+      "data_path": "detectors.yolov5su_640.latency.total_pipeline_cpu.fps_median"
     }
   }
 }
