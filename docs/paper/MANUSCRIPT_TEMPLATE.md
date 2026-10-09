@@ -1,7 +1,7 @@
 # Calibrated Hybrid Geometry–Learning Monocular Vehicle Distance Estimation with Lightweight YOLO Detectors
 
 **Authors:** Anonymous Submission  
-**Target Venue:** IEEE / Applied ITS Conference & Journal Submission  
+**Target Venue:** 8th Asia Digital Image Processing Conference (ADIP 2026), Tokyo, Japan (SPIE Proceedings)  
 
 ---
 
