@@ -21,8 +21,8 @@
     },
     "fig_03_ranging_error_by_distance.png": {
       "path": "results/figures/final/fig_03_ranging_error_by_distance.png",
-      "sha256": "ce7da28f15f5fdf00cb1ad84db35192238530beecbd5953443dc622afdf25f15",
-      "size_bytes": 336760,
+      "sha256": "da134bfdb99680d320de5bd6c5cc2d8bc18eb5157fd27ad32f06b53cd04ec8d3",
+      "size_bytes": 316523,
       "description": "Empirical Mean Absolute Relative Error (AbsRel) dynamically evaluated across 5 distance bins on Split T comparing isolated pinhole cues, fused baseline, direct regression, and hybrid residual model. Asterisk (*) denotes n < 100."
     },
     "fig_04_conformal_intervals_and_coverage.png": {

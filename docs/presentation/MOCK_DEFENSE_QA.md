@@ -17,7 +17,7 @@ Tài liệu này tổng hợp 7 câu hỏi phản biện chuyên sâu và gai g�
    *"Tuy nhiên, giá trị của mô hình lai trong hệ thống ADAS/tự hành an toàn không nằm ở vài phần vạn sai số, mà nằm ở 3 trụ cột mang tính nguyên lý:*
    - **Thứ nhất là Tính khả giải thích vật lý (Physical Interpretability):** *Mô hình Direct (e) là một hàm hộp đen phi tuyến, khi xe bị che khuất hoặc có biến dạng thị giác lạ, mô hình có thể ngoại suy ra khoảng cách hoàn toàn vô lý. Ngược lại, mô hình lai luôn neo chặt vào nghiệm quang học $Z_d$ có cơ sở vật lý rõ ràng.*
    - **Thứ hai là Khả năng Phân rã Sai số (Error Decomposition):** *Chỉ khi có mô hình hình học, chúng ta mới có thể tách bạch được bao nhiêu phần sai số đến từ giả định vật lý (kích thước xe, mặt đường) và bao nhiêu phần đến từ rung lắc bounding box của detector.*
-   - **Thứ ba là Cơ chế Suy thoái Êm dịu (Graceful Fallback):** *Hình học pinhole đóng vai trò như một lớp bảo vệ. Nếu mạng nơ-ron gặp sự cố, hệ thống vẫn có thể lùi về nghiệm hình học thuần túy (AbsRel ~6.4%) để phanh khẩn cấp thay vì sập hoàn toàn."*
+   - **Thứ ba là Cơ chế Fallback Có Cấu Trúc (Structured Fallback Pathway):** *Trong trường hợp xe bị cắt góc viền nặng và mất toàn bộ cue hình học (Pattern 000), hệ thống tự động kích hoạt nhánh fallback hồi quy trực tiếp từ bounding box ($Z_e$) để tránh sập hoàn toàn pipeline. Dù vậy, nhóm cũng báo cáo trung thực trong Hạn chế 12 rằng độ phủ CQR trên nhóm biên khó này giảm xuống 77.8%–86.1% (thấp hơn danh nghĩa 90%), phản ánh đúng thách thức của các trường hợp cắt mép ảnh."*
 
 ---
 
@@ -51,7 +51,7 @@ Tài liệu này tổng hợp 7 câu hỏi phản biện chuyên sâu và gai g�
 
 **Kịch bản trả lời (Dẫn chứng Quyết định D19 & D31):**
 1. **Bản chất biến dạng hình học khi xe quay ngang:**  
-   *"Kính thưa Thầy/Cô, camera chụp xe từ nhiều góc nhìn $\theta$. Khi nhìn thẳng đầu hoặc đuôi xe, chiều rộng bounding box phản ánh đúng bề ngang xe (~1.8m). Nhưng khi xe rẽ hoặc đi ngang (góc $\theta < 30^\circ$), chiều rộng bounding box trên ảnh 2D phình to tương ứng với **chiều dài thân xe (~4.5m)**, làm công thức pinhole $Z_w$ ước lượng thiếu nghiêm trọng (AbsRel dọt lên 42.4%).*
+   *"Kính thưa Thầy/Cô, camera chụp xe từ nhiều góc nhìn $\theta$. Khi nhìn thẳng đầu hoặc đuôi xe, chiều rộng bounding box phản ánh đúng bề ngang xe (~1.8m). Nhưng khi xe rẽ hoặc đi ngang (góc $\theta < 30^\circ$), chiều rộng bounding box trên ảnh 2D phình to tương ứng với **chiều dài thân xe (~4.5m)**, làm công thức pinhole $Z_w$ ước lượng thiếu nghiêm trọng (AbsRel tăng vọt lên 42.4%).*
    *Khi dùng nhãn GT hoàn hảo, sự bù trừ hiệp phương sai âm giữa chiều rộng và chiều cao cho phép $w_w$ giữ giá trị nhỏ 0.08. Nhưng khi chuyển sang detector thực tế, nhiễu cạnh biên và rung lắc 2D làm phương sai sai số chiều rộng $\Sigma_{ww}$ tăng gấp 10 lần chiều cao $\Sigma_{hh}$. Thuật toán Non-Negative Least Squares (NNLS) đã nhận diện đúng sự suy thoái này và tự động kẹp $w_w \to 0$ để bảo vệ mô hình không bị khuếch đại nhiễu."*
 
 ---

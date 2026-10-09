@@ -265,13 +265,14 @@ def generate_figure_3_error_by_distance() -> Path:
 
     ax.set_xlabel("Distance Range Bins [Asterisk (*) indicates n < 100]", weight="bold")
     ax.set_ylabel("Mean Absolute Relative Error (AbsRel)", weight="bold")
-    ax.set_title("Empirical Ranging Error Across Distance Ranges (YOLO11s on Split T)", pad=12)
-    ax.set_ylim(0.02, 0.32)
+    valid_max = [v for v in (absrel_width + absrel_ground + absrel_height + absrel_fused_d + absrel_direct_e + absrel_residual_f) if not np.isnan(v)]
+    y_max = max(valid_max) * 1.08 if valid_max else 0.35
+    ax.set_ylim(0.01, y_max)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="upper right", framealpha=0.95)
 
     # Ghi chú khách quan về (f) và (e)
-    ax.annotate("Model (f) and Model (e) closely track\n[Cluster Bootstrap 95% CI contains 0]",
+    ax.annotate("Model (f) and Model (e) closely track\n[Overall Split T paired 95% CI contains 0]",
                 xy=(1, absrel_residual_f[1]), xytext=(1.2, 0.10),
                 arrowprops=dict(arrowstyle="->", color=CB_DARK, lw=1.2),
                 fontsize=8.5, backgroundcolor="#FFF8DC", weight="bold")

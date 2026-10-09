@@ -127,10 +127,10 @@
 | (d) Fused Geometry $Z_d$ | 0.0640 | 0.0643 | 0.0655 | 98.0% | 1.41 |
 | (f) **Hybrid Residual $\hat{Z}_f$** | **0.0463** | **0.0461** | **0.0474** | **99.7%** | **1.10** |
 
-- **Phân tích RQ1:** Mạng Residual $\hat{Z}_f$ cải thiện vượt bậc so với hình học thuần $Z_d$ ($\Delta = -0.0188$, 95% Cluster Bootstrap CI $[-0.0264, -0.0107]$, loại trừ 0).
+- **Phân tích RQ1:** Mạng Residual $\hat{Z}_f$ cải thiện rõ rệt so với hình học thuần $Z_d$ ($\Delta = -0.0188$, 95% Cluster Bootstrap CI $[-0.0264, -0.0107]$, loại trừ 0).
 - **Hình ảnh minh họa:** `results/figures/final/fig_03_ranging_error_by_distance.png` (sai số AbsRel giảm mạnh ở mọi dải khoảng cách).
 - 🗣️ **Speaker Notes:**
-  > "Trên tập kiểm định Split T bị khóa, mô hình lai Hybrid (f) giảm sai số tương đối AbsRel từ 6.4% của hình học xuống 4.63%, độ chính xác delta1 đạt 99.7%, kiểm định Bootstrap 10 cụm cho thấy ước lượng cải thiện có ý nghĩa so với hình học thuần (khoảng CI loại trừ 0)."
+  > "Trên tập kiểm định Split T bị khóa, mô hình lai Hybrid (f) giảm sai số tương đối AbsRel từ 6.4% của hình học xuống 4.63%, độ chính xác delta1 đạt 99.7%, kiểm định Bootstrap 10 cụm cho thấy khoảng tin cậy hiệu số loại trừ 0 so với hình học thuần."
 
 ---
 
@@ -155,7 +155,7 @@
   * YOLOv5su: AbsRel = **0.0457**
   * Khoảng tin cậy Paired Bootstrap CI giữa các cặp detector đều chứa 0 $\implies$ Ba detector có độ chính xác khoảng cách tương đương nhau.
 - **Phân tích Tương quan Bounding Box (RQ2):**
-  * Hệ số tương quan Rank Spearman giữa IoU / độ lệch cạnh đáy với sai số khoảng cách gần như bằng 0 ($|\rho| \le 0.10$, 23/24 cấu hình chứa 0).
+  * Hệ số tương quan Rank Spearman giữa IoU / độ lệch cạnh đáy với sai số khoảng cách gần như bằng 0 ($\rho \in [-0.087, +0.104]$ với $|\rho| \le 0.11$, 23/24 cấu hình chứa 0).
   * $\implies$ Sai số ước lượng khoảng cách chủ yếu do quy mô tỉ lệ chiều sâu phối cảnh, không bị chi phối bởi rung lắc pixel 2D cục bộ.
 - 🗣️ **Speaker Notes:**
   > "Trên 2.528 xe chung, cả 3 thế hệ YOLO đều cho độ chính xác tương đồng. Phân tích tương quan chỉ ra rằng rung lắc cạnh đáy 2D không phải nguyên nhân chính gây sai số khoảng cách mà bản chất nằm ở bài toán tỉ lệ phối cảnh chiều sâu."
@@ -170,7 +170,7 @@
   * Vi phạm cắt chéo (Crossing): **0 trường hợp**.
 - **Giải mã hiện tượng Over-coverage (D79, D87):**
   * Phát hiện post-hoc: Split C tập trung 2 drive khó chiếm 39.3% mẫu ($D_{\text{KS}} = 0.15$), làm ngưỡng $\hat{Q}$ bị nở rộng $\implies$ Tạo tính bảo thủ an toàn khi kiểm định trên Split T.
-- **Đánh đổi của Mondrian CQR:** Khôi phục độ phủ cự ly gần 0–10m (từ ~91% lên ~97%) nhưng làm phồng độ rộng khoảng tin cậy từ $1.32\times$ lên $1.80\times$ ở dải 0–10m.
+- **Đánh đổi của Mondrian CQR:** Khôi phục độ phủ cự ly gần 0–10m (từ ~91% lên ~97%) nhưng làm phồng độ rộng khoảng tin cậy từ $1.45\times$ lên $1.80\times$ ở dải 0–10m ($1.33\times \to 1.80\times$ toàn tập).
 - 🗣️ **Speaker Notes:**
   > "CQR đạt độ phủ thực nghiệm 96.4%, vượt mức danh nghĩa 90%. Đây là phát hiện hậu nghiệm xuất phát từ việc tập hiệu chuẩn Split C có độ khó cao hơn Split T, mang lại độ phủ thực nghiệm bảo thủ trên tập kiểm định Split T."
 
@@ -188,7 +188,7 @@
 | **Conformal CQR** | **0.58 ms** | **0.58 ms** | **1.5%** |
 | **Tổng End-to-End** | **37.99 ms (26.3 FPS)** | **116.17 ms (8.6 FPS)** | **100.0%** |
 
-- **Kết luận:** Ba khâu hậu detector chỉ tốn **$\approx 1.35$ ms/ảnh ($< 4.2\%$ GPU)** $\implies$ Phương pháp lai và conformal hoàn toàn khả thi thời gian thực mà không làm nghẽn detector.
+- **Kết luận:** Ba khâu hậu detector chỉ tốn **$\approx 1.35$ ms/ảnh ($< 4.2\%$ GPU)** $\implies$ Chi phí tính toán của phương pháp lai và conformal là không đáng kể so với detector.
 - 🗣️ **Speaker Notes:**
   > "Toàn bộ khâu hình học, residual và conformal chỉ mất 1.35 ms trên GPU, chiếm chưa đầy 4.2% thời gian xử lý. Mô hình đạt 26.3 FPS trên GPU RTX 5060 Laptop và 8.6 FPS trên CPU thuần túy."
 
@@ -197,7 +197,7 @@
 ## Slide 14: Nghiên Cứu Điển Hình Định Tính & Phân Tích Lỗi (Fig. 5)
 - **Minh họa 4 ca thành công nổi bật:**
   1. *Nhìn ngang (D19, Frame 000006):* $Z_w = 9.8\text{m}$ bị co rút, Residual bù chuẩn lên $\hat{Z}_f = 20.6\text{m}$ vs $Z_{\text{gt}} = 19.7\text{m}$ (AbsRel 4.5%, Cover=True).
-  2. *Lệch tâm vật lý dải gần (D21, Frame 000385):* $Z_d$ lệch âm -11.2% do tâm 3D vs mặt cản sau, Residual triệt tiêu độ lệch về $\hat{Z}_f = 7.99\text{m}$ vs $Z_{\text{gt}} = 7.91\text{m}$ (AbsRel 0.96%).
+  2. *Lệch tâm vật lý dải gần (D21, Frame 000385):* $Z_d$ lệch âm -11.2% do tâm 3D vs mặt cản gần nhất, Residual triệt tiêu độ lệch về $\hat{Z}_f = 7.99\text{m}$ vs $Z_{\text{gt}} = 7.91\text{m}$ (AbsRel 0.96%).
   3. *Cắt mép ảnh đáy (Frame 000152):* CQR nới rộng khoảng $[4.08, 7.07]\text{m}$ chứa an toàn $Z_{\text{gt}} = 6.37\text{m}$.
   4. *Fallback thành công (Frame 000211):* Mất sạch cue, model direct đưa về $\hat{Z}_f = 8.23\text{m}$ vs $Z_{\text{gt}} = 7.91\text{m}$ (Cover=True).
 - **Phân tích ca lỗi lớn nhất (Top-1 Outlier, Frame 001414):** Xe bị cắt góc viền chéo quá nặng, mô hình trực tiếp gặp lỗi ngoại suy phối cảnh $\implies$ AbsRel $42.9\%$ (Cover=False).
@@ -223,8 +223,8 @@
   1. Xây dựng thành công quy trình chia 5 tập `splits-v2` không rò rỉ bối cảnh, bảo đảm tính tái lập 100%.
   2. Khung làm việc lai Hybrid kết hợp pinhole, residual XGBoost và CQR đạt sai số AbsRel **4.63%** và độ phủ an toàn **96.4%**.
   3. Phân rã tách bạch sai số hình học vs detector jitter; chứng minh chi phí tính toán hậu detector chỉ tốn **1.35 ms**.
-  4. Báo cáo kiểm toán độc lập `CHECKLIST_AUDIT.md` đạt chuẩn (**13 PASS, 1 EXCLUDED by design D121**).
+  4. Báo cáo kiểm toán độc lập `CHECKLIST_AUDIT.md` đạt chuẩn toàn diện (**14/14 PASS**).
 - **Hướng phát triển:** Tích hợp bộ lọc Kalman Tracking theo chuỗi thời gian, mở rộng sang xe máy và người đi bộ.
 - **Lời cảm ơn:** Nhóm xin chân thành cảm ơn Quý Thầy Cô Hội đồng đã lắng nghe và kính mời Quý Thầy Cô đặt câu hỏi phản biện!
 - 🗣️ **Speaker Notes:**
-  > "Đề tài đã hoàn thành xuất sắc toàn bộ mục tiêu đề ra với tính tái lập 100%. Nhóm xin trân trọng cảm ơn Hội đồng và sẵn sàng tiếp thu các câu hỏi phản biện."
+  > "Đề tài đã hoàn thành toàn diện các mục tiêu đề ra với tính tái lập 100%. Nhóm xin trân trọng cảm ơn Hội đồng và sẵn sàng tiếp thu các câu hỏi phản biện."

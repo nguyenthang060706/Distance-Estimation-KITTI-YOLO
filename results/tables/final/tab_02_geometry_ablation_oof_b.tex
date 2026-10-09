@@ -27,5 +27,5 @@ Ablation & Drop Cue Z\_G & 0.0472 & 0.0496 & +0.0001 [-0.0025, +0.0021] & --- \\
 \bottomrule
 \end{tabular}
 \vskip 4pt
-\parbox{\textwidth}{\footnotesize \textit{Note:} Evaluated on Split B out-of-fold (12-fold LODO by drive, $N=4,776$). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). Drop Cue $Z_h$ is the only ablation whose 95\% CI excludes 0 ([+0.0024, +0.0119]); all other ablations span 0.}
+\parbox{\textwidth}{\footnotesize \textit{Note:} Evaluated on Split B out-of-fold (12-fold LODO by drive, $N_{\text{gt}}=4,776$, $N_{\text{tp}}=3,523$ for YOLO11s). Single pinhole cues are evaluated on their respective valid subsets; fused geometry and residual models are evaluated on instances with $\ge 1$ valid cue (common valid support). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). Drop Cue $Z_h$ is the only ablation whose 95\% CI excludes 0 ([+0.0024, +0.0119]); all other ablations span 0.}
 \end{table*}

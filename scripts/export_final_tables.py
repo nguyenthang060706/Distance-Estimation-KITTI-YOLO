@@ -285,7 +285,7 @@ def export_table_2():
         
     df_raw = pd.DataFrame(csv_rows)
     headers = ["Category", "Method / Ablation", "Pooled AbsRel", "Macro AbsRel (12)", "$\\Delta_{\\text{pooled}}$ (vs f) [95\\% CI]", "$\\delta < 1.25$"]
-    notes = "Evaluated on Split B out-of-fold (12-fold LODO by drive, $N=4,776$). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). Drop Cue $Z_h$ is the only ablation whose 95\\% CI excludes 0 ([+0.0024, +0.0119]); all other ablations span 0."
+    notes = "Evaluated on Split B out-of-fold (12-fold LODO by drive, $N_{\\text{gt}}=4,776$, $N_{\\text{tp}}=3,523$ for YOLO11s). Single pinhole cues are evaluated on their respective valid subsets; fused geometry and residual models are evaluated on instances with $\\ge 1$ valid cue (common valid support). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). Drop Cue $Z_h$ is the only ablation whose 95\\% CI excludes 0 ([+0.0024, +0.0119]); all other ablations span 0."
     write_table_pair("tab_02_geometry_ablation_oof_b", "Geometric Baseline Cues, Covariance Fusion, and Residual Ablation on Split B OOF", "tab:ablation_oof_b", headers, latex_rows, "llrrrr", df_raw, notes)
 
 # ==============================================================================
@@ -507,7 +507,7 @@ def export_table_5():
             
     df_raw = pd.DataFrame(csv_rows)
     headers = ["Detector", "Conformal Variant", "Pooled Cov", "Macro (10)", "Macro ($n \\ge 30$)", "Mean Width Ratio", "Winkler Score", "Crossings"]
-    notes = "Target nominal coverage is $1 - \\alpha = 90.0\\%$. Calibrated on Split C ($N=1,826$, 10 drives). Evaluated on Split T ($N=2,712$ for YOLO11s, detector seed 42). Standard CQR yields conservative over-coverage (96.4\\%--97.1\\%) with mean width ratio 1.32$\\times$--1.35$\\times$ due to calibration set difficulty distribution (D79, D87). Zero crossing observed across all models."
+    notes = "Target nominal coverage is $1 - \\alpha = 90.0\\%$. Calibrated on Split C ($N_{\\text{gt}}=1,826$, $n_{\\text{tp}}=1,489$ for YOLO11s, 10 drives). Evaluated on Split T ($N_{\\text{gt}}=3,212$, $N_{\\text{tp}}=2,712$ for YOLO11s, detector seed 42). Standard CQR yields conservative over-coverage (96.4\\%--97.1\\%) with mean width ratio 1.32$\\times$--1.35$\\times$ pooled (1.45$\\times$ in 0--10m band) due to calibration set difficulty distribution (D79, D87). Zero crossing observed across all models."
     write_table_pair("tab_05_conformal_coverage_t", "Uncertainty Quantification and Conformal Coverage Evaluation on Split T", "tab:conformal_coverage_t", headers, latex_rows, "llrrrrrr", df_raw, notes)
 
 # ==============================================================================

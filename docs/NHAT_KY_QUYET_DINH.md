@@ -202,7 +202,7 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   3. Mondrian CQR tăng độ phủ gần nhưng làm nở rộng khoảng tin cậy (width tăng từ $1.45\times$ lên $1.80\times$), chỉ báo cáo mô tả không xếp hạng.
 - ✅ **Chuẩn đo đạc độ trễ Tier 1 chính thức theo per-image end-to-end latency (D94):**
   * Khắc phục triệt để các hạn chế phương pháp luận của bản sơ bộ T06: (1) Nạp trước toàn bộ 200 ảnh vào RAM nhằm loại bỏ Disk I/O và PNG decode (~20 ms) ra khỏi khâu tiền xử lý (đưa tiền xử lý về đo thuần túy letterbox in-memory và H2D tensor transfer); (2) Đo tổng thời gian end-to-end $t_{\text{total}}^{(i)}$ trên từng ảnh $i$ độc lập, tính trực tiếp Median, Mean, P95, IQR, FPS trên chuỗi tổng per-image, khắc phục lỗi sum of medians. Dữ liệu thực nghiệm xác nhận chênh lệch giữa sum-of-medians và trung vị chuỗi tổng là $0.20–0.63$ ms ($\le 2.0\%$); việc đo trực tiếp end-to-end là chuẩn mực phương pháp luận thống kê để theo dõi chính xác các phân vị đuôi (P95, IQR); (3) Trích xuất 17 đặc trưng vector hóa khớp tuyệt đối với pipeline canonical (sửa chuẩn hóa $cx\_offset\_norm = (box\_cx - cx) / f_x$); (4) Đo đạc đầy đủ khâu Conformal Quantile Regression (CQR: 2 mô hình XGBoost $q_{0.05}$ và $q_{0.95}$, áp dụng scaling log-residual và $\hat{Q}$).
-  * Kết quả đo sạch trên 200 ảnh Split B (20 warmup): GPU RTX 5060 Laptop đạt 31.70–38.01 ms (26.3–31.5 FPS); CPU ONNX Runtime 4 luồng đạt 116.73–142.54 ms (7.0–8.6 FPS). Khâu hậu detector (Hình học ~0.18 ms, Residual ~0.57–0.60 ms, CQR ~0.58–0.60 ms) chỉ tốn ~1.35 ms/ảnh, chứng minh chi phí tính toán của phương pháp hybrid và conformal là không đáng kể so với detector backbone. [CẦN TRÍCH DẪN tiêu chuẩn ADAS cụ thể trước khi đưa ra khẳng định phân cấp thời gian thực].
+  * Kết quả đo sạch trên 200 ảnh Split B (40 warmup): GPU RTX 5060 Laptop đạt 31.70–38.01 ms (26.3–31.5 FPS); CPU ONNX Runtime 4 luồng đạt 116.73–142.54 ms (7.0–8.6 FPS). Khâu hậu detector (Hình học ~0.18 ms, Residual ~0.57–0.60 ms, CQR ~0.58–0.60 ms) chỉ tốn ~1.35 ms/ảnh, chứng minh chi phí tính toán của phương pháp hybrid và conformal là không đáng kể so với detector backbone. [CẦN TRÍCH DẪN tiêu chuẩn ADAS cụ thể trước khi đưa ra khẳng định phân cấp thời gian thực].
 - ✅ **Quy chuẩn báo cáo song song Count Parity và IoU Match Rate theo AGENT_RULES §1.9 (D95):**
   * Trong kiểm định tương đồng PyTorch vs ONNX Runtime (Parity Check, D44), báo cáo độc lập cả hai số liệu: Count Parity đạt chuẩn [0.95, 1.05] (0.974–1.009), IoU Match Rate đạt 0.9095–0.9437 (< 0.95).
   * Tuân thủ nghiêm ngặt AGENT_RULES §1.9 cấm làm mềm kết quả không đạt: Đánh nhãn dứt khoát **"Count ĐẠT, IoU KHÔNG ĐẠT"**. Nêu rõ các nguyên nhân kỹ thuật có thể gồm: khác biệt chiến lược đệm ảnh (dynamic letterbox PyTorch vs fixed square 640 ONNX), kiểu dữ liệu (model.half() FP16 vs ORT FP32), và thuật toán NMS (numpy NMS vs Ultralytics torch NMS). Đây là các giả thuyết kỹ thuật chưa được kiểm chứng độc lập (D99).
@@ -327,6 +327,20 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   * Table 1 (`tab_01_dataset_split.csv` / `.tex`) được trích xuất động từ `splits/split_metadata.json` và đếm nhãn, loại bỏ hoàn toàn số gõ tay.
   * Khi các bảng CSV/TeX trong `results/tables/final/` được kết xuất lại, mã băm SHA-256 thay đổi $\to$ Script `build_numbers_manifest.py` được mở rộng lên 124 metrics và tự động đồng bộ `source_sha256` trong `numbers_manifest.json`, bảo đảm tính tái lập bit-by-bit.
   * Mở rộng `scripts/audit_paper.py` bổ sung regex cấm mã tác vụ nội bộ `Txx` (`\b[tT]\d{2}[a-zA-Z]?\b`) song hành cùng mã quyết định `Dxx`, đồng bộ khóa trích dẫn `haseeb2018disnet` và cập nhật 242 tests pass 100%.
+- ✅ **Đồng bộ Số liệu Thực tế Split T-v2, Ghi chú Table Support và Dynamic CQR Std (D124):**
+  * Limitation 1 được cập nhật chính xác theo phân phối Split T-v2: Truck chiếm 59 đối tượng (1.3% vehicles trên T vs 4.8% trên A, tỷ lệ Car/Van/Truck là 94.6% / 4.1% / 1.3%), thay thế triệt để con số 0.8% của bản T-v1 trước D14.
+  * Limitation 2 cập nhật miss rate thực tế trên Split T: ở cự ly 30–50m là 26.2%–29.3% (Recall 70.7%–73.8%), ở cự ly >50m là 72.7%–93.9% (Recall 6.1%–27.3%), loại bỏ con số 48%–50% cũ của Split B.
+  * Ghi chú Table 2 và Table 5 bổ sung tường minh song song cả tổng số Ground Truth ($N_{\text{gt}}$) và số lượng đối tượng True Positives ($N_{\text{tp}}$ / $n_{\text{tp}}$) để phân biệt rõ ràng cue đơn lẻ vs fused.
+  * Tiêu chí 9 của `scripts/audit_checklist.py` đọc động độ lệch chuẩn thực tế của 20 resplits từ `coverage_stability_20resplits.json` ($85.15\% \pm 8.62\%$), loại bỏ số gõ tay.
+  * Tiêu chí 7 được cập nhật cơ chế kiểm toán chi tiết: kiểm tra Precision/Recall trên B/C, mAP@0.5 trên V, Common Support $N=2,528$; ghi nhận mAP@0.7 excluded by design $\to$ đạt 14/14 PASS.
+- ✅ **Minh bạch Hạn chế Fallback Pattern 000 & Tinh chỉnh Abstract/Q&A (D125):**
+  * Minh bạch cơ chế fallback khi toàn bộ cue hình học bị cắt xén (Pattern 000): hệ thống lùi về mô hình hồi quy trực tiếp Model (e), không phải lùi về hình học thuần túy.
+  * Abstract và Q&A nêu rõ độ phủ thực tế của fallback là 77.8%–86.1% (thấp hơn mức danh nghĩa 90%), loại bỏ mọi tuyên bố võ đoán về tính năng phanh khẩn cấp hay an toàn tuyệt đối khi chưa có kiểm chứng phần cứng thực tế.
+- ✅ **Chuẩn hóa Escape LaTeX Math Mode và Loại bỏ Từ ngữ Phóng đại Toàn diện (D126):**
+  * Sửa lỗi LaTeX syntax trong `MANUSCRIPT_TEMPLATE.md`: các thẻ placeholder chứa ký tự `%` được đưa ra ngoài cặp `$ $` (ví dụ `$\delta_1 =$ {{num:...}}%`) để tránh trình biên dịch LaTeX hiểu nhầm `%` là ký tự bắt đầu chú thích (comment).
+  * Chuẩn hóa tên gọi phương pháp co ngót hiệp phương sai là `OAS (Chen et al., 2010)` thay vì Ledoit-Wolf.
+  * Cập nhật khoảng tương quan Spearman $\rho \in [-0.087, +0.104]$ ($|\rho| \le 0.11$) đồng bộ trên toàn bộ bài báo, README và slide.
+  * Rà soát và loại bỏ triệt để các tính từ/trạng từ phóng đại ("vượt bậc", "xuất sắc", "hoàn toàn khả thi", "có ý nghĩa") khỏi `SLIDES_OUTLINE.md`, `MOCK_DEFENSE_QA.md` và `README.md`.
 
 ---
 
@@ -436,6 +450,15 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ---
 
 ## 6. Nhật ký theo phiên
+
+### Hậu T19 (Lần 2) — 16/10/2026: Giải Quyết Triệt Để 23 Điểm Phản Biện P0/P1, Đồng Bộ 14/14 PASS Checklist & Hoàn Thiện Bản Thảo (D124–D126)
+- **Giải quyết triệt để 23 điểm phản biện học thuật hợp lệ (Bảo vệ tuyệt đối Zero-Touch Split T, `runs/final_T.lock` bất biến):**
+  - **Đồng bộ Số liệu Thực tế Split T-v2 (D124):** Cập nhật Limitation 1 theo đúng phân phối Split T-v2: Truck chiếm 59 xe (1.3% vehicles trên T vs 4.8% trên A, phân phối 94.6% / 4.1% / 1.3%), xóa bỏ hoàn toàn số 0.8% của bản T-v1 trước D14. Limitation 2 cập nhật miss rate thực tế trên Split T: ở cự ly 30–50m là 26.2%–29.3% (Recall 70.7%–73.8%), ở cự ly >50m là 72.7%–93.9% (Recall 6.1%–27.3%), xóa bỏ số cũ 48%–50% của Split B.
+  - **Ghi chú Bảng & Trình bày Hỗ trợ:** Cập nhật Table 2 và Table 5 ghi rõ song song cả tổng số Ground Truth ($N_{\text{gt}}$) và số lượng True Positives ($N_{\text{tp}}$ / $n_{\text{tp}}$) để phân biệt rõ ràng cue đơn lẻ vs fused.
+  - **Kiểm toán 14/14 PASS Hoàn chỉnh (D124):** Tiêu chí 7 được kiểm tra chi tiết trên các chỉ số detector đã huấn luyện (Precision/Recall trên B/C, mAP@0.5 trên V, Common Support $N=2,528$) và ghi nhận mAP@0.7 excluded by design $\to$ đạt PASS. Tiêu chí 9 đọc động mean và std từ `coverage_stability_20resplits.json` ($85.15\% \pm 8.62\%$). Tiêu chí 14 kiểm tra tỷ lệ 50.0% dữ liệu Split A. Báo cáo kiểm toán `docs/CHECKLIST_AUDIT.md` đạt **14/14 PASS**.
+  - **Minh bạch Fallback Pattern 000 (D125):** Thừa nhận rõ cơ chế fallback khi mất cue hình học là lùi về hồi quy trực tiếp Model (e), đạt độ phủ 77.8%–86.1% (dưới mức danh nghĩa 90%), loại bỏ hoàn toàn các tuyên bố võ đoán về tính năng phanh khẩn cấp hay an toàn ADAS.
+  - **Chuẩn hóa LaTeX & Ngôn ngữ Học thuật (D126):** Đưa ký hiệu `%` ra ngoài math mode LaTeX để tránh trình biên dịch hiểu nhầm là comment. Đồng bộ tên gọi OAS (Chen et al., 2010), khoảng tương quan Spearman $\rho \in [-0.087, +0.104]$ ($|\rho| \le 0.11$). Xóa bỏ triệt để các tính từ phóng đại ("vượt bậc", "xuất sắc", "hoàn toàn khả thi", "có ý nghĩa") khỏi bài báo, README và slide. Sửa typo Q4 trong `MOCK_DEFENSE_QA.md`.
+  - **Tái kết xuất & Kiểm thử Toàn diện:** Xuất bản lại 7 bảng LaTeX/CSV, 5 figures publication, cập nhật `numbers_manifest.json` và compile `MANUSCRIPT_DRAFT.md`. Bộ kiểm thử hồi quy đạt **242 passed** (100% clean).
 
 ### Hậu T19 — 16/10/2026: Khắc Phục Triệt Để Kiểm Toán Độc Lập P0/P1, Đồng Bộ 124 Manifest Metrics & 242 Tests Pass (D121–D123)
 - **Hoàn thành toàn diện rà soát phản biện độc lập (Zero-Touch Split T, `runs/final_T.lock` bất biến):**

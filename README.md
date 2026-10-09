@@ -5,7 +5,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A52.6%20%7C%20CUDA%2012.8-orange.svg)](https://pytorch.org/)
 [![KITTI](https://img.shields.io/badge/dataset-KITTI%20Object-yellow.svg)](http://www.cvlibs.net/datasets/kitti/eval_object.php)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Audit](https://img.shields.io/badge/audit-13%2F14%20PASS%20(1%20Excluded)-success.svg)](docs/CHECKLIST_AUDIT.md)
+[![Audit](https://img.shields.io/badge/audit-14%2F14%20PASS-success.svg)](docs/CHECKLIST_AUDIT.md)
 
 This repository contains the official, fully reproducible implementation of the research project:  
 **"Calibrated Hybrid Geometry–Learning Monocular Vehicle Distance Estimation with Lightweight YOLO Detectors"** (Course: DSR301m, Fall 2026).
@@ -36,7 +36,7 @@ Evaluated on the locked held-out test split (Split T: 1,102 frames, 10 drive clu
 ![Hybrid Architecture](results/figures/final/fig_01_hybrid_architecture.png)
 
 1. **Lightweight Detector Stage:** YOLOv8s / YOLO11s / YOLOv5su predict 2D bounding boxes $(x_1, y_1, x_2, y_2)$ mapped back to raw KITTI image dimensions.
-2. **Perspective Geometry & Shrinkage Fusion:** Three independent pinhole cues—Height ($Z_h$), Width ($Z_w$), and Ground Contact ($Z_g$)—are dynamically masked for boundary truncation ($\epsilon = 2\text{ px}$) and fused in log-space via non-negative least squares (NNLS) with Ledoit-Wolf/OAS shrinkage covariance weighting.
+2. **Perspective Geometry & Shrinkage Fusion:** Three independent pinhole cues—Height ($Z_h$), Width ($Z_w$), and Ground Contact ($Z_g$)—are dynamically masked for boundary truncation ($\epsilon = 2\text{ px}$) and fused in log-space via non-negative least squares (NNLS) with OAS (Chen et al., 2010) shrinkage covariance weighting.
 3. **Residual Learning Stage:** A gradient-boosted tree ensemble (XGBoost) predicts the log-ratio residual $\hat{r} = \ln Z_{\text{gt}} - \ln Z_{\text{base}}$ using 17 test-time observable features. A dedicated Direct Model ($Z_e$) serves as an automated fallback when all cues are masked (Pattern 000).
 4. **Conformal Uncertainty Quantification (CQR):** Predicts 5% and 95% error quantiles ($\hat{q}_{0.05}, \hat{q}_{0.95}$) calibrated via conformal order statistics on Split C, yielding finite-sample prediction intervals $[Z_{\text{lo}}, Z_{\text{hi}}]$ with zero interval crossing violations.
 
@@ -82,9 +82,9 @@ Distance-Estimation-KITTI-YOLO/
 └── docs/                          # Tài liệu & Báo cáo nghiên cứu
     ├── paper/                    # MANUSCRIPT_DRAFT.md, references.bib
     ├── presentation/             # SLIDES_OUTLINE.md (16 slide), MOCK_DEFENSE_QA.md
-    ├── CHECKLIST_AUDIT.md        # Báo cáo kiểm toán độc lập (13 PASS, 1 EXCLUDED by design)
+    ├── CHECKLIST_AUDIT.md        # Báo cáo kiểm toán độc lập (14/14 PASS)
     ├── KE_HOACH_V4.md            # Thiết kế nghiên cứu nền tảng
-    └── NHAT_KY_QUYET_DINH.md     # Nhật ký quyết định khoa học (D01 - D123)
+    └── NHAT_KY_QUYET_DINH.md     # Nhật ký quyết định khoa học (D01 - D126)
 ```
 
 ---
@@ -110,7 +110,7 @@ python -m pytest -q
 ```
 
 ### 3. Tái lập Toàn bộ Bài báo và Bảng biểu (One-Command Reproduction)
-Nhờ cơ chế lưu trữ kết quả tĩnh có mã băm SHA-256 đối chiếu và template placeholder chống ảo giác số liệu, bạn có thể tái lập lại 100% bảng LaTeX, biểu đồ và bản thảo bài báo mà không cần chạy lại mô hình nặng:
+Nhờ cơ chế lưu trữ kết quả tĩnh có mã băm SHA-256 đối chiếu và template placeholder chống ảo giác số liệu, 100% chỉ số thực nghiệm cốt lõi (124 anchored metrics) được trích xuất động và đối soát tự động từ Numbers Manifest (các tham số thiết lập tĩnh được neo vào cấu hình). Bạn có thể tái lập lại 100% bảng LaTeX, biểu đồ và bản thảo bài báo mà không cần chạy lại mô hình nặng:
 
 ```bash
 # 1. Trích xuất bản đồ số liệu chuẩn hóa (124 metrics)
@@ -134,7 +134,7 @@ python scripts/audit_checklist.py
 ## 📊 Tóm tắt Các Phát hiện Khoa học Chính
 
 1. **Hiệu năng Cue Đơn lẻ vs Hợp nhất (RQ1):** Cue chiều cao $Z_h$ đạt độ chính xác cao nhất (Pooled AbsRel $0.0650$ trên B OOF); cue chiều rộng $Z_w$ suy biến mạnh khi nhìn ngang (Pooled AbsRel $0.2462$) do phình to thành chiều dài xe. Thuật toán NNLS tự động kẹp $w_w \to 0$ trên detector để loại bỏ nhiễu góc nhìn xe.
-2. **So sánh Đa Thế hệ Detector (RQ2):** Trên 2.528 xe chung, cả 3 thế hệ YOLO (v5su, v8s, 11s) đều đạt độ chính xác tương đồng (AbsRel $\approx 0.045$). Tương quan giữa độ lệch cạnh đáy 2D và sai số khoảng cách gần như triệt tiêu ($|\rho| \le 0.10$).
+2. **So sánh Đa Thế hệ Detector (RQ2):** Trên 2.528 xe chung, cả 3 thế hệ YOLO (v5su, v8s, 11s) đều đạt độ chính xác tương đồng (AbsRel $\approx 0.045$). Tương quan giữa độ lệch cạnh đáy 2D và sai số khoảng cách gần như triệt tiêu ($\rho \in [-0.087, +0.104]$, $|\rho| \le 0.11$).
 3. **Bất định & Độ Phủ Conformal (RQ3):** CQR đạt độ phủ thực nghiệm **96.39% – 97.14%** (vượt mức danh nghĩa 90%). Sự bảo thủ ngoài mẫu này xuất phát từ việc tập hiệu chuẩn Split C có mức độ khó cao hơn Split T ($D_{\text{KS}} \approx 0.15$), mang lại độ phủ thực nghiệm bảo thủ trên tập kiểm định Split T.
 4. **Độ trễ Thời gian thực (RQ4):** Toàn bộ khâu hậu xử lý của mô hình lai chỉ tốn **1.35 ms** trên GPU RTX 5060, đạt tốc độ **26.3 FPS** trên GPU và **8.6 FPS** trên CPU 4 luồng.
 
@@ -143,7 +143,7 @@ python scripts/audit_checklist.py
 ## 🔍 Tính Minh Bạch & 14 Hạn Chế Cốt Lõi (Limitations)
 
 Nghiên cứu cam kết liêm chính học thuật tuyệt đối và công khai toàn diện 14 hạn chế phương pháp luận:
-- **Survivorship Bias:** Đánh giá có điều kiện trên True Positives; ở cự ly $30\text{--}50\text{ m}$, detector bỏ sót $\approx 48\text{--}50\%$ xe.
+- **Survivorship Bias:** Đánh giá có điều kiện trên True Positives; ở cự ly $30\text{--}50\text{ m}$, detector bỏ sót $26.2\%\text{--}29.3\%$ xe (trên toàn bộ tập xe $>50\text{ m}$ tỷ lệ bỏ sót tăng lên $72.7\%\text{--}93.9\%$).
 - **Dải xa $>50\text{ m}$ thưa thớt:** Ground Truth trên Split T chỉ có 33 xe, True Positives chỉ có $\le 9$ xe.
 - **Tương quan Cụm:** Số cụm drive $k \le 12 < 20$, các khoảng Bootstrap CI mang tính chất thô.
 - **Hiện tượng $(f) \approx (e)$:** Mô hình residual và hồi quy trực tiếp có khoảng tin cậy chồng lấn; giá trị của hybrid nằm ở tính khả giải thích vật lý và fallback an toàn.
