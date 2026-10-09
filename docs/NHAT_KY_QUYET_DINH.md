@@ -311,6 +311,11 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   * Xây dựng `scripts/audit_checklist.py` và `tests/test_audit_checklist.py` tự động hóa 100% kiểm chứng 14 tiêu chí tại §11 của `KE_HOACH_V4.md`.
   * Xác nhận 6 chốt chặn cốt lõi PASS 100%: (1) Zero feature leakage trên 6 file `*_features.parquet`; (2) 141 drive và 5 split A/V/B/C/T hoàn toàn rời rạc; (3) Khóa `runs/final_T.lock` bất biến và đúng 1 cặp START/COMPLETED trong `runs/final_T_log.jsonl`; (4) `src/` và `scripts/` hoàn toàn cô lập, không bypass mở Split T; (5) Có đủ 7 cặp bảng CSV & LaTeX booktabs tại `results/tables/final/`, Bảng 6 có cờ sao `*`; (6) Bản thảo bài báo sạch 100% từ ngữ tâng bốc cấm và mã nội bộ `Dxx`.
   * Xuất bản tài liệu chính thức `docs/CHECKLIST_AUDIT.md` (14/14 PASS). Toàn bộ 237 unit tests trên repo pass 100%.
+- ✅ **Chuẩn hóa Bộ tài liệu Thuyết trình, Kịch bản Phản biện & Đóng gói Phát hành v1.0 (D120):**
+  * Xây dựng `docs/presentation/SLIDES_OUTLINE.md` gồm 16 slide chuẩn IEEE/ITS presentation tích hợp số liệu định lượng động và speaker notes cho từng slide.
+  * Xây dựng `docs/presentation/MOCK_DEFENSE_QA.md` trang bị 7 câu hỏi phản biện chuyên sâu từ hội đồng kèm câu trả lời bằng chứng thực nghiệm dữ liệu (data-driven).
+  * Nâng cấp toàn diện `README.md` thành trang Open-Source Research Repo chuẩn quốc tế với đầy đủ kiến trúc, bảng kết quả chính, Quickstart 1 lệnh và BibTeX citation.
+  * Hoàn tất 100% mục tiêu đề tài 3 tuần môn học DSR301m.
 
 ---
 
@@ -415,10 +420,19 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - [x] **Ngày 3 (W3-3):** Độ phủ có điều kiện trên Split T và kiểm định tính khả hoán $C \leftrightarrow T$ (T15, D19, D47, D50, D54, D55, D74, D75, D79, D86–D88).
 - [x] **Ngày 4 (W3-4):** Benchmark độ trễ Tier 1 chính thức (GPU FP16 + CPU ORT) và Hình ảnh định tính Split T (T16, D40, D44, D90, D94–D96).
 - [x] **Ngày 5–6 (W3-5..6, T17 & T18):** Xuất bản 7 cặp bảng CSV/LaTeX booktabs, 5 figures publication 300 DPI, numbers manifest 81 metrics, bản thảo bài báo không placeholder và đủ 14 Limitations (T17, D108–D118). Hoàn tất kiểm toán độc lập 14 tiêu chí §11 đạt 14/14 PASS tại `docs/CHECKLIST_AUDIT.md` (T18, D119).
+- [x] **Ngày 7 (W3-7, T19):** Xây dựng Khung 16 Slide thuyết trình chuẩn mực (`docs/presentation/SLIDES_OUTLINE.md`), Bộ 7 câu hỏi phản biện giả lập data-driven (`docs/presentation/MOCK_DEFENSE_QA.md`), nâng cấp toàn diện `README.md` quốc tế, kiểm thử 237 tests xanh 100%, sẵn sàng đóng gói và gắn tag `v1.0-final-submission` (T19, D120).
 
 ---
 
 ## 6. Nhật ký theo phiên
+
+### W3-7 — 16/10/2026: Triển Khai T19 — Slide Deck, Mock Defense Q&A, Chuẩn Hóa README & Đóng Gói Release v1.0 (D120)
+- **Hoàn thành toàn diện T19 — Bộ tài liệu bảo vệ đồ án DSR301m & Đóng gói phát hành chính thức (Zero-Touch Split T):**
+  - **Khóa Split T bất biến:** `runs/final_T.lock` giữ nguyên tuyệt đối 100%.
+  - **Khung Slide Thuyết Trình Hội Đồng (`docs/presentation/SLIDES_OUTLINE.md`):** Xây dựng 16 slide chuẩn IEEE/ITS presentation tích hợp sẵn số liệu định lượng từ `numbers_manifest.json`, Speaker Notes chi tiết và chỉ định file ảnh $\ge 300$ DPI trong `results/figures/final/`.
+  - **Bộ Câu Hỏi Phản Biện Giả Lập (`docs/presentation/MOCK_DEFENSE_QA.md`):** Trang bị 7 câu hỏi phản biện chuyên sâu từ hội đồng (tại sao $(f) \approx (e)$, over-coverage $96\text{--}97\%$, kẹp $w_w \to 0$, Greedy vs Hungarian, bias vật lý dải gần, nhãn `PRELIMINARY-v2`, KITTI test server) kèm câu trả lời bằng chứng thực nghiệm dữ liệu sắc bén.
+  - **Trang Chủ GitHub Chuẩn Quốc Tế (`README.md`):** Nâng cấp toàn diện với huy hiệu build 237 tests pass, sơ đồ kiến trúc 4 tầng, Quickstart 1 lệnh tái lập toàn bộ bài báo, bảng kết quả chính và trích dẫn BibTeX chuẩn mực.
+  - **Kiểm thử hồi quy toàn diện:** Toàn bộ test suite dự án `pytest -q`: **237 passed** 100% in ~64s. Đề tài hoàn tất 100% mục tiêu, sẵn sàng cho Người dùng đóng gói và gắn tag `v1.0-final-submission`.
 
 ### W3-6 — 15/10/2026: Triển Khai T18 — Kiểm Toán Liêm Chính Học Thuật Độc Lập §11 & Xuất Bản CHECKLIST_AUDIT.md (D119)
 - **Hoàn thành toàn diện T18 — Tự động hóa kiểm toán 14 tiêu chí §11 Kế hoạch v4 (Zero-Touch Split T):**

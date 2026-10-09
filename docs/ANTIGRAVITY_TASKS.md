@@ -319,6 +319,15 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 8. **Kiểm thử đơn vị:** 8/8 tests pass trong `tests/test_audit_checklist.py`. Toàn bộ test suite dự án `pytest -q`: **237 passed** 100%.
 **Gate người:** Báo cáo kiểm toán 14/14 PASS, sẵn sàng commit và gắn tag `audit-passed-v1`.
 
+### T19 — Slide Deck, Mock Defense Q&A & Final Packaging (W3-7) — [x] HOÀN THÀNH TOÀN DIỆN
+**Mục tiêu:** Chuẩn bị trọn bộ tài liệu bảo vệ đồ án DSR301m, chuẩn hóa README quốc tế và đóng gói release v1.0.
+**Kết quả thực hiện:**
+1. **Khung Slide Thuyết Trình Hội Đồng (`docs/presentation/SLIDES_OUTLINE.md`):** Xây dựng 16 slide chuẩn IEEE/ITS presentation kèm số liệu định lượng động từ manifest, Speaker Notes chi tiết và chỉ định file ảnh $\ge 300$ DPI trong `results/figures/final/`.
+2. **Bộ Câu Hỏi Phản Biện Giả Lập (`docs/presentation/MOCK_DEFENSE_QA.md`):** Soạn thảo 7 câu hỏi phản biện chuyên sâu (tại sao $(f) \approx (e)$, over-coverage $96\text{--}97\%$, kẹp $w_w \to 0$, Greedy vs Hungarian, bias vật lý dải gần, nhãn `PRELIMINARY-v2`, KITTI test server) kèm câu trả lời bằng chứng thực nghiệm dữ liệu (data-driven).
+3. **Trang Chủ GitHub Chuẩn Quốc Tế (`README.md`):** Bổ sung badges (237 tests pass, PyTorch CUDA 12.8, audit 14/14 PASS), sơ đồ kiến trúc 4 tầng, Quickstart tái lập 1 lệnh, tóm tắt kết quả chính và trích dẫn BibTeX.
+4. **Kiểm thử đơn vị:** Toàn bộ test suite dự án `pytest -q`: **237 passed** 100%.
+**Gate người:** Toàn bộ đề tài đã hoàn tất xuất sắc 100%, sẵn sàng đóng gói và gắn tag `v1.0-final-submission`.
+
 ---
 
 ## 7. Thứ tự cắt khi trễ
