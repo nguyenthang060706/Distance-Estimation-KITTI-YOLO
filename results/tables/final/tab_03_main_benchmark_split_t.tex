@@ -32,5 +32,5 @@ YOLOv5su (640) & Width Cue $Z_w$ (a) & 0.2371 & 0.2412 & 0.2499 & 5.99 & 7.72 & 
 \bottomrule
 \end{tabular}
 \vskip 4pt
-\parbox{\textwidth}{\footnotesize \textit{Note:} Evaluated on Split T ($N_{\text{gt}} = 3,212$ Car Hard across 10 drives). Recall is 84.4\% (11s), 82.8\% (v8s), and 83.3\% (v5su). Common support across all 3 detectors has $N = 2,528$ vehicles where Model (f) AbsRel is 0.0446 (11s), 0.0449 (v8s), and 0.0457 (v5su). Paired Bootstrap CI over 10 drives indicates (f) vs (d) excludes 0, while (f) vs (e) includes 0 (D78).}
+\parbox{\textwidth}{\footnotesize \textit{Note:} Evaluated on Split T ($N_{\text{gt}} = 3,212$ Car Hard across 10 drives; single detector training run with seed 42). For YOLO11s, $N_{\text{tp}} = 2,712$; geometric baseline cues (a--d) evaluate on $n_{\text{valid}} = 2,676$ detections due to 36 edge fallbacks, whereas Model (f) evaluates on all 2,712 detections. Recall is 84.4\% (11s), 82.8\% (v8s), and 83.3\% (v5su). Common support across all 3 detectors has $N = 2,528$ vehicles where Model (f) AbsRel is 0.0446 (11s), 0.0449 (v8s), and 0.0457 (v5su). Paired Bootstrap CI over 10 drives indicates (f) vs (d) excludes 0, while (f) vs (e) includes 0 (D78).}
 \end{table*}

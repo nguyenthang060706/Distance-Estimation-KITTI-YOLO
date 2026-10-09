@@ -2,7 +2,7 @@
 ## Kiểm Toán Liêm Chính Học Thuật & Tính Tái Lập Tuyệt Đối (§11 Kế Hoạch v4 & Tác Vụ T18)
 
 > **Thời điểm thực hiện:** 15/10/2026 (W3-6) · **Dự án:** Distance Estimation KITTI YOLO (DSR301m)
-> **Trạng thái kiểm toán chung:** **ĐẠT CHUẨN (100% PASS)** (14/14 tiêu chí đạt chuẩn)
+> **Trạng thái kiểm toán chung:** **ĐẠT CHUẨN (13/14 PASS, 1 EXCLUDED BY DESIGN D121)** (13/14 tiêu chí PASS, 1 EXCLUDED by design)
 > **Nguyên tắc cốt lõi:** Bằng chứng thực nghiệm định lượng, zero data hallucination, bảo toàn tuyệt đối khóa Split T (`runs/final_T.lock`).
 
 ---
@@ -11,12 +11,12 @@
 
 | Chốt chặn | Nội dung kiểm tra | Trạng thái | Bằng chứng thực tế |
 |:---:|---|:---:|---|
-| **Chốt 1** | Data Leakage Guard | **PASS** | Đã quét 6 tệp *_features.parquet: 100% cột tuân thủ whitelist, zero GT leakage. |
-| **Chốt 2** | Split Hashes & Disjointness | **PASS** | Splits-v2 hoàn toàn rời rạc 100% (A: 3740, V: 374, B: 1499, C: 766, T: 1102 frames). Zero frame overlap. |
+| **Chốt 1** | Data Leakage Guard | **PASS** | Đã quét 6 tệp *_features.parquet của B và C: 100% cột tuân thủ whitelist, zero GT leakage. |
+| **Chốt 2** | Split Hashes & Disjointness | **PASS** | Splits-v2 hoàn toàn rời rạc 100% (A: 3740, V: 374, B: 1499, C: 766, T: 1102 frames). 141 drives disjoint, 5/5 split hashes match metadata. |
 | **Chốt 3** | Zero-Touch Split T Protection | **PASS** | Lock file tồn tại bất biến; đúng 1 cặp sự kiện [START, COMPLETED] trong final_T_log.jsonl tại commit e3ead56ec3c8aaea9daef3cbac4b33f26e818f7f. |
 | **Chốt 4** | Codebase Isolation Grep | **PASS** | src/ và scripts/ hoàn toàn cô lập; duy nhất scripts/run_final_T.py có thẩm quyền nạp T. |
 | **Chốt 5** | Reporting Transparency Standards | **PASS** | Có đủ 7 cặp bảng CSV & LaTeX booktabs tại results/tables/final/; Bảng 6 có cờ sao * cảnh báo n_TP < 100. |
-| **Chốt 6** | Academic Integrity Language Guard | **PASS** | Bản thảo sạch 100% từ ngữ cấm và mã quyết định nội bộ (0 terms, 0 Dxx codes). |
+| **Chốt 6** | Academic Integrity Language Guard | **PASS** | Bản thảo sạch 100% từ ngữ cấm và mã quyết định nội bộ (0 terms, 0 Dxx/Txx codes). |
 
 ---
 
@@ -31,7 +31,7 @@
 ### Tiêu chí 02: Split theo drive, kiểm tra tự động không rò rỉ; A/V/B/C/T đóng băng và có hash trong log
 - **Trạng thái:** **PASS**
 - **Lệnh / Thao tác kiểm chứng:** `python scripts/verify_data.py && pytest tests/test_splits.py -q`
-- **Bằng chứng kỹ thuật:** Splits-v2 hoàn toàn rời rạc 100% (A: 3740, V: 374, B: 1499, C: 766, T: 1102 frames). Zero frame overlap.
+- **Bằng chứng kỹ thuật:** Splits-v2 hoàn toàn rời rạc 100% (A: 3740, V: 374, B: 1499, C: 766, T: 1102 frames). 141 drives disjoint, 5/5 split hashes match metadata.
 - **Tệp kiểm chứng:** `splits/split_metadata.json`, `scripts/verify_data.py`
 
 ### Tiêu chí 03: B, C, T chưa từng được detector thấy; C chỉ dùng để conformalize
@@ -43,7 +43,7 @@
 ### Tiêu chí 04: Không có đặc trưng nào lấy từ nhãn GT (truncated, occluded, alpha) trong mô hình
 - **Trạng thái:** **PASS**
 - **Lệnh / Thao tác kiểm chứng:** `pytest tests/test_feature_guard.py -q && check_feature_leakage()`
-- **Bằng chứng kỹ thuật:** Đã quét 6 tệp *_features.parquet: 100% cột tuân thủ whitelist, zero GT leakage.
+- **Bằng chứng kỹ thuật:** Đã quét 6 tệp *_features.parquet của B và C: 100% cột tuân thủ whitelist, zero GT leakage.
 - **Tệp kiểm chứng:** `src/residual/feature_extractor.py`, `tests/test_feature_guard.py`
 
 ### Tiêu chí 05: Dùng P2 riêng từng ảnh (fx, fy, cx, cy); bbox map về ảnh gốc
@@ -59,16 +59,16 @@
 - **Tệp kiểm chứng:** `results/tables/final/tab_06_conditional_coverage_odd.csv`
 
 ### Tiêu chí 07: Kết quả detector kèm P/R/mAP; so sánh detector trên tập khớp chung
-- **Trạng thái:** **PASS**
-- **Lệnh / Thao tác kiểm chứng:** `Xem results/tables/final/tab_03_main_benchmark_split_t.csv & results/tables/detector_eval_b_c.md`
-- **Bằng chứng kỹ thuật:** Báo cáo đầy đủ Recall (82.8%–84.4%) trên T; so sánh detector được thực hiện trên Tập Khớp Chung (Common Support) N=2.528 xe.
+- **Trạng thái:** **EXCLUDED (By design)**
+- **Lệnh / Thao tác kiểm chứng:** `Xem results/tables/final/tab_03_main_benchmark_split_t.csv & results/tables/final_eval_common_T.csv`
+- **Bằng chứng kỹ thuật:** Recall được báo cáo đầy đủ (82.8%–84.4%) trên T; so sánh detector được thực hiện trên Common Support N=2,528. Tiêu chí mAP@0.7 chủ ý không đánh giá (EXCLUDED by design theo Quyết định D121) vì nghiên cứu cô lập sai số đo khoảng cách trên các dự đoán True Positive (IoU >= 0.5).
 - **Tệp kiểm chứng:** `results/tables/final/tab_03_main_benchmark_split_t.csv`, `results/tables/final_eval_common_T.csv`
 
 ### Tiêu chí 08: AbsRel/MAE theo dải khoảng cách, theo class riêng, theo hướng xe
 - **Trạng thái:** **PASS**
-- **Lệnh / Thao tác kiểm chứng:** `Xem results/tables/final/tab_02_geometry_ablation_oof_b.csv & results/tables/viewing_angle_d19_verification_T.md`
+- **Lệnh / Thao tác kiểm chứng:** `Xem results/tables/final/tab_06_conditional_coverage_odd.csv & results/tables/viewing_angle_d19_verification_T.md`
 - **Bằng chứng kỹ thuật:** Báo cáo 5 dải khoảng cách (0–10, 10–20, 20–30, 30–50, >50m); lớp Car riêng; phân rã theo góc nhìn theta (D19) Front/Rear vs Side.
-- **Tệp kiểm chứng:** `results/tables/final/tab_02_geometry_ablation_oof_b.csv`, `results/tables/viewing_angle_d19_verification_T.md`
+- **Tệp kiểm chứng:** `results/tables/final/tab_06_conditional_coverage_odd.csv`, `results/tables/viewing_angle_d19_verification_T.md`
 
 ### Tiêu chí 09: Độ phủ CQR kèm điều kiện (khoảng cách, che khuất, cắt biên, hướng); mean ± std qua 20 lần chia lại
 - **Trạng thái:** **PASS**
@@ -103,7 +103,7 @@
 ### Tiêu chí 14: Nêu hạn chế: chỉ KITTI, mặt đường phẳng, hướng xe, phạm vi lớp, detector 1 seed và ~50% dữ liệu
 - **Trạng thái:** **PASS**
 - **Lệnh / Thao tác kiểm chứng:** `Xem docs/paper/MANUSCRIPT_DRAFT.md Section 6`
-- **Bằng chứng kỹ thuật:** Section 6 trình bày đầy đủ 14 Hạn chế cốt lõi (Limitations & Threats to Validity), bao quát survivorship bias, k <= 12, phân rã lỗi (f) vs (e), over-coverage post-hoc.
+- **Bằng chứng kỹ thuật:** Section 6 trình bày đầy đủ 14 Hạn chế cốt lõi bao quát cả 6 hạn chế bắt buộc theo §11 Kế hoạch v4: chỉ KITTI, mặt đường phẳng, hướng xe, phạm vi lớp Car Hard, detector 1 seed=42, và Split A chỉ ~50% dữ liệu.
 - **Tệp kiểm chứng:** `docs/paper/MANUSCRIPT_DRAFT.md`
 
 ---
@@ -111,7 +111,7 @@
 ## 3. Kết Luận Kiểm Toán & Kiến Nghị Phát Hành
 
 1. **Tính Toàn Vẹn Của Nghiệm Thu:** Khóa `runs/final_T.lock` được bảo toàn nguyên vẹn 100%. Không có bất kỳ dòng code nào bypass mở Split T ngoài runner nghiệm thu `scripts/run_final_T.py`.
-2. **Tính Tái Lập Dữ Liệu:** 100% con số trong bài báo khoa học được ánh xạ bit-by-bit qua `results/final/numbers_manifest.json` (81 metrics) và render tự động qua template placeholder.
-3. **Liêm Chính Học Thuật:** Bản thảo khoa học không sử dụng từ ngữ tâng bốc, không có mã quyết định nội bộ, và phản ánh trung thực toàn diện 14 Hạn chế cốt lõi (bao gồm tính tương đương số học giữa Residual và Direct Regression trên 10 cụm drive, và tính chất post-hoc của hiện tượng over-coverage 96–97%).
+2. **Tính Tái Lập Dữ Liệu:** 100% con số trong bài báo khoa học được ánh xạ bit-by-bit qua `results/final/numbers_manifest.json` (124 metrics) và render tự động qua template placeholder.
+3. **Liêm Chính Học Thuật:** Bản thảo khoa học không sử dụng từ ngữ tâng bốc, không có mã quyết định nội bộ, và phản ánh trung thực toàn diện 14 Hạn chế cốt lõi (bao gồm tính tương đương số học giữa Residual và Direct Regression trên 10 cụm drive, và tính chất post-hoc của hiện tượng over-coverage 96–97%). Tiêu chí #7 mAP@0.7 được báo cáo trung thực là EXCLUDED BY DESIGN (D121).
 
 > **Xác nhận Gate Người duyệt:** Tác vụ T18 đủ điều kiện nghiệm thu PASS và sẵn sàng gắn tag Git `audit-passed-v1`.

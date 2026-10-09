@@ -1,11 +1,11 @@
 # Calibrated Hybrid Geometry–Learning Monocular Vehicle Distance Estimation with Lightweight YOLO Detectors
 
-[![Tests](https://img.shields.io/badge/tests-237%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-242%20passed-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.14-blue.svg)](requirements.txt)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.6%20%7C%20CUDA%2012.8-orange.svg)](https://pytorch.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-%E2%89%A52.6%20%7C%20CUDA%2012.8-orange.svg)](https://pytorch.org/)
 [![KITTI](https://img.shields.io/badge/dataset-KITTI%20Object-yellow.svg)](http://www.cvlibs.net/datasets/kitti/eval_object.php)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Audit](https://img.shields.io/badge/audit-14%2F14%20PASS-success.svg)](docs/CHECKLIST_AUDIT.md)
+[![Audit](https://img.shields.io/badge/audit-13%2F14%20PASS%20(1%20Excluded)-success.svg)](docs/CHECKLIST_AUDIT.md)
 
 This repository contains the official, fully reproducible implementation of the research project:  
 **"Calibrated Hybrid Geometry–Learning Monocular Vehicle Distance Estimation with Lightweight YOLO Detectors"** (Course: DSR301m, Fall 2026).
@@ -65,14 +65,14 @@ Distance-Estimation-KITTI-YOLO/
 │   └── pipeline/                 # apply_frozen.py, build_dataset.py
 │
 ├── scripts/                       # Các kịch bản thực thi & xuất bản tự động
-│   ├── build_numbers_manifest.py # Sinh results/final/numbers_manifest.json (81 metrics)
+│   ├── build_numbers_manifest.py # Sinh results/final/numbers_manifest.json (124 metrics)
 │   ├── export_final_tables.py    # Xuất 7 bảng CSV & LaTeX booktabs vào results/tables/final/
 │   ├── export_final_figures.py   # Xuất 5 hình vẽ khoa học >= 300 DPI vào results/figures/final/
 │   ├── render_manuscript.py      # Compile MANUSCRIPT_TEMPLATE.md -> MANUSCRIPT_DRAFT.md
 │   ├── audit_checklist.py        # Kiểm toán tự động 14 tiêu chí §11 -> docs/CHECKLIST_AUDIT.md
 │   └── run_final_T.py            # Runner nghiệm thu Split T độc lập có lockfile
 │
-├── tests/                         # Bộ kiểm thử đơn vị (237 unit tests pass 100%)
+├── tests/                         # Bộ kiểm thử đơn vị (242 unit tests pass 100%)
 ├── runs/                          # Runtime logs, checkpoints SHA, final_T.lock
 ├── results/                       # Kết quả xuất bản
 │   ├── tables/final/             # 7 cặp bảng tab_01 .. tab_07 (.csv và .tex)
@@ -82,9 +82,9 @@ Distance-Estimation-KITTI-YOLO/
 └── docs/                          # Tài liệu & Báo cáo nghiên cứu
     ├── paper/                    # MANUSCRIPT_DRAFT.md, references.bib
     ├── presentation/             # SLIDES_OUTLINE.md (16 slide), MOCK_DEFENSE_QA.md
-    ├── CHECKLIST_AUDIT.md        # Báo cáo kiểm toán độc lập (14/14 PASS)
+    ├── CHECKLIST_AUDIT.md        # Báo cáo kiểm toán độc lập (13 PASS, 1 EXCLUDED by design)
     ├── KE_HOACH_V4.md            # Thiết kế nghiên cứu nền tảng
-    └── NHAT_KY_QUYET_DINH.md     # Nhật ký quyết định khoa học (D01 - D120)
+    └── NHAT_KY_QUYET_DINH.md     # Nhật ký quyết định khoa học (D01 - D123)
 ```
 
 ---
@@ -103,17 +103,17 @@ pip install -r requirements.txt
 ```
 
 ### 2. Kiểm thử Toàn bộ Hệ thống
-Chạy bộ kiểm thử đơn vị hồi quy gồm 237 tests:
+Chạy bộ kiểm thử đơn vị hồi quy gồm 242 tests:
 ```bash
 python -m pytest -q
-# Kết quả mong đợi: 237 passed in ~60-65s
+# Kết quả mong đợi: 242 passed in ~60s
 ```
 
 ### 3. Tái lập Toàn bộ Bài báo và Bảng biểu (One-Command Reproduction)
 Nhờ cơ chế lưu trữ kết quả tĩnh có mã băm SHA-256 đối chiếu và template placeholder chống ảo giác số liệu, bạn có thể tái lập lại 100% bảng LaTeX, biểu đồ và bản thảo bài báo mà không cần chạy lại mô hình nặng:
 
 ```bash
-# 1. Trích xuất bản đồ số liệu chuẩn hóa (81 metrics)
+# 1. Trích xuất bản đồ số liệu chuẩn hóa (124 metrics)
 python scripts/build_numbers_manifest.py
 
 # 2. Xuất 7 bảng chính thức (CSV & LaTeX booktabs)
@@ -133,9 +133,9 @@ python scripts/audit_checklist.py
 
 ## 📊 Tóm tắt Các Phát hiện Khoa học Chính
 
-1. **Hiệu năng Cue Đơn lẻ vs Hợp nhất (RQ1):** Cue chiều cao $Z_h$ đạt độ chính xác cao nhất (AbsRel $0.0650$ trên B OOF); cue chiều rộng $Z_w$ suy biến mạnh khi nhìn ngang (AbsRel $0.2462$) do phình to thành chiều dài xe. Thuật toán NNLS tự động kẹp $w_w \to 0$ trên detector để loại bỏ nhiễu góc nhìn xe.
+1. **Hiệu năng Cue Đơn lẻ vs Hợp nhất (RQ1):** Cue chiều cao $Z_h$ đạt độ chính xác cao nhất (Pooled AbsRel $0.0650$ trên B OOF); cue chiều rộng $Z_w$ suy biến mạnh khi nhìn ngang (Pooled AbsRel $0.2462$) do phình to thành chiều dài xe. Thuật toán NNLS tự động kẹp $w_w \to 0$ trên detector để loại bỏ nhiễu góc nhìn xe.
 2. **So sánh Đa Thế hệ Detector (RQ2):** Trên 2.528 xe chung, cả 3 thế hệ YOLO (v5su, v8s, 11s) đều đạt độ chính xác tương đồng (AbsRel $\approx 0.045$). Tương quan giữa độ lệch cạnh đáy 2D và sai số khoảng cách gần như triệt tiêu ($|\rho| \le 0.10$).
-3. **Bất định & Độ Phủ Conformal (RQ3):** CQR đạt độ phủ thực nghiệm **96.39% – 97.14%** (vượt mức danh nghĩa 90%). Sự bảo thủ ngoài mẫu này xuất phát từ việc tập hiệu chuẩn Split C có mức độ khó cao hơn Split T ($D_{\text{KS}} \approx 0.15$), mang lại biên an toàn an tâm cho hệ thống ADAS.
+3. **Bất định & Độ Phủ Conformal (RQ3):** CQR đạt độ phủ thực nghiệm **96.39% – 97.14%** (vượt mức danh nghĩa 90%). Sự bảo thủ ngoài mẫu này xuất phát từ việc tập hiệu chuẩn Split C có mức độ khó cao hơn Split T ($D_{\text{KS}} \approx 0.15$), mang lại độ phủ thực nghiệm bảo thủ trên tập kiểm định Split T.
 4. **Độ trễ Thời gian thực (RQ4):** Toàn bộ khâu hậu xử lý của mô hình lai chỉ tốn **1.35 ms** trên GPU RTX 5060, đạt tốc độ **26.3 FPS** trên GPU và **8.6 FPS** trên CPU 4 luồng.
 
 ---

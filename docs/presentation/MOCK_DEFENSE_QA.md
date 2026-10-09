@@ -13,7 +13,7 @@ Tài liệu này tổng hợp 7 câu hỏi phản biện chuyên sâu và gai g�
 **Kịch bản trả lời (Dẫn chứng Quyết định D78 & Limitation 8):**
 1. **Thừa nhận trung thực kết quả thực nghiệm:**  
    *"Kính thưa Thầy/Cô, nhóm xin hoàn toàn đồng ý và xác nhận phát hiện thực nghiệm này. Trên 10 cụm drive của Split T, kiểm định Paired Cluster Bootstrap 95% CI cho hiệu số $\Delta(f - e)$ là $[-0.0012, +0.0023]$, hoàn toàn bao hàm số 0. Do đó, nhóm không hề tuyên bố mô hình lai vượt trội về mặt số học so với hồi quy trực tiếp."*
-2. **Khẳng định 3 giá trị cốt lõi phi số học của Mô hình Lai:**  
+2. **Nêu rõ 3 giá trị cốt lõi phi số học của Mô hình Lai:**  
    *"Tuy nhiên, giá trị của mô hình lai trong hệ thống ADAS/tự hành an toàn không nằm ở vài phần vạn sai số, mà nằm ở 3 trụ cột mang tính nguyên lý:*
    - **Thứ nhất là Tính khả giải thích vật lý (Physical Interpretability):** *Mô hình Direct (e) là một hàm hộp đen phi tuyến, khi xe bị che khuất hoặc có biến dạng thị giác lạ, mô hình có thể ngoại suy ra khoảng cách hoàn toàn vô lý. Ngược lại, mô hình lai luôn neo chặt vào nghiệm quang học $Z_d$ có cơ sở vật lý rõ ràng.*
    - **Thứ hai là Khả năng Phân rã Sai số (Error Decomposition):** *Chỉ khi có mô hình hình học, chúng ta mới có thể tách bạch được bao nhiêu phần sai số đến từ giả định vật lý (kích thước xe, mặt đường) và bao nhiêu phần đến từ rung lắc bounding box của detector.*
@@ -30,7 +30,7 @@ Tài liệu này tổng hợp 7 câu hỏi phản biện chuyên sâu và gai g�
    *"Kính thưa Thầy/Cô, đây là một phát hiện hậu nghiệm (post-hoc discovery) rất giá trị của đề tài. Về mặt lý thuyết, CQR bảo đảm độ phủ biên 90% dưới giả định tính khả hoán (exchangeability). Tuy nhiên, trên dữ liệu giao thông thực tế KITTI, các ảnh thuộc cùng một drive có tương quan chuỗi rất mạnh.*
    *Khi tiến hành chẩn đoán phân kỳ phân bố Kolmogorov-Smirnov giữa tập hiệu chuẩn C và tập kiểm định T ($D_{\text{KS}} \approx 0.14\text{--}0.16$), nhóm phát hiện Split C tập trung 2 drive khó (`drive_0057` và `drive_0004`) chiếm tới 39.3% mẫu, khiến sai số log-residual trung bình trên C cao hơn T ($|r| \approx 0.083$ trên C so với $0.067$ trên T)."*
 2. **Ý nghĩa an toàn trong kỹ thuật ô tô:**  
-   *"Do tập hiệu chuẩn C có độ khó cao hơn, ngưỡng không tuân thủ $\hat{Q}$ tính ra bị nới rộng một cách tự nhiên. Khi áp ngưỡng này sang tập T có điều kiện dễ hơn, độ phủ thực nghiệm tăng lên 96–97%. Trong các ứng dụng an toàn ô tô (ADAS), việc một khoảng tin cậy có tính chất bảo thủ ngoài mẫu (conservative over-coverage) là hoàn toàn chấp nhận được và an toàn hơn nhiều so với việc bị under-coverage (thiếu độ phủ)."*
+   *"Do tập hiệu chuẩn C có độ khó cao hơn, ngưỡng không tuân thủ $\hat{Q}$ tính ra bị nới rộng một cách tự nhiên. Khi áp ngưỡng này sang tập T có điều kiện dễ hơn, độ phủ thực nghiệm tăng lên 96–97%. Trong các ứng dụng an toàn ô tô (ADAS), việc một khoảng tin cậy có tính chất bảo thủ ngoài mẫu (conservative over-coverage) là an toàn hơn nhiều so với việc bị under-coverage (thiếu độ phủ)."*
 
 ---
 
@@ -77,7 +77,7 @@ Tài liệu này tổng hợp 7 câu hỏi phản biện chuyên sâu và gai g�
    *"Kính thưa Thầy/Cô, nhóm giữ nhãn `PRELIMINARY-v2` vì hai lý do phương pháp luận trung thực:*
    - **Thứ nhất:** *Phép đo được thực hiện trên máy trạm laptop cá nhân (RTX 5060 Laptop GPU), chịu ảnh hưởng bởi hiện tượng điều tiết nhiệt độ (thermal throttling) và quản lý tiến trình của hệ điều hành Windows, chưa phải bo mạch nhúng ô tô chuyên dụng (như NVIDIA Drive Orin hay Jetson).*
    - **Thứ hai:** *Để tương thích tĩnh với ONNX Runtime, ảnh đầu vào được đệm vuông $640 \times 640$, chứa số pixel gấp $\approx 2.9$ lần so với letterbox thực tế của KITTI ($640 \times 224$). Do đó thời gian GPU thực tế khi triển khai tối ưu có thể còn nhanh hơn.*
-   *Điểm mấu chốt nhóm khẳng định là: **Khâu xử lý hậu detector (hình học + residual + CQR) chỉ tốn 1.35 ms**, chiếm dưới 4.2% pipeline, chứng minh phương pháp đề xuất không gây nghẽn phần cứng."*
+   *Điểm mấu chốt được chứng minh bằng thực nghiệm là: **Khâu xử lý hậu detector (hình học + residual + CQR) chỉ tốn 1.35 ms**, chiếm dưới 4.2% pipeline, chứng minh phương pháp đề xuất không gây nghẽn phần cứng."*
 
 ---
 

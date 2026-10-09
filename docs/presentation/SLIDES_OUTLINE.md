@@ -35,7 +35,7 @@
 - **Gap 1 (Thiếu phân rã sai số hình học vs detector):**
   * Hầu hết các nghiên cứu trước đây đánh giá gộp, không tách biệt được sai số nào đến từ giả định hình học (kích thước xe, mặt đường) và sai số nào do rung lắc (jitter) bounding box của detector.
 - **Gap 2 (Thiếu so sánh công bằng đa thế hệ detector):**
-  * Chưa có công trình nào so sánh có kiểm soát giữa YOLOv5, YOLOv8 và YOLO11 trên cùng một công thức huấn luyện và đánh giá trên **tập khớp chung (Common Support)**.
+  * Các nghiên cứu trước đây hiếm khi so sánh có kiểm soát giữa YOLOv5, YOLOv8 và YOLO11 trên cùng một công thức huấn luyện và đánh giá trên **tập khớp chung (Common Support)**.
 - **Gap 3 (Thiếu định lượng bất định có bảo đảm - Calibrated UQ):**
   * Các khoảng tin cậy của mạng nơ-ron thường bị quá tự tin (overconfident); thiếu cơ chế conformal prediction phân tích hành vi độ phủ theo điều kiện trên dữ liệu lái xe tự nhiên.
 - 🗣️ **Speaker Notes:**
@@ -83,9 +83,9 @@
 
 ## Slide 6: Mô Hình Hình Học Đa Cue & Hợp Nhất Co Thắt Covariance (RQ1)
 - **Ba Cue Hình Học Pinhole:**
-  1. *Chiều rộng ($Z_w = f_x \cdot W_{\text{eff}} / w$):* Nhạy với góc quay xe $\theta$; nhìn ngang xe phình to thành chiều dài $\implies$ AbsRel lên tới **0.2462** (cue yếu nhất, D19).
-  2. *Cạnh đáy ($Z_g = f_y \cdot H_{\text{cam}} / (y_2 - (c_y + \delta))$):* Phụ thuộc mặt phẳng đường $\implies$ AbsRel **0.0931**.
-  3. *Chiều cao ($Z_h = f_y \cdot H_{\text{obj}} / h$):* Ổn định nhất qua mọi góc nhìn $\implies$ AbsRel **0.0650**.
+  1. *Chiều rộng ($Z_w = f_x \cdot W_{\text{eff}} / w$):* Nhạy với góc quay xe $\theta$; nhìn ngang xe phình to thành chiều dài $\implies$ Pooled AbsRel lên tới **0.2462** (cue yếu nhất, D19).
+  2. *Cạnh đáy ($Z_g = f_y \cdot H_{\text{cam}} / (y_2 - (c_y + \delta))$):* Phụ thuộc mặt phẳng đường $\implies$ Pooled AbsRel **0.0931**.
+  3. *Chiều cao ($Z_h = f_y \cdot H_{\text{obj}} / h$):* Ổn định nhất qua mọi góc nhìn $\implies$ Pooled AbsRel **0.0650**.
 - **Hiện tượng kẹp trọng số $w_w \to 0$ (D31):**
   * Trên bbox detector, phương sai $\Sigma_{ww}$ gấp 10 lần $\Sigma_{hh}$. Thuật toán NNLS tự động kẹp $w_w \to 0.000$, dồn trọng số sang $[w_h, w_g] \approx [0.70, 0.30]$.
 - **Hợp nhất log-space ($Z_d$):** Giảm AbsRel xuống **0.0607** trên B OOF (MAE 1.34 m).
@@ -130,7 +130,7 @@
 - **Phân tích RQ1:** Mạng Residual $\hat{Z}_f$ cải thiện vượt bậc so với hình học thuần $Z_d$ ($\Delta = -0.0188$, 95% Cluster Bootstrap CI $[-0.0264, -0.0107]$, loại trừ 0).
 - **Hình ảnh minh họa:** `results/figures/final/fig_03_ranging_error_by_distance.png` (sai số AbsRel giảm mạnh ở mọi dải khoảng cách).
 - 🗣️ **Speaker Notes:**
-  > "Trên tập kiểm định Split T bị khóa, mô hình lai Hybrid (f) giảm sai số tương đối AbsRel từ 6.4% của hình học xuống 4.63%, độ chính xác delta1 đạt 99.7%, kiểm định Bootstrap 10 cụm khẳng định sự cải thiện rõ rệt so với hình học thuần."
+  > "Trên tập kiểm định Split T bị khóa, mô hình lai Hybrid (f) giảm sai số tương đối AbsRel từ 6.4% của hình học xuống 4.63%, độ chính xác delta1 đạt 99.7%, kiểm định Bootstrap 10 cụm cho thấy ước lượng cải thiện có ý nghĩa so với hình học thuần (khoảng CI loại trừ 0)."
 
 ---
 
@@ -166,13 +166,13 @@
 - **Kết quả Độ Phủ Thực Nghiệm (Bảng 5 & Fig. 4):**
   * Mức danh nghĩa: $90.0\%$
   * Thực tế trên Split T: YOLO11s đạt **$96.39\%$**, YOLOv8s đạt **$97.14\%$**, YOLOv5su đạt **$96.60\%$**.
-  * Độ rộng khoảng trung bình hẹp: $Z_{\text{hi}} / Z_{\text{lo}} \approx 1.45\times$.
+  * Tỷ lệ độ rộng khoảng trung bình: $Z_{\text{hi}} / Z_{\text{lo}} \approx 1.32\times\text{--}1.35\times$ (toàn Split T).
   * Vi phạm cắt chéo (Crossing): **0 trường hợp**.
 - **Giải mã hiện tượng Over-coverage (D79, D87):**
   * Phát hiện post-hoc: Split C tập trung 2 drive khó chiếm 39.3% mẫu ($D_{\text{KS}} = 0.15$), làm ngưỡng $\hat{Q}$ bị nở rộng $\implies$ Tạo tính bảo thủ an toàn khi kiểm định trên Split T.
-- **Đánh đổi của Mondrian CQR:** Khôi phục độ phủ cự ly gần 0–10m (từ ~91% lên ~97%) nhưng làm phồng độ rộng khoảng tin cậy từ $1.45\times$ lên $1.80\times$.
+- **Đánh đổi của Mondrian CQR:** Khôi phục độ phủ cự ly gần 0–10m (từ ~91% lên ~97%) nhưng làm phồng độ rộng khoảng tin cậy từ $1.32\times$ lên $1.80\times$ ở dải 0–10m.
 - 🗣️ **Speaker Notes:**
-  > "CQR đạt độ phủ thực nghiệm 96.4%, vượt mức danh nghĩa 90%. Đây là phát hiện hậu nghiệm xuất phát từ việc tập hiệu chuẩn Split C có độ khó cao hơn Split T, mang lại biên an toàn bảo thủ cho hệ thống ADAS."
+  > "CQR đạt độ phủ thực nghiệm 96.4%, vượt mức danh nghĩa 90%. Đây là phát hiện hậu nghiệm xuất phát từ việc tập hiệu chuẩn Split C có độ khó cao hơn Split T, mang lại độ phủ thực nghiệm bảo thủ trên tập kiểm định Split T."
 
 ---
 
@@ -223,7 +223,7 @@
   1. Xây dựng thành công quy trình chia 5 tập `splits-v2` không rò rỉ bối cảnh, bảo đảm tính tái lập 100%.
   2. Khung làm việc lai Hybrid kết hợp pinhole, residual XGBoost và CQR đạt sai số AbsRel **4.63%** và độ phủ an toàn **96.4%**.
   3. Phân rã tách bạch sai số hình học vs detector jitter; chứng minh chi phí tính toán hậu detector chỉ tốn **1.35 ms**.
-  4. Báo cáo kiểm toán độc lập `CHECKLIST_AUDIT.md` đạt **14/14 tiêu chí PASS**.
+  4. Báo cáo kiểm toán độc lập `CHECKLIST_AUDIT.md` đạt chuẩn (**13 PASS, 1 EXCLUDED by design D121**).
 - **Hướng phát triển:** Tích hợp bộ lọc Kalman Tracking theo chuỗi thời gian, mở rộng sang xe máy và người đi bộ.
 - **Lời cảm ơn:** Nhóm xin chân thành cảm ơn Quý Thầy Cô Hội đồng đã lắng nghe và kính mời Quý Thầy Cô đặt câu hỏi phản biện!
 - 🗣️ **Speaker Notes:**

@@ -44,7 +44,7 @@ EXPECTED_FIGURE_NAMES = [
 EXPECTED_BIBTEX_KEYS = [
     "ni2026realtime",
     "vajgl2022distyolo",
-    "haseeb2023disnet",
+    "haseeb2018disnet",
     "decade2024monocular",
     "agl2026lightweight",
     "bertoni2019monoloco",

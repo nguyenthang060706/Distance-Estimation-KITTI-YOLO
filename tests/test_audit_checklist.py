@@ -66,11 +66,13 @@ def test_manuscript_language_guard():
 
 
 def test_full_14_criteria_audit_all_pass():
-    """Kiểm tra toàn bộ 14 tiêu chí §11 Kế hoạch v4 đều đạt PASS."""
+    """Kiểm tra toàn bộ 14 tiêu chí §11 Kế hoạch v4: 13 PASS, 1 EXCLUDED by design (D121)."""
     audit_results = run_full_14_criteria_audit()
     assert len(audit_results) == 14, f"Số lượng tiêu chí không đủ 14 (có {len(audit_results)})"
-    failed = {idx: r["name"] for idx, r in audit_results.items() if r["status"] != "PASS"}
+    acceptable = {"PASS", "EXCLUDED (By design)"}
+    failed = {idx: r["name"] for idx, r in audit_results.items() if r["status"] not in acceptable}
     assert len(failed) == 0, f"Có {len(failed)} tiêu chí kiểm toán bị FAIL: {failed}"
+    assert audit_results[7]["status"] == "EXCLUDED (By design)"
 
 
 def test_audit_checklist_markdown_generated():
@@ -80,6 +82,6 @@ def test_audit_checklist_markdown_generated():
     if p.exists():
         content = p.read_text(encoding="utf-8")
         assert "CHECKLIST_AUDIT.md" in content
-        assert "14/14 PASS" in content or "100% PASS" in content
+        assert "13/14 PASS" in content or "14/14 PASS" in content or "100% PASS" in content
         for i in range(1, 15):
             assert f"Tiêu chí {i:02d}:" in content

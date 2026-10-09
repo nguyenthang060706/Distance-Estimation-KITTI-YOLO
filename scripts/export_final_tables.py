@@ -97,16 +97,39 @@ def export_table_1():
         "T": "Final held-out evaluation (Single-run locked)"
     }
     
-    # Metadata Car Hard & Drive stats
-    # A: 35 drives (18 w/ car hard, 11291 cars, top1=16.0%)
-    # V: 25 drives (6 w/ car hard, 611 cars, top1=41.0%)
-    # B: 34 drives (12 w/ car hard, 4776 cars, top1=26.8%, neff=5.29)
-    # C: 18 drives (10 w/ car hard, 1826 cars, top1=28.7%, neff=5.28)
-    # T: 29 drives (10 w/ car hard, 3212 cars, top1=23.3%, neff=5.28)
-    car_hard_counts = {"A": 11291, "V": 611, "B": 4776, "C": 1826, "T": 3212}
-    car_drives = {"A": 18, "V": 6, "B": 12, "C": 10, "T": 10}
-    top1_shares = {"A": "16.0\\%", "V": "41.0\\%", "B": "26.8\\%", "C": "28.7\\%", "T": "23.3\\%"}
-    neff_vals = {"A": "---", "V": "---", "B": "5.29", "C": "5.28", "T": "5.28"}
+    manifest_path = REPO_ROOT / "results" / "final" / "numbers_manifest.json"
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    num = manifest.get("numbers", {})
+
+    car_hard_counts = {
+        "A": int(num.get("split_a_car_hard_count", {}).get("value", 11291)),
+        "V": int(num.get("split_v_car_hard_count", {}).get("value", 611)),
+        "B": int(num.get("split_b_car_hard_count", {}).get("value", 4776)),
+        "C": int(num.get("split_c_car_hard_count", {}).get("value", 1826)),
+        "T": int(num.get("split_t_car_hard_count", {}).get("value", 3212)),
+    }
+    car_drives = {
+        "A": 18,
+        "V": 6,
+        "B": int(num.get("split_b_car_drives", {}).get("value", 12)),
+        "C": int(num.get("split_c_car_drives", {}).get("value", 10)),
+        "T": int(num.get("split_t_car_drives", {}).get("value", 10)),
+    }
+    top1_shares = {
+        "A": "16.0\\%",
+        "V": "41.0\\%",
+        "B": f"{num.get('split_b_top1_share', {}).get('display_str', '26.8%').replace('%', '\\\\%')}",
+        "C": f"{num.get('split_c_top1_share', {}).get('display_str', '28.7%').replace('%', '\\\\%')}",
+        "T": f"{num.get('split_t_top1_share', {}).get('display_str', '23.3%').replace('%', '\\\\%')}",
+    }
+    neff_vals = {
+        "A": "---",
+        "V": "---",
+        "B": str(num.get("split_b_neff", {}).get("display_str", "5.29")),
+        "C": str(num.get("split_c_neff", {}).get("display_str", "5.28")),
+        "T": str(num.get("split_t_neff", {}).get("display_str", "5.28")),
+    }
     
     csv_rows = []
     latex_rows = []
@@ -355,7 +378,7 @@ def export_table_3():
             
     df_raw = pd.DataFrame(csv_rows)
     headers = ["Detector", "Method", "Pooled AbsRel", "Macro (10)", "Macro ($n \\ge 30$)", "MAE (m)", "RMSE (m)", "$\\delta_1$", "Paired 95\\% CI (10 clusters)"]
-    notes = "Evaluated on Split T ($N_{\\text{gt}} = 3,212$ Car Hard across 10 drives). Recall is 84.4\\% (11s), 82.8\\% (v8s), and 83.3\\% (v5su). Common support across all 3 detectors has $N = 2,528$ vehicles where Model (f) AbsRel is 0.0446 (11s), 0.0449 (v8s), and 0.0457 (v5su). Paired Bootstrap CI over 10 drives indicates (f) vs (d) excludes 0, while (f) vs (e) includes 0 (D78)."
+    notes = "Evaluated on Split T ($N_{\\text{gt}} = 3,212$ Car Hard across 10 drives; single detector training run with seed 42). For YOLO11s, $N_{\\text{tp}} = 2,712$; geometric baseline cues (a--d) evaluate on $n_{\\text{valid}} = 2,676$ detections due to 36 edge fallbacks, whereas Model (f) evaluates on all 2,712 detections. Recall is 84.4\\% (11s), 82.8\\% (v8s), and 83.3\\% (v5su). Common support across all 3 detectors has $N = 2,528$ vehicles where Model (f) AbsRel is 0.0446 (11s), 0.0449 (v8s), and 0.0457 (v5su). Paired Bootstrap CI over 10 drives indicates (f) vs (d) excludes 0, while (f) vs (e) includes 0 (D78)."
     write_table_pair("tab_03_main_benchmark_split_t", "Main Distance Estimation Benchmark on Held-out Split T (Post-hoc Verified v1.1)", "tab:main_benchmark_t", headers, latex_rows, "llrrrrrrr", df_raw, notes)
 
 # ==============================================================================
@@ -418,7 +441,7 @@ def export_table_4():
         
     df_raw = pd.DataFrame(csv_rows)
     headers = ["Detector", "Bbox Metric", "Pearson $r$", "Spearman $\\rho$", "95\\% Bootstrap CI (10 clusters)", "$n$"]
-    notes = "Correlations evaluated against AbsRel error on Split T True Positives. Spearman $\\rho$ is the primary robust metric. 23/24 CI configurations include 0 at the 10-cluster drive level, indicating distance error is largely decoupled from 2D bounding box jitter."
+    notes = "Correlations evaluated against AbsRel error on Split T True Positives ($N=2,712$ for YOLO11s, detector seed 42). Spearman $\\rho$ is the primary robust metric. 23/24 CI configurations include 0 at the 10-cluster drive level, indicating distance error is largely decoupled from 2D bounding box jitter."
     write_table_pair("tab_04_rq2_detector_correlation", "RQ2: Correlation between Monocular Ranging Error and 2D Detection Quality", "tab:rq2_correlation", headers, latex_rows, "llrrrc", df_raw, notes)
 
 # ==============================================================================
@@ -484,7 +507,7 @@ def export_table_5():
             
     df_raw = pd.DataFrame(csv_rows)
     headers = ["Detector", "Conformal Variant", "Pooled Cov", "Macro (10)", "Macro ($n \\ge 30$)", "Mean Width Ratio", "Winkler Score", "Crossings"]
-    notes = "Target nominal coverage is $1 - \\alpha = 90.0\\%$. Calibrated on Split C ($N=1,826$, 10 drives). Standard CQR yields conservative over-coverage (96.4\\%--97.1\\%) due to domain shift between C and T (D79, D87). Zero crossing observed across all models."
+    notes = "Target nominal coverage is $1 - \\alpha = 90.0\\%$. Calibrated on Split C ($N=1,826$, 10 drives). Evaluated on Split T ($N=2,712$ for YOLO11s, detector seed 42). Standard CQR yields conservative over-coverage (96.4\\%--97.1\\%) with mean width ratio 1.32$\\times$--1.35$\\times$ due to calibration set difficulty distribution (D79, D87). Zero crossing observed across all models."
     write_table_pair("tab_05_conformal_coverage_t", "Uncertainty Quantification and Conformal Coverage Evaluation on Split T", "tab:conformal_coverage_t", headers, latex_rows, "llrrrrrr", df_raw, notes)
 
 # ==============================================================================

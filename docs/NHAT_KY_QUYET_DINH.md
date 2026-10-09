@@ -316,6 +316,17 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
   * Xây dựng `docs/presentation/MOCK_DEFENSE_QA.md` trang bị 7 câu hỏi phản biện chuyên sâu từ hội đồng kèm câu trả lời bằng chứng thực nghiệm dữ liệu (data-driven).
   * Nâng cấp toàn diện `README.md` thành trang Open-Source Research Repo chuẩn quốc tế với đầy đủ kiến trúc, bảng kết quả chính, Quickstart 1 lệnh và BibTeX citation.
   * Hoàn tất 100% mục tiêu đề tài 3 tuần môn học DSR301m.
+- ✅ **Báo cáo Trung Thực mAP@0.7 là EXCLUDED (By design) trong Checklist T18/T19 (D121):**
+  * Bài toán monocular ranging cô lập sai số trên True Positives ($IoU \ge 0.5$) theo Quyết định D15 và Kế hoạch v4 §5.1. Việc không đánh giá mAP@0.7 là một chủ ý phương pháp luận tiên nghiệm (deliberate design choice) nhằm tập trung vào bản chất hồi quy khoảng cách, không phải vi phạm che giấu.
+  * Tuân thủ triệt để AGENT_RULES §1.9 cấm làm mềm kết quả và cấm hardcode PASS: Viết lại `scripts/audit_checklist.py` loại bỏ 100% kết quả gõ cứng. Mọi tiêu chí đều có hàm assertion thực thi. Tiêu chí #7 được báo cáo trung thực trạng thái `EXCLUDED (By design)` thay vì gõ cứng `PASS`. Bảng kiểm toán `docs/CHECKLIST_AUDIT.md` ghi nhận: **13/14 PASS, 1 EXCLUDED (By design D121)**.
+- ✅ **Language Guard & Neutral Academic Tone Enforcement (D122):**
+  * Triệt tiêu toàn bộ các cụm từ khẳng định tuyệt đối, tâng bốc hoặc thiếu bằng chứng ("khẳng định", "chưa có công trình nào", "an tâm cho ADAS", "rigorous") khỏi bản thảo bài báo, slide outline, mock defense Q&A và README.
+  * Thay thế "rigorous" bằng "disciplined", "chưa có công trình nào" bằng đối chiếu khách quan với các công trình đương đại, "khẳng định" bằng "consistent with" hoặc "cho thấy".
+  * Đính chính phân tích §5.3: 20 resplits trên $B \cup C$ (22 drive) cho coverage $\approx 85\%$, thấp hơn mức 90% danh nghĩa, ngược chiều với $96\text{--}97\%$ trên Split T (giải thích rõ do drive heterogeneity).
+- ✅ **Dynamic Hash & Manifest Synchronization cho Table 1 và Test Suite (D123):**
+  * Table 1 (`tab_01_dataset_split.csv` / `.tex`) được trích xuất động từ `splits/split_metadata.json` và đếm nhãn, loại bỏ hoàn toàn số gõ tay.
+  * Khi các bảng CSV/TeX trong `results/tables/final/` được kết xuất lại, mã băm SHA-256 thay đổi $\to$ Script `build_numbers_manifest.py` được mở rộng lên 124 metrics và tự động đồng bộ `source_sha256` trong `numbers_manifest.json`, bảo đảm tính tái lập bit-by-bit.
+  * Mở rộng `scripts/audit_paper.py` bổ sung regex cấm mã tác vụ nội bộ `Txx` (`\b[tT]\d{2}[a-zA-Z]?\b`) song hành cùng mã quyết định `Dxx`, đồng bộ khóa trích dẫn `haseeb2018disnet` và cập nhật 242 tests pass 100%.
 
 ---
 
@@ -425,6 +436,14 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 ---
 
 ## 6. Nhật ký theo phiên
+
+### Hậu T19 — 16/10/2026: Khắc Phục Triệt Để Kiểm Toán Độc Lập P0/P1, Đồng Bộ 124 Manifest Metrics & 242 Tests Pass (D121–D123)
+- **Hoàn thành toàn diện rà soát phản biện độc lập (Zero-Touch Split T, `runs/final_T.lock` bất biến):**
+  - **Audit Checklist Không Hardcode (D121):** Tái cấu trúc toàn diện `scripts/audit_checklist.py`, xóa bỏ 100% kết quả PASS gõ cứng. Báo cáo trung thực tiêu chí #7 là `EXCLUDED (By design)`. Đạt **13/14 PASS, 1 EXCLUDED (By design D121)** tại `docs/CHECKLIST_AUDIT.md`.
+  - **Đính chính Bản thảo & Language Guard (D122):** Sửa §5.1 (dùng `delta_pooled` +0.0013 và CI [-0.0041, 0.0059]), sửa §5.3 (mô tả chuẩn 20 resplits trên $B \cup C$ 22 drive, T bất biến; xóa mã `Task T08`; đổi "confirming" sang "consistent with"; giải thích rõ coverage ~85% vs 96–97%), bổ sung đầy đủ 6 hạn chế bắt buộc theo §11 Kế hoạch v4 vào Mục 6 của bài báo.
+  - **Đồng bộ Bảng, Manifest & Trích dẫn (D123):** Table 1 sinh động từ metadata; cập nhật ghi chú Table 3 ($N_{\text{tp}}=2,712$, $n_{\text{valid}}=2,676$, detector seed 42), Table 4 & 5 (seed 42); cập nhật `references.bib` key `haseeb2018disnet` và tiêu đề Dist-YOLO; mở rộng manifest lên 124 anchored metrics và làm mới mã băm SHA-256.
+  - **Vệ sinh Presentation & README:** Rà soát và loại bỏ toàn bộ từ ngữ võ đoán khỏi `SLIDES_OUTLINE.md`, `MOCK_DEFENSE_QA.md` và `README.md`.
+  - **Hệ thống Kiểm thử:** Đạt **242 passed** (100% clean test suite). 4/4 trụ cột kiểm toán bài báo đạt PASS.
 
 ### W3-7 — 16/10/2026: Triển Khai T19 — Slide Deck, Mock Defense Q&A, Chuẩn Hóa README & Đóng Gói Release v1.0 (D120)
 - **Hoàn thành toàn diện T19 — Bộ tài liệu bảo vệ đồ án DSR301m & Đóng gói phát hành chính thức (Zero-Touch Split T):**

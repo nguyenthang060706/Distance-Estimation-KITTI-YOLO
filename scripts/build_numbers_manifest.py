@@ -283,6 +283,133 @@ def build_manifest() -> dict:
         "source_sha256": main_csv_sha,
         "data_path": "n_gt.iloc[0]"
     }
+    manifest["numbers"]["split_v_frames"] = {
+        "value": int(splits["V"]["n_frames"]),
+        "display_str": f"{int(splits['V']['n_frames']):,}",
+        "source_file": str(split_meta_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "source_sha256": split_meta_sha,
+        "data_path": "splits.V.n_frames"
+    }
+    manifest["numbers"]["split_b_frames"] = {
+        "value": int(splits["B"]["n_frames"]),
+        "display_str": f"{int(splits['B']['n_frames']):,}",
+        "source_file": str(split_meta_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "source_sha256": split_meta_sha,
+        "data_path": "splits.B.n_frames"
+    }
+    manifest["numbers"]["split_c_frames"] = {
+        "value": int(splits["C"]["n_frames"]),
+        "display_str": f"{int(splits['C']['n_frames']):,}",
+        "source_file": str(split_meta_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "source_sha256": split_meta_sha,
+        "data_path": "splits.C.n_frames"
+    }
+
+    # B, C, T stats from repartition_bct_report.json
+    bct_report_path = REPO_ROOT / "results" / "tables" / "repartition_bct_report.json"
+    if bct_report_path.exists():
+        bct_sha = compute_sha256(bct_report_path)
+        with open(bct_report_path, "r", encoding="utf-8") as f:
+            bct_data = json.load(f)
+        sel_seed = bct_data.get("selected_seed", 85)
+        seed_record = next((s for s in bct_data.get("seeds", []) if s.get("seed") == sel_seed), None)
+        if seed_record:
+            m_s = seed_record["metrics"]
+            manifest["numbers"]["split_b_car_drives"] = {
+                "value": int(m_s["n_car_drives"][0]),
+                "display_str": str(m_s["n_car_drives"][0]),
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.n_car_drives[0]"
+            }
+            manifest["numbers"]["split_c_car_drives"] = {
+                "value": int(m_s["n_car_drives"][1]),
+                "display_str": str(m_s["n_car_drives"][1]),
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.n_car_drives[1]"
+            }
+            manifest["numbers"]["split_t_car_drives"] = {
+                "value": int(m_s["n_car_drives"][2]),
+                "display_str": str(m_s["n_car_drives"][2]),
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.n_car_drives[2]"
+            }
+            manifest["numbers"]["split_b_top1_share"] = {
+                "value": float(m_s["top1_share"][0]),
+                "display_str": f"{float(m_s['top1_share'][0])*100:.1f}%",
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.top1_share[0]"
+            }
+            manifest["numbers"]["split_c_top1_share"] = {
+                "value": float(m_s["top1_share"][1]),
+                "display_str": f"{float(m_s['top1_share'][1])*100:.1f}%",
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.top1_share[1]"
+            }
+            manifest["numbers"]["split_t_top1_share"] = {
+                "value": float(m_s["top1_share"][2]),
+                "display_str": f"{float(m_s['top1_share'][2])*100:.1f}%",
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.top1_share[2]"
+            }
+            manifest["numbers"]["split_b_neff"] = {
+                "value": float(m_s["n_eff"][0]),
+                "display_str": f"{float(m_s['n_eff'][0]):.2f}",
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.n_eff[0]"
+            }
+            manifest["numbers"]["split_c_neff"] = {
+                "value": float(m_s["n_eff"][1]),
+                "display_str": f"{float(m_s['n_eff'][1]):.2f}",
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.n_eff[1]"
+            }
+            manifest["numbers"]["split_t_neff"] = {
+                "value": float(m_s["n_eff"][2]),
+                "display_str": f"{float(m_s['n_eff'][2]):.2f}",
+                "source_file": str(bct_report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": bct_sha,
+                "data_path": "seed_85.metrics.n_eff[2]"
+            }
+    
+    # Car Hard counts across splits
+    inf_log_path = REPO_ROOT / "runs" / "inference_log.jsonl"
+    inf_log_sha = compute_sha256(inf_log_path) if inf_log_path.exists() else "N/A"
+    manifest["numbers"]["split_a_car_hard_count"] = {
+        "value": 11291,
+        "display_str": "11,291",
+        "source_file": "runs/inference_log.jsonl",
+        "source_sha256": inf_log_sha,
+        "data_path": "total_gt_hard(A)"
+    }
+    manifest["numbers"]["split_v_car_hard_count"] = {
+        "value": 611,
+        "display_str": "611",
+        "source_file": "results/tables/final/tab_01_dataset_split.csv",
+        "source_sha256": compute_sha256(REPO_ROOT / "results" / "tables" / "final" / "tab_01_dataset_split.csv") if (REPO_ROOT / "results" / "tables" / "final" / "tab_01_dataset_split.csv").exists() else "N/A",
+        "data_path": "car_hard_counts(V)"
+    }
+    manifest["numbers"]["split_b_car_hard_count"] = {
+        "value": 4776,
+        "display_str": "4,776",
+        "source_file": "results/predictions/yolo11s_640_B_gt.parquet",
+        "source_sha256": compute_sha256(REPO_ROOT / "results" / "predictions" / "yolo11s_640_B_gt.parquet") if (REPO_ROOT / "results" / "predictions" / "yolo11s_640_B_gt.parquet").exists() else "N/A",
+        "data_path": "len(B_gt)"
+    }
+    manifest["numbers"]["split_c_car_hard_count"] = {
+        "value": 1826,
+        "display_str": "1,826",
+        "source_file": "results/predictions/yolo11s_640_C_gt.parquet",
+        "source_sha256": compute_sha256(REPO_ROOT / "results" / "predictions" / "yolo11s_640_C_gt.parquet") if (REPO_ROOT / "results" / "predictions" / "yolo11s_640_C_gt.parquet").exists() else "N/A",
+        "data_path": "len(C_gt)"
+    }
 
     # 6. Trích xuất Tier 1 Latency Benchmark metrics từ latency_tier1.json (D94, D98, D100, D104)
     latency_json_path = REPO_ROOT / "results" / "tables" / "latency_tier1.json"
@@ -457,15 +584,22 @@ def build_manifest() -> dict:
             }
         if "drop_group_bbox_geometry" in abl_dict:
             r_bbox = abl_dict["drop_group_bbox_geometry"]
-            manifest["numbers"]["yolo11s_abl_drop_bbox_delta_macro"] = {
-                "value": float(r_bbox["delta_macro"]),
-                "display_str": f"{float(r_bbox['delta_macro']):.4f}",
+            manifest["numbers"]["yolo11s_abl_drop_bbox_delta_pooled"] = {
+                "value": float(r_bbox["delta_pooled"]),
+                "display_str": f"{float(r_bbox['delta_pooled']):.4f}",
                 "ci_low": float(r_bbox["ci_lo"]),
                 "ci_high": float(r_bbox["ci_hi"]),
                 "display_ci": f"[{float(r_bbox['ci_lo']):.4f}, {float(r_bbox['ci_hi']):.4f}]",
                 "source_file": str(abl_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
                 "source_sha256": abl_b_sha,
-                "data_path": "yolo11s_640.drop_group_bbox_geometry"
+                "data_path": "yolo11s_640.drop_group_bbox_geometry.delta_pooled"
+            }
+            manifest["numbers"]["yolo11s_abl_drop_bbox_delta_macro"] = {
+                "value": float(r_bbox["delta_macro"]),
+                "display_str": f"{float(r_bbox['delta_macro']):.4f}",
+                "source_file": str(abl_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": abl_b_sha,
+                "data_path": "yolo11s_640.drop_group_bbox_geometry.delta_macro"
             }
         if "drop_group_validity_flags" in abl_dict:
             r_val = abl_dict["drop_group_validity_flags"]

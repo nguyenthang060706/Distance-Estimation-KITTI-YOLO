@@ -483,6 +483,118 @@
       "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
       "data_path": "n_gt.iloc[0]"
     },
+    "split_v_frames": {
+      "value": 374,
+      "display_str": "374",
+      "source_file": "splits/split_metadata.json",
+      "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
+      "data_path": "splits.V.n_frames"
+    },
+    "split_b_frames": {
+      "value": 1499,
+      "display_str": "1,499",
+      "source_file": "splits/split_metadata.json",
+      "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
+      "data_path": "splits.B.n_frames"
+    },
+    "split_c_frames": {
+      "value": 766,
+      "display_str": "766",
+      "source_file": "splits/split_metadata.json",
+      "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
+      "data_path": "splits.C.n_frames"
+    },
+    "split_b_car_drives": {
+      "value": 12,
+      "display_str": "12",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.n_car_drives[0]"
+    },
+    "split_c_car_drives": {
+      "value": 10,
+      "display_str": "10",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.n_car_drives[1]"
+    },
+    "split_t_car_drives": {
+      "value": 10,
+      "display_str": "10",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.n_car_drives[2]"
+    },
+    "split_b_top1_share": {
+      "value": 0.2684254606365159,
+      "display_str": "26.8%",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.top1_share[0]"
+    },
+    "split_c_top1_share": {
+      "value": 0.28696604600219056,
+      "display_str": "28.7%",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.top1_share[1]"
+    },
+    "split_t_top1_share": {
+      "value": 0.2325653798256538,
+      "display_str": "23.3%",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.top1_share[2]"
+    },
+    "split_b_neff": {
+      "value": 5.286268831463184,
+      "display_str": "5.29",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.n_eff[0]"
+    },
+    "split_c_neff": {
+      "value": 5.281034198755718,
+      "display_str": "5.28",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.n_eff[1]"
+    },
+    "split_t_neff": {
+      "value": 5.284437127815743,
+      "display_str": "5.28",
+      "source_file": "results/tables/repartition_bct_report.json",
+      "source_sha256": "a8a7461eff2accb04517d4ec67e44fa004ab7c847e6556b7dc5b5b0e59b003a0",
+      "data_path": "seed_85.metrics.n_eff[2]"
+    },
+    "split_a_car_hard_count": {
+      "value": 11291,
+      "display_str": "11,291",
+      "source_file": "runs/inference_log.jsonl",
+      "source_sha256": "98a4671c7c167200925e0d849a19cff38b0c985cb59d00bd2d4ed688b8c14884",
+      "data_path": "total_gt_hard(A)"
+    },
+    "split_v_car_hard_count": {
+      "value": 611,
+      "display_str": "611",
+      "source_file": "results/tables/final/tab_01_dataset_split.csv",
+      "source_sha256": "a352cc7b4118d15d1d9756f69c0707c8c5cdb9662d79ccf7a0193029e5163649",
+      "data_path": "car_hard_counts(V)"
+    },
+    "split_b_car_hard_count": {
+      "value": 4776,
+      "display_str": "4,776",
+      "source_file": "results/predictions/yolo11s_640_B_gt.parquet",
+      "source_sha256": "df53a2067f18e92c13b79b52ce58916e5e9cd2fc6268e1ca7f7ba9bc8d388354",
+      "data_path": "len(B_gt)"
+    },
+    "split_c_car_hard_count": {
+      "value": 1826,
+      "display_str": "1,826",
+      "source_file": "results/predictions/yolo11s_640_C_gt.parquet",
+      "source_sha256": "315946bf67bfcaf923f53da5db6faa9e93d6fbe5cfd96a43052b12abeb6c0fad",
+      "data_path": "len(C_gt)"
+    },
     "yolo11s_latency_gpu_median": {
       "value": 37.987,
       "display_str": "37.99 ms",
@@ -696,15 +808,22 @@
       "source_sha256": "425850793970a8513769deaa496d87bc18445463e24b7aefdf37bc860d6eaf97",
       "data_path": "yolo11s_640.drop_z_h"
     },
-    "yolo11s_abl_drop_bbox_delta_macro": {
-      "value": 0.009995776552886297,
-      "display_str": "0.0100",
+    "yolo11s_abl_drop_bbox_delta_pooled": {
+      "value": 0.0012977747555324645,
+      "display_str": "0.0013",
       "ci_low": -0.004062904689816059,
       "ci_high": 0.005896295449797383,
       "display_ci": "[-0.0041, 0.0059]",
       "source_file": "results/tables/ablation_oof_b.json",
       "source_sha256": "425850793970a8513769deaa496d87bc18445463e24b7aefdf37bc860d6eaf97",
-      "data_path": "yolo11s_640.drop_group_bbox_geometry"
+      "data_path": "yolo11s_640.drop_group_bbox_geometry.delta_pooled"
+    },
+    "yolo11s_abl_drop_bbox_delta_macro": {
+      "value": 0.009995776552886297,
+      "display_str": "0.0100",
+      "source_file": "results/tables/ablation_oof_b.json",
+      "source_sha256": "425850793970a8513769deaa496d87bc18445463e24b7aefdf37bc860d6eaf97",
+      "data_path": "yolo11s_640.drop_group_bbox_geometry.delta_macro"
     },
     "yolo11s_abl_drop_validity_delta_pooled": {
       "value": 0.00034097714490058384,

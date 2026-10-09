@@ -108,9 +108,10 @@ def audit_formatting_and_tone() -> Dict[str, Any]:
     # 1. Tìm từ cấm
     found_forbidden = [t for t in FORBIDDEN_TERMS if t in lower_content]
 
-    # 2. Tìm mã nội bộ Dxx (bỏ qua 2D, 3D)
+    # 2. Tìm mã nội bộ Dxx (bỏ qua 2D, 3D) và mã tác vụ Txx (ví dụ: T08, T18, T19)
     dxx_matches = re.findall(r"\b[dD]\d{1,3}\b", content)
     dxx_matches = [m for m in dxx_matches if not re.match(r"^[23][dD]$", m)]
+    txx_matches = re.findall(r"\b[tT]\d{2}[a-zA-Z]?\b", content)
 
     # 3. Kiểm tra rò rỉ metadata nội bộ trong draft
     internal_leaks = []
@@ -118,11 +119,12 @@ def audit_formatting_and_tone() -> Dict[str, Any]:
         if leak_token in lower_content:
             internal_leaks.append(leak_token)
 
-    passed = (len(found_forbidden) == 0 and len(dxx_matches) == 0 and len(internal_leaks) == 0)
+    passed = (len(found_forbidden) == 0 and len(dxx_matches) == 0 and len(txx_matches) == 0 and len(internal_leaks) == 0)
     return {
         "status": "PASS" if passed else "FAIL",
         "found_forbidden_terms": found_forbidden,
         "found_internal_dxx_codes": dxx_matches,
+        "found_internal_txx_codes": txx_matches,
         "found_internal_metadata_leaks": internal_leaks
     }
 
@@ -150,7 +152,7 @@ def audit_references() -> Dict[str, Any]:
 
     # 3. Kiểm tra 12 trích dẫn chuẩn
     expected_citations = [
-        "ni2026realtime", "vajgl2022distyolo", "haseeb2023disnet", "decade2024monocular",
+        "ni2026realtime", "vajgl2022distyolo", "haseeb2018disnet", "decade2024monocular",
         "agl2026lightweight", "bertoni2019monoloco", "romano2019cqr", "bhatt2021fcal",
         "dagan2004forward", "geiger2012kitti", "chen2010oas", "chen2016xgboost"
     ]
