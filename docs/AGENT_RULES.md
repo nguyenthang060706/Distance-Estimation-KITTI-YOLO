@@ -5,7 +5,7 @@ Nguồn chuẩn: `docs/KE_HOACH_V4.md` (thiết kế) và `docs/NHAT_KY_QUYET_DI
 
 ## 1. Vùng cấm
 
-1. **Split T.** Code mới (pipeline, script phân tích, notebook) không được đọc, suy luận hay nhập T dưới bất kỳ hình thức nào: không `load_split(..., "T", allow_test=True)`, không đặt `ALLOW_TEST_SPLIT`, không sửa guard. Test/verify có sẵn (`test_splits.py`, `verify_data.py`) chỉ đếm frame/kiểm hash, giữ nguyên. Ngoại lệ duy nhất: `scripts/run_final_T.py` do con người chạy (T12).
+1. **Split T.** Code mới (pipeline, script phân tích, notebook) không được đọc, suy luận hay nhập T dưới bất kỳ hình thức nào: không `load_split(..., "T", allow_test=True)`, không đặt `ALLOW_TEST_SPLIT`, không sửa guard. Test/verify có sẵn (`test_splits.py`, `verify_data.py`) chỉ đếm frame/kiểm hash, giữ nguyên. Ngoại lệ: `scripts/run_final_T.py` do con người chạy (T12) và `scripts/make_qualitative.py` đọc ảnh gốc phục vụ trực quan hóa định tính theo D90/D96 (không suy luận/không can thiệp nhãn/không ảnh hưởng số liệu).
 2. **File chỉ đọc** (không sửa, không ghi đè): `splits/**` (cả `superseded_v1/`), `configs/geometry_params.yaml`, `configs/geometry_priors.yaml`, `configs/detector/*`, `runs/detector/**`, mọi file đã có trong `results/predictions/`. Thêm file mới thì được.
 3. **Chỉ được thêm, không đổi hành vi:** `src/geometry/*`, `src/detection/matching.py`, `src/utils/*`, `src/evaluation/eval.py`, `src/evaluation/metrics.py`. Test cũ phải tiếp tục xanh; không nới ngưỡng test.
 4. **Feature guard (D11).** Không sửa `DEFAULT_FEATURE_WHITELIST`, `FORBIDDEN_GT_*` trong `src/residual/feature_extractor.py`, không nới `tests/test_feature_guard.py`. Đặc trưng dẫn xuất ngoài whitelist chỉ khi tác vụ nói rõ, kèm guard test riêng.

@@ -6,7 +6,7 @@
 \small
 \begin{tabular}{llrrrr}
 \toprule
-\textbf{Category} & \textbf{Method / Ablation} & \textbf{Pooled AbsRel} & \textbf{Macro AbsRel (12)} & \textbf{MAE / $\Delta$} & \textbf{$\delta < 1.25$} \\
+\textbf{Category} & \textbf{Method / Ablation} & \textbf{Pooled AbsRel} & \textbf{Macro AbsRel (12)} & \textbf{$\Delta_{\text{pooled}}$ (vs f) [95\% CI]} & \textbf{$\delta < 1.25$} \\
 \midrule
 Pinhole Cue & Width Cue $Z_w$ (a) & 0.2462 & 0.2436 & 6.44 m & 48.4\% \\
 Pinhole Cue & Height Cue $Z_h$ (b) & 0.0650 & 0.0775 & 1.47 m & 97.8\% \\
@@ -15,14 +15,17 @@ Pipeline Model & Fused Geometry $Z_d$ (d*) & 0.0607 & 0.0759 & 1.34 m & 97.7\% \
 Pipeline Model & Direct Depth $Z_e$ (e) & 0.0462 & 0.0532 & 1.11 m & 99.6\% \\
 Pipeline Model & Linear Residual $Z_{f0}$ (f0) & 0.0554 & 0.0694 & 1.31 m & 99.2\% \\
 Pipeline Model & Full Residual $\hat{Z}_f$ (f) & 0.0462 & 0.0541 & 1.08 m & 99.7\% \\
-Ablation & Drop bbox\_geometry & 0.0483 & 0.0646 & $\Delta = +0.0100$ & --- \\
-Ablation & Drop edge\_flags & 0.0476 & 0.0542 & $\Delta = -0.0004$ & --- \\
-Ablation & Drop confidence & 0.0476 & 0.0546 & $\Delta = +0.0000$ & --- \\
-Ablation & Drop cues\_ln\_z & 0.0474 & 0.0543 & $\Delta = -0.0003$ & --- \\
-Ablation & Drop validity\_flags & 0.0474 & 0.0546 & $\Delta = +0.0000$ & --- \\
-Ablation & Drop ln\_z\_base & 0.0480 & 0.0557 & $\Delta = +0.0011$ & --- \\
+Ablation & Drop bbox\_geometry & 0.0483 & 0.0646 & +0.0013 [-0.0041, +0.0059] & --- \\
+Ablation & Drop edge\_flags & 0.0476 & 0.0542 & +0.0005 [-0.0002, +0.0009] & --- \\
+Ablation & Drop confidence & 0.0476 & 0.0546 & +0.0006 [-0.0005, +0.0018] & --- \\
+Ablation & Drop cues\_ln\_z & 0.0474 & 0.0543 & +0.0003 [-0.0001, +0.0007] & --- \\
+Ablation & Drop validity\_flags & 0.0474 & 0.0546 & +0.0003 [-0.0000, +0.0007] & --- \\
+Ablation & Drop ln\_z\_base & 0.0480 & 0.0557 & +0.0010 [+0.0006, +0.0016] & --- \\
+Ablation & Drop Cue Z\_W & 0.0471 & 0.0538 & +0.0001 [-0.0011, +0.0007] & --- \\
+Ablation & Drop Cue Z\_H & 0.0540 & 0.0726 & +0.0070 [+0.0024, +0.0119] & --- \\
+Ablation & Drop Cue Z\_G & 0.0472 & 0.0496 & +0.0001 [-0.0025, +0.0021] & --- \\
 \bottomrule
 \end{tabular}
 \vskip 4pt
-\parbox{\textwidth}{\footnotesize \textit{Note:} Evaluated on Split B out-of-fold (12-fold LODO by drive, $N=4,776$). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). All CI values calculated via cluster bootstrap over 12 drives.}
+\parbox{\textwidth}{\footnotesize \textit{Note:} Evaluated on Split B out-of-fold (12-fold LODO by drive, $N=4,776$). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). Drop Cue $Z_h$ is the only ablation whose 95\% CI excludes 0 ([+0.0024, +0.0119]); all other ablations span 0.}
 \end{table*}

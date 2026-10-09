@@ -314,10 +314,8 @@ def run_sensitivity_analysis():
         t59 = data["test_drive_0059"]
         t104 = data["test_drive_0104"]
 
-        tag59 = "**0.0510** [OOS]" if t59["is_out_of_sample"] else f"{t59['absrel']:.4f} [in-sample]"
+        tag59 = f"**{t59['absrel']:.4f}** [OOS]" if t59["is_out_of_sample"] else f"{t59['absrel']:.4f} [in-sample]"
         tag104 = f"**{t104['absrel']:.4f}** [OOS]" if t104["is_out_of_sample"] else f"{t104['absrel']:.4f} [in-sample]"
-        if name == "Exclude both 0059 & 0104 (51.7%)":
-            tag59 = f"**{t59['absrel']:.4f}** [OOS]"
 
         md_content.append(
             f"| **{name}** | {fit_m['n']} ({fit_m['n_valid']}) | {data['n_drives']} | "

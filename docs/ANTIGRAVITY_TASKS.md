@@ -254,9 +254,9 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 1. **Benchmark Độ trễ Tier 1 Chuẩn hóa (`scripts/bench_latency.py`, D94, D98, D99):**
    - Khắc phục 4 lỗi phương pháp luận của bản sơ bộ T06: (1) Tách riêng tiền xử lý, đo model forward thô bằng `model_pt.model(x)` (Half FP16 CUDA synchronize), NMS decode riêng, loại bỏ hoàn toàn double-counting; nạp trước (preload) 200 ảnh vào RAM nhằm loại bỏ Disk I/O khỏi vòng lặp đo (In-memory benchmark); (2) Đo $t_{\text{total}}^{(i)}$ end-to-end độc lập trên từng ảnh, tính trực tiếp Median, Mean, P95, IQR, FPS trên chuỗi tổng per-image, loại bỏ sai lệch sum-of-medians ($0.20–0.63$ ms, $\le 2.0\%$); (3) Trích xuất đặc trưng residual vector hóa 17 features thực tế với confidence thật và P2 intrinsics từng frame (sửa `cx_offset_norm = (box_cx - cx) / fx` khớp 100% với `feature_extractor.py`); (4) Đo đạc đầy đủ khâu Conformal Quantile Regression (CQR 2 mô hình XGBoost $q_{0.05}$ và $q_{0.95}$, scaling log-residual và $\hat{Q}$).
    - Đo trên 200 ảnh Split B nạp sẵn trong RAM (20 warmup):
-     * `yolo11s_640`: GPU = **38.01 ms (P95: 76.64 ms, 26.3 FPS)**; CPU = **116.73 ms (P95: 122.17 ms, 8.6 FPS)**.
-     * `yolov8s_640`: GPU = **31.70 ms (P95: 60.33 ms, 31.5 FPS)**; CPU = **142.54 ms (P95: 148.49 ms, 7.0 FPS)**.
-     * `yolov5su_640`: GPU = **33.12 ms (P95: 64.57 ms, 30.2 FPS)**; CPU = **119.87 ms (P95: 124.53 ms, 8.3 FPS)**.
+     * `yolo11s_640`: GPU = **37.99 ms (P95: 48.49 ms, 26.3 FPS)**; CPU = **116.17 ms (P95: 122.82 ms, 8.6 FPS)**.
+     * `yolov8s_640`: GPU = **32.05 ms (P95: 57.06 ms, 31.2 FPS)**; CPU = **143.37 ms (P95: 148.60 ms, 7.0 FPS)**.
+     * `yolov5su_640`: GPU = **33.01 ms (P95: 64.50 ms, 30.3 FPS)**; CPU = **120.48 ms (P95: 124.56 ms, 8.3 FPS)**.
      * Nhãn dữ liệu (D98): Gán nhãn `PRELIMINARY-v2` cho kết quả đo một lượt trên máy trạm laptop; cấm xếp hạng throughput giữa các detector khi chênh lệch nằm trong biên độ nhiễu phần cứng.
      * Tiền xử lý in-memory: GPU ~9.59–9.88 ms, CPU ~6.12–6.17 ms.
      * Chi phí khâu hậu detector: Hình học ~0.18 ms, Residual ~0.57–0.60 ms, CQR ~0.58–0.60 ms (tổng cộng ~1.35 ms/ảnh, ~3.5%–4.2% tổng thời gian GPU), chứng minh overhead của hybrid và conformal là không đáng kể so với detector.

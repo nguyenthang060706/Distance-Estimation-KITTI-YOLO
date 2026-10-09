@@ -163,14 +163,16 @@ def generate_figure_2_splits_distribution() -> Path:
     frames = [int(splits[k].get("n_frames", splits[k].get("frame_count", 0))) for k in keys]
     drives = [int(splits[k].get("n_drives", splits[k].get("drive_count", 0))) for k in keys]
     
-    # Đọc số Car Hard trực tiếp từ Table 1 CSV đã verified
+    # Đọc số Car Hard và số car drives (k) trực tiếp từ Table 1 CSV đã verified
     car_counts = []
+    car_drives_list = []
     for k in keys:
         row = df_tab1[df_tab1["split"] == k]
         if not row.empty:
             car_counts.append(int(row["car_hard_count"].iloc[0]))
+            car_drives_list.append(int(row["drives_with_cars"].iloc[0]))
         else:
-            car_counts.append(0)
+            raise KeyError(f"Missing row for split {k} in Table 1 CSV")
 
     x = np.arange(len(labels))
     width = 0.35
@@ -188,18 +190,14 @@ def generate_figure_2_splits_distribution() -> Path:
     ax1.grid(axis="y", linestyle=":", alpha=0.6)
 
     # Attach labels on top of bars
-    for rect in b1:
+    for i, rect in enumerate(b1):
         h = rect.get_height()
-        ax1.annotate(f"{h:,}", xy=(rect.get_x() + rect.get_width() / 2, h),
-                     xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontsize=8.5)
-    for rect in b2:
+        ax1.annotate(f"{h:,}\n({drives[i]} drives)", xy=(rect.get_x() + rect.get_width() / 2, h),
+                     xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontsize=8.0)
+    for i, rect in enumerate(b2):
         h = rect.get_height()
-        ax2.annotate(f"{h:,}", xy=(rect.get_x() + rect.get_width() / 2, h),
-                     xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontsize=8.5)
-
-    # Ghi chú drive count bên trong biểu đồ (không để tọa độ âm đè lên nhãn trục)
-    for i, d in enumerate(drives):
-        ax1.text(x[i] - width/2, 200, f"k={d}", ha="center", va="bottom", fontsize=8.5, color="white", weight="bold")
+        ax2.annotate(f"{h:,}\n(k={car_drives_list[i]})", xy=(rect.get_x() + rect.get_width() / 2, h),
+                     xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontsize=8.0)
 
     plt.title("KITTI Benchmark Partition Scheme (Drive-Clustered Splits A, V, B, C, T)", pad=15)
     fig.tight_layout()
@@ -295,50 +293,65 @@ def generate_figure_4_conformal_coverage() -> Path:
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    yolo11s_data = data.get("yolo11s_640", {})
-    if not yolo11s_data:
-        raise ValueError("yolo11s_640 key not found in coverage_conditional_T.json")
+    if "yolo11s_640" not in data:
+        raise KeyError("yolo11s_640 key not found in coverage_conditional_T.json")
+    yolo11s_data = data["yolo11s_640"]
+    if "categories" not in yolo11s_data:
+        raise KeyError("categories dict not found under yolo11s_640 in coverage_conditional_T.json")
+    cats = yolo11s_data["categories"]
 
-    # Trích xuất động các subset đại diện từ JSON thật
+    # Trích xuất động các subset đại diện từ categories JSON thật (9 phân nhóm ODD)
     subsets_to_plot = []
     
     # 1. Overall Hard
-    for diff in yolo11s_data.get("difficulty", []):
+    found_hard = False
+    for diff in cats.get("difficulty", []):
         if diff.get("subgroup") == "Hard (nested)":
             cqr = diff["cqr"]
-            subsets_to_plot.append(("Overall Pooled (Hard)", cqr["coverage"] * 100, cqr["mean_width"], diff.get("low_n", False)))
+            subsets_to_plot.append(("Overall (Hard)", cqr["coverage"] * 100, cqr["mean_width"], diff.get("low_n", False)))
+            found_hard = True
             break
+    if not found_hard:
+        raise KeyError("Hard (nested) not found in difficulty category")
 
-    # 2. Distance ranges
-    for r in yolo11s_data.get("range_z_gt", []):
+    # 2. Distance ranges (z_gt_retrospective)
+    found_ranges = 0
+    for r in cats.get("z_gt_retrospective", []):
         sg = r.get("subgroup", "")
-        if sg in ["0-10 m", "10-20 m", "20-30 m", "30-50 m"]:
+        if sg in ["0-10", "10-20", "20-30", "30-50", ">50"]:
             cqr = r["cqr"]
-            subsets_to_plot.append((f"Range: {sg}", cqr["coverage"] * 100, cqr["mean_width"], r.get("low_n", False)))
+            subsets_to_plot.append((f"Range: {sg}m", cqr["coverage"] * 100, cqr["mean_width"], r.get("low_n", False)))
+            found_ranges += 1
+    if found_ranges < 5:
+        raise KeyError(f"Expected 5 distance ranges in z_gt_retrospective, found {found_ranges}")
 
     # 3. Truncation and Edge
-    for tr in yolo11s_data.get("truncation_and_edges", []):
+    found_trunc = False
+    found_multi = False
+    for tr in cats.get("truncation_and_edges", []):
         sg = tr.get("subgroup", "")
-        if "Severe" in sg:
+        if "Moderate/Severe" in sg:
             cqr = tr["cqr"]
-            subsets_to_plot.append(("Severe Truncation", cqr["coverage"] * 100, cqr["mean_width"], tr.get("low_n", True)))
-            break
+            subsets_to_plot.append(("Mod/Sev Truncation", cqr["coverage"] * 100, cqr["mean_width"], tr.get("low_n", False)))
+            found_trunc = True
+        elif "Touch Multi-edge" in sg:
+            cqr = tr["cqr"]
+            subsets_to_plot.append(("Touch Multi-edge", cqr["coverage"] * 100, cqr["mean_width"], tr.get("low_n", False)))
+            found_multi = True
+    if not (found_trunc and found_multi):
+        raise KeyError("Truncation or Touch Multi-edge not found in truncation_and_edges")
 
-    # 4. Touch Multi-edge
-    for te in yolo11s_data.get("touch_edge", []):
-        sg = te.get("subgroup", "")
-        if "Touch Multi-edge" in sg:
-            cqr = te["cqr"]
-            subsets_to_plot.append(("Touch Multi-edge (000)", cqr["coverage"] * 100, cqr["mean_width"], te.get("low_n", True)))
-            break
-
-    # 5. Fallback 000
-    for fb in yolo11s_data.get("fallback_pattern_000", []):
+    # 4. Fallback 000
+    found_fb = False
+    for fb in cats.get("fallback_pattern_000", []):
         sg = fb.get("subgroup", "")
         if "Fallback" in sg:
             cqr = fb["cqr"]
-            subsets_to_plot.append(("Fallback (Pattern 000)", cqr["coverage"] * 100, cqr["mean_width"], fb.get("low_n", True)))
+            subsets_to_plot.append(("Fallback (Pattern 000)", cqr["coverage"] * 100, cqr["mean_width"], fb.get("low_n", False)))
+            found_fb = True
             break
+    if not found_fb:
+        raise KeyError("Fallback not found in fallback_pattern_000")
 
     # Đưa vào mảng vẽ
     labels = [f"{name}{'*' if low else ''}" for name, _, _, low in subsets_to_plot]

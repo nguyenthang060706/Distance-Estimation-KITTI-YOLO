@@ -15,8 +15,8 @@
     },
     "fig_02_splits_spatial_distribution.png": {
       "path": "results/figures/final/fig_02_splits_spatial_distribution.png",
-      "sha256": "2bdf43aa22328fbf728763f93fba2fd2f836454edddf35b9d055339734192754",
-      "size_bytes": 163214,
+      "sha256": "e2473ac9e2c6743b0ce9c3e91e378139f58dd4e0f84099a1798ebad1ebed8e5f",
+      "size_bytes": 186210,
       "description": "Distribution of frames and Car Hard ground-truth objects across the 5 drive-clustered splits A, V, B, C, and T, preserving zero drive leakage."
     },
     "fig_03_ranging_error_by_distance.png": {
@@ -27,8 +27,8 @@
     },
     "fig_04_conformal_intervals_and_coverage.png": {
       "path": "results/figures/final/fig_04_conformal_intervals_and_coverage.png",
-      "sha256": "73eaf06d3bf1186f64c286dbe381e2ef8415b208dc06b936368e1afc24797205",
-      "size_bytes": 123559,
+      "sha256": "dd52585f39948fc092317787ae1a532fd9e13d561cb7ea9c2e4c88bb9fc8d198",
+      "size_bytes": 239105,
       "description": "Empirical coverage and interval width ratios of Conformal Quantile Regression (CQR) dynamically extracted across operational design domains (ODDs) on Split T. Asterisk (*) denotes n < 100."
     },
     "fig_05_qualitative_case_studies.png": {

@@ -234,31 +234,35 @@ def export_table_2():
             f"{delta1*100:.1f}\\%"
         ])
         
-    # 2. Key Ablations from abl_b (yolo11s_640)
-    abl_records = [r for r in abl_b["records"] if r["model_key"] == "yolo11s_640" and r["category"] in ["drop_group", "drop_cue"]]
-    for r in abl_records[:6]: # Lấy 6 phép ablation tiêu biểu
+    # 2. Key Ablations from abl_b (yolo11s_640) - Bao gồm cả Drop Cue và Drop Group
+    abl_records = [r for r in abl_b["records"] if r["model_key"] == "yolo11s_640" and r["category"] in ["drop_cue", "drop_group"]]
+    for r in abl_records:
         csv_rows.append({
             "model_type": "Ablation Study",
             "variant": r["ablation_key"],
             "display_name": r["ablation_name"],
             "pooled_absrel": round(r["pooled_absrel"], 4),
             "macro_absrel": round(r["macro_absrel"], 4),
+            "delta_pooled": round(r["delta_pooled"], 4),
             "delta_macro": round(r["delta_macro"], 4),
+            "ci_lo": round(r["ci_lo"], 4),
+            "ci_hi": round(r["ci_hi"], 4),
             "mae": None,
             "delta1": None
         })
+        ci_str = f"[{r['ci_lo']:+.4f}, {r['ci_hi']:+.4f}]"
         latex_rows.append([
             "Ablation",
             escape_latex(r["ablation_name"]),
             f"{r['pooled_absrel']:.4f}",
             f"{r['macro_absrel']:.4f}",
-            f"$\\Delta = {r['delta_macro']:+.4f}$",
+            f"{r['delta_pooled']:+.4f} {ci_str}",
             "---"
         ])
         
     df_raw = pd.DataFrame(csv_rows)
-    headers = ["Category", "Method / Ablation", "Pooled AbsRel", "Macro AbsRel (12)", "MAE / $\\Delta$", "$\\delta < 1.25$"]
-    notes = "Evaluated on Split B out-of-fold (12-fold LODO by drive, $N=4,776$). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). All CI values calculated via cluster bootstrap over 12 drives."
+    headers = ["Category", "Method / Ablation", "Pooled AbsRel", "Macro AbsRel (12)", "$\\Delta_{\\text{pooled}}$ (vs f) [95\\% CI]", "$\\delta < 1.25$"]
+    notes = "Evaluated on Split B out-of-fold (12-fold LODO by drive, $N=4,776$). Covariance weights fit with shrinkage. Paired differences reported against Full Residual (f). Drop Cue $Z_h$ is the only ablation whose 95\\% CI excludes 0 ([+0.0024, +0.0119]); all other ablations span 0."
     write_table_pair("tab_02_geometry_ablation_oof_b", "Geometric Baseline Cues, Covariance Fusion, and Residual Ablation on Split B OOF", "tab:ablation_oof_b", headers, latex_rows, "llrrrr", df_raw, notes)
 
 # ==============================================================================
@@ -350,7 +354,7 @@ def export_table_3():
             ])
             
     df_raw = pd.DataFrame(csv_rows)
-    headers = ["Detector", "Method", "Pooled AbsRel", "Macro (10)", "Macro ($n \\ge 30$)", "MAE (m)", "RMSE (m)", "$\\delta_1$", "Paired 95\\% CI (10 cụm)"]
+    headers = ["Detector", "Method", "Pooled AbsRel", "Macro (10)", "Macro ($n \\ge 30$)", "MAE (m)", "RMSE (m)", "$\\delta_1$", "Paired 95\\% CI (10 clusters)"]
     notes = "Evaluated on Split T ($N_{\\text{gt}} = 3,212$ Car Hard across 10 drives). Recall is 84.4\\% (11s), 82.8\\% (v8s), and 83.3\\% (v5su). Common support across all 3 detectors has $N = 2,528$ vehicles where Model (f) AbsRel is 0.0446 (11s), 0.0449 (v8s), and 0.0457 (v5su). Paired Bootstrap CI over 10 drives indicates (f) vs (d) excludes 0, while (f) vs (e) includes 0 (D78)."
     write_table_pair("tab_03_main_benchmark_split_t", "Main Distance Estimation Benchmark on Held-out Split T (Post-hoc Verified v1.1)", "tab:main_benchmark_t", headers, latex_rows, "llrrrrrrr", df_raw, notes)
 
@@ -375,8 +379,10 @@ def export_table_4():
         "confidence": "Detector Confidence Score",
         "delta_y2_px": "Bottom Edge Error $\\Delta y_2$ (px)",
         "abs_delta_y2_px": "Absolute Bottom Error $|\\Delta y_2|$ (px)",
+        "delta_y2_rel": "Relative Bottom Error $\\Delta y_2 / h_{\\text{gt}}$",
         "bbox_height": "Bounding Box Height $h$ (px)",
-        "bbox_width": "Bounding Box Width $w$ (px)"
+        "bbox_width": "Bounding Box Width $w$ (px)",
+        "bbox_area": "Bounding Box Area $w \\cdot h$ (px$^2$)"
     }
     
     for _, row in rq2_df.iterrows():
@@ -411,7 +417,7 @@ def export_table_4():
         ])
         
     df_raw = pd.DataFrame(csv_rows)
-    headers = ["Detector", "Bbox Metric", "Pearson $r$", "Spearman $\\rho$", "95\\% Bootstrap CI (10 cụm)", "$n$"]
+    headers = ["Detector", "Bbox Metric", "Pearson $r$", "Spearman $\\rho$", "95\\% Bootstrap CI (10 clusters)", "$n$"]
     notes = "Correlations evaluated against AbsRel error on Split T True Positives. Spearman $\\rho$ is the primary robust metric. 23/24 CI configurations include 0 at the 10-cluster drive level, indicating distance error is largely decoupled from 2D bounding box jitter."
     write_table_pair("tab_04_rq2_detector_correlation", "RQ2: Correlation between Monocular Ranging Error and 2D Detection Quality", "tab:rq2_correlation", headers, latex_rows, "llrrrc", df_raw, notes)
 

@@ -340,6 +340,192 @@ def build_manifest() -> dict:
                     "data_path": f"detectors.{model_key}.latency.total_pipeline_cpu.fps_median"
                 }
 
+    # 7. Single cue & fused baseline metrics on Split B OOF
+    geom_b_path = REPO_ROOT / "results" / "tables" / "geometry_on_detector_bbox.json"
+    res_b_path = REPO_ROOT / "results" / "tables" / "residual_oof_b.json"
+    if geom_b_path.exists() and res_b_path.exists():
+        geom_b_sha = compute_sha256(geom_b_path)
+        res_b_sha = compute_sha256(res_b_path)
+        with open(geom_b_path, "r", encoding="utf-8") as f:
+            geom_b = json.load(f)
+        with open(res_b_path, "r", encoding="utf-8") as f:
+            res_b = json.load(f)
+            
+        det_b = geom_b["detectors"]["yolo11s_640"]["eval_split_B"]
+        cs_b = res_b["yolo11s_640"]["common_support"]
+
+        manifest["numbers"]["yolo11s_b_absrel_zw"] = {
+            "value": float(det_b["a_zw_det"]["pooled_absrel"]),
+            "display_str": f"{float(det_b['a_zw_det']['pooled_absrel']):.4f}",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.a_zw_det.pooled_absrel"
+        }
+        manifest["numbers"]["yolo11s_b_mae_zw"] = {
+            "value": float(det_b["a_zw_det"]["pooled_mae"]),
+            "display_str": f"{float(det_b['a_zw_det']['pooled_mae']):.2f} m",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.a_zw_det.pooled_mae"
+        }
+        manifest["numbers"]["yolo11s_b_delta1_zw"] = {
+            "value": float(det_b["a_zw_det"]["pooled_delta1"]),
+            "display_str": f"{float(det_b['a_zw_det']['pooled_delta1']) * 100:.1f}%",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.a_zw_det.pooled_delta1"
+        }
+
+        manifest["numbers"]["yolo11s_b_absrel_zg"] = {
+            "value": float(det_b["c_zg_det"]["pooled_absrel"]),
+            "display_str": f"{float(det_b['c_zg_det']['pooled_absrel']):.4f}",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.c_zg_det.pooled_absrel"
+        }
+        manifest["numbers"]["yolo11s_b_mae_zg"] = {
+            "value": float(det_b["c_zg_det"]["pooled_mae"]),
+            "display_str": f"{float(det_b['c_zg_det']['pooled_mae']):.2f} m",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.c_zg_det.pooled_mae"
+        }
+        manifest["numbers"]["yolo11s_b_delta1_zg"] = {
+            "value": float(det_b["c_zg_det"]["pooled_delta1"]),
+            "display_str": f"{float(det_b['c_zg_det']['pooled_delta1']) * 100:.1f}%",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.c_zg_det.pooled_delta1"
+        }
+
+        manifest["numbers"]["yolo11s_b_absrel_zh"] = {
+            "value": float(det_b["b_zh_det"]["pooled_absrel"]),
+            "display_str": f"{float(det_b['b_zh_det']['pooled_absrel']):.4f}",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.b_zh_det.pooled_absrel"
+        }
+        manifest["numbers"]["yolo11s_b_mae_zh"] = {
+            "value": float(det_b["b_zh_det"]["pooled_mae"]),
+            "display_str": f"{float(det_b['b_zh_det']['pooled_mae']):.2f} m",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.b_zh_det.pooled_mae"
+        }
+        manifest["numbers"]["yolo11s_b_delta1_zh"] = {
+            "value": float(det_b["b_zh_det"]["pooled_delta1"]),
+            "display_str": f"{float(det_b['b_zh_det']['pooled_delta1']) * 100:.1f}%",
+            "source_file": str(geom_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": geom_b_sha,
+            "data_path": "detectors.yolo11s_640.eval_split_B.b_zh_det.pooled_delta1"
+        }
+
+        manifest["numbers"]["yolo11s_b_absrel_zd"] = {
+            "value": float(cs_b["d"]["pooled"]["absrel"]),
+            "display_str": f"{float(cs_b['d']['pooled']['absrel']):.4f}",
+            "source_file": str(res_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": res_b_sha,
+            "data_path": "yolo11s_640.common_support.d.pooled.absrel"
+        }
+        manifest["numbers"]["yolo11s_b_mae_zd"] = {
+            "value": float(cs_b["d"]["pooled"]["mae"]),
+            "display_str": f"{float(cs_b['d']['pooled']['mae']):.2f} m",
+            "source_file": str(res_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "source_sha256": res_b_sha,
+            "data_path": "yolo11s_640.common_support.d.pooled.mae"
+        }
+
+    # 8. Ablation study metrics from ablation_oof_b.json
+    abl_b_path = REPO_ROOT / "results" / "tables" / "ablation_oof_b.json"
+    if abl_b_path.exists():
+        abl_b_sha = compute_sha256(abl_b_path)
+        with open(abl_b_path, "r", encoding="utf-8") as f:
+            abl_b = json.load(f)
+        abl_dict = {r["ablation_key"]: r for r in abl_b["records"] if r["model_key"] == "yolo11s_640"}
+        
+        if "drop_z_h" in abl_dict:
+            r_zh = abl_dict["drop_z_h"]
+            manifest["numbers"]["yolo11s_abl_drop_zh_delta_pooled"] = {
+                "value": float(r_zh["delta_pooled"]),
+                "display_str": f"{float(r_zh['delta_pooled']):.4f}",
+                "ci_low": float(r_zh["ci_lo"]),
+                "ci_high": float(r_zh["ci_hi"]),
+                "display_ci": f"[{float(r_zh['ci_lo']):.4f}, {float(r_zh['ci_hi']):.4f}]",
+                "source_file": str(abl_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": abl_b_sha,
+                "data_path": "yolo11s_640.drop_z_h"
+            }
+        if "drop_group_bbox_geometry" in abl_dict:
+            r_bbox = abl_dict["drop_group_bbox_geometry"]
+            manifest["numbers"]["yolo11s_abl_drop_bbox_delta_macro"] = {
+                "value": float(r_bbox["delta_macro"]),
+                "display_str": f"{float(r_bbox['delta_macro']):.4f}",
+                "ci_low": float(r_bbox["ci_lo"]),
+                "ci_high": float(r_bbox["ci_hi"]),
+                "display_ci": f"[{float(r_bbox['ci_lo']):.4f}, {float(r_bbox['ci_hi']):.4f}]",
+                "source_file": str(abl_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": abl_b_sha,
+                "data_path": "yolo11s_640.drop_group_bbox_geometry"
+            }
+        if "drop_group_validity_flags" in abl_dict:
+            r_val = abl_dict["drop_group_validity_flags"]
+            manifest["numbers"]["yolo11s_abl_drop_validity_delta_pooled"] = {
+                "value": float(r_val["delta_pooled"]),
+                "display_str": f"{float(r_val['delta_pooled']):.4f}",
+                "ci_low": float(r_val["ci_lo"]),
+                "ci_high": float(r_val["ci_hi"]),
+                "display_ci": f"[{float(r_val['ci_lo']):.4f}, {float(r_val['ci_hi']):.4f}]",
+                "source_file": str(abl_b_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                "source_sha256": abl_b_sha,
+                "data_path": "yolo11s_640.drop_group_validity_flags"
+            }
+
+    # 9. 20-Resplit Conformal Stability metrics from coverage_stability_20resplits.json
+    resplit_path = REPO_ROOT / "results" / "tables" / "coverage_stability_20resplits.json"
+    if resplit_path.exists():
+        resplit_sha = compute_sha256(resplit_path)
+        with open(resplit_path, "r", encoding="utf-8") as f:
+            resplit_data = json.load(f)
+        resplit_dict = {item["model_key"]: item for item in resplit_data}
+        
+        for model_key in ["yolo11s_640", "yolov8s_640", "yolov5su_640"]:
+            prefix = model_key.split("_")[0]
+            if model_key in resplit_dict:
+                cqr_sum = resplit_dict[model_key]["summary"]["cqr"]
+                m_cov = float(cqr_sum["mean_pooled_coverage"])
+                s_cov = float(cqr_sum["std_pooled_coverage"])
+                min_cov = float(cqr_sum["min_pooled_coverage"])
+                max_cov = float(cqr_sum["max_pooled_coverage"])
+                
+                manifest["numbers"][f"{prefix}_resplit20_mean_cov"] = {
+                    "value": m_cov,
+                    "display_str": f"{m_cov * 100:.2f}%",
+                    "source_file": str(resplit_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": resplit_sha,
+                    "data_path": f"{model_key}.summary.cqr.mean_pooled_coverage"
+                }
+                manifest["numbers"][f"{prefix}_resplit20_std_cov"] = {
+                    "value": s_cov,
+                    "display_str": f"{s_cov * 100:.2f}%",
+                    "source_file": str(resplit_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": resplit_sha,
+                    "data_path": f"{model_key}.summary.cqr.std_pooled_coverage"
+                }
+                manifest["numbers"][f"{prefix}_resplit20_min_cov"] = {
+                    "value": min_cov,
+                    "display_str": f"{min_cov * 100:.2f}%",
+                    "source_file": str(resplit_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": resplit_sha,
+                    "data_path": f"{model_key}.summary.cqr.min_pooled_coverage"
+                }
+                manifest["numbers"][f"{prefix}_resplit20_max_cov"] = {
+                    "value": max_cov,
+                    "display_str": f"{max_cov * 100:.2f}%",
+                    "source_file": str(resplit_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+                    "source_sha256": resplit_sha,
+                    "data_path": f"{model_key}.summary.cqr.max_pooled_coverage"
+                }
+
     with open(OUTPUT_MANIFEST, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
         

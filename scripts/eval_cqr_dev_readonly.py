@@ -226,9 +226,10 @@ def main():
         f.write("|---|---|---|---|---|---|---|---|---|---|---|\n")
         for m in DETECTORS:
             r = all_res[m]
+            gate_str = "✅ PASS" if (0.85 <= r['pooled_coverage'] <= 0.95) else f"⚠️ {r['pooled_coverage']:.4f}"
             f.write(f"| `{m}` | {r['n_samples']} | {r['raw_coverage']:.4f} | **{r['pooled_coverage']:.4f}** | {r['macro_coverage_all']:.4f} | "
                     f"{r['macro_coverage_ge_30']:.4f} | {r['mean_width_ratio']:.3f} | {r['mean_winkler']:.4f} | {r['total_crossings']} | "
-                    f"+{r['q_hat_full_c']:.5f} | ✅ PASS |\n")
+                    f"+{r['q_hat_full_c']:.5f} | {gate_str} |\n")
 
         f.write("\n## 2. Khắc phục Hiện tượng Fallback (Thay thế Decision D51/D58 theo D74)\n\n")
         f.write("> **Phát hiện quan trọng**: Hiện tượng 'Model e under-predict Z_e ≈ 0.5m, độ phủ fallback = 0.000' ghi nhận trước đây là hệ quả của bug cú pháp `base_score: '[...]'` "

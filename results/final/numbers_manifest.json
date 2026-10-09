@@ -608,6 +608,197 @@
       "source_file": "results/tables/latency_tier1.json",
       "source_sha256": "8b46efe5440b821ab94b6a6b9b7f71f0b085e5c0ffd8b9fe2234a268d55dca9f",
       "data_path": "detectors.yolov5su_640.latency.total_pipeline_cpu.fps_median"
+    },
+    "yolo11s_b_absrel_zw": {
+      "value": 0.2461889815927689,
+      "display_str": "0.2462",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.a_zw_det.pooled_absrel"
+    },
+    "yolo11s_b_mae_zw": {
+      "value": 6.435423963864433,
+      "display_str": "6.44 m",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.a_zw_det.pooled_mae"
+    },
+    "yolo11s_b_delta1_zw": {
+      "value": 0.4843246410782303,
+      "display_str": "48.4%",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.a_zw_det.pooled_delta1"
+    },
+    "yolo11s_b_absrel_zg": {
+      "value": 0.09313179748071268,
+      "display_str": "0.0931",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.c_zg_det.pooled_absrel"
+    },
+    "yolo11s_b_mae_zg": {
+      "value": 2.41016171433539,
+      "display_str": "2.41 m",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.c_zg_det.pooled_mae"
+    },
+    "yolo11s_b_delta1_zg": {
+      "value": 0.9388468258590565,
+      "display_str": "93.9%",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.c_zg_det.pooled_delta1"
+    },
+    "yolo11s_b_absrel_zh": {
+      "value": 0.06504909887223324,
+      "display_str": "0.0650",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.b_zh_det.pooled_absrel"
+    },
+    "yolo11s_b_mae_zh": {
+      "value": 1.4716788200480235,
+      "display_str": "1.47 m",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.b_zh_det.pooled_mae"
+    },
+    "yolo11s_b_delta1_zh": {
+      "value": 0.9781595806639487,
+      "display_str": "97.8%",
+      "source_file": "results/tables/geometry_on_detector_bbox.json",
+      "source_sha256": "f74ae268be7888cbe4c51ec59abb321b30d9495fd96a3742b9b2782e5f1923ed",
+      "data_path": "detectors.yolo11s_640.eval_split_B.b_zh_det.pooled_delta1"
+    },
+    "yolo11s_b_absrel_zd": {
+      "value": 0.06065231670933832,
+      "display_str": "0.0607",
+      "source_file": "results/tables/residual_oof_b.json",
+      "source_sha256": "7a4300b3fd01fde5453d7366e004687e28c362d7f31d7daea71c8996643edd90",
+      "data_path": "yolo11s_640.common_support.d.pooled.absrel"
+    },
+    "yolo11s_b_mae_zd": {
+      "value": 1.3360292648867278,
+      "display_str": "1.34 m",
+      "source_file": "results/tables/residual_oof_b.json",
+      "source_sha256": "7a4300b3fd01fde5453d7366e004687e28c362d7f31d7daea71c8996643edd90",
+      "data_path": "yolo11s_640.common_support.d.pooled.mae"
+    },
+    "yolo11s_abl_drop_zh_delta_pooled": {
+      "value": 0.006973456924500437,
+      "display_str": "0.0070",
+      "ci_low": 0.002405042409832247,
+      "ci_high": 0.011905959225430248,
+      "display_ci": "[0.0024, 0.0119]",
+      "source_file": "results/tables/ablation_oof_b.json",
+      "source_sha256": "425850793970a8513769deaa496d87bc18445463e24b7aefdf37bc860d6eaf97",
+      "data_path": "yolo11s_640.drop_z_h"
+    },
+    "yolo11s_abl_drop_bbox_delta_macro": {
+      "value": 0.009995776552886297,
+      "display_str": "0.0100",
+      "ci_low": -0.004062904689816059,
+      "ci_high": 0.005896295449797383,
+      "display_ci": "[-0.0041, 0.0059]",
+      "source_file": "results/tables/ablation_oof_b.json",
+      "source_sha256": "425850793970a8513769deaa496d87bc18445463e24b7aefdf37bc860d6eaf97",
+      "data_path": "yolo11s_640.drop_group_bbox_geometry"
+    },
+    "yolo11s_abl_drop_validity_delta_pooled": {
+      "value": 0.00034097714490058384,
+      "display_str": "0.0003",
+      "ci_low": -2.2925813085942005e-05,
+      "ci_high": 0.0006708419425258025,
+      "display_ci": "[-0.0000, 0.0007]",
+      "source_file": "results/tables/ablation_oof_b.json",
+      "source_sha256": "425850793970a8513769deaa496d87bc18445463e24b7aefdf37bc860d6eaf97",
+      "data_path": "yolo11s_640.drop_group_validity_flags"
+    },
+    "yolo11s_resplit20_mean_cov": {
+      "value": 0.8515245649470182,
+      "display_str": "85.15%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolo11s_640.summary.cqr.mean_pooled_coverage"
+    },
+    "yolo11s_resplit20_std_cov": {
+      "value": 0.0862107991741003,
+      "display_str": "8.62%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolo11s_640.summary.cqr.std_pooled_coverage"
+    },
+    "yolo11s_resplit20_min_cov": {
+      "value": 0.6980337078651685,
+      "display_str": "69.80%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolo11s_640.summary.cqr.min_pooled_coverage"
+    },
+    "yolo11s_resplit20_max_cov": {
+      "value": 0.9874551971326165,
+      "display_str": "98.75%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolo11s_640.summary.cqr.max_pooled_coverage"
+    },
+    "yolov8s_resplit20_mean_cov": {
+      "value": 0.8614315195216815,
+      "display_str": "86.14%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov8s_640.summary.cqr.mean_pooled_coverage"
+    },
+    "yolov8s_resplit20_std_cov": {
+      "value": 0.0867357397485321,
+      "display_str": "8.67%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov8s_640.summary.cqr.std_pooled_coverage"
+    },
+    "yolov8s_resplit20_min_cov": {
+      "value": 0.6958561376075059,
+      "display_str": "69.59%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov8s_640.summary.cqr.min_pooled_coverage"
+    },
+    "yolov8s_resplit20_max_cov": {
+      "value": 0.9956167814652473,
+      "display_str": "99.56%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov8s_640.summary.cqr.max_pooled_coverage"
+    },
+    "yolov5su_resplit20_mean_cov": {
+      "value": 0.8499376525422324,
+      "display_str": "84.99%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov5su_640.summary.cqr.mean_pooled_coverage"
+    },
+    "yolov5su_resplit20_std_cov": {
+      "value": 0.0837329033794073,
+      "display_str": "8.37%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov5su_640.summary.cqr.std_pooled_coverage"
+    },
+    "yolov5su_resplit20_min_cov": {
+      "value": 0.6896797153024911,
+      "display_str": "68.97%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov5su_640.summary.cqr.min_pooled_coverage"
+    },
+    "yolov5su_resplit20_max_cov": {
+      "value": 0.9790919952210275,
+      "display_str": "97.91%",
+      "source_file": "results/tables/coverage_stability_20resplits.json",
+      "source_sha256": "dfadaed8479e5569f540844a68425bb688c59ddc21e6b263fcb8110eae9ddf2e",
+      "data_path": "yolov5su_640.summary.cqr.max_pooled_coverage"
     }
   }
 }
