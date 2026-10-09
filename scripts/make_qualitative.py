@@ -327,11 +327,15 @@ def main():
         assert len(sub) == 1, f"Found {len(sub)} rows for frame {fid}, pred_idx {pidx}"
         row = sub.iloc[0]
 
-        # Decision D102: Assert specific physical and algorithmic properties from DataFrame
+        # Decision D102 & D105: Assert specific physical and algorithmic properties from DataFrame
         cid = spec["id"]
         if cid == "qualitative_01_side_view_d19":
-            assert "alpha" in row and abs(np.degrees(float(row["alpha"]))) < 30.0, (
-                f"{cid} must satisfy side viewing angle |alpha| < 30 deg, got {abs(np.degrees(float(row['alpha']))):.2f}"
+            assert "alpha" in row, f"{cid} missing alpha column"
+            a_val = float(row["alpha"])
+            th_rad = min(abs(a_val), np.pi - abs(a_val))
+            th_deg = np.degrees(th_rad)
+            assert th_deg < 30.0, (
+                f"{cid} must satisfy side viewing angle theta < 30 deg (D19), got {th_deg:.2f}"
             )
         elif cid == "qualitative_02_near_physical_bias_d21":
             assert bool(row["valid_w"]) and bool(row["valid_h"]) and bool(row["valid_g"]) and float(row["z_gt"]) < 10.0, (
@@ -341,6 +345,10 @@ def main():
             assert (not bool(row["valid_h"])) and (not bool(row["valid_g"])), (
                 f"{cid} must lose valid_h and valid_g due to bottom truncation"
             )
+            img_h_val = float(row.get("img_height", 375.0))
+            assert float(row["truncated"]) > 0.0 and float(row["bbox_y2"]) >= (img_h_val - 3.0), (
+                f"{cid} must touch bottom edge and have truncation > 0 (D105)"
+            )
         elif cid == "qualitative_04_fallback_pattern000_d74":
             assert bool(row["fallback_flag"]), f"{cid} must have fallback_flag == True"
             assert (not bool(row["valid_w"])) and (not bool(row["valid_h"])) and (not bool(row["valid_g"])), (
@@ -348,6 +356,7 @@ def main():
             )
         elif cid == "qualitative_05_top1_failure":
             assert bool(row["fallback_flag"]), f"{cid} must have fallback_flag == True"
+            assert float(row["truncated"]) > 0.0, f"{cid} must have truncation > 0 (D105)"
             assert not bool((row["z_gt"] >= row["z_lo_cqr"]) and (row["z_gt"] <= row["z_hi_cqr"])), (
                 f"{cid} must be miscovered"
             )

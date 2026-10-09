@@ -1,0 +1,14 @@
+model_type,variant,display_name,pooled_absrel,macro_absrel,delta_macro,mae,delta1
+Single Cue,Width Cue $Z_w$ (a),Width Cue $Z_w$ (a),0.2769,0.2458,0.0,7.73,0.3416
+Single Cue,Height Cue $Z_h$ (b),Height Cue $Z_h$ (b),0.0688,0.0645,0.0,1.74,0.9831
+Single Cue,Ground Cue $Z_g$ (c*),Ground Cue $Z_g$ (c*),0.1062,0.1362,0.0,2.9,0.9124
+Pipeline Variant,d,Fused Geometry $Z_d$ (d*),0.0607,0.0759,0.0,1.34,0.9771
+Pipeline Variant,e,Direct Depth $Z_e$ (e),0.0462,0.0532,0.0,1.11,0.9963
+Pipeline Variant,f0,Linear Residual $Z_{f0}$ (f0),0.0554,0.0694,0.0,1.31,0.9917
+Pipeline Variant,f,Full Residual $\hat{Z}_f$ (f),0.0462,0.0541,0.0,1.08,0.9968
+Ablation Study,drop_group_bbox_geometry,Drop bbox_geometry,0.0483,0.0646,0.01,,
+Ablation Study,drop_group_edge_flags,Drop edge_flags,0.0476,0.0542,-0.0004,,
+Ablation Study,drop_group_confidence,Drop confidence,0.0476,0.0546,0.0,,
+Ablation Study,drop_group_cues_ln_z,Drop cues_ln_z,0.0474,0.0543,-0.0003,,
+Ablation Study,drop_group_validity_flags,Drop validity_flags,0.0474,0.0546,0.0,,
+Ablation Study,drop_group_ln_z_base,Drop ln_z_base,0.048,0.0557,0.0011,,

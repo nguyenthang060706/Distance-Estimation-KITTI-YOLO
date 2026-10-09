@@ -234,7 +234,7 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 **Kết quả thực hiện:**
 1. Phân rã theo 5 canonical distance bins (kèm >30m và cờ `*` khi $n < 100$), difficulty (nested và disjoint), occlusion (0, 1, 2), truncation, và 10 cụm drive của Split T cho cả 3 detector (`yolo11s_640`, `yolov8s_640`, `yolov5su_640`). Báo cáo đầy đủ $n_{TP}, n_{FN}, n_{GT}$, Recall, $k$, AbsRel, MAE, RMSE, $\delta_1$. Output: `results/tables/error_analysis_breakdown_T.{json,md}`.
 2. Kiểm chứng góc nhìn D19: Cue $z_w$ suy biến mạnh ở góc nhìn Side (< 30°, AbsRel ~ 0.395), trong khi $z_h$ và $z_g$ ổn định (AbsRel ~ 0.066 và 0.114), Residual model $z_{\hat{f}}$ bù trừ tốt nhất (AbsRel ~ 0.053). Output: `results/tables/viewing_angle_d19_verification_T.md`.
-3. Kiểm chứng sai số tâm vật lý D21 & D84: Ở 0-10m trên nhóm Pattern 111 không chạm biên (`valid_w & valid_h & valid_g`), mô hình hình học thuần $z_d$ thể hiện độ lệch âm rõ rệt (-0.95m đến -1.02m, Median Rel Bias -10.9% đến -12.2%), hoàn toàn nhất quán với giả thuyết lệch tâm 3D $l/2 \approx 1.0\text{ m}$ của D21. Mô hình Residual $z_{\hat{f}}$ sau đó đã hấp thụ thành công độ lệch hệ thống này, đưa Median Rel Bias về mức rất nhỏ (-0.27% đến -1.16%, Median Bias -0.02m đến -0.10m). Output: `results/tables/physical_bias_d21_verification_T.md`.
+3. Kiểm chứng sai số tâm vật lý D21 & D84 (D107): Ở 0–10m trên nhóm Pattern 111 không chạm biên (`valid_w & valid_h & valid_g`), mô hình hình học thuần $z_d$ thể hiện độ lệch âm hệ thống (Mean Bias: -0.95m đến -1.02m; Median Rel Bias: -10.9% đến -12.2%), nhất quán với giả thuyết lệch tâm 3D $l/2 \approx 1.0\text{ m}$ của D21. Mô hình Residual $z_{\hat{f}}$ hấp thụ và triệt tiêu thành công độ lệch này (Median Rel Bias giảm về -0.27% đến -1.16%; Median Bias: -0.02m đến -0.10m). Chi tiết số liệu phân rã theo detector lấy trực tiếp từ file nguồn: `results/tables/physical_bias_d21_verification_T.{md,json}`.
 4. Trích xuất Top 50 thất bại lớn nhất (AbsRel từ 0.165 đến 0.429, 12 ca fallback, 20 ca ở gần 0-10m) và 10 ca thành công đại diện (seed=42) sẵn sàng cho T16. Output: `results/tables/error_analysis_top_failures_T.md` và `results/final/top_failures_manifest.json`.
 5. Unit tests: 8/8 tests pass (`tests/test_error_analysis.py`). Guard 3 pass 100%. Split T lockfile giữ nguyên vẹn.
 
@@ -278,9 +278,26 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
    - 13/13 unit tests pass trong `tests/test_qualitative.py` (bao gồm test D97 kiểm tra zero hardcode floats).
    - Toàn bộ test suite dự án `pytest -q`: **217 passed** 100%.
 
-### T17 — Xuất bảng/hình + tư liệu bài (W3-5..6)
-**Làm:** xuất mọi bảng chính sang `results/tables/final/` (CSV + LaTeX), hình thống nhất style; `results/final/numbers_manifest.json` ánh xạ mỗi con số trong bài tới file nguồn + git commit; nháp mục Data/Method/Experiments từ `docs/` với `[CẦN TRÍCH DẪN]`; danh sách Limitations nháp gồm: số cụm 12/10/10; quần thể điều kiện trên detection khớp và qua ngưỡng conf; C không có >50 m; GT đo tâm xe còn cue đo mặt gần (D21); detector 1 seed và học trên ~50% dữ liệu; giả định mặt đường phẳng; chỉ KITTI; ảnh hưởng thiết kế gián tiếp từ B-v1 (`drive_0039`, `drive_0095`, `drive_0096`); `ln_z_base` là đặc trưng dẫn xuất (D30).
-**Cấm:** claim "đầu tiên", "có ý nghĩa thống kê" (k < 20), trích dẫn bịa.
+### T17 — Xuất bảng/hình + tư liệu bài (W3-5..6) — [x] HOÀN THÀNH PHA 1 (D108–D110)
+**Mục tiêu Pha 1:** Xuất 6 cặp bảng chính thức sang `results/tables/final/` (CSV + LaTeX booktabs); xây dựng `results/final/numbers_manifest.json` ánh xạ 100% con số trong bài tới file nguồn và SHA-256; xây dựng template và render bản thảo bài báo `docs/paper/MANUSCRIPT_DRAFT.md` loại bỏ hoàn toàn số ảo; hoàn thiện danh mục 14 Limitations cốt lõi.
+**Kết quả thực hiện (D108–D110):**
+1. **Numbers Manifest (`scripts/build_numbers_manifest.py`, D108):**
+   - Sinh `results/final/numbers_manifest.json` gồm 63 metrics chuẩn hóa trích xuất từ 7 artifact nguồn đã kiểm định.
+   - 100% metrics có `source_file`, `source_sha256`, `data_path` bit-by-bit.
+2. **Bảng xuất bản CSV & LaTeX booktabs (`scripts/export_final_tables.py`, D109):**
+   - 12 tệp trong `results/tables/final/` (`tab_01` đến `tab_06`).
+   - 100% tuân thủ booktabs (không kẻ dọc `|`, không double `\hline`, escape `%` và `_` triệt để).
+   - Tích hợp Paired Cluster Bootstrap 95% CI có sẵn từ `final_eval_bootstrap_T.csv`, gắn cờ `*` cảnh báo phân nhóm $n_{\text{TP}} < 100$.
+3. **Template & Bản thảo biên dịch (`scripts/render_manuscript.py`, D108, D110):**
+   - Template `docs/paper/MANUSCRIPT_TEMPLATE.md` với 6 chương chuẩn IEEE/ITS, placeholders `{{num:...}}`.
+   - Biên dịch tự động ra `docs/paper/MANUSCRIPT_DRAFT.md`, 0 placeholder sót lại.
+4. **Bao quát đầy đủ 14 Hạn chế cốt lõi (D110):**
+   - Thiên lệch KITTI: Truck imbalance, survivorship bias (Recall 82.8%–84.4%, miss 30–50m là 48%–50%), >50m sparse (GT=33, TP $\le 9$), drive concentration, git_dirty, neighbor matching.
+   - Quyết định nhạy cảm & thực nghiệm: D14 split migration, D78 $(f) \approx (e)$ không phân biệt được (AbsRel chênh -0.0002, 95% CI chứa 0), D82 tham số post-hoc v1, D79/D87 over-coverage 96–97% ngoài mẫu do dịch chuyển độ khó C/T, D93 bootstrap lạc quan & under-coverage cục bộ bị che giấu, D88/D93 Mondrian width inflation ($1.45\times \to 1.80\times$), D98/D100/D104 padding vuông $640 \times 640$ ($\approx 2.9\times$).
+5. **Kiểm thử và An toàn:**
+   - `runs/final_T.lock` giữ nguyên vẹn 100% (Zero-Touch Split T).
+   - 7/7 unit tests pass trong `tests/test_final_tables_and_manifest.py`.
+   - Toàn bộ test suite dự án `pytest -q`: **225 passed** 100%.
 
 ### T18 — Audit checklist §11 (W3-6..7)
 **Làm:** `docs/CHECKLIST_AUDIT.md`: với từng mục §11 của v4, ghi bằng chứng (lệnh + kết quả, file, test) hoặc FAIL. Tối thiểu có các kiểm tra tự động: (1) không cột GT trong mọi `*_features.parquet`; (2) hash A/V/B/C/T khớp metadata; (3) T chỉ được chạm một lần (một cặp sự kiện START/COMPLETED trong `runs/final_T_log.jsonl`, có lock, tag khớp); (4) `grep` toàn repo: không đường code nào ngoài `run_final_T.py` mở T; (5) mọi bảng chính có n, n_valid, k cụm; (6) không còn cụm "có ý nghĩa thống kê"/"đầu tiên" trong tài liệu bài.

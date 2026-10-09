@@ -751,6 +751,89 @@ def main():
     min_spearman = rq2_df["spearman_rho"].min()
     max_spearman = rq2_df["spearman_rho"].max()
 
+    # 7. Dynamic Exchangeability metrics from JSON (Decision D106)
+    exch_json_path = tables_dir / "exchangeability_c_vs_t.json"
+    min_ks, max_ks = 0.1427, 0.1621
+    mean_c_abs_r, mean_t_abs_r = 0.085, 0.067
+    if exch_json_path.is_file():
+        with open(exch_json_path, "r", encoding="utf-8") as f:
+            exch_data = json.load(f)
+        ks_stats = []
+        c_rs = []
+        t_rs = []
+        for m in DETECTORS:
+            for feat in exch_data.get(m, []):
+                if feat.get("feature_key") == "abs_r":
+                    if feat.get("ks_statistic") is not None:
+                        ks_stats.append(feat["ks_statistic"])
+                    c_rs.append(feat["mean_c"])
+                    t_rs.append(feat["mean_t"])
+        if ks_stats:
+            min_ks, max_ks = min(ks_stats), max(ks_stats)
+        if c_rs and t_rs:
+            mean_c_abs_r, mean_t_abs_r = np.mean(c_rs), np.mean(t_rs)
+
+    # Dynamic C top-2 drives share and Dev Near coverage (Decision D106)
+    cqr_dev_path = tables_dir / "cqr_coverage_dev.json"
+    top2_c_pct = 39.3
+    min_dev_near, max_dev_near = 0.615, 0.711
+    if cqr_dev_path.is_file():
+        with open(cqr_dev_path, "r", encoding="utf-8") as f:
+            dev_data = json.load(f)
+        near_devs = [dev_data[m]["bands"]["0-10m"]["coverage"] for m in DETECTORS if m in dev_data]
+        if near_devs:
+            min_dev_near, max_dev_near = min(near_devs), max(near_devs)
+        d_stats = dev_data.get("yolo11s_640", {}).get("drive_stats", [])
+        if d_stats:
+            tot_c = sum(d["n"] for d in d_stats)
+            top2_n = sum(d["n"] for d in d_stats if "0057" in d["drive"] or "0004" in d["drive"])
+            if tot_c > 0:
+                top2_c_pct = (top2_n / tot_c) * 100
+
+    # 8. Dynamic Sign test per detector (Decision D106)
+    sign_test_parts = []
+    for m in DETECTORS:
+        df_m = dfs[m]
+        drives_m = sorted(df_m["drive"].unique())
+        f_wins = 0
+        for d in drives_m:
+            sub = df_m[df_m["drive"] == d]
+            if len(sub) > 0:
+                ef = np.mean(np.abs(sub["z_hat_f"] - sub["z_gt"]) / sub["z_gt"])
+                ed = np.mean(np.abs(sub["z_d"] - sub["z_gt"]) / sub["z_gt"])
+                if ef < ed:
+                    f_wins += 1
+        p_val = stats.binomtest(f_wins, len(drives_m), p=0.5, alternative='greater').pvalue
+        sign_test_parts.append(f"{m}: {f_wins}/{len(drives_m)} drive (p={p_val:.4f})")
+    sign_test_summary_str = "Sign test cấp drive: " + " | ".join(sign_test_parts)
+
+    # 9. Dynamic sample count for >50m (Decision D106)
+    max_n_gt50 = max(int(np.sum(dfs[m]["z_gt"] > 50.0)) for m in DETECTORS)
+
+    # 10. Dynamic Spearman CI zero check & Delta y2 correlation (Decision D106)
+    ci_zero_count = sum(
+        1 for r in rq2_rows
+        if (float(r["spearman_ci_95"].strip("[]").split(",")[0]) <= 0.0 <= float(r["spearman_ci_95"].strip("[]").split(",")[1]))
+    )
+    total_feat_count = len(rq2_rows)
+    if ci_zero_count == total_feat_count:
+        ci_zero_text = "toàn bộ khoảng tin cậy cluster bootstrap 95% đều chứa 0 (không phân biệt được với 0 ở mức 10 cụm)."
+    else:
+        non_zero_feats = [
+            f"{r['detector']} {r['detection_feature']} {r['spearman_ci_95']}"
+            for r in rq2_rows
+            if not (float(r["spearman_ci_95"].strip("[]").split(",")[0]) <= 0.0 <= float(r["spearman_ci_95"].strip("[]").split(",")[1]))
+        ]
+        ci_zero_text = f"{ci_zero_count}/{total_feat_count} trường hợp có khoảng tin cậy cluster bootstrap 95% chứa 0 (riêng: {', '.join(non_zero_feats)} loại trừ 0 yếu ở mức 10 cụm)."
+
+    y2_rows = rq2_df[rq2_df["detection_feature"].str.contains("delta_y2", case=False, na=False)]
+    if not y2_rows.empty:
+        y2_min_rho = y2_rows["spearman_rho"].min()
+        y2_max_rho = y2_rows["spearman_rho"].max()
+        y2_text = f"Sai số tiếp đất $\\Delta y_2$ có tương quan thực nghiệm rất nhỏ quanh 0 (Spearman $\\rho \\in [{y2_min_rho:+.4f}, {y2_max_rho:+.4f}]$)."
+    else:
+        y2_text = "Sai số tiếp đất $\\Delta y_2$ có tương quan thực nghiệm rất nhỏ quanh 0."
+
     summary_md_path = tables_dir / "final_eval_executive_summary_T.md"
     with open(summary_md_path, "w", encoding="utf-8") as f:
         f.write("# Split T Final Evaluation Executive Summary (Post-hoc Verified v1.1)\n\n")
@@ -790,25 +873,26 @@ def main():
                 f"{sc_row['mean_width_ratio']:.3f}x | {m_row['mean_width_ratio']:.3f}x |\n"
             )
 
-        f.write("\n## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75, D78, D79, D81)\n\n")
+        f.write("\n## 4. Phân tích Thống kê và Lưu ý Phương pháp luận (Decisions D68, D73, D75, D78, D79, D81, D106)\n\n")
         f.write(
             f"- **Điều kiện hóa trên True Positives**: Toàn bộ chỉ số điểm và khoảng được tính trên các phát hiện TP vượt ngưỡng tin cậy "
             f"(Recall {min_rec:.1%}–{max_rec:.1%}). Số lượng False Negatives tương ứng của 3 detector là {fn_summary_str} mẫu GT.\n"
             f"- **Độ phủ thực nghiệm & Tính chất bảo thủ (D79, D87)**: Standard CQR đạt độ phủ tổng gộp {min_cqr_cov:.1%}–{max_cqr_cov:.1%}, "
             f"cao hơn mức danh nghĩa 90% khoảng +{over_cov_min_pts:.1f} đến +{over_cov_max_pts:.1f} điểm phần trăm. Đây là khoảng bảo thủ (over-coverage) ngoài mẫu, mang tính diễn giải hậu nghiệm (post-hoc exploratory theo D87, đối chiếu với tiên đoán under-coverage ban đầu tại D68). "
-            f"Chẩn đoán tính khả hoán mô tả (D87) cho thấy sai số log-residual $|r|$ trên C lớn hơn T (KS stat = 0.14–0.16; Mean $|r|$ trên C là ~0.08 vs ~0.07 trên T; Split C tập trung hai drive khó 0057 và 0004 chiếm ~39% mẫu), "
+            f"Chẩn đoán tính khả hoán mô tả (D87) cho thấy sai số log-residual $|r|$ trên C lớn hơn T (KS stat = {min_ks:.2f}–{max_ks:.2f}; Mean $|r|$ trên C là ~{mean_c_abs_r:.3f} vs ~{mean_t_abs_r:.3f} trên T; Split C tập trung hai drive khó 0057 và 0004 chiếm ~{top2_c_pct:.1f}% mẫu), "
             f"khiến ngưỡng nonconformity $\\hat{{Q}}$ từ C mở rộng và tạo tính bảo thủ khi áp dụng sang T. Không tính nominal p-values để tránh lỗi pseudo-replication theo D20/D87.\n"
-            f"- **Độ phủ dải gần 0–10m (RQ3)**: Đạt {cqr_near_str} (dải {min_near_cov:.1%}–{max_near_cov:.1%}), cao hơn mức 61%–71% ghi nhận trên Split C. "
-            f"Độ phủ dải gần duy trì ở mức cao nhờ ngưỡng sai số log-residual $\\hat{{Q}}$ toàn cục kế thừa từ C bao trùm an toàn (hiện tượng bảo thủ cự ly gần mang tính exploratory). Dải xa >50m có cỡ mẫu rất nhỏ ($n \\le 9$ xe) được gắn cờ `*` cảnh báo theo D3/D54.\n"
+            f"- **Độ phủ dải gần 0–10m (RQ3)**: Đạt {cqr_near_str} (dải {min_near_cov:.1%}–{max_near_cov:.1%}), cao hơn mức {min_dev_near:.1%}–{max_dev_near:.1%} ghi nhận trên Split C. "
+            f"Độ phủ dải gần duy trì ở mức cao nhờ ngưỡng sai số log-residual $\\hat{{Q}}$ toàn cục kế thừa từ C bao trùm an toàn (hiện tượng bảo thủ cự ly gần mang tính exploratory). Dải xa >50m có cỡ mẫu rất nhỏ ($n \\le {max_n_gt50}$ xe) được gắn cờ `*` cảnh báo theo D3/D54.\n"
             f"- **Cụm cỡ mẫu nhỏ và Macro Coverage (D75)**: Cụm `drive_0002` chỉ có $n = {d0002_n}$ mẫu TP. Trên `yolo11s`, cả hai mẫu đều không được bao phủ (0/{d0002_n}), "
             f"kéo macro coverage (10 cụm) xuống {min_macro_10:.1%}. Khi đánh giá trên 8 cụm có $n \\ge 30$, macro coverage đạt {min_macro_ge30:.1%}–{max_macro_ge30:.1%} đồng đều ở cả 3 detector.\n"
             f"- **So sánh Cặp Bootstrap (10 cụm drive, B=1000) (D68, D78)**:\n"
-            f"  * Model (f) vs Model (d): CI thô loại trừ 0 ở cả 3 detector ({f_d_str}). Sign test cấp drive xác nhận Model (f) thắng (d) ở 8–9/10 drive (p_binom <= 0.0547).\n"
+            f"  * Model (f) vs Model (d): CI thô loại trừ 0 ở cả 3 detector ({f_d_str}). {sign_test_summary_str}.\n"
             f"  * Model (f) vs Model (f0): CI thô loại trừ 0 ở cả 3 detector ({f_f0_str}).\n"
             f"  * Model (f) vs Model (e): CI thô chứa 0 ở cả 3 detector ({f_e_str}). Không có bằng chứng thực nghiệm phân tách giữa Model (f) và Model (e) trên Split T (D78, Limitations #8).\n"
-            f"- **Tương quan RQ2**: Hệ số tương quan hạng Spearman $\\rho$ nằm trong khoảng [{min_spearman:+.4f}, {max_spearman:+.4f}], và toàn bộ khoảng tin cậy cluster bootstrap 95% đều chứa 0 "
-            f"(không phân biệt được với 0 ở mức 10 cụm). Hệ số Pearson $r$ đạt tới {max_pearson:.4f} nhưng nhạy với outlier và hiệu ứng phối cảnh cự ly $Z$ ($h \\propto 1/Z$ theo D21). Sai số tiếp đất $\\Delta y_2$ có tương quan thực nghiệm rất nhỏ quanh 0.\n"
+            f"- **Tương quan RQ2**: Hệ số tương quan hạng Spearman $\\rho$ nằm trong khoảng [{min_spearman:+.4f}, {max_spearman:+.4f}], và {ci_zero_text} "
+            f"Hệ số Pearson $r$ đạt tới {max_pearson:.4f} nhưng nhạy với outlier và hiệu ứng phối cảnh cự ly $Z$ ($h \\propto 1/Z$ theo D21). {y2_text}\n"
         )
+
     print(f"Saved: {summary_md_path}")
 
     print("\n==================================================================")

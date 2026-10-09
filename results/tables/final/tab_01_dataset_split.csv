@@ -1,0 +1,6 @@
+split,frames,drives_total,drives_with_cars,car_hard_count,top1_drive_share,n_eff,role
+A,3740,35,18,11291,16.0%,---,Detector training & Camera calibration priors
+V,374,25,6,611,41.0%,---,Confidence threshold & Checkpoint selection (last.pt)
+B,1499,34,12,4776,26.8%,5.29,Residual model fitting & Geometry covariance fusion
+C,766,18,10,1826,28.7%,5.28,Conformal quantile calibration (alpha = 0.10)
+T,1102,29,10,3212,23.3%,5.28,Final held-out evaluation (Single-run locked)

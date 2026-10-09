@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-09T09:10:51.489035",
+    "timestamp": "2026-10-09T10:17:16.945341",
     "status": "PRELIMINARY-v2",
     "notes": "Single-run 200-image benchmark on workstation; no detector throughput ranking intended (Decision D98).",
     "hardware": {
@@ -16,155 +16,155 @@
     },
     "parameters": {
       "n_images": 200,
-      "n_warmup": 20,
+      "n_warmup": 40,
       "imgsz": 640,
       "iou_nms": 0.7
     }
   },
   "detectors": {
-    "yolo11s_640": {
-      "checkpoint_sha256": "fbcaf900de1a8723b0982188ffcc239a74b2c3739cb728c2dbe47147123d52dd",
+    "yolov5su_640": {
+      "checkpoint_sha256": "119dd46137af4851edf27e4be49e99393c79fd1ed53fe3c005b15a107b679790",
       "parity": {
         "n_images_tested": 50,
-        "total_pt_detections": 231,
-        "total_ort_detections": 225,
-        "count_ratio": 0.974,
-        "high_iou_match_rate": 0.9437,
+        "total_pt_detections": 232,
+        "total_ort_detections": 230,
+        "count_ratio": 0.9914,
+        "high_iou_match_rate": 0.9095,
         "count_parity_passed": true,
         "iou_parity_passed": false
       },
       "latency": {
         "preprocess_gpu": {
-          "median_ms": 9.593,
-          "mean_ms": 9.692,
-          "std_ms": 1.492,
-          "iqr_ms": 1.414,
-          "p95_ms": 12.492,
-          "min_ms": 8.039,
-          "max_ms": 19.8
+          "median_ms": 9.811,
+          "mean_ms": 10.023,
+          "std_ms": 1.614,
+          "iqr_ms": 1.132,
+          "p95_ms": 14.03,
+          "min_ms": 8.022,
+          "max_ms": 15.767
         },
         "preprocess_cpu": {
-          "median_ms": 6.115,
-          "mean_ms": 6.259,
-          "std_ms": 0.513,
-          "iqr_ms": 0.256,
-          "p95_ms": 6.884,
-          "min_ms": 5.831,
-          "max_ms": 12.036
+          "median_ms": 6.137,
+          "mean_ms": 6.198,
+          "std_ms": 0.279,
+          "iqr_ms": 0.159,
+          "p95_ms": 6.538,
+          "min_ms": 5.965,
+          "max_ms": 8.694
         },
         "detector_gpu_fp16": {
-          "median_ms": 26.106,
-          "mean_ms": 30.242,
-          "std_ms": 10.572,
-          "iqr_ms": 2.77,
-          "p95_ms": 65.37,
-          "min_ms": 24.58,
-          "max_ms": 69.083
+          "median_ms": 21.007,
+          "mean_ms": 24.113,
+          "std_ms": 8.334,
+          "iqr_ms": 1.077,
+          "p95_ms": 53.614,
+          "min_ms": 19.942,
+          "max_ms": 56.342
         },
         "detector_cpu_ort_fp32": {
-          "median_ms": 108.473,
-          "mean_ms": 109.17,
-          "std_ms": 2.785,
-          "iqr_ms": 3.937,
-          "p95_ms": 114.034,
-          "min_ms": 105.432,
-          "max_ms": 125.518
+          "median_ms": 112.312,
+          "mean_ms": 112.91,
+          "std_ms": 2.182,
+          "iqr_ms": 2.582,
+          "p95_ms": 116.217,
+          "min_ms": 110.103,
+          "max_ms": 128.07
         },
         "postprocess_gpu": {
-          "median_ms": 0.613,
-          "mean_ms": 0.653,
-          "std_ms": 0.152,
-          "iqr_ms": 0.192,
-          "p95_ms": 0.901,
-          "min_ms": 0.385,
-          "max_ms": 1.331
+          "median_ms": 0.595,
+          "mean_ms": 0.625,
+          "std_ms": 0.133,
+          "iqr_ms": 0.158,
+          "p95_ms": 0.889,
+          "min_ms": 0.248,
+          "max_ms": 1.073
         },
         "postprocess_cpu": {
-          "median_ms": 0.453,
-          "mean_ms": 0.483,
-          "std_ms": 0.132,
-          "iqr_ms": 0.162,
-          "p95_ms": 0.713,
-          "min_ms": 0.284,
-          "max_ms": 1.27
+          "median_ms": 0.432,
+          "mean_ms": 0.455,
+          "std_ms": 0.119,
+          "iqr_ms": 0.159,
+          "p95_ms": 0.677,
+          "min_ms": 0.079,
+          "max_ms": 0.826
         },
         "geometry_gpu": {
-          "median_ms": 0.183,
-          "mean_ms": 0.332,
-          "std_ms": 0.356,
-          "iqr_ms": 0.139,
-          "p95_ms": 0.811,
-          "min_ms": 0.167,
-          "max_ms": 3.396
+          "median_ms": 0.181,
+          "mean_ms": 0.293,
+          "std_ms": 0.213,
+          "iqr_ms": 0.13,
+          "p95_ms": 0.699,
+          "min_ms": 0.004,
+          "max_ms": 1.083
         },
         "geometry_cpu": {
-          "median_ms": 0.192,
-          "mean_ms": 0.324,
-          "std_ms": 0.242,
-          "iqr_ms": 0.136,
-          "p95_ms": 0.847,
-          "min_ms": 0.173,
-          "max_ms": 0.953
+          "median_ms": 0.186,
+          "mean_ms": 0.313,
+          "std_ms": 0.233,
+          "iqr_ms": 0.132,
+          "p95_ms": 0.797,
+          "min_ms": 0.007,
+          "max_ms": 0.929
         },
         "residual_gpu": {
-          "median_ms": 0.601,
-          "mean_ms": 0.608,
-          "std_ms": 0.087,
-          "iqr_ms": 0.077,
-          "p95_ms": 0.76,
-          "min_ms": 0.458,
-          "max_ms": 1.16
+          "median_ms": 0.566,
+          "mean_ms": 0.563,
+          "std_ms": 0.082,
+          "iqr_ms": 0.051,
+          "p95_ms": 0.657,
+          "min_ms": 0.002,
+          "max_ms": 0.856
         },
         "residual_cpu": {
-          "median_ms": 0.683,
-          "mean_ms": 0.669,
-          "std_ms": 0.102,
-          "iqr_ms": 0.05,
-          "p95_ms": 0.829,
-          "min_ms": 0.456,
-          "max_ms": 1.147
+          "median_ms": 0.669,
+          "mean_ms": 0.641,
+          "std_ms": 0.107,
+          "iqr_ms": 0.046,
+          "p95_ms": 0.742,
+          "min_ms": 0.003,
+          "max_ms": 0.921
         },
         "cqr_gpu": {
-          "median_ms": 0.591,
-          "mean_ms": 0.616,
-          "std_ms": 0.087,
-          "iqr_ms": 0.058,
-          "p95_ms": 0.764,
-          "min_ms": 0.533,
-          "max_ms": 1.237
+          "median_ms": 0.587,
+          "mean_ms": 0.591,
+          "std_ms": 0.077,
+          "iqr_ms": 0.053,
+          "p95_ms": 0.699,
+          "min_ms": 0.0,
+          "max_ms": 0.808
         },
         "cqr_cpu": {
-          "median_ms": 0.585,
-          "mean_ms": 0.607,
-          "std_ms": 0.079,
-          "iqr_ms": 0.049,
-          "p95_ms": 0.738,
-          "min_ms": 0.532,
-          "max_ms": 1.235
+          "median_ms": 0.586,
+          "mean_ms": 0.592,
+          "std_ms": 0.078,
+          "iqr_ms": 0.044,
+          "p95_ms": 0.68,
+          "min_ms": 0.0,
+          "max_ms": 0.855
         },
         "total_pipeline_gpu": {
-          "median_ms": 38.008,
-          "mean_ms": 42.143,
-          "std_ms": 10.697,
-          "iqr_ms": 4.606,
-          "p95_ms": 76.642,
-          "min_ms": 34.629,
-          "max_ms": 82.706,
-          "sum_of_medians_ms": 37.687,
-          "fps_median": 26.3,
-          "fps_mean": 23.7
+          "median_ms": 33.013,
+          "mean_ms": 36.208,
+          "std_ms": 8.444,
+          "iqr_ms": 3.99,
+          "p95_ms": 64.842,
+          "min_ms": 29.278,
+          "max_ms": 69.039,
+          "sum_of_medians_ms": 32.747,
+          "fps_median": 30.3,
+          "fps_mean": 27.6
         },
         "total_pipeline_cpu": {
-          "median_ms": 116.733,
-          "mean_ms": 117.512,
-          "std_ms": 2.991,
-          "iqr_ms": 4.028,
-          "p95_ms": 122.17,
-          "min_ms": 113.28,
-          "max_ms": 134.968,
-          "sum_of_medians_ms": 116.501,
-          "fps_median": 8.6,
-          "fps_mean": 8.5
+          "median_ms": 120.476,
+          "mean_ms": 121.108,
+          "std_ms": 2.263,
+          "iqr_ms": 2.814,
+          "p95_ms": 124.555,
+          "min_ms": 118.065,
+          "max_ms": 136.689,
+          "sum_of_medians_ms": 120.322,
+          "fps_median": 8.3,
+          "fps_mean": 8.3
         }
       }
     },
@@ -181,282 +181,282 @@
       },
       "latency": {
         "preprocess_gpu": {
-          "median_ms": 9.879,
-          "mean_ms": 10.147,
-          "std_ms": 1.332,
-          "iqr_ms": 0.62,
-          "p95_ms": 13.096,
-          "min_ms": 8.195,
-          "max_ms": 15.162
+          "median_ms": 10.134,
+          "mean_ms": 10.45,
+          "std_ms": 1.446,
+          "iqr_ms": 0.554,
+          "p95_ms": 13.899,
+          "min_ms": 8.326,
+          "max_ms": 15.728
         },
         "preprocess_cpu": {
-          "median_ms": 6.165,
-          "mean_ms": 6.239,
-          "std_ms": 0.387,
-          "iqr_ms": 0.16,
-          "p95_ms": 6.652,
-          "min_ms": 5.969,
-          "max_ms": 10.664
+          "median_ms": 6.158,
+          "mean_ms": 6.213,
+          "std_ms": 0.223,
+          "iqr_ms": 0.165,
+          "p95_ms": 6.538,
+          "min_ms": 5.989,
+          "max_ms": 8.071
         },
         "detector_gpu_fp16": {
-          "median_ms": 19.167,
-          "mean_ms": 23.912,
-          "std_ms": 9.139,
-          "iqr_ms": 7.952,
-          "p95_ms": 48.815,
-          "min_ms": 17.543,
-          "max_ms": 57.44
+          "median_ms": 19.529,
+          "mean_ms": 23.212,
+          "std_ms": 8.487,
+          "iqr_ms": 4.884,
+          "p95_ms": 48.3,
+          "min_ms": 17.972,
+          "max_ms": 54.75
         },
         "detector_cpu_ort_fp32": {
-          "median_ms": 134.276,
-          "mean_ms": 134.779,
-          "std_ms": 2.841,
-          "iqr_ms": 3.964,
-          "p95_ms": 139.959,
-          "min_ms": 130.593,
-          "max_ms": 146.941
+          "median_ms": 134.95,
+          "mean_ms": 135.346,
+          "std_ms": 2.911,
+          "iqr_ms": 3.999,
+          "p95_ms": 140.388,
+          "min_ms": 131.354,
+          "max_ms": 148.832
         },
         "postprocess_gpu": {
-          "median_ms": 0.644,
-          "mean_ms": 0.661,
-          "std_ms": 0.14,
-          "iqr_ms": 0.164,
-          "p95_ms": 0.923,
-          "min_ms": 0.282,
-          "max_ms": 1.167
+          "median_ms": 0.613,
+          "mean_ms": 0.651,
+          "std_ms": 0.196,
+          "iqr_ms": 0.187,
+          "p95_ms": 0.891,
+          "min_ms": 0.273,
+          "max_ms": 2.666
         },
         "postprocess_cpu": {
           "median_ms": 0.441,
-          "mean_ms": 0.467,
-          "std_ms": 0.114,
-          "iqr_ms": 0.163,
-          "p95_ms": 0.68,
-          "min_ms": 0.082,
-          "max_ms": 0.781
+          "mean_ms": 0.466,
+          "std_ms": 0.115,
+          "iqr_ms": 0.179,
+          "p95_ms": 0.676,
+          "min_ms": 0.084,
+          "max_ms": 0.804
         },
         "geometry_gpu": {
-          "median_ms": 0.183,
-          "mean_ms": 0.301,
-          "std_ms": 0.213,
-          "iqr_ms": 0.14,
-          "p95_ms": 0.772,
+          "median_ms": 0.181,
+          "mean_ms": 0.288,
+          "std_ms": 0.197,
+          "iqr_ms": 0.134,
+          "p95_ms": 0.719,
           "min_ms": 0.004,
-          "max_ms": 0.867
+          "max_ms": 0.895
         },
         "geometry_cpu": {
-          "median_ms": 0.189,
-          "mean_ms": 0.323,
-          "std_ms": 0.251,
-          "iqr_ms": 0.139,
-          "p95_ms": 0.845,
+          "median_ms": 0.195,
+          "mean_ms": 0.318,
+          "std_ms": 0.229,
+          "iqr_ms": 0.135,
+          "p95_ms": 0.799,
           "min_ms": 0.007,
-          "max_ms": 1.456
+          "max_ms": 1.054
         },
         "residual_gpu": {
-          "median_ms": 0.594,
-          "mean_ms": 0.592,
-          "std_ms": 0.085,
-          "iqr_ms": 0.08,
-          "p95_ms": 0.709,
-          "min_ms": 0.003,
-          "max_ms": 1.019
+          "median_ms": 0.567,
+          "mean_ms": 0.566,
+          "std_ms": 0.069,
+          "iqr_ms": 0.057,
+          "p95_ms": 0.652,
+          "min_ms": 0.002,
+          "max_ms": 0.777
         },
         "residual_cpu": {
-          "median_ms": 0.672,
-          "mean_ms": 0.653,
-          "std_ms": 0.099,
-          "iqr_ms": 0.038,
-          "p95_ms": 0.772,
-          "min_ms": 0.003,
-          "max_ms": 0.982
+          "median_ms": 0.67,
+          "mean_ms": 0.648,
+          "std_ms": 0.098,
+          "iqr_ms": 0.041,
+          "p95_ms": 0.744,
+          "min_ms": 0.004,
+          "max_ms": 0.968
         },
         "cqr_gpu": {
-          "median_ms": 0.6,
-          "mean_ms": 0.612,
-          "std_ms": 0.078,
-          "iqr_ms": 0.063,
-          "p95_ms": 0.725,
+          "median_ms": 0.594,
+          "mean_ms": 0.604,
+          "std_ms": 0.082,
+          "iqr_ms": 0.049,
+          "p95_ms": 0.736,
           "min_ms": 0.0,
-          "max_ms": 1.134
+          "max_ms": 1.246
         },
         "cqr_cpu": {
-          "median_ms": 0.588,
-          "mean_ms": 0.596,
-          "std_ms": 0.072,
-          "iqr_ms": 0.047,
-          "p95_ms": 0.676,
-          "min_ms": 0.001,
-          "max_ms": 1.073
+          "median_ms": 0.593,
+          "mean_ms": 0.608,
+          "std_ms": 0.084,
+          "iqr_ms": 0.049,
+          "p95_ms": 0.746,
+          "min_ms": 0.0,
+          "max_ms": 1.059
         },
         "total_pipeline_gpu": {
-          "median_ms": 31.701,
-          "mean_ms": 36.224,
-          "std_ms": 9.387,
-          "iqr_ms": 7.995,
-          "p95_ms": 60.331,
-          "min_ms": 28.548,
-          "max_ms": 72.098,
-          "sum_of_medians_ms": 31.067,
-          "fps_median": 31.5,
-          "fps_mean": 27.6
+          "median_ms": 32.05,
+          "mean_ms": 35.771,
+          "std_ms": 8.692,
+          "iqr_ms": 5.882,
+          "p95_ms": 60.143,
+          "min_ms": 28.671,
+          "max_ms": 66.656,
+          "sum_of_medians_ms": 31.618,
+          "fps_median": 31.2,
+          "fps_mean": 28.0
         },
         "total_pipeline_cpu": {
-          "median_ms": 142.537,
-          "mean_ms": 143.056,
-          "std_ms": 3.062,
-          "iqr_ms": 3.875,
-          "p95_ms": 148.486,
-          "min_ms": 138.62,
-          "max_ms": 158.817,
-          "sum_of_medians_ms": 142.331,
+          "median_ms": 143.368,
+          "mean_ms": 143.598,
+          "std_ms": 3.011,
+          "iqr_ms": 4.098,
+          "p95_ms": 148.595,
+          "min_ms": 138.076,
+          "max_ms": 157.201,
+          "sum_of_medians_ms": 143.007,
           "fps_median": 7.0,
           "fps_mean": 7.0
         }
       }
     },
-    "yolov5su_640": {
-      "checkpoint_sha256": "119dd46137af4851edf27e4be49e99393c79fd1ed53fe3c005b15a107b679790",
+    "yolo11s_640": {
+      "checkpoint_sha256": "fbcaf900de1a8723b0982188ffcc239a74b2c3739cb728c2dbe47147123d52dd",
       "parity": {
         "n_images_tested": 50,
-        "total_pt_detections": 232,
-        "total_ort_detections": 230,
-        "count_ratio": 0.9914,
-        "high_iou_match_rate": 0.9095,
+        "total_pt_detections": 231,
+        "total_ort_detections": 225,
+        "count_ratio": 0.974,
+        "high_iou_match_rate": 0.9437,
         "count_parity_passed": true,
         "iou_parity_passed": false
       },
       "latency": {
         "preprocess_gpu": {
-          "median_ms": 9.802,
-          "mean_ms": 9.958,
-          "std_ms": 1.572,
-          "iqr_ms": 1.247,
-          "p95_ms": 13.692,
-          "min_ms": 8.15,
-          "max_ms": 15.832
+          "median_ms": 9.733,
+          "mean_ms": 9.703,
+          "std_ms": 1.368,
+          "iqr_ms": 1.487,
+          "p95_ms": 12.78,
+          "min_ms": 8.06,
+          "max_ms": 15.406
         },
         "preprocess_cpu": {
-          "median_ms": 6.135,
-          "mean_ms": 6.207,
-          "std_ms": 0.48,
-          "iqr_ms": 0.12,
-          "p95_ms": 6.482,
-          "min_ms": 5.957,
-          "max_ms": 12.466
+          "median_ms": 6.129,
+          "mean_ms": 6.176,
+          "std_ms": 0.185,
+          "iqr_ms": 0.127,
+          "p95_ms": 6.597,
+          "min_ms": 5.977,
+          "max_ms": 7.121
         },
         "detector_gpu_fp16": {
-          "median_ms": 21.081,
-          "mean_ms": 24.71,
-          "std_ms": 9.14,
-          "iqr_ms": 0.92,
-          "p95_ms": 53.353,
-          "min_ms": 20.063,
-          "max_ms": 57.17
+          "median_ms": 26.047,
+          "mean_ms": 28.537,
+          "std_ms": 7.887,
+          "iqr_ms": 1.385,
+          "p95_ms": 36.957,
+          "min_ms": 24.706,
+          "max_ms": 69.901
         },
         "detector_cpu_ort_fp32": {
-          "median_ms": 111.56,
-          "mean_ms": 112.114,
-          "std_ms": 2.487,
-          "iqr_ms": 3.349,
-          "p95_ms": 116.044,
-          "min_ms": 108.766,
-          "max_ms": 127.636
+          "median_ms": 107.862,
+          "mean_ms": 108.867,
+          "std_ms": 3.105,
+          "iqr_ms": 3.876,
+          "p95_ms": 113.257,
+          "min_ms": 105.809,
+          "max_ms": 131.594
         },
         "postprocess_gpu": {
-          "median_ms": 0.601,
-          "mean_ms": 0.647,
-          "std_ms": 0.229,
-          "iqr_ms": 0.18,
-          "p95_ms": 0.933,
-          "min_ms": 0.264,
-          "max_ms": 3.111
+          "median_ms": 0.607,
+          "mean_ms": 0.641,
+          "std_ms": 0.14,
+          "iqr_ms": 0.186,
+          "p95_ms": 0.888,
+          "min_ms": 0.439,
+          "max_ms": 1.19
         },
         "postprocess_cpu": {
-          "median_ms": 0.434,
-          "mean_ms": 0.454,
-          "std_ms": 0.118,
-          "iqr_ms": 0.18,
-          "p95_ms": 0.674,
-          "min_ms": 0.075,
-          "max_ms": 0.801
+          "median_ms": 0.446,
+          "mean_ms": 0.485,
+          "std_ms": 0.14,
+          "iqr_ms": 0.177,
+          "p95_ms": 0.734,
+          "min_ms": 0.275,
+          "max_ms": 1.348
         },
         "geometry_gpu": {
-          "median_ms": 0.177,
-          "mean_ms": 0.3,
-          "std_ms": 0.227,
-          "iqr_ms": 0.131,
-          "p95_ms": 0.791,
-          "min_ms": 0.004,
-          "max_ms": 0.97
+          "median_ms": 0.184,
+          "mean_ms": 0.291,
+          "std_ms": 0.197,
+          "iqr_ms": 0.135,
+          "p95_ms": 0.703,
+          "min_ms": 0.167,
+          "max_ms": 0.954
         },
         "geometry_cpu": {
-          "median_ms": 0.186,
-          "mean_ms": 0.318,
-          "std_ms": 0.242,
-          "iqr_ms": 0.136,
-          "p95_ms": 0.81,
-          "min_ms": 0.007,
-          "max_ms": 0.931
+          "median_ms": 0.196,
+          "mean_ms": 0.322,
+          "std_ms": 0.236,
+          "iqr_ms": 0.133,
+          "p95_ms": 0.823,
+          "min_ms": 0.179,
+          "max_ms": 1.206
         },
         "residual_gpu": {
-          "median_ms": 0.571,
-          "mean_ms": 0.571,
-          "std_ms": 0.092,
-          "iqr_ms": 0.06,
-          "p95_ms": 0.658,
-          "min_ms": 0.002,
-          "max_ms": 1.24
+          "median_ms": 0.583,
+          "mean_ms": 0.586,
+          "std_ms": 0.091,
+          "iqr_ms": 0.047,
+          "p95_ms": 0.687,
+          "min_ms": 0.444,
+          "max_ms": 1.5
         },
         "residual_cpu": {
-          "median_ms": 0.673,
-          "mean_ms": 0.645,
-          "std_ms": 0.111,
-          "iqr_ms": 0.039,
-          "p95_ms": 0.748,
-          "min_ms": 0.002,
-          "max_ms": 1.087
+          "median_ms": 0.685,
+          "mean_ms": 0.668,
+          "std_ms": 0.095,
+          "iqr_ms": 0.042,
+          "p95_ms": 0.758,
+          "min_ms": 0.442,
+          "max_ms": 1.048
         },
         "cqr_gpu": {
-          "median_ms": 0.583,
-          "mean_ms": 0.587,
-          "std_ms": 0.076,
-          "iqr_ms": 0.046,
-          "p95_ms": 0.683,
-          "min_ms": 0.0,
-          "max_ms": 0.881
+          "median_ms": 0.599,
+          "mean_ms": 0.618,
+          "std_ms": 0.103,
+          "iqr_ms": 0.049,
+          "p95_ms": 0.702,
+          "min_ms": 0.531,
+          "max_ms": 1.728
         },
         "cqr_cpu": {
-          "median_ms": 0.578,
-          "mean_ms": 0.586,
-          "std_ms": 0.087,
-          "iqr_ms": 0.043,
-          "p95_ms": 0.672,
-          "min_ms": 0.0,
-          "max_ms": 1.104
+          "median_ms": 0.599,
+          "mean_ms": 0.616,
+          "std_ms": 0.078,
+          "iqr_ms": 0.051,
+          "p95_ms": 0.721,
+          "min_ms": 0.532,
+          "max_ms": 1.216
         },
         "total_pipeline_gpu": {
-          "median_ms": 33.117,
-          "mean_ms": 36.773,
-          "std_ms": 9.462,
-          "iqr_ms": 3.999,
-          "p95_ms": 64.567,
-          "min_ms": 30.157,
-          "max_ms": 74.63,
-          "sum_of_medians_ms": 32.815,
-          "fps_median": 30.2,
-          "fps_mean": 27.2
+          "median_ms": 37.987,
+          "mean_ms": 40.377,
+          "std_ms": 8.086,
+          "iqr_ms": 3.286,
+          "p95_ms": 48.493,
+          "min_ms": 34.904,
+          "max_ms": 81.465,
+          "sum_of_medians_ms": 37.753,
+          "fps_median": 26.3,
+          "fps_mean": 24.8
         },
         "total_pipeline_cpu": {
-          "median_ms": 119.866,
-          "mean_ms": 120.323,
-          "std_ms": 2.573,
-          "iqr_ms": 3.482,
-          "p95_ms": 124.528,
-          "min_ms": 116.206,
-          "max_ms": 135.769,
-          "sum_of_medians_ms": 119.566,
-          "fps_median": 8.3,
-          "fps_mean": 8.3
+          "median_ms": 116.168,
+          "mean_ms": 117.135,
+          "std_ms": 3.295,
+          "iqr_ms": 3.958,
+          "p95_ms": 122.824,
+          "min_ms": 113.932,
+          "max_ms": 141.507,
+          "sum_of_medians_ms": 115.917,
+          "fps_median": 8.6,
+          "fps_mean": 8.5
         }
       }
     }

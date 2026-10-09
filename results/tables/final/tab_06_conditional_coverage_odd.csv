@@ -1,0 +1,34 @@
+category,category_title,subgroup,n_tp,n_fn,n_gt,recall,cqr_coverage,sc_coverage,mondrian_coverage,mean_width_ratio,is_low_sample
+z_hat_prospective,Distance Bins $\hat{Z}$ (m),0-10,256,,,,0.918,0.8945,0.9414,1.429,False
+z_hat_prospective,Distance Bins $\hat{Z}$ (m),10-20,835,,,,0.9772,0.9808,0.9509,1.319,False
+z_hat_prospective,Distance Bins $\hat{Z}$ (m),20-30,801,,,,0.9675,0.9613,0.9476,1.311,False
+z_hat_prospective,Distance Bins $\hat{Z}$ (m),30-50,815,,,,0.9632,0.9718,0.9742,1.293,False
+z_hat_prospective,Distance Bins $\hat{Z}$ (m),>50,5,,,,0.6,0.4,0.6,1.381,True
+z_hat_prospective,Distance Bins $\hat{Z}$ (m),>=30 (grouped),820,,,,0.961,0.9683,0.972,1.293,False
+z_gt_retrospective,Ground Truth Distance $Z$ (m),0-10,261,14.0,275.0,0.9491,0.9157,0.8889,0.9272,1.428,False
+z_gt_retrospective,Ground Truth Distance $Z$ (m),10-20,831,65.0,896.0,0.9275,0.9759,0.9795,0.9507,1.32,False
+z_gt_retrospective,Ground Truth Distance $Z$ (m),20-30,804,107.0,911.0,0.8825,0.9726,0.9652,0.9565,1.315,False
+z_gt_retrospective,Ground Truth Distance $Z$ (m),30-50,809,288.0,1097.0,0.7375,0.9617,0.9703,0.9716,1.289,False
+z_gt_retrospective,Ground Truth Distance $Z$ (m),>50,7,26.0,33.0,0.2121,0.5714,0.7143,0.5714,1.317,True
+z_gt_retrospective,Ground Truth Distance $Z$ (m),>=30 (grouped),816,314.0,1130.0,0.7221,0.9583,0.9681,0.9681,1.289,False
+truncation_and_edges,Truncation & Edge Effects,No Truncation (0.0),2516,483.0,2999.0,0.8389,0.9694,0.9734,0.9599,1.305,False
+truncation_and_edges,Truncation & Edge Effects,Mild (0.0 < t <= 0.15),71,5.0,76.0,0.9342,0.9155,0.8873,0.9577,1.468,True
+truncation_and_edges,Truncation & Edge Effects,Moderate/Severe (0.15 < t <= 0.50),125,12.0,137.0,0.9124,0.88,0.8,0.864,1.521,False
+truncation_and_edges,Truncation & Edge Effects,No Edge Touch (Pattern 111),2518,,,,0.9702,0.9742,0.9607,1.305,False
+truncation_and_edges,Truncation & Edge Effects,Touch Horizontal (valid_w=0),82,,,,0.878,0.8049,0.8537,1.408,True
+truncation_and_edges,Truncation & Edge Effects,Touch Vertical (valid_h=0 or valid_g=0),76,,,,0.9342,0.9211,0.9605,1.587,True
+truncation_and_edges,Truncation & Edge Effects,Touch Multi-edge (valid_w=0 and (valid_h=0 or valid_g=0)),36,,,,0.7778,0.6389,0.8056,1.572,True
+occlusion,KITTI Occlusion Level,0 (Fully visible),1624,65.0,1689.0,0.9615,0.9661,0.9704,0.96,1.304,False
+occlusion,KITTI Occlusion Level,1 (Partly occluded),790,231.0,1021.0,0.7738,0.9595,0.9506,0.9456,1.335,False
+occlusion,KITTI Occlusion Level,2 (Largely occluded),298,204.0,502.0,0.5936,0.9631,0.9564,0.9564,1.365,False
+viewing_angle_theta,Vehicle Viewing Angle $\theta$,Side (<30°),362,99.0,461.0,0.7852,0.9365,0.9309,0.9282,1.363,False
+viewing_angle_theta,Vehicle Viewing Angle $\theta$,Diagonal (30–60°),249,81.0,330.0,0.7545,0.9598,0.9277,0.9478,1.375,False
+viewing_angle_theta,Vehicle Viewing Angle $\theta$,Front/Rear (>60°),2101,320.0,2421.0,0.8678,0.9691,0.9729,0.961,1.305,False
+difficulty,KITTI Difficulty Filter,Easy (nested),1004,20.0,1024.0,0.9805,0.9811,0.9851,0.9661,1.298,False
+difficulty,KITTI Difficulty Filter,Moderate (nested),2338,291.0,2629.0,0.8893,0.9683,0.9722,0.9598,1.307,False
+difficulty,KITTI Difficulty Filter,Hard (nested),2712,500.0,3212.0,0.8443,0.9639,0.9631,0.9554,1.319,False
+difficulty,KITTI Difficulty Filter,Easy (disjoint),1004,20.0,1024.0,0.9805,0.9811,0.9851,0.9661,1.298,False
+difficulty,KITTI Difficulty Filter,Moderate (disjoint),1334,271.0,1605.0,0.8312,0.9588,0.9625,0.955,1.314,False
+difficulty,KITTI Difficulty Filter,Hard (disjoint),374,209.0,583.0,0.6415,0.9358,0.9064,0.9278,1.396,False
+fallback_pattern_000,Fallback Pattern 000,Fallback (Pattern 000),36,,,,0.7778,0.6389,0.8056,1.572,True
+fallback_pattern_000,Fallback Pattern 000,Fused Geometric (>=1 cue),2676,,,,0.9664,0.9675,0.9574,1.316,False

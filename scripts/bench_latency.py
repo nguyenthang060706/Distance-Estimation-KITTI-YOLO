@@ -60,11 +60,11 @@ from src.uncertainty.cqr import (
     predict_interval,
 )
 
-DETECTORS = ["yolo11s_640", "yolov8s_640", "yolov5su_640"]
+DETECTORS = ["yolov5su_640", "yolov8s_640", "yolo11s_640"]
 CPU_THREADS = 4
 N_PARITY_IMAGES = 50
 N_BENCHMARK_IMAGES = 200
-N_WARMUP = 20
+N_WARMUP = 40
 
 
 def compute_file_sha256(path: str | Path) -> str:
@@ -386,8 +386,7 @@ def generate_latency_markdown(data: dict[str, Any]) -> str:
     md.append("## 1. Cấu hình Phần cứng & Thư viện Thử nghiệm\n")
     md.append(f"- **CPU:** `{hw['cpu']}` (Luồng kiểm thử: `{hw['cpu_threads']}`)")
     md.append(f"- **GPU:** `{hw['gpu']}`")
-    md.append(f"- **Thư viện:** PyTorch `{vers['torch']}`, ONNX Runtime `{vers['onnxruntime']}`, XGBoost `{vers['xgboost']}`")
-    md.append(f"- **Tập dữ liệu:** `{params['n_images']}` ảnh ngẫu nhiên từ Split B (sau `{params['n_warmup']}` ảnh khởi động warmup).\n")
+    md.append(f"- **Tập dữ liệu:** `{params['n_images']}` ảnh lấy từ các frame có True Positive của Split B (sau `{params['n_warmup']}` ảnh khởi động warmup). *Lưu ý (Limitations): Tập ảnh benchmark thiên lệch về các frame có xe, không phản ánh tỷ lệ frame rỗng ngoài thực tế.*")
 
     md.append("## 2. Kết quả Kiểm tra Tính Tương đồng (Parity Check: PyTorch .pt vs ONNX, D44, D95, D99)\n")
     md.append("| Detector | Ảnh kiểm thử | Detections (.pt) | Detections (ONNX) | Tỉ lệ Số lượng (ORT/PT) | Tỉ lệ Khớp IoU ≥ 0.90 | Parity Check |\n")

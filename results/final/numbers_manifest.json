@@ -1,0 +1,487 @@
+{
+  "metadata": {
+    "project": "Distance-Estimation-KITTI-YOLO",
+    "split_t_locked": true,
+    "version": "v1.1_verified",
+    "generated_by": "scripts/build_numbers_manifest.py"
+  },
+  "numbers": {
+    "yolo11s_tp_count": {
+      "value": 2712,
+      "display_str": "2,712",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.n_tp"
+    },
+    "yolo11s_fn_count": {
+      "value": 500,
+      "display_str": "500",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.n_fn"
+    },
+    "yolo11s_fallback_count": {
+      "value": 36,
+      "display_str": "36",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.n_fallback"
+    },
+    "yolo11s_absrel_f": {
+      "value": 0.0463,
+      "display_str": "0.0463",
+      "display_percent": "4.63%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.absrel_f"
+    },
+    "yolo11s_absrel_e": {
+      "value": 0.0465,
+      "display_str": "0.0465",
+      "display_percent": "4.65%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.absrel_e"
+    },
+    "yolo11s_absrel_f0": {
+      "value": 0.0553,
+      "display_str": "0.0553",
+      "display_percent": "5.53%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.absrel_f0"
+    },
+    "yolo11s_absrel_d": {
+      "value": 0.064,
+      "display_str": "0.0640",
+      "display_percent": "6.40%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.absrel_d"
+    },
+    "yolo11s_coverage_cqr": {
+      "value": 0.9639,
+      "display_str": "0.9639",
+      "display_percent": "96.4%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.standard_cqr.pooled_coverage"
+    },
+    "yolo11s_coverage_macro_cqr": {
+      "value": 0.8793,
+      "display_str": "0.8793",
+      "display_percent": "87.9%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.standard_cqr.macro_coverage"
+    },
+    "yolo11s_coverage_macro_ge30_cqr": {
+      "value": 0.9741,
+      "display_str": "0.9741",
+      "display_percent": "97.4%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.standard_cqr.macro_coverage_ge30"
+    },
+    "yolo11s_width_ratio_cqr": {
+      "value": 1.3194,
+      "display_str": "1.319x",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.standard_cqr.mean_width_ratio"
+    },
+    "yolo11s_winkler_cqr": {
+      "value": 0.2991,
+      "display_str": "0.2991",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.standard_cqr.mean_winkler"
+    },
+    "yolo11s_coverage_mondrian": {
+      "value": 0.9554,
+      "display_str": "0.9554",
+      "display_percent": "95.5%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.mondrian_cqr.pooled_coverage"
+    },
+    "yolo11s_width_ratio_mondrian": {
+      "value": 1.2936,
+      "display_str": "1.294x",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolo11s_640.metrics.mondrian_cqr.mean_width_ratio"
+    },
+    "yolov8s_tp_count": {
+      "value": 2660,
+      "display_str": "2,660",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.n_tp"
+    },
+    "yolov8s_fn_count": {
+      "value": 552,
+      "display_str": "552",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.n_fn"
+    },
+    "yolov8s_fallback_count": {
+      "value": 36,
+      "display_str": "36",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.n_fallback"
+    },
+    "yolov8s_absrel_f": {
+      "value": 0.0461,
+      "display_str": "0.0461",
+      "display_percent": "4.61%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.absrel_f"
+    },
+    "yolov8s_absrel_e": {
+      "value": 0.0459,
+      "display_str": "0.0459",
+      "display_percent": "4.59%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.absrel_e"
+    },
+    "yolov8s_absrel_f0": {
+      "value": 0.0551,
+      "display_str": "0.0551",
+      "display_percent": "5.51%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.absrel_f0"
+    },
+    "yolov8s_absrel_d": {
+      "value": 0.0641,
+      "display_str": "0.0641",
+      "display_percent": "6.41%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.absrel_d"
+    },
+    "yolov8s_coverage_cqr": {
+      "value": 0.9714,
+      "display_str": "0.9714",
+      "display_percent": "97.1%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.standard_cqr.pooled_coverage"
+    },
+    "yolov8s_coverage_macro_cqr": {
+      "value": 0.9689,
+      "display_str": "0.9689",
+      "display_percent": "96.9%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.standard_cqr.macro_coverage"
+    },
+    "yolov8s_coverage_macro_ge30_cqr": {
+      "value": 0.975,
+      "display_str": "0.9750",
+      "display_percent": "97.5%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.standard_cqr.macro_coverage_ge30"
+    },
+    "yolov8s_width_ratio_cqr": {
+      "value": 1.3524,
+      "display_str": "1.352x",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.standard_cqr.mean_width_ratio"
+    },
+    "yolov8s_winkler_cqr": {
+      "value": 0.3148,
+      "display_str": "0.3148",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.standard_cqr.mean_winkler"
+    },
+    "yolov8s_coverage_mondrian": {
+      "value": 0.9699,
+      "display_str": "0.9699",
+      "display_percent": "97.0%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.mondrian_cqr.pooled_coverage"
+    },
+    "yolov8s_width_ratio_mondrian": {
+      "value": 1.3532,
+      "display_str": "1.353x",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov8s_640.metrics.mondrian_cqr.mean_width_ratio"
+    },
+    "yolov5su_tp_count": {
+      "value": 2674,
+      "display_str": "2,674",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.n_tp"
+    },
+    "yolov5su_fn_count": {
+      "value": 538,
+      "display_str": "538",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.n_fn"
+    },
+    "yolov5su_fallback_count": {
+      "value": 36,
+      "display_str": "36",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.n_fallback"
+    },
+    "yolov5su_absrel_f": {
+      "value": 0.0474,
+      "display_str": "0.0474",
+      "display_percent": "4.74%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.absrel_f"
+    },
+    "yolov5su_absrel_e": {
+      "value": 0.0474,
+      "display_str": "0.0474",
+      "display_percent": "4.74%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.absrel_e"
+    },
+    "yolov5su_absrel_f0": {
+      "value": 0.056,
+      "display_str": "0.0560",
+      "display_percent": "5.60%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.absrel_f0"
+    },
+    "yolov5su_absrel_d": {
+      "value": 0.0642,
+      "display_str": "0.0642",
+      "display_percent": "6.42%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.absrel_d"
+    },
+    "yolov5su_coverage_cqr": {
+      "value": 0.966,
+      "display_str": "0.9660",
+      "display_percent": "96.6%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.standard_cqr.pooled_coverage"
+    },
+    "yolov5su_coverage_macro_cqr": {
+      "value": 0.9793,
+      "display_str": "0.9793",
+      "display_percent": "97.9%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.standard_cqr.macro_coverage"
+    },
+    "yolov5su_coverage_macro_ge30_cqr": {
+      "value": 0.9741,
+      "display_str": "0.9741",
+      "display_percent": "97.4%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.standard_cqr.macro_coverage_ge30"
+    },
+    "yolov5su_width_ratio_cqr": {
+      "value": 1.3316,
+      "display_str": "1.332x",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.standard_cqr.mean_width_ratio"
+    },
+    "yolov5su_winkler_cqr": {
+      "value": 0.3069,
+      "display_str": "0.3069",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.standard_cqr.mean_winkler"
+    },
+    "yolov5su_coverage_mondrian": {
+      "value": 0.9611,
+      "display_str": "0.9611",
+      "display_percent": "96.1%",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.mondrian_cqr.pooled_coverage"
+    },
+    "yolov5su_width_ratio_mondrian": {
+      "value": 1.3163,
+      "display_str": "1.316x",
+      "source_file": "results/tables/final_eval_T.json",
+      "source_sha256": "9ce9967f17196b592a0617f349509423c5e94adbe967b9da02fc061c5ad05916",
+      "data_path": "yolov5su_640.metrics.mondrian_cqr.mean_width_ratio"
+    },
+    "yolo11s_delta1_f": {
+      "value": 0.9967,
+      "display_str": "0.9967",
+      "display_percent": "99.67%",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolo11s_640,variant=z_hat_f,col=delta1"
+    },
+    "yolo11s_mae_f": {
+      "value": 1.099,
+      "display_str": "1.10 m",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolo11s_640,variant=z_hat_f,col=mae"
+    },
+    "yolo11s_rmse_f": {
+      "value": 1.605,
+      "display_str": "1.60 m",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolo11s_640,variant=z_hat_f,col=rmse"
+    },
+    "yolo11s_recall": {
+      "value": 0.8443,
+      "display_str": "0.8443",
+      "display_percent": "84.4%",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolo11s_640,variant=z_hat_f,col=recall"
+    },
+    "yolov8s_delta1_f": {
+      "value": 0.997,
+      "display_str": "0.9970",
+      "display_percent": "99.70%",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov8s_640,variant=z_hat_f,col=delta1"
+    },
+    "yolov8s_mae_f": {
+      "value": 1.063,
+      "display_str": "1.06 m",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov8s_640,variant=z_hat_f,col=mae"
+    },
+    "yolov8s_rmse_f": {
+      "value": 1.555,
+      "display_str": "1.55 m",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov8s_640,variant=z_hat_f,col=rmse"
+    },
+    "yolov8s_recall": {
+      "value": 0.8281,
+      "display_str": "0.8281",
+      "display_percent": "82.8%",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov8s_640,variant=z_hat_f,col=recall"
+    },
+    "yolov5su_delta1_f": {
+      "value": 0.9951,
+      "display_str": "0.9951",
+      "display_percent": "99.51%",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov5su_640,variant=z_hat_f,col=delta1"
+    },
+    "yolov5su_mae_f": {
+      "value": 1.118,
+      "display_str": "1.12 m",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov5su_640,variant=z_hat_f,col=mae"
+    },
+    "yolov5su_rmse_f": {
+      "value": 1.642,
+      "display_str": "1.64 m",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov5su_640,variant=z_hat_f,col=rmse"
+    },
+    "yolov5su_recall": {
+      "value": 0.8325,
+      "display_str": "0.8325",
+      "display_percent": "83.2%",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "detector=yolov5su_640,variant=z_hat_f,col=recall"
+    },
+    "common_support_count": {
+      "value": 2528,
+      "display_str": "2,528",
+      "source_file": "results/tables/final_eval_common_T.csv",
+      "source_sha256": "707d3f9b308f88976bfe7c01b439196e214bb3eb850f19624d7094a388187437",
+      "data_path": "n_common.iloc[0]"
+    },
+    "yolo11s_common_absrel_f": {
+      "value": 0.0446,
+      "display_str": "0.0446",
+      "source_file": "results/tables/final_eval_common_T.csv",
+      "source_sha256": "707d3f9b308f88976bfe7c01b439196e214bb3eb850f19624d7094a388187437",
+      "data_path": "detector=yolo11s_640,variant=z_hat_f,col=absrel"
+    },
+    "yolov8s_common_absrel_f": {
+      "value": 0.0449,
+      "display_str": "0.0449",
+      "source_file": "results/tables/final_eval_common_T.csv",
+      "source_sha256": "707d3f9b308f88976bfe7c01b439196e214bb3eb850f19624d7094a388187437",
+      "data_path": "detector=yolov8s_640,variant=z_hat_f,col=absrel"
+    },
+    "yolov5su_common_absrel_f": {
+      "value": 0.0457,
+      "display_str": "0.0457",
+      "source_file": "results/tables/final_eval_common_T.csv",
+      "source_sha256": "707d3f9b308f88976bfe7c01b439196e214bb3eb850f19624d7094a388187437",
+      "data_path": "detector=yolov5su_640,variant=z_hat_f,col=absrel"
+    },
+    "yolo11s_diff_f_minus_d": {
+      "value": -0.0188,
+      "display_str": "-0.0188",
+      "ci_low": -0.0264,
+      "ci_high": -0.0107,
+      "display_ci": "[-0.0264, -0.0107]",
+      "source_file": "results/tables/final_eval_bootstrap_T.csv",
+      "source_sha256": "9de0231912d19e78e304c386388d75ca92326449035ec47e1bcfa29dda429025",
+      "data_path": "comparison=yolo11s_640: (f)_residual vs (d)_fused"
+    },
+    "yolo11s_diff_f_minus_e": {
+      "value": -0.0002,
+      "display_str": "-0.0002",
+      "ci_low": -0.0012,
+      "ci_high": 0.0023,
+      "display_ci": "[-0.0012, 0.0023]",
+      "source_file": "results/tables/final_eval_bootstrap_T.csv",
+      "source_sha256": "9de0231912d19e78e304c386388d75ca92326449035ec47e1bcfa29dda429025",
+      "data_path": "comparison=yolo11s_640: (f)_residual vs (e)_direct"
+    },
+    "split_a_frames": {
+      "value": 3740,
+      "display_str": "3,740",
+      "source_file": "splits/split_metadata.json",
+      "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
+      "data_path": "splits.A.frame_count"
+    },
+    "split_t_frames": {
+      "value": 1102,
+      "display_str": "1,102",
+      "source_file": "splits/split_metadata.json",
+      "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
+      "data_path": "splits.T.frame_count"
+    },
+    "split_t_car_hard_count": {
+      "value": 3212,
+      "display_str": "3,212",
+      "source_file": "results/tables/final_eval_main_T.csv",
+      "source_sha256": "f6cf2b246aad9a0779c272f994f853f49e46e366e41d9c1bbf227ac84a725a27",
+      "data_path": "n_gt.iloc[0]"
+    }
+  }
+}

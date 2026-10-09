@@ -227,22 +227,54 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Xác định nguyên nhân Parity Check là giả thuyết kỹ thuật chưa kiểm chứng độc lập (D99):**
   * Trong báo cáo Parity Check PyTorch vs ONNX Runtime (D44, D95), việc tỷ lệ IoU Match Rate không đạt ngưỡng 0.95 ($0.9095–0.9437$) đi kèm với Count Parity đạt chuẩn ($0.974–1.009$) được giải thích dựa trên 3 yếu tố: khác biệt đệm ảnh (dynamic rectangular letterbox PyTorch vs fixed square 640 ONNX), kiểu dữ liệu (model.half() FP16 vs ORT FP32), và thuật toán NMS (numpy NMS vs Ultralytics torch NMS).
   * Quy định rõ: Ba yếu tố trên là các giả thuyết kỹ thuật chưa qua thực nghiệm cô lập độc lập (ablation study), không được phát biểu ở giọng khẳng định trong bài báo khoa học.
-- ✅ **Giới hạn thực nghiệm tỷ lệ khung hình GPU Square 640x640 vs Rectangular 640x192 (D100):**
-  * Trong `bench_latency.py`, ảnh đầu vào được đệm tĩnh thành hình vuông $640 \times 640 = 409.600\text{ px}$ (để tương thích đồng nhất với ONNX Runtime static shape), trong khi pipeline suy luận thực tế Ultralytics trên ảnh KITTI ($1242 \times 375$) dùng rectangular letterbox ($640 \times 192 = 122.880\text{ px}$, ít pixel hơn 3.3 lần).
-  * Điều này khiến độ trễ GPU trong benchmark mang tính bi quan hơn (pessimistic upper-bound / worst-case latency), đồng thời giải thích sự xê dịch tọa độ khiến IoU Parity bị kéo xuống khoảng $0.91–0.94$. Thống nhất ghi nhận đây là giới hạn thực nghiệm (Limitations) của nghiên cứu, không cố tình làm đẹp số liệu.
-- ✅ **Cấm diễn giải kiến trúc detector khi chưa có thực nghiệm cô lập (D101):**
-  * Sự kiện YOLO11s có độ trễ GPU cao hơn và độ phân tán lớn (P95 = 76.6 ms gấp đôi median 38.0 ms) trong lượt chạy đầu tiên là đặc tính thông thường của cold cache / GPU warmup trong phiên đo duy nhất trên máy trạm cá nhân, nhất quán với D98.
-  * Nghiêm cấm đưa ra các khẳng định võ đoán về kiến trúc mô hình (như quy chụp khối C3k2 hay C2PSA làm tăng độ trễ) khi chưa tiến hành ablation study có kiểm soát độc lập.
-- ✅ **Ràng buộc Assertion dữ liệu và Disclaimer bắt buộc cho hình định tính (D102):**
-  * Tất cả 8 ca nghiên cứu định tính trong `scripts/make_qualitative.py` phải được bảo vệ bằng các câu lệnh `assert` kiểm tra nghiêm ngặt trực tiếp trên DataFrame trước khi vẽ (Ca #1: $|\theta| < 30^\circ$; Ca #2: Pattern 111 $Z < 10\text{m}$; Ca #3: mất $Z_h, Z_g$ do cắt viền đáy; Ca #4 & #5: `fallback_flag == True`; Ca #6: $10 \le Z \le 20\text{m}$; Ca #7: $20 \le Z \le 30\text{m}$; Ca #8: Hard difficulty).
+- ✅ **Giới hạn thực nghiệm tỷ lệ khung hình GPU Square 640x640 vs Rectangular 640x224 (D100, sửa đổi bởi D104):**
+  * Trong `bench_latency.py`, ảnh đầu vào được đệm tĩnh thành hình vuông $640 \times 640 = 409.600\text{ px}$ (để tương thích đồng nhất với shape tĩnh của ONNX Runtime), trong khi pipeline suy luận thực tế Ultralytics trên ảnh KITTI ($1242 \times 375$) resize thành $640 \times 193$ rồi pad theo stride 32 thành rectangular letterbox $640 \times 224 = 143.360\text{ px}$ (chứ không phải 192).
+  * Kích thước square chứa số pixel lớn hơn khoảng $\approx 2.86\times$ (~2.9 lần, không phải 3.3 lần). Điều này có thể tạo ra thời gian xử lý lớn hơn trên GPU (mặc dù thời gian GPU không tỉ lệ tuyến tính với số pixel), đồng thời sự khác biệt về padding có thể là một trong những nguyên nhân kỹ thuật khiến IoU Parity đạt $0.91–0.94$. Quy định rõ: Đây là các giả thuyết kỹ thuật chưa qua ablation kiểm chứng độc lập; được ghi nhận như giới hạn thực nghiệm (Limitations) của nghiên cứu.
+- ✅ **Cấm diễn giải kiến trúc detector khi chưa có thực nghiệm cô lập (D101, hạ giọng theo D104):**
+  * Hiện tượng P95 của YOLO11s vọt lên gấp đôi median (76.6 ms vs 38.0 ms) trong lượt benchmark sơ bộ ban đầu có thể do hiệu ứng cold cache / GPU initial warmup trong phiên đo đầu tiên (khi chạy lại với thứ tự đảo và warmup 40 ảnh, P95 của YOLO11s giảm xuống còn 48.49 ms).
+  * Nghiêm cấm đưa ra các khẳng định võ đoán về kiến trúc mô hình (như quy chụp khối C3k2 hay C2PSA làm tăng độ trễ) khi chưa tiến hành ablation study có kiểm soát độc lập (D98, D101).
+- ✅ **Ràng buộc Assertion dữ liệu và Disclaimer bắt buộc cho hình định tính (D102, chuẩn hóa bởi D105):**
+  * Tất cả 8 ca nghiên cứu định tính trong `scripts/make_qualitative.py` được bảo vệ bằng các câu lệnh `assert` kiểm tra nghiêm ngặt trực tiếp trên DataFrame trước khi vẽ (Ca #1: góc xoay $\theta < 30^\circ$ theo đúng định nghĩa D19; Ca #2: Pattern 111 $Z < 10\text{m}$; Ca #3: mất $Z_h, Z_g$ và chạm đáy $\text{bbox\_y2} \ge \text{img\_h} - 3$ kèm truncation $> 0$; Ca #4 & #5: `fallback_flag == True` kèm truncation $> 0$ cho ca #5; Ca #6: $10 \le Z \le 20\text{m}$; Ca #7: $20 \le Z \le 30\text{m}$; Ca #8: Hard difficulty).
   * Trên ảnh lưới tổng hợp `qualitative_grid_summary.png`, bắt buộc gắn dòng ghi chú Disclaimer ở đáy ảnh: *"Note: Cases purposefully selected from frozen Split T to illustrate physical mechanisms & failure modes (D102); not a random sample."*
-- ✅ **Loại bỏ triệt để hardcode và chuẩn hóa động toàn diện các runner báo cáo T13/T14 (D103):**
-  * Sửa lỗi chia cho `orig_w` trong nhánh Fallback Pattern 000 của `bench_latency.py` thành `cx_offset_norm = (box_cx - cx) / fx`, đồng bộ hàm `extract_10_features_e_vectorized` và bổ sung unit test đối chiếu sai số $< 10^{-5}$ với pipeline chuẩn.
+- ✅ **Loại bỏ triệt để hardcode và chuẩn hóa động toàn diện các runner báo cáo T13/T14 (D103, D106):**
+  * Sửa lỗi chia cho `orig_w` trong nhánh Fallback Pattern 000 của `bench_latency.py` thành `cx_offset_norm = (box_cx - cx) / fx`, đồng bộ hàm `extract_10_features_e_vectorized` và bổ sung unit test đối chiếu sai số $< 10^{-5}$ với pipeline chuẩn (`test_latency_bench.py`). Đã chạy lại toàn bộ benchmark một lượt với thứ tự đảo (`v5su -> v8s -> 11s`) và warmup 40 ảnh để đồng bộ kết quả vào `results/tables/latency_tier1.{json,md}`.
   * Tự động hóa 100% việc tính toán tỷ lệ nền của toàn bộ Split T trong phân tích Top Failures T14 (`generate_top_failures_markdown`), loại bỏ các chuỗi văn bản gõ tay.
-  * Tự động hóa việc trích xuất số liệu thực nghiệm cho các giả thuyết H1–H3 (`generate_breakdown_markdown`) và phân tích độ lệch tâm D21/D84 (`generate_physical_bias_markdown`). Đảm bảo toàn bộ các con số trong mọi bảng báo cáo đều trích xuất động hoặc assert trực tiếp từ dữ liệu thực trước khi bước sang tác vụ T17 (`numbers_manifest.json`).
-
-
-
+  * Tự động hóa việc trích xuất số liệu thực nghiệm cho các giả thuyết H1–H3 (`generate_breakdown_markdown`) và phân tích độ lệch tâm D21/D84 (`generate_physical_bias_markdown`).
+- ✅ **Chuẩn hóa dữ liệu padding GPU và hạ giọng giả thuyết (D104):**
+  * Đính chính dữ liệu hình học trong D100: Kích thước đệm của Ultralytics trên ảnh KITTI $1242 \times 375$ là $640 \times 224$ (bội số stride 32), tỉ lệ pixel square vs rect là $\approx 2.9\times$.
+  * Mọi diễn giải về nguyên nhân chênh lệch độ trễ GPU và sự sụt giảm IoU Parity phải dùng ngôn ngữ giả thuyết kỹ thuật ("có thể do..., chưa kiểm chứng độc lập"), tuân thủ nghiêm ngặt D98 và D99.
+- ✅ **Chuẩn hóa Assert góc nhìn D19 và điều kiện cắt xén (D105):**
+  * Ràng buộc góc nhìn của Ca #1 trong `make_qualitative.py` phải dùng góc gập đối xứng $\theta = \min(|\alpha|, \pi - |\alpha|)$ theo D19 (yêu cầu $\theta < 30^\circ$), thay vì kiểm tra đơn thuần $|\alpha| < 30^\circ$ (tránh loại oan xe nhìn ngang có $\alpha \approx \pm\pi$).
+  * Ca #3 bắt buộc assert chạm biên đáy $\text{bbox\_y2} \ge \text{img\_h} - 3$ và truncation $> 0$. Ca #5 bắt buộc assert truncation $> 0$.
+- ✅ **Động hóa toàn diện Executive Summary T13 và điều kiện hóa nhận định khoảng tin cậy (D106):**
+  * Toàn bộ các con số trong Executive Summary của T13 (KS stat, Mean $|r|$ của C vs T, tỷ lệ 2 drive lớn Split C, độ phủ cự ly gần Split C, cỡ mẫu dải $>50\text{m}$, Sign test cấp drive) bắt buộc phải trích xuất động từ DataFrame/JSON hoặc assert đối chiếu 100%.
+  * Câu nhận định về khoảng tin cậy cluster bootstrap 95% trong phân tích RQ2 phải có logic điều kiện hóa (`if all_ci_contains_zero ... else ...`), nêu rõ các trường hợp loại trừ 0 (như `confidence` trên YOLO11s), không được viết vô điều kiện.
+- ✅ **Ghi nhãn minh bạch Mean / Median cho kết quả bias D21 & Trỏ file nguồn (D107):**
+  * Phân biệt rạch ròi giữa Mean Bias (mét: $-0.95\text{m}$ đến $-1.02\text{m}$, tương ứng Mean Rel Bias $-13.9\%$ đến $-14.5\%$) và Median Rel Bias ($-10.9\%$ đến $-12.2\%$) khi trích dẫn kết quả kiểm chứng lệch tâm vật lý D21 trên nhóm Pattern 111 cự ly gần 0–10m không chạm biên.
+  * Các tài liệu nhật ký và bảng nhiệm vụ tasks chỉ dẫn chiếu trực tiếp tới file nguồn `results/tables/physical_bias_d21_verification_T.{md,json}`, không chép số rời rạc tránh mâu thuẫn.
+- ✅ **Cơ chế Provenance Numbers Manifest và Template Placeholder chống ảo giác số liệu (D108):**
+  * Xây dựng `scripts/build_numbers_manifest.py` trích xuất động toàn bộ 63 metrics chuẩn từ các artifact chính thức đã khóa (`final_eval_T.json`, `final_eval_main_T.csv`, `final_eval_common_T.csv`, `final_eval_bootstrap_T.csv`, `coverage_conditional_T.json`, `benchmark_tier1_latency.json`, `splits/split_metadata.json`).
+  * 100% metrics có trường `source_file`, `source_sha256` và `data_path` kiểm chứng được bit-by-bit.
+  * Bản thảo khoa học sử dụng cơ chế template placeholder `docs/paper/MANUSCRIPT_TEMPLATE.md` với các thẻ `{{num:key}}` và `{{num:key:display_ci}}`, được biên dịch tự động qua `scripts/render_manuscript.py` ra `docs/paper/MANUSCRIPT_DRAFT.md`. Nghiêm cấm gõ tay số liệu vào bản thảo bài báo.
+- ✅ **Xuất bản 6 cặp bảng dữ liệu song song CSV & LaTeX Booktabs chuẩn mực (D109):**
+  * Xây dựng `scripts/export_final_tables.py` xuất bản 6 cặp tệp `.csv` và `.tex` đồng nhất vào `results/tables/final/`: `tab_01_dataset_split`, `tab_02_geometry_ablation_oof_b`, `tab_03_main_benchmark_split_t` (tích hợp sẵn Paired Bootstrap CI), `tab_04_rq2_detector_correlation`, `tab_05_conformal_coverage_t`, `tab_06_conditional_coverage_odd` (cờ `*` cảnh báo khi $n_{\text{TP}} < 100$).
+  * Toàn bộ mã nguồn LaTeX tuân thủ nghiêm ngặt quy chuẩn `booktabs` (không có cột kẻ dọc `|`, không có `\hline` kép, escape `%` và `_` ngay từ gốc, dùng `\toprule`, `\midrule`, `\bottomrule`).
+- ✅ **Thể chế hóa đầy đủ 14 Hạn chế cốt lõi (Core Limitations) vào bài báo khoa học (D110):**
+  * Bổ sung đầy đủ 14 mục Hạn chế trung thực, bao gồm các thiên lệch tự nhiên của KITTI và các phát hiện post-hoc nhạy cảm:
+    1. Lệch phân phối lớp Truck (Truck Imbalance, 5.2% vs 0.8%).
+    2. Thiên lệch người sống sót (Survivorship Bias, Recall 82.8%–84.4%, miss 30–50m là 48%–50%).
+    3. Mẫu xe ở xa >50m thưa thớt (GT=33, TP $\le 9$).
+    4. Tập trung chuỗi hành trình và tương quan cụm (Drive Concentration, $k \le 12$).
+    5. Khả năng tái lập huấn luyện detector (nhãn `git_dirty` trong log huấn luyện).
+    6. Giao thức khớp lớp lân cận KITTI (Neighbor Class Bounding Box Matching).
+    7. Ảnh hưởng thiết kế định tính gián tiếp từ dịch chuyển split (Decision D14).
+    8. **Tính không phân biệt được về độ chính xác giữa Residual (f) và Direct Regression (e) trên Split T (Decision D78)**: chênh lệch AbsRel -0.0002, 95% CI [-0.0012, 0.0023] chứa 0; giá trị của mô hình lai nằm ở tính giải thích vật lý và suy thoái êm dịu, không phải độ chính xác vượt trội.
+    9. **Tính chất phát hiện post-hoc của các tham số hiệu chỉnh (Decision D82)**: minh bạch việc quan sát trước số liệu v1 trước khi hoàn thiện v1.1.
+    10. **Độ phủ vượt mức 96%–97% là hiện tượng post-hoc do dịch chuyển độ khó giữa Split C và Split T (Decisions D79, D87)**: Split C khó hơn (Mean $|r| \approx 0.083$ vs $0.067$ trên T) nên ngưỡng $\hat{Q}$ bị phồng.
+    11. **Tính lạc quan của Bootstrap 10 cụm và độ bao phủ cục bộ dưới mức danh định (Decision D93)**: độ phủ gộp 96%–97% che giấu các nhóm yếu thế như xe bị cắt viền (88.0%–91.5%) và fallback (77.8%–86.1%).
+    12. **Sự đánh đổi phồng độ rộng khoảng tin cậy của Mondrian CQR (Decisions D88, D93)**: khôi phục độ phủ cự ly gần nhưng làm phồng độ rộng khoảng tin cậy từ $1.45\times$ lên $1.80\times$.
+    13. Loại bỏ các baseline không bảo đảm độ phủ hữu hạn (Discard of Non-Conformal Baselines).
+    14. Giới hạn benchmark phần cứng và độ trễ (Decisions D98, D100, D104): padding vuông $640 \times 640$ làm tăng khối lượng xử lý pixel $\approx 2.9\times$ so với letterbox thực tế $640 \times 224$; nhãn `PRELIMINARY-v2`.
 
 ---
 
@@ -351,13 +383,27 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 
 ## 6. Nhật ký theo phiên
 
-### W3-5 — 14/10/2026: Khắc Phục Toàn Diện Phản Biện T16, Tự Động Hóa Báo Cáo T13/T14 & Hoàn Tất Nghiệm Thu T16 (D100–D103)
-- **Hoàn tất xử lý 5 phản biện độc lập cho T16 (D100–D103):**
-  - **Sửa bug fallback latency & Thêm test so khớp (D103):** Tách hàm chuẩn hóa `extract_10_features_e_vectorized` trong `scripts/bench_latency.py`, sửa chuẩn xác `cx_offset_norm = (box_cx - cx) / fx` và `np.maximum(..., 1.0)` cho `bw, bh`. Bổ sung test `test_extract_10_features_vectorized_matches_pipeline_exact` trong `tests/test_latency_bench.py` khớp tuyệt đối với pipeline canonical. 9/9 latency tests PASSED 100%.
-  - **Chuẩn hóa diễn giải latency & ghi nhận giới hạn phần cứng (D100, D101):** Xóa bỏ các giải thích võ đoán về kiến trúc C3k2/C2PSA; ghi nhận giới hạn letterbox static square 640x640 làm tăng diện tích pixel gấp 3.3 lần so với rect 640x192, là nguyên nhân khiến GPU latency bi quan hơn và IoU Parity đạt 0.91–0.94.
-  - **Gắn Assertion dữ liệu & Disclaimer định tính (D102):** Bổ sung 8 câu lệnh `assert` kiểm tra DataFrame cho 8 ca định tính trong `scripts/make_qualitative.py`; thêm banner Disclaimer vào đáy ảnh ghép `qualitative_grid_summary.png`. 13/13 qualitative tests PASSED 100%.
-  - **Tự động hóa 100% số liệu trong báo cáo T13 & T14 (D103):** Sửa logic cột Note RQ2 trong `run_eval_t13.py` kiểm tra động `ci_contains_zero`; sửa `run_error_analysis_t14.py` trích xuất động tỷ lệ nền top failures, các số liệu H1–H3 và dải bias D21. Khắc phục triệt để mâu thuẫn văn bản dòng 237 `ANTIGRAVITY_TASKS.md` cho khớp với D92.
-  - **Kiểm định toàn diện:** Toàn bộ test suite `pytest -q` đạt 218/218 tests PASSED 100%. Khóa `runs/final_T.lock` bất biến. Sẵn sàng nghiệm thu T16 và chuyển giao sang T17/T18.
+### W3-5 — 14/10/2026: Triển Khai T17 (Pha 1) — Đóng Gói Tư Liệu Bài Báo, Xuất Bảng Chuẩn Xuất Bản & Xây Dựng Numbers Manifest (D108–D110)
+- **Hoàn thành T17 Pha 1 — Đóng gói tư liệu, bảng LaTeX và bản thảo bài báo (Zero-Touch Split T):**
+  - **Khóa Split T bất biến:** `runs/final_T.lock` giữ nguyên tuyệt đối, không nạp loader, không chạy lại inference trên Split T.
+  - **Xây dựng Numbers Manifest (`scripts/build_numbers_manifest.py`, D108):** Xuất `results/final/numbers_manifest.json` gồm 63 metrics chuẩn hóa, có `source_sha256` và `data_path` kiểm chứng bit-by-bit từ các file gốc đã kiểm định.
+  - **Xuất bản 6 cặp bảng CSV & LaTeX booktabs (`scripts/export_final_tables.py`, D109):** Xuất 12 tệp trong `results/tables/final/` (`tab_01` đến `tab_06`), loại bỏ 100% cột dọc `|`, không có `\hline` kép, tích hợp Paired Cluster Bootstrap 95% CI có sẵn từ `final_eval_bootstrap_T.csv`, gắn cờ `*` cảnh báo phân nhóm nhỏ $n_{\text{TP}} < 100$.
+  - **Soạn thảo và render bản thảo (`scripts/render_manuscript.py`, D108, D110):** Tạo `docs/paper/MANUSCRIPT_TEMPLATE.md` với 6 chương chuẩn IEEE/ITS, chèn template placeholders `{{num:...}}`, biên dịch ra `docs/paper/MANUSCRIPT_DRAFT.md` không còn placeholder sót lại.
+  - **Thể chế hóa đầy đủ 14 Hạn chế cốt lõi (D110):** Bao quát đầy đủ các thiên lệch KITTI (Truck imbalance, survivorship bias, >50m sparse, drive concentration, git_dirty, neighbor matching) và các phát hiện thực nghiệm nhạy cảm: D14 split migration, D78 $(f) \approx (e)$ không phân tách được, D82 tham số post-hoc v1, D79/D87 over-coverage 96–97% ngoài mẫu do dịch chuyển độ khó C/T, D93 bootstrap lạc quan & under-coverage cục bộ bị che giấu, D88/D93 Mondrian width inflation ($1.45\times \to 1.80\times$), D98/D100/D104 đệm vuông $640 \times 640$ vs rect $640 \times 224$ ($\approx 2.9\times$).
+  - **Language Guard & Unit Tests:** Toàn bộ bản thảo được rà soát sạch các từ tâng bốc cấm. Bộ test `tests/test_final_tables_and_manifest.py` (7 tests) pass 100%. Toàn bộ 225 unit tests của kho mã nguồn pass 100%.
+
+### W3-5 — 14/10/2026: Khắc Phục Toàn Diện Phản Biện T16, Tự Động Hóa Báo Cáo T13/T14 & Hoàn Tất Nghiệm Thu T16 (D100–D107)
+- **Hoàn tất xử lý triệt để phản biện độc lập cho T16 & chuẩn bị T17 (D100–D107):**
+  - **Sửa bug fallback latency, Thêm test so khớp & Đo lại chính thức (D103, D104):** Tách hàm chuẩn hóa `extract_10_features_e_vectorized` trong `scripts/bench_latency.py`, sửa chuẩn xác `cx_offset_norm = (box_cx - cx) / fx` và `np.maximum(..., 1.0)` cho `bw, bh`. Bổ sung test `test_extract_10_features_vectorized_matches_pipeline_exact` trong `tests/test_latency_bench.py` khớp tuyệt đối với pipeline canonical. Chạy lại benchmark một lượt với thứ tự đảo (`v5su -> v8s -> 11s`) và warmup 40 ảnh trên 200 ảnh Split B:
+    * `yolov5su_640`: GPU = **33.01 ms (P95: 64.84 ms, 30.3 FPS)**; CPU = **120.48 ms (P95: 124.56 ms, 8.3 FPS)**.
+    * `yolov8s_640`: GPU = **32.05 ms (P95: 60.14 ms, 31.2 FPS)**; CPU = **143.37 ms (P95: 148.60 ms, 7.0 FPS)**.
+    * `yolo11s_640`: GPU = **37.99 ms (P95: 48.49 ms, 26.3 FPS)**; CPU = **116.17 ms (P95: 122.82 ms, 8.6 FPS)**. (P95 của YOLO11s giảm mạnh từ 76.6 ms xuống 48.49 ms nhờ GPU warmup kỹ, loại bỏ hoàn toàn bẫy cold cache).
+  - **Chuẩn hóa diễn giải latency & ghi nhận giới hạn phần cứng (D100, D101, D104):** Đính chính padding Ultralytics là $640 \times 224 = 143.360\text{ px}$ (stride 32), tỉ lệ pixel square vs rect là $\approx 2.9\times$ (không phải 3.3x). Hạ toàn bộ diễn giải về chênh lệch GPU và IoU Parity ($0.91–0.94$) về giọng giả thuyết kỹ thuật chưa kiểm chứng ("có thể do..."). Ghi nhận 200 ảnh benchmark lấy từ frame có TP của Split B nên thiên lệch về các frame có xe (Limitations).
+  - **Gắn Assertion dữ liệu & Disclaimer định tính (D102, D105):** Sửa assert góc nhìn ca #1 sang $\theta = \min(|\alpha|, \pi - |\alpha|) < 30^\circ$ theo D19; bổ sung assert chạm viền đáy và truncation cho ca #3 và ca #5 trong `scripts/make_qualitative.py`; thêm banner Disclaimer vào đáy ảnh ghép `qualitative_grid_summary.png`. 13/13 qualitative tests PASSED 100%.
+  - **Tự động hóa 100% số liệu trong báo cáo T13 & T14 (D103, D106, D107):** Sửa `run_eval_t13.py` trích xuất động các chỉ số KS, mean $|r|$, tỷ lệ drive C, độ phủ cự ly gần Split C, cỡ mẫu dải $>50\text{m}$, Sign test cấp drive ($9/10, 9/10, 7/10$), và điều kiện hóa nhận định về CI bootstrap RQ2 (chỉ rõ `confidence` trên YOLO11s loại trừ 0 yếu). Trích xuất động tỷ lệ nền và giả thuyết H1–H3 trong `run_error_analysis_t14.py`.
+  - **Thống nhất ghi nhãn bias D21 (D107):** Ghi rõ nhãn Mean Bias mét ($-0.95\text{m}$ đến $-1.02\text{m}$) vs Median Rel Bias ($-10.9\%$ đến $-12.2\%$) trong tài liệu tasks và chỉ trỏ file nguồn `results/tables/physical_bias_d21_verification_T.{md,json}`.
+  - **Kiểm định toàn diện:** Toàn bộ test suite `pytest -q` đạt 218/218 tests PASSED 100%. Khóa `runs/final_T.lock` bất biến. Đã sẵn sàng nghiệm thu T16 và chuyển giao sang T17/T18.
+
 
 ### W3-4 — 13/10/2026: Benchmark Độ Trễ Tier 1 Chuẩn & Hình Ảnh Định Tính Split T (T16) (D94–D99)
 - **Hoàn thành T16 — Đo độ trễ Tier 1 chính thức & Trực quan hóa định tính Split T (Zero-Touch D70, D90, D96–D99):**
