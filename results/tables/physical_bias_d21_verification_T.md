@@ -86,9 +86,9 @@
 
 Số liệu thực nghiệm trên Split T đối chiếu với giả thuyết D21:
 1. **Độ lệch âm trên cue thô và mô hình hình học thuần ($z_d$):**
-   - Ở cự ly 0–10m trên nhóm Pattern 111 không chạm biên (mask $\epsilon = 2\text{ px}$), mô hình hình học $z_d$ có độ lệch âm rõ rệt: Mean Bias dao động từ **-0.95m đến -1.02m**, Median Rel Bias từ **-10.9% đến -12.2%** across 3 detectors.
-   - Các cue đơn lẻ cũng thể hiện độ lệch âm tương ứng: Cue bề rộng $z_w$ lệch -1.71m đến -1.74m (-19.0% đến -19.7%), cue chiều cao $z_h$ lệch -1.21m đến -1.25m (-13.8% đến -14.5%).
+   - Ở cự ly 0–10m trên nhóm Pattern 111 không chạm biên (mask $\epsilon = 2\text{ px}$), mô hình hình học $z_d$ có độ lệch âm rõ rệt: Mean Bias dao động từ **-1.01m đến -0.95m**, Median Rel Bias từ **-12.2% đến -10.9%** across 3 detectors.
+   - Các cue đơn lẻ cũng thể hiện độ lệch âm tương ứng: Cue bề rộng $z_w$ lệch -1.74m đến -1.73m (-19.7% đến -19.0%), cue chiều cao $z_h$ lệch -1.27m đến -1.24m (-14.5% đến -13.8%).
    - Phát hiện này **nhất quán với giả thuyết D21**: Bounding box thị giác đo đến mặt trước/gần của xe ($Z_{\text{surface}}$) thay vì tâm hộp 3D ($Z_{\text{center}}$), tạo ra độ lệch âm xấp xỉ nửa chiều dài xe $l/2 \approx 1.0\text{ m}$.
 2. **Vai trò hấp thụ sai số của mô hình Residual ($z_{\hat{f}}$):**
-   - Sau khi qua mô hình residual XGBoost, Median Rel Bias của $z_{\hat{f}}$ trên nhóm Pattern 111 giảm từ -11.6% xuống còn **-0.27% đến -1.16%** (Median Bias chỉ từ -0.02m đến -0.10m).
+   - Sau khi qua mô hình residual XGBoost, Median Rel Bias của $z_{\hat{f}}$ trên nhóm Pattern 111 giảm xuống còn **-1.16% đến -0.27%** (Median Bias chỉ từ -0.10m đến -0.02m).
    - Điều này thể hiện rằng mô hình học máy dư (residual learning) đã hấp thụ thành công độ lệch tâm vật lý có hệ thống này của mô hình hình học.

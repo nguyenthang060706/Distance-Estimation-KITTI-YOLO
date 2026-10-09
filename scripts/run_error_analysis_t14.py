@@ -234,7 +234,10 @@ def compute_drive_breakdown(
     return rows
 
 
-def generate_breakdown_markdown(all_breakdowns: dict[str, Any]) -> str:
+def generate_breakdown_markdown(
+    all_breakdowns: dict[str, Any],
+    all_va_results: dict[str, Any] | None = None,
+) -> str:
     """Generate comprehensive error analysis markdown report with transparent survivorship reporting."""
     lines: list[str] = [
         "# Error Analysis Breakdown on Split T (Task T14)",
@@ -328,21 +331,55 @@ def generate_breakdown_markdown(all_breakdowns: dict[str, Any]) -> str:
             )
         lines.append("")
 
-    # Factual Synthesis of H1-H3 Hypotheses
+    # Factual Dynamic Synthesis of H1-H3 Hypotheses
+    y11_dist = {r["distance_bin"]: r for r in all_breakdowns.get("yolo11s_640", {}).get("distance_bins", [])}
+    absrel_10_20 = y11_dist.get("10-20", {}).get("absrel", 0.0)
+    absrel_20_30 = y11_dist.get("20-30", {}).get("absrel", 0.0)
+    mae_30_50 = y11_dist.get("30-50", {}).get("mae", 0.0)
+    mae_gt50 = y11_dist.get(">50", {}).get("mae", 0.0)
+    absrel_gt50 = y11_dist.get(">50", {}).get("absrel", 0.0)
+
+    # Dynamic side cue comparison if available
+    zw_side_str = "~0.395"
+    zh_side_str = "~0.066"
+    if all_va_results and "yolo11s_640" in all_va_results:
+        side_models = all_va_results["yolo11s_640"].get("side", {}).get("models", {})
+        if "z_w" in side_models and side_models["z_w"]["absrel"] is not None:
+            zw_side_str = f"{side_models['z_w']['absrel']:.3f}"
+        if "z_h" in side_models and side_models["z_h"]["absrel"] is not None:
+            zh_side_str = f"{side_models['z_h']['absrel']:.3f}"
+
+    # Detector recall comparison
+    recalls = {}
+    for m_key in MODELS:
+        drives = all_breakdowns.get(m_key, {}).get("drives", [])
+        tp_tot = sum(r["n_tp"] for r in drives)
+        gt_tot = sum(r["n_gt"] for r in drives)
+        recalls[m_key] = (tp_tot / gt_tot * 100) if gt_tot > 0 else 0.0
+
+    # Occlusion & Difficulty on primary detector yolo11s
+    y11_occ = {r["occlusion_level"]: r for r in all_breakdowns.get("yolo11s_640", {}).get("occlusion", [])}
+    rec_occ0 = y11_occ.get("0 (Fully visible)", {}).get("recall", 0.0) * 100
+    rec_occ2 = y11_occ.get("2 (Largely occluded)", {}).get("recall", 0.0) * 100
+
+    y11_diff = {r["difficulty_group"]: r for r in all_breakdowns.get("yolo11s_640", {}).get("difficulty", [])}
+    absrel_easy = y11_diff.get("Easy (disjoint)", {}).get("absrel", 0.0)
+    absrel_hard_disjoint = y11_diff.get("Hard (disjoint)", {}).get("absrel", 0.0)
+
     lines.append("## Empirical Evaluation of Hypotheses H1–H3 on Split T")
     lines.append("")
     lines.append("Dựa trên số liệu thực nghiệm thuần túy từ Split T:")
     lines.append("1. **Kiểm chứng Giả thuyết H1 (Sai số theo cự ly & suy biến cue):**")
-    lines.append("   - Ở cự ly 10–20m và 20–30m, mô hình đạt AbsRel thấp nhất (0.0421 và 0.0429 trên YOLO11s). Ở cự ly >30m, MAE tăng lên 1.78m và ở >50m là 5.66m (với AbsRel 0.1057), đúng với dự báo của H1 về sự chiếm ưu thế của sai số hình học và lượng hóa độ phân giải ở cự ly xa.")
-    lines.append("   - Cue chiều rộng $z_w$ suy biến mạnh ở góc nhìn ngang (Side, AbsRel ~ 0.395), trong khi cue chiều cao $z_h$ duy trì ổn định hơn nhiều (AbsRel ~ 0.066), xác nhận thực nghiệm tiên nghiệm của H1 và Quyết định D19.")
+    lines.append(f"   - Ở cự ly 10–20m và 20–30m, mô hình đạt AbsRel thấp nhất ({absrel_10_20:.4f} và {absrel_20_30:.4f} trên YOLO11s). Ở cự ly 30–50m, MAE là {mae_30_50:.2f}m và ở >50m là {mae_gt50:.2f}m (với AbsRel {absrel_gt50:.4f}), đúng với dự báo của H1 về sự chiếm ưu thế của sai số hình học và lượng hóa độ phân giải ở cự ly xa.")
+    lines.append(f"   - Cue chiều rộng $z_w$ suy biến mạnh ở góc nhìn ngang (Side, AbsRel = {zw_side_str}), trong khi cue chiều cao $z_h$ duy trì ổn định hơn nhiều (AbsRel = {zh_side_str}), xác nhận thực nghiệm tiên nghiệm của H1 và Quyết định D19.")
     lines.append("2. **Kiểm chứng Giả thuyết H2 (So sánh giữa các thế hệ YOLO):**")
-    lines.append("   - Cả 3 detector cho sai số tương đối rất sát nhau trên toàn bộ Split T: YOLO11s (AbsRel 0.0463, MAE 1.099m), YOLOv8s (AbsRel 0.0461, MAE 1.063m), YOLOv5su (AbsRel 0.0474, MAE 1.118m).")
-    lines.append("   - Tỷ lệ Recall trên Split T đạt tương ứng 84.4% (YOLO11s), 82.8% (YOLOv8s), và 83.3% (YOLOv5su). Không có sự vượt trội tuyệt đối rõ rệt giữa các detector khi chạy cùng pipeline ranging, khoảng tin cậy chồng lấn.")
+    lines.append(f"   - Tỷ lệ Recall trên Split T đạt tương ứng {recalls.get('yolo11s_640', 0.0):.1f}% (YOLO11s), {recalls.get('yolov8s_640', 0.0):.1f}% (YOLOv8s), và {recalls.get('yolov5su_640', 0.0):.1f}% (YOLOv5su). Không có sự vượt trội tuyệt đối rõ rệt giữa các detector khi chạy cùng pipeline ranging, khoảng tin cậy chồng lấn.")
     lines.append("3. **Kiểm chứng Giả thuyết H3 (Tác động của che khuất & độ khó):**")
-    lines.append("   - Khi độ che khuất tăng từ Fully visible (occ=0) lên Largely occluded (occ=2), Recall giảm mạnh từ 96.2% xuống 59.4% (YOLO11s), cho thấy hiện tượng thiên lệch kẻ sống sót (survivorship bias) rất lớn nếu chỉ đánh giá trên tập True Positives.")
-    lines.append("   - Trên tập TP còn lại, AbsRel ở nhóm Hard disjoint đạt 0.0592 so với 0.0390 ở nhóm Easy, thể hiện sự suy giảm độ chính xác định lượng khi điều kiện quan sát khó khăn hơn.")
+    lines.append(f"   - Khi độ che khuất tăng từ Fully visible (occ=0) lên Largely occluded (occ=2), Recall giảm mạnh từ {rec_occ0:.1f}% xuống {rec_occ2:.1f}% (YOLO11s), cho thấy hiện tượng thiên lệch kẻ sống sót (survivorship bias) rất lớn nếu chỉ đánh giá trên tập True Positives.")
+    lines.append(f"   - Trên tập TP còn lại, AbsRel ở nhóm Hard disjoint đạt {absrel_hard_disjoint:.4f} so với {absrel_easy:.4f} ở nhóm Easy, thể hiện sự suy giảm độ chính xác định lượng khi điều kiện quan sát khó khăn hơn.")
 
     return "\n".join(lines)
+
 
 
 def generate_viewing_angle_markdown(va_results: dict[str, Any]) -> str:
@@ -464,16 +501,44 @@ def generate_physical_bias_markdown(bias_results: dict[str, Any]) -> str:
             )
         lines.append("")
 
-    # Factual Synthesis
+    # Factual Dynamic Synthesis
+    zd_mean_biases = []
+    zd_rel_biases = []
+    zw_mean_biases = []
+    zw_rel_biases = []
+    zh_mean_biases = []
+    zh_rel_biases = []
+    zf_median_biases = []
+    zf_rel_biases = []
+
+    for m_key in MODELS:
+        if m_key in bias_results:
+            cues = bias_results[m_key].get("pattern_111_verification", {}).get("near_0_10m_pattern_111_no_border_cut", {}).get("cues", {})
+            if "z_d" in cues and cues["z_d"]["bias_mean_m"] is not None:
+                zd_mean_biases.append(cues["z_d"]["bias_mean_m"])
+                zd_rel_biases.append(cues["z_d"]["bias_rel_median"] * 100)
+            if "z_w" in cues and cues["z_w"]["bias_mean_m"] is not None:
+                zw_mean_biases.append(cues["z_w"]["bias_mean_m"])
+                zw_rel_biases.append(cues["z_w"]["bias_rel_median"] * 100)
+            if "z_h" in cues and cues["z_h"]["bias_mean_m"] is not None:
+                zh_mean_biases.append(cues["z_h"]["bias_mean_m"])
+                zh_rel_biases.append(cues["z_h"]["bias_rel_median"] * 100)
+            if "z_hat_f" in cues and cues["z_hat_f"]["bias_mean_m"] is not None:
+                zf_median_biases.append(cues["z_hat_f"]["bias_median_m"])
+                zf_rel_biases.append(cues["z_hat_f"]["bias_rel_median"] * 100)
+
     lines.append("## Verification Synthesis (Decisions D21 & D84)")
     lines.append("")
     lines.append("Số liệu thực nghiệm trên Split T đối chiếu với giả thuyết D21:")
     lines.append("1. **Độ lệch âm trên cue thô và mô hình hình học thuần ($z_d$):**")
-    lines.append("   - Ở cự ly 0–10m trên nhóm Pattern 111 không chạm biên (mask $\\epsilon = 2\\text{ px}$), mô hình hình học $z_d$ có độ lệch âm rõ rệt: Mean Bias dao động từ **-0.95m đến -1.02m**, Median Rel Bias từ **-10.9% đến -12.2%** across 3 detectors.")
-    lines.append("   - Các cue đơn lẻ cũng thể hiện độ lệch âm tương ứng: Cue bề rộng $z_w$ lệch -1.71m đến -1.74m (-19.0% đến -19.7%), cue chiều cao $z_h$ lệch -1.21m đến -1.25m (-13.8% đến -14.5%).")
+    if zd_mean_biases:
+        lines.append(f"   - Ở cự ly 0–10m trên nhóm Pattern 111 không chạm biên (mask $\\epsilon = 2\\text{{ px}}$), mô hình hình học $z_d$ có độ lệch âm rõ rệt: Mean Bias dao động từ **{min(zd_mean_biases):+.2f}m đến {max(zd_mean_biases):+.2f}m**, Median Rel Bias từ **{min(zd_rel_biases):+.1f}% đến {max(zd_rel_biases):+.1f}%** across {len(MODELS)} detectors.")
+    if zw_mean_biases and zh_mean_biases:
+        lines.append(f"   - Các cue đơn lẻ cũng thể hiện độ lệch âm tương ứng: Cue bề rộng $z_w$ lệch {min(zw_mean_biases):+.2f}m đến {max(zw_mean_biases):+.2f}m ({min(zw_rel_biases):+.1f}% đến {max(zw_rel_biases):+.1f}%), cue chiều cao $z_h$ lệch {min(zh_mean_biases):+.2f}m đến {max(zh_mean_biases):+.2f}m ({min(zh_rel_biases):+.1f}% đến {max(zh_rel_biases):+.1f}%).")
     lines.append("   - Phát hiện này **nhất quán với giả thuyết D21**: Bounding box thị giác đo đến mặt trước/gần của xe ($Z_{\\text{surface}}$) thay vì tâm hộp 3D ($Z_{\\text{center}}$), tạo ra độ lệch âm xấp xỉ nửa chiều dài xe $l/2 \\approx 1.0\\text{ m}$.")
     lines.append("2. **Vai trò hấp thụ sai số của mô hình Residual ($z_{\\hat{f}}$):**")
-    lines.append("   - Sau khi qua mô hình residual XGBoost, Median Rel Bias của $z_{\\hat{f}}$ trên nhóm Pattern 111 giảm từ -11.6% xuống còn **-0.27% đến -1.16%** (Median Bias chỉ từ -0.02m đến -0.10m).")
+    if zf_rel_biases:
+        lines.append(f"   - Sau khi qua mô hình residual XGBoost, Median Rel Bias của $z_{{\\hat{{f}}}}$ trên nhóm Pattern 111 giảm xuống còn **{min(zf_rel_biases):+.2f}% đến {max(zf_rel_biases):+.2f}%** (Median Bias chỉ từ {min(zf_median_biases):+.2f}m đến {max(zf_median_biases):+.2f}m).")
     lines.append("   - Điều này thể hiện rằng mô hình học máy dư (residual learning) đã hấp thụ thành công độ lệch tâm vật lý có hệ thống này của mô hình hình học.")
 
     return "\n".join(lines)
@@ -483,10 +548,22 @@ def generate_top_failures_markdown(tf_data: dict[str, Any]) -> str:
     """Generate Markdown report for Top Failures Analysis on primary detector yolo11s_640."""
     n_top = tf_data["n_top_failures"]
     fb_count = tf_data["failures_fallback_count"]
-    fb_pct = fb_count / n_top * 100
+    fb_pct = fb_count / n_top * 100 if n_top > 0 else 0.0
 
     near_count = tf_data["failures_bin_distribution"].get("0-10", 0)
-    near_pct = near_count / n_top * 100
+    near_pct = near_count / n_top * 100 if n_top > 0 else 0.0
+
+    total_pred = tf_data.get("total_predictions", 2712)
+    base_fb = tf_data.get("baseline_fallback_count", 36)
+    base_fb_pct = (base_fb / total_pred * 100) if total_pred > 0 else 0.0
+    fb_ratio = (fb_pct / base_fb_pct) if base_fb_pct > 0 else 0.0
+
+    base_near = tf_data.get("baseline_near_count", 261)
+    base_near_pct = (base_near / total_pred * 100) if total_pred > 0 else 0.0
+    near_ratio = (near_pct / base_near_pct) if base_near_pct > 0 else 0.0
+
+    occ_ge1_count = sum(1 for f in tf_data.get("top_failures", []) if f.get("occluded", 0) >= 1)
+    trunc_gt0_count = sum(1 for f in tf_data.get("top_failures", []) if f.get("truncated", 0) > 0)
 
     lines: list[str] = [
         f"# Top Failure Cases Analysis on Split T (Detector: `{tf_data['detector']}`)",
@@ -496,10 +573,10 @@ def generate_top_failures_markdown(tf_data: dict[str, Any]) -> str:
         "",
         "## 1. Summary of Top 50 Failures & Comparison with Background Population",
         f"- **Tổng số ca thất bại lớn nhất được phân tích:** {n_top}",
-        f"- **Các ca kích hoạt Fallback (Pattern 000):** {fb_count} / {n_top} ({fb_pct:.1f}%) — **so với tỷ lệ nền toàn Split T là 36 / 2,712 (1.33%)**.",
-        f"  - *Nhận xét:* Nhóm Fallback bị over-represented **gấp ~18 lần** trong top 50 lỗi nặng nhất, cho thấy việc mất toàn bộ 3 cue hình học là nguồn rủi ro sai số lớn nhất.",
-        f"- **Các ca cự ly gần (0–10m):** {near_count} / {n_top} ({near_pct:.1f}%) — **so với tỷ lệ nền toàn Split T là 261 / 2,712 (9.62%)**.",
-        f"  - *Nhận xét:* Nhóm 0–10m bị over-represented **gấp ~4.2 lần** do mẫu số $Z_{{gt}}$ nhỏ khiến sai số mét tuyệt đối (1.5–2.5m) bị khuếch đại thành AbsRel cao (20%–43%).",
+        f"- **Các ca kích hoạt Fallback (Pattern 000):** {fb_count} / {n_top} ({fb_pct:.1f}%) — **so với tỷ lệ nền toàn Split T là {base_fb} / {total_pred:,} ({base_fb_pct:.2f}%)**.",
+        f"  - *Nhận xét:* Nhóm Fallback bị over-represented **gấp ~{fb_ratio:.1f} lần** trong top {n_top} lỗi nặng nhất, cho thấy việc mất toàn bộ 3 cue hình học là nguồn rủi ro sai số lớn nhất.",
+        f"- **Các ca cự ly gần (0–10m):** {near_count} / {n_top} ({near_pct:.1f}%) — **so với tỷ lệ nền toàn Split T là {base_near} / {total_pred:,} ({base_near_pct:.2f}%)**.",
+        f"  - *Nhận xét:* Nhóm 0–10m bị over-represented **gấp ~{near_ratio:.1f} lần** do mẫu số $Z_{{gt}}$ nhỏ khiến sai số mét tuyệt đối (1.5–2.5m) bị khuếch đại thành AbsRel cao.",
         "- **Chi tiết phân bố cự ly thực tế ($Z_{{gt}}$):**",
     ]
     for b_name, count in tf_data["failures_bin_distribution"].items():
@@ -520,10 +597,10 @@ def generate_top_failures_markdown(tf_data: dict[str, Any]) -> str:
     lines.append("")
 
     lines.append("## 3. Qualitative Failure Patterns Identified")
-    lines.append("Từ việc rà soát 50 ca có sai số tương đối AbsRel cao nhất đối chiếu với toàn bộ tập mẫu:")
-    lines.append("1. **Thiên lệch mạnh vào nhóm Fallback (24.0% vs 1.33% nền):** 12 ca mất sạch cả 3 cue hình học buộc phải dùng mô hình phụ trợ, dẫn tới độ phân tán sai số lớn nhất.")
-    lines.append("2. **Thiên lệch vào cự ly gần do hiệu ứng mẫu số (40.0% vs 9.62% nền):** 20 ca cự ly 0–10m có sai số mét thực tế không quá lớn (1.5–2.5m) nhưng AbsRel cao.")
-    lines.append("3. **Tác động của che khuất và cắt xén:** 28/50 ca có Occlusion $\\ge 1$ và 19/50 ca có Truncation $> 0$.")
+    lines.append(f"Từ việc rà soát {n_top} ca có sai số tương đối AbsRel cao nhất đối chiếu với toàn bộ tập mẫu:")
+    lines.append(f"1. **Thiên lệch mạnh vào nhóm Fallback ({fb_pct:.1f}% vs {base_fb_pct:.2f}% nền):** {fb_count} ca mất sạch cả 3 cue hình học buộc phải dùng mô hình phụ trợ, dẫn tới độ phân tán sai số lớn nhất.")
+    lines.append(f"2. **Thiên lệch vào cự ly gần do hiệu ứng mẫu số ({near_pct:.1f}% vs {base_near_pct:.2f}% nền):** {near_count} ca cự ly 0–10m có sai số mét thực tế không quá lớn (1.5–2.5m) nhưng AbsRel cao.")
+    lines.append(f"3. **Tác động của che khuất và cắt xén:** {occ_ge1_count}/{n_top} ca có Occlusion $\\ge 1$ và {trunc_gt0_count}/{n_top} ca có Truncation $> 0$.")
 
     return "\n".join(lines)
 
@@ -596,7 +673,7 @@ def main() -> None:
 
     # Export Markdown tables
     md_breakdown_path = OUTPUT_TABLES_DIR / "error_analysis_breakdown_T.md"
-    md_breakdown_content = generate_breakdown_markdown(all_breakdowns)
+    md_breakdown_content = generate_breakdown_markdown(all_breakdowns, all_va_results)
     md_breakdown_path.write_text(md_breakdown_content, encoding="utf-8")
     print(f"[Artifact Generated] -> {md_breakdown_path}")
 

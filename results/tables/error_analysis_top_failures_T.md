@@ -6,9 +6,9 @@
 ## 1. Summary of Top 50 Failures & Comparison with Background Population
 - **Tổng số ca thất bại lớn nhất được phân tích:** 50
 - **Các ca kích hoạt Fallback (Pattern 000):** 12 / 50 (24.0%) — **so với tỷ lệ nền toàn Split T là 36 / 2,712 (1.33%)**.
-  - *Nhận xét:* Nhóm Fallback bị over-represented **gấp ~18 lần** trong top 50 lỗi nặng nhất, cho thấy việc mất toàn bộ 3 cue hình học là nguồn rủi ro sai số lớn nhất.
+  - *Nhận xét:* Nhóm Fallback bị over-represented **gấp ~18.1 lần** trong top 50 lỗi nặng nhất, cho thấy việc mất toàn bộ 3 cue hình học là nguồn rủi ro sai số lớn nhất.
 - **Các ca cự ly gần (0–10m):** 20 / 50 (40.0%) — **so với tỷ lệ nền toàn Split T là 261 / 2,712 (9.62%)**.
-  - *Nhận xét:* Nhóm 0–10m bị over-represented **gấp ~4.2 lần** do mẫu số $Z_{gt}$ nhỏ khiến sai số mét tuyệt đối (1.5–2.5m) bị khuếch đại thành AbsRel cao (20%–43%).
+  - *Nhận xét:* Nhóm 0–10m bị over-represented **gấp ~4.2 lần** do mẫu số $Z_{gt}$ nhỏ khiến sai số mét tuyệt đối (1.5–2.5m) bị khuếch đại thành AbsRel cao.
 - **Chi tiết phân bố cự ly thực tế ($Z_{{gt}}$):**
   - Cự ly `0-10`: 20 ca (40.0%)
   - Cự ly `20-30`: 15 ca (30.0%)
@@ -73,4 +73,4 @@
 Từ việc rà soát 50 ca có sai số tương đối AbsRel cao nhất đối chiếu với toàn bộ tập mẫu:
 1. **Thiên lệch mạnh vào nhóm Fallback (24.0% vs 1.33% nền):** 12 ca mất sạch cả 3 cue hình học buộc phải dùng mô hình phụ trợ, dẫn tới độ phân tán sai số lớn nhất.
 2. **Thiên lệch vào cự ly gần do hiệu ứng mẫu số (40.0% vs 9.62% nền):** 20 ca cự ly 0–10m có sai số mét thực tế không quá lớn (1.5–2.5m) nhưng AbsRel cao.
-3. **Tác động của che khuất và cắt xén:** 28/50 ca có Occlusion $\ge 1$ và 19/50 ca có Truncation $> 0$.
+3. **Tác động của che khuất và cắt xén:** 27/50 ca có Occlusion $\ge 1$ và 25/50 ca có Truncation $> 0$.

@@ -563,10 +563,13 @@ def main():
             s_ci_low = round(float(np.percentile(boot_s, 2.5)), 4) if boot_s else float("nan")
             s_ci_high = round(float(np.percentile(boot_s, 97.5)), 4) if boot_s else float("nan")
 
-            note_str = (
-                f"{feat_note}. Spearman rho là chỉ số chính (chống outlier). "
-                f"Cluster bootstrap 95% CI chứa 0 -> không phân biệt được với 0 ở mức 10 cụm."
+            ci_contains_zero = (s_ci_low <= 0.0 <= s_ci_high)
+            zero_str = (
+                "Cluster bootstrap 95% CI chứa 0 -> không phân biệt được với 0 ở mức 10 cụm."
+                if ci_contains_zero
+                else f"Cluster bootstrap 95% CI loại trừ 0 ([{s_ci_low}, {s_ci_high}])."
             )
+            note_str = f"{feat_note}. Spearman rho là chỉ số chính (chống outlier). {zero_str}"
 
             rq2_rows.append({
                 "detector": m,

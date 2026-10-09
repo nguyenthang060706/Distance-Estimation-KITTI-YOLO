@@ -454,6 +454,9 @@ def extract_top_failures_and_successes(
         "n_top_failures": len(failure_items),
         "failures_bin_distribution": bin_counts,
         "failures_fallback_count": fb_count,
+        "total_predictions": len(work_df),
+        "baseline_fallback_count": int(work_df["fallback_flag"].sum()) if "fallback_flag" in work_df.columns else 0,
+        "baseline_near_count": int((work_df[target_col] <= 10.0).sum()),
         "top_failures": failure_items,
         "representative_successes": success_items,
     }

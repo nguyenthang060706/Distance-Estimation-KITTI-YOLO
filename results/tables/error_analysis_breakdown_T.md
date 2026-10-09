@@ -164,10 +164,9 @@
 
 Dựa trên số liệu thực nghiệm thuần túy từ Split T:
 1. **Kiểm chứng Giả thuyết H1 (Sai số theo cự ly & suy biến cue):**
-   - Ở cự ly 10–20m và 20–30m, mô hình đạt AbsRel thấp nhất (0.0421 và 0.0429 trên YOLO11s). Ở cự ly >30m, MAE tăng lên 1.78m và ở >50m là 5.66m (với AbsRel 0.1057), đúng với dự báo của H1 về sự chiếm ưu thế của sai số hình học và lượng hóa độ phân giải ở cự ly xa.
-   - Cue chiều rộng $z_w$ suy biến mạnh ở góc nhìn ngang (Side, AbsRel ~ 0.395), trong khi cue chiều cao $z_h$ duy trì ổn định hơn nhiều (AbsRel ~ 0.066), xác nhận thực nghiệm tiên nghiệm của H1 và Quyết định D19.
+   - Ở cự ly 10–20m và 20–30m, mô hình đạt AbsRel thấp nhất (0.0421 và 0.0429 trên YOLO11s). Ở cự ly 30–50m, MAE là 1.75m và ở >50m là 5.66m (với AbsRel 0.1057), đúng với dự báo của H1 về sự chiếm ưu thế của sai số hình học và lượng hóa độ phân giải ở cự ly xa.
+   - Cue chiều rộng $z_w$ suy biến mạnh ở góc nhìn ngang (Side, AbsRel = 0.395), trong khi cue chiều cao $z_h$ duy trì ổn định hơn nhiều (AbsRel = 0.066), xác nhận thực nghiệm tiên nghiệm của H1 và Quyết định D19.
 2. **Kiểm chứng Giả thuyết H2 (So sánh giữa các thế hệ YOLO):**
-   - Cả 3 detector cho sai số tương đối rất sát nhau trên toàn bộ Split T: YOLO11s (AbsRel 0.0463, MAE 1.099m), YOLOv8s (AbsRel 0.0461, MAE 1.063m), YOLOv5su (AbsRel 0.0474, MAE 1.118m).
    - Tỷ lệ Recall trên Split T đạt tương ứng 84.4% (YOLO11s), 82.8% (YOLOv8s), và 83.3% (YOLOv5su). Không có sự vượt trội tuyệt đối rõ rệt giữa các detector khi chạy cùng pipeline ranging, khoảng tin cậy chồng lấn.
 3. **Kiểm chứng Giả thuyết H3 (Tác động của che khuất & độ khó):**
    - Khi độ che khuất tăng từ Fully visible (occ=0) lên Largely occluded (occ=2), Recall giảm mạnh từ 96.2% xuống 59.4% (YOLO11s), cho thấy hiện tượng thiên lệch kẻ sống sót (survivorship bias) rất lớn nếu chỉ đánh giá trên tập True Positives.

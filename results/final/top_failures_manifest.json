@@ -8,6 +8,9 @@
     "10-20": 5
   },
   "failures_fallback_count": 12,
+  "total_predictions": 2712,
+  "baseline_fallback_count": 36,
+  "baseline_near_count": 261,
   "top_failures": [
     {
       "rank": 1,

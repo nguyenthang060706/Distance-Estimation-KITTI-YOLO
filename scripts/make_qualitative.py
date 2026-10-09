@@ -264,6 +264,17 @@ def build_qualitative_grid(
         ax.axis("off")
         ax.set_title(f"{spec['title']} — {spec['category']}", fontsize=10, fontweight="semibold", pad=4)
 
+    # Note footer (Decision D102)
+    fig.text(
+        0.5,
+        0.005,
+        "Note: Cases purposefully selected from frozen Split T to illustrate physical mechanisms & failure modes (D102); not a random sample.",
+        ha="center",
+        fontsize=10,
+        fontstyle="italic",
+        color="#333333",
+    )
+
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"[Saved] Qualitative Grid Figure: {output_path.name}")
@@ -315,6 +326,37 @@ def main():
         sub = df_preds[(df_preds["frame_id"] == fid) & (df_preds["pred_idx"] == pidx)]
         assert len(sub) == 1, f"Found {len(sub)} rows for frame {fid}, pred_idx {pidx}"
         row = sub.iloc[0]
+
+        # Decision D102: Assert specific physical and algorithmic properties from DataFrame
+        cid = spec["id"]
+        if cid == "qualitative_01_side_view_d19":
+            assert "alpha" in row and abs(np.degrees(float(row["alpha"]))) < 30.0, (
+                f"{cid} must satisfy side viewing angle |alpha| < 30 deg, got {abs(np.degrees(float(row['alpha']))):.2f}"
+            )
+        elif cid == "qualitative_02_near_physical_bias_d21":
+            assert bool(row["valid_w"]) and bool(row["valid_h"]) and bool(row["valid_g"]) and float(row["z_gt"]) < 10.0, (
+                f"{cid} must have Pattern 111 and z_gt < 10m"
+            )
+        elif cid == "qualitative_03_truncated_edge_d84":
+            assert (not bool(row["valid_h"])) and (not bool(row["valid_g"])), (
+                f"{cid} must lose valid_h and valid_g due to bottom truncation"
+            )
+        elif cid == "qualitative_04_fallback_pattern000_d74":
+            assert bool(row["fallback_flag"]), f"{cid} must have fallback_flag == True"
+            assert (not bool(row["valid_w"])) and (not bool(row["valid_h"])) and (not bool(row["valid_g"])), (
+                f"{cid} must be Pattern 000"
+            )
+        elif cid == "qualitative_05_top1_failure":
+            assert bool(row["fallback_flag"]), f"{cid} must have fallback_flag == True"
+            assert not bool((row["z_gt"] >= row["z_lo_cqr"]) and (row["z_gt"] <= row["z_hi_cqr"])), (
+                f"{cid} must be miscovered"
+            )
+        elif cid == "qualitative_06_success_10_20m":
+            assert 10.0 <= float(row["z_gt"]) <= 20.0, f"{cid} must be in 10-20m range"
+        elif cid == "qualitative_07_success_20_30m":
+            assert 20.0 <= float(row["z_gt"]) <= 30.0, f"{cid} must be in 20-30m range"
+        elif cid == "qualitative_08_success_hard":
+            assert str(row["difficulty"]).strip().lower() == "hard", f"{cid} must satisfy KITTI Hard difficulty"
 
         img_bgr = cv2_imread_unicode(img_file)
         assert img_bgr is not None, f"Failed to read image {img_file}"

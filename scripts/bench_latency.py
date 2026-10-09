@@ -256,6 +256,39 @@ def run_parity_check(
     }
 
 
+def extract_10_features_e_vectorized(
+    active_boxes: np.ndarray,
+    active_scores: np.ndarray,
+    intrinsics: CameraIntrinsics,
+    orig_w: int,
+    orig_h: int,
+) -> np.ndarray:
+    """
+    Vectorized extraction of the 10 canonical inference features (FEATURE_COLS_E) for Model (e) (D11).
+    """
+    n_boxes = len(active_boxes)
+    if n_boxes == 0:
+        return np.empty((0, 10), dtype=float)
+
+    bw = np.maximum(active_boxes[:, 2] - active_boxes[:, 0], 1.0)
+    bh = np.maximum(active_boxes[:, 3] - active_boxes[:, 1], 1.0)
+    wh_ratio = bw / bh
+    y_bot_cy = active_boxes[:, 3] - intrinsics.cy
+    box_cx = (active_boxes[:, 0] + active_boxes[:, 2]) / 2.0
+    cx_offset_norm = (box_cx - intrinsics.cx) / float(intrinsics.fx)
+
+    t_left = (active_boxes[:, 0] <= BORDER_EPS).astype(float)
+    t_right = (active_boxes[:, 2] >= (orig_w - 1 - BORDER_EPS)).astype(float)
+    t_top = (active_boxes[:, 1] <= BORDER_EPS).astype(float)
+    t_bot = (active_boxes[:, 3] >= (orig_h - 1 - BORDER_EPS)).astype(float)
+    conf_col = np.asarray(active_scores, dtype=float)
+
+    return np.stack([
+        bw, bh, wh_ratio, y_bot_cy, cx_offset_norm,
+        t_left, t_right, t_top, t_bot, conf_col,
+    ], axis=1)
+
+
 def extract_17_features_vectorized(
     active_boxes: np.ndarray,
     active_scores: np.ndarray,
@@ -658,19 +691,9 @@ def main():
                     p000 = ~cues_gpu.valid_w & ~cues_gpu.valid_h & ~cues_gpu.valid_g
                     z_base_gpu = z_d_gpu.copy()
                     if np.any(p000):
-                        # Extract e features for fallback
-                        X_e_fb = np.stack([
-                            boxes_gpu[p000, 2] - boxes_gpu[p000, 0],
-                            boxes_gpu[p000, 3] - boxes_gpu[p000, 1],
-                            (boxes_gpu[p000, 2] - boxes_gpu[p000, 0]) / (boxes_gpu[p000, 3] - boxes_gpu[p000, 1]),
-                            boxes_gpu[p000, 3] - intrinsics.cy,
-                            ((boxes_gpu[p000, 0] + boxes_gpu[p000, 2]) / 2.0 - intrinsics.cx) / orig_w,
-                            (boxes_gpu[p000, 0] <= BORDER_EPS).astype(float),
-                            (boxes_gpu[p000, 2] >= orig_w - 1 - BORDER_EPS).astype(float),
-                            (boxes_gpu[p000, 1] <= BORDER_EPS).astype(float),
-                            (boxes_gpu[p000, 3] >= orig_h - 1 - BORDER_EPS).astype(float),
-                            scores_gpu[p000],
-                        ], axis=1)
+                        X_e_fb = extract_10_features_e_vectorized(
+                            boxes_gpu[p000], scores_gpu[p000], intrinsics, orig_w, orig_h
+                        )
                         z_base_gpu[p000] = np.exp(model_e.predict(X_e_fb))
                 else:
                     cues_gpu = None
@@ -747,18 +770,9 @@ def main():
                 p000_c = ~cues_cpu.valid_w & ~cues_cpu.valid_h & ~cues_cpu.valid_g
                 z_base_cpu = z_d_cpu.copy()
                 if np.any(p000_c):
-                    X_e_fb_c = np.stack([
-                        boxes_cpu[p000_c, 2] - boxes_cpu[p000_c, 0],
-                        boxes_cpu[p000_c, 3] - boxes_cpu[p000_c, 1],
-                        (boxes_cpu[p000_c, 2] - boxes_cpu[p000_c, 0]) / (boxes_cpu[p000_c, 3] - boxes_cpu[p000_c, 1]),
-                        boxes_cpu[p000_c, 3] - intrinsics.cy,
-                        ((boxes_cpu[p000_c, 0] + boxes_cpu[p000_c, 2]) / 2.0 - intrinsics.cx) / orig_w_c,
-                        (boxes_cpu[p000_c, 0] <= BORDER_EPS).astype(float),
-                        (boxes_cpu[p000_c, 2] >= orig_w_c - 1 - BORDER_EPS).astype(float),
-                        (boxes_cpu[p000_c, 1] <= BORDER_EPS).astype(float),
-                        (boxes_cpu[p000_c, 3] >= orig_h_c - 1 - BORDER_EPS).astype(float),
-                        scores_cpu[p000_c],
-                    ], axis=1)
+                    X_e_fb_c = extract_10_features_e_vectorized(
+                        boxes_cpu[p000_c], scores_cpu[p000_c], intrinsics, orig_w_c, orig_h_c
+                    )
                     z_base_cpu[p000_c] = np.exp(model_e.predict(X_e_fb_c))
             else:
                 cues_cpu = None

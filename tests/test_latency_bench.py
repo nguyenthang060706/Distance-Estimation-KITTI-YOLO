@@ -10,6 +10,7 @@ import pytest
 from scripts.bench_latency import (
     compute_box_iou,
     compute_latency_stats,
+    extract_10_features_e_vectorized,
     extract_17_features_vectorized,
     letterbox_image,
     postprocess_onnx_boxes,
@@ -234,3 +235,56 @@ def test_extract_17_features_vectorized_matches_pipeline_exact():
 
     assert X_vec.shape == X_ref.shape
     np.testing.assert_allclose(X_vec, X_ref, rtol=1e-5, atol=1e-5)
+
+
+def test_extract_10_features_vectorized_matches_pipeline_exact():
+    """Verify that vectorized 10-feature extraction for Model (e) exactly matches build_feature_matrices from models.py."""
+    import pandas as pd
+    from src.residual.feature_extractor import extract_inference_features
+    from src.residual.models import build_feature_matrices
+
+    boxes = np.array([
+        [100.0, 150.0, 250.0, 220.0],
+        [0.0, 180.0, 120.0, 260.0],
+    ])
+    scores = np.array([0.88, 0.75])
+    intrinsics = CameraIntrinsics(fx=721.5, fy=721.5, cx=609.5, cy=172.8)
+    orig_w, orig_h = 1242, 375
+
+    X_vec_e = extract_10_features_e_vectorized(
+        active_boxes=boxes,
+        active_scores=scores,
+        intrinsics=intrinsics,
+        orig_w=orig_w,
+        orig_h=orig_h,
+    )
+
+    # Build reference features using canonical pipeline
+    raw_df = pd.DataFrame({
+        "x1": boxes[:, 0],
+        "y1": boxes[:, 1],
+        "x2": boxes[:, 2],
+        "y2": boxes[:, 3],
+        "confidence": scores,
+        "img_w": orig_w,
+        "img_h": orig_h,
+        "fx": intrinsics.fx,
+        "fy": intrinsics.fy,
+        "cx": intrinsics.cx,
+        "cy": intrinsics.cy,
+        "z_w": [25.0, 15.0],
+        "z_h": [24.5, 14.8],
+        "z_g": [26.0, 16.0],
+        "valid_w": [True, False],
+        "valid_h": [True, True],
+        "valid_g": [True, False],
+    })
+    base_feats = extract_inference_features(raw_df)
+    feat_mats = build_feature_matrices(base_feats, z_base=np.array([25.2, 14.8]))
+    X_ref_e = feat_mats["e"].to_numpy(dtype=float)
+
+    assert X_vec_e.shape == (2, 10)
+    assert X_vec_e.shape == X_ref_e.shape
+    # Specifically check cx_offset_norm column (index 4) matches (divided by fx=721.5, not orig_w=1242)
+    np.testing.assert_allclose(X_vec_e, X_ref_e, rtol=1e-5, atol=1e-5)
+
