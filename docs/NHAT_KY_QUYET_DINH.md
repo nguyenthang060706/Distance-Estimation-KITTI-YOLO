@@ -336,11 +336,23 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Minh bạch Hạn chế Fallback Pattern 000 & Tinh chỉnh Abstract/Q&A (D125):**
   * Minh bạch cơ chế fallback khi toàn bộ cue hình học bị cắt xén (Pattern 000): hệ thống lùi về mô hình hồi quy trực tiếp Model (e), không phải lùi về hình học thuần túy.
   * Abstract và Q&A nêu rõ độ phủ thực tế của fallback là 77.8%–86.1% (thấp hơn mức danh nghĩa 90%), loại bỏ mọi tuyên bố võ đoán về tính năng phanh khẩn cấp hay an toàn tuyệt đối khi chưa có kiểm chứng phần cứng thực tế.
-- ✅ **Chuẩn hóa Escape LaTeX Math Mode và Loại bỏ Từ ngữ Phóng đại Toàn diện (D126):**
-  * Sửa lỗi LaTeX syntax trong `MANUSCRIPT_TEMPLATE.md`: các thẻ placeholder chứa ký tự `%` được đưa ra ngoài cặp `$ $` (ví dụ `$\delta_1 =$ {{num:...}}%`) để tránh trình biên dịch LaTeX hiểu nhầm `%` là ký tự bắt đầu chú thích (comment).
-  * Chuẩn hóa tên gọi phương pháp co ngót hiệp phương sai là `OAS (Chen et al., 2010)` thay vì Ledoit-Wolf.
-  * Cập nhật khoảng tương quan Spearman $\rho \in [-0.087, +0.104]$ ($|\rho| \le 0.11$) đồng bộ trên toàn bộ bài báo, README và slide.
-  * Rà soát và loại bỏ triệt để các tính từ/trạng từ phóng đại ("vượt bậc", "xuất sắc", "hoàn toàn khả thi", "có ý nghĩa") khỏi `SLIDES_OUTLINE.md`, `MOCK_DEFENSE_QA.md` và `README.md`.
+- ✅ **Đính chính Tác giả & Tài liệu Tham khảo CQR (D127):**
+  * Sửa lỗi tác giả CQR trong `src/uncertainty/cqr.py` thành *Romano, Patterson, Candès (NeurIPS 2019)* (loại bỏ nhầm lẫn với Sesia).
+  * Chuẩn hóa danh mục tài liệu tham khảo và đối soát với Kế hoạch v4 §12: chuẩn hóa các mục trích dẫn Dist-YOLO, DECADE, f-Cal, Ni et al., Chen OAS 2010, Dagan 2004, Chen & Guestrin XGBoost 2016.
+- ✅ **Định vị Lại 3 Đóng góp Cốt lõi & Bỏ Claim Ưu thế Hybrid (D128):**
+  * Tái định vị 3 đóng góp khoa học thực sự được dữ liệu ủng hộ:
+    1. C1: Giao thức drive-disjoint A/B/C/T với bằng chứng T03 (Recall giảm từ ~95% trên seen A xuống 72–74% trên unseen B, KS stat $D > 0.53, p < 10^{-4}$, trong khi B và C tương đồng với $D \le 0.048$);
+    2. C2: Phân rã sai số hình học và sai số detector trên tập TP (D32, gắn liền cảnh báo survivorship bias);
+    3. C3: Độ nhạy của conformal prediction với thành phần phân hoạch cụm drive.
+  * Chính thức loại bỏ tuyên bố "hybrid vượt trội về độ chính xác" khỏi mọi văn bản học thuật và bài báo.
+- ✅ **Đưa Kết quả 20 Resplits làm Trọng tâm Thực nghiệm RQ3 (D129):**
+  * Khẳng định độ phủ biên conformal không chuyển giao ổn định khi chỉ có $\sim 10$ cụm drive: C-LODO đạt $\approx 87\%$, 20 resplits đạt $\approx 85\%$ (khoảng per-seed rộng $63.6\%\text{--}99.6\%$), và Split T đạt $96\text{--}97\%$ (do 2 cụm khó `0057` và `0004` nằm ở calib làm nở $\hat{Q}$).
+  * Phát biểu lý thuyết được điều chỉnh chính xác thành: *"bảo đảm biên ở mức hàng dưới giả định exchangeability, không áp dụng nguyên vẹn khi đơn vị ngoại suy là cụm drive"*.
+- ✅ **Minh bạch Sự khác biệt Support giữa Điểm Hiệu Pooled và Paired Bootstrap (D130):**
+  * Làm rõ nguyên nhân sai khác giữa hiệu AbsRel pooled $\Delta = -0.0177$ và hiệu paired cluster bootstrap $\Delta = -0.0188$ trên Split T: $Z_d$ chỉ được tính trên tập có cue hợp lệ (loại trừ fallback), trong khi paired bootstrap đánh giá $(Z_f - Z_d)$ strictly trên tập giao valid chung.
+- ✅ **Kế hoạch Pre-registration Phân tích Chuyên sâu Hybrid OOF B (`prereg-hybrid-v1`, D131):**
+  * Thiết lập quy trình đánh giá chuyên sâu (e) vs (f) trên OOF Split B: (a) phân tích theo $\theta$, truncated, fallback và dải 30–50m; (b) learning curve theo $k \in \{2, 4, 6, 8, 11\}$ drive; (c) ngoại suy cự ly xa; kèm giả thuyết cây XGBoost xấp xỉ hàm tỷ lệ $1/h$ từ đặc trưng bbox.
+  * Nếu các phân tích này không tách được ưu thế vượt trội của (f), chuẩn bị sẵn kịch bản đổi định vị bài báo thành nghiên cứu giao thức và conformal, bỏ từ "Hybrid" khỏi tiêu đề bài báo.
 
 ---
 

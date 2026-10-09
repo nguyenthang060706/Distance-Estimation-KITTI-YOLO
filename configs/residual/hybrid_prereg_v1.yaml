@@ -1,0 +1,56 @@
+# ================================================================
+# Pre-registration for Hybrid vs Direct In-Depth Analysis (D131)
+# Tag: prereg-hybrid-v1
+# Scope: Out-of-fold evaluation on Split B (dev set only, zero-touch of Split T)
+# ================================================================
+
+tag: "prereg-hybrid-v1"
+split: "B"
+dataset_path: "results/datasets/yolo11s_640_B_oof.parquet"
+eval_path: "results/datasets/yolo11s_640_B_eval.parquet"
+features_path: "results/datasets/yolo11s_640_B_features.parquet"
+cues_path: "results/datasets/yolo11s_640_B_cues.parquet"
+
+# ---------------------------------------------------------------
+# Core Hypothesis (D131):
+# 1. Model (e) receives bbox dimensions (h, y_bottom - cy), enabling
+#    decision trees to approximate 1/h and ground geometry directly.
+# 2. Physics-guided fusion Z_base = Z_d may provide distinct advantages
+#    under:
+#    (a) extreme viewing angles theta (side vs frontal)
+#    (b) low-data regimes (few training drives k = 2, 4, 6, 8)
+#    (c) range extrapolation (training on Z <= 30m, testing on Z > 30m).
+# ---------------------------------------------------------------
+
+experiments:
+  # (a) Subgroup Breakdown on existing B_oof predictions
+  subgroup_analysis:
+    theta_bins:
+      side: [0, 30]
+      diagonal: [30, 60]
+      front_rear: [60, 90]
+    truncation_bins:
+      untruncated: [0.0, 0.0]
+      truncated: [0.0001, 1.0]
+    distance_bins:
+      - [0, 10]
+      - [10, 20]
+      - [20, 30]
+      - [30, 50]
+      - [50, 150]
+    fallback_status:
+      normal: false
+      fallback: true
+
+  # (b) Learning Curve across drive counts (k in {2, 4, 6, 8, 11})
+  learning_curve:
+    k_drives_list: [2, 4, 6, 8, 11]
+    n_seeds: 5
+    random_seed: 42
+    models: ["d", "e", "f"]
+
+  # (c) Range Extrapolation
+  range_extrapolation:
+    train_depth_max: 30.0
+    test_depth_min: 30.0
+    models: ["d", "e", "f"]

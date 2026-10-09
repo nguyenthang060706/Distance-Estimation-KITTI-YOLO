@@ -2,7 +2,7 @@
 src/uncertainty/cqr.py: Conformal Quantile Regression (CQR) core module (Decisions D46, D47, D48, D49).
 
 Theoretical Foundation:
-- Romano, Sesia, Candès (2019): "Conformalized Quantile Regression", NeurIPS 2019.
+- Romano, Patterson, Candès (2019): "Conformalized Quantile Regression", NeurIPS 2019.
 - Finite-sample marginal coverage guarantee 1 - alpha via exact order statistics (D46).
 - Winkler score (Gneiting & Raftery 2007) in log-space (r-space) for interval sharpness & penalty (D47).
 - Quantile sorting consistency and crossing counter without silent clipping (D47).
