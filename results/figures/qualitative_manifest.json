@@ -8,7 +8,7 @@
   "figures": [
     {
       "id": "qualitative_01_side_view_d19",
-      "title": "(a) Side View (theta = 8.6 deg, D19)",
+      "title": "(a) Side Aspect Angle (theta = 8.6 deg, D19)",
       "category": "Viewing Angle Degradation & Compensation",
       "frame_id": "000006",
       "pred_idx": 0,
@@ -20,7 +20,7 @@
       "absrel": 0.0448,
       "covered": true,
       "fallback_flag": false,
-      "description": "Side aspect dilates bbox width to vehicle length (~4.5m), causing Zw to degenerate to 9.8m. Zh (18.4m) and Residual model (20.6m) accurately recover Z_gt (19.7m), covered by CQR [17.4, 23.6]m."
+      "description": "Side aspect angle (theta=8.6 deg): Width dilates to vehicle length; Zw under-predicts; Residual model compensates."
     },
     {
       "id": "qualitative_02_near_physical_bias_d21",
@@ -36,7 +36,7 @@
       "absrel": 0.0096,
       "covered": true,
       "fallback_flag": false,
-      "description": "Uncut vehicle at 7.9m exhibits systematic negative bias (-11.2%) in Zd (7.0m) due to surface vs center offset. Residual model eliminates bias (7.99m, AbsRel 0.96%), covered by CQR [6.8, 9.0]m."
+      "description": "Near physical bias (Pattern 111): Negative bias in Zd from 3D box center vs nearest surface; Residual eliminates offset."
     },
     {
       "id": "qualitative_03_truncated_edge_d84",
@@ -52,11 +52,11 @@
       "absrel": 0.0355,
       "covered": true,
       "fallback_flag": false,
-      "description": "Vehicle touching bottom edge (truncation 0.35) loses height and ground cues. CQR interval adaptively widens to [4.08, 7.07]m to conservatively contain Z_gt (6.37m) with z_hat (6.14m)."
+      "description": "Boundary truncation: Bottom edge contact loses height/ground cues; adaptive CQR expands interval to safely contain Z_gt."
     },
     {
       "id": "qualitative_04_fallback_pattern000_d74",
-      "title": "(d) Successful Fallback Pattern 000 (D74)",
+      "title": "(d) Robust Fallback on Pattern 000 (D74)",
       "category": "Fallback Model (e) Robustness",
       "frame_id": "000211",
       "pred_idx": 0,
@@ -68,11 +68,11 @@
       "absrel": 0.0403,
       "covered": true,
       "fallback_flag": true,
-      "description": "All 3 geometric cues invalid (cut on multiple borders). Direct model (e) estimates Ze = 7.75m; residual & CQR [7.22, 10.33]m reliably cover Z_gt = 7.91m (AbsRel 4.0%)."
+      "description": "Fallback Pattern 000: All geometric cues invalid; direct Model (e) provides baseline; CQR interval successfully covers target."
     },
     {
       "id": "qualitative_05_top1_failure",
-      "title": "(e) Top-1 Outlier Failure (Rank 1 Manifest)",
+      "title": "(e) Boundary Extrapolation Failure (Rank 1 Manifest)",
       "category": "Failure Analysis & Limitations",
       "frame_id": "001414",
       "pred_idx": 0,
@@ -84,7 +84,7 @@
       "absrel": 0.4292,
       "covered": false,
       "fallback_flag": true,
-      "description": "Extreme perspective distortion at image corner (x1=1.3, y2=373.3, truncated). Predicted 8.46m vs Z_gt 5.92m (AbsRel 42.92%). Demonstrates edge limitation documented in Section 6."
+      "description": "Corner truncation (x1=1.3, y2=373.3); fallback direct model suffers perspective extrapolation error (AbsRel 42.9%)."
     },
     {
       "id": "qualitative_06_success_10_20m",
@@ -100,39 +100,39 @@
       "absrel": 0.0004,
       "covered": true,
       "fallback_flag": false,
-      "description": "Representative success from frozen manifest (seed=42). Ground truth Z_gt = 11.19m, predicted z_hat = 11.19m (AbsRel 0.04%). Tight CQR interval [9.73, 12.87]m."
+      "description": "Sharp Success (10-20m Range): Representative Easy target from frozen manifest (AbsRel 0.04%); tight CQR interval."
     },
     {
       "id": "qualitative_07_success_20_30m",
       "title": "(g) Sharp Success: 20-30m Range",
       "category": "Mid-Range Estimation",
-      "frame_id": "004233",
+      "frame_id": "003314",
       "pred_idx": 0,
       "file": "results\\figures\\qualitative_07_success_20_30m.png",
-      "z_gt": 19.81,
-      "z_hat_f": 20.14,
-      "z_lo_cqr": 17.88,
-      "z_hi_cqr": 22.31,
-      "absrel": 0.0169,
+      "z_gt": 24.41,
+      "z_hat_f": 24.27,
+      "z_lo_cqr": 22.27,
+      "z_hi_cqr": 26.7,
+      "absrel": 0.0059,
       "covered": true,
       "fallback_flag": false,
-      "description": "Representative success from frozen manifest. Ground truth Z_gt = 19.81m, predicted z_hat = 20.14m (AbsRel 1.69%). CQR interval [17.84, 23.40]m snugly bounds target."
+      "description": "Sharp Success (20-30m Range): Representative Easy target from frozen manifest (AbsRel 0.59%); tight CQR interval."
     },
     {
       "id": "qualitative_08_success_hard",
-      "title": "(h) Hard-Filtered Object Success",
+      "title": "(h) KITTI Hard Difficulty Target",
       "category": "Challenging Occluded Target",
       "frame_id": "004401",
-      "pred_idx": 0,
+      "pred_idx": 5,
       "file": "results\\figures\\qualitative_08_success_hard.png",
-      "z_gt": 9.82,
-      "z_hat_f": 9.89,
-      "z_lo_cqr": 8.75,
-      "z_hi_cqr": 11.11,
-      "absrel": 0.0073,
+      "z_gt": 20.19,
+      "z_hat_f": 19.67,
+      "z_lo_cqr": 17.54,
+      "z_hi_cqr": 23.33,
+      "absrel": 0.0259,
       "covered": true,
       "fallback_flag": false,
-      "description": "Car under KITTI Hard difficulty criteria. Ground truth Z_gt = 20.19m, predicted z_hat = 19.67m (AbsRel 2.59%). CQR interval [17.26, 22.85]m covers object safely."
+      "description": "Challenging Target: Car under KITTI Hard criteria accurately bounded by conformal prediction (AbsRel 2.59%)."
     }
   ]
 }

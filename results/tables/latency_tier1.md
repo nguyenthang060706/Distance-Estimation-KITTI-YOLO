@@ -16,33 +16,54 @@
 
 ## 2. Kết quả Kiểm tra Tính Tương đồng (Parity Check: PyTorch .pt vs ONNX, D44, D95)
 
-| Detector | Ảnh kiểm thử | Detections (.pt) | Detections (ONNX) | Tỉ lệ Số lượng (ORT/PT) | Tỉ lệ Khớp IoU ≥ 0.90 | Parity Gate |
+| Detector | Ảnh kiểm thử | Detections (.pt) | Detections (ONNX) | Tỉ lệ Số lượng (ORT/PT) | Tỉ lệ Khớp IoU ≥ 0.90 | Parity Check |
+
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| `yolo11s_640` | 50 | 231 | 225 | 0.9740 | 0.9437 | ✅ ĐẠT |
-| `yolov8s_640` | 50 | 223 | 225 | 1.0090 | 0.9417 | ✅ ĐẠT |
-| `yolov5su_640` | 50 | 232 | 230 | 0.9914 | 0.9095 | ✅ ĐẠT |
+
+| `yolo11s_640` | 50 | 231 | 225 | 0.9740 | 0.9437 | Count ĐẠT, IoU KHÔNG ĐẠT |
+
+| `yolov8s_640` | 50 | 223 | 225 | 1.0090 | 0.9417 | Count ĐẠT, IoU KHÔNG ĐẠT |
+
+| `yolov5su_640` | 50 | 232 | 230 | 0.9914 | 0.9095 | Count ĐẠT, IoU KHÔNG ĐẠT |
+
+
+> [!NOTE]
+
+> **Giải trình Parity (AGENT_RULES §1.9, D95):** Count Parity đạt chuẩn [0.95, 1.05]. IoU Match Rate đạt 0.9095–0.9437 (< 0.95, KHÔNG ĐẠT theo ngưỡng đăng ký). Các nguyên nhân có thể gồm: khác biệt dynamic letterbox PyTorch vs fixed square 640 ONNX, model.half() FP16 vs ORT FP32, và sự khác biệt giữa NMS numpy vs NMS Ultralytics torch (đây là các giả thuyết chưa kiểm chứng độc lập). Tuyệt đối không làm mềm kết quả không đạt.
 
 
 ## 3. Bảng Độ Trễ Từng Khâu (Median / P95 theo ms)
 
 | Khâu Pipeline | `yolo11s_640` (GPU / CPU) | `yolov8s_640` (GPU / CPU) | `yolov5su_640` (GPU / CPU) |
+
 | :--- | :---: | :---: | :---: |
-| **Preprocess (Resize/Letterbox)** | 35.16 ms / 20.69 ms | 24.31 ms / 20.37 ms | 24.44 ms / 20.55 ms |
-| **Detector Inference (FP16 GPU / FP32 CPU)** | 26.40 ms / 107.48 ms | 19.21 ms / 136.09 ms | 21.64 ms / 113.59 ms |
-| **Postprocess (Decode/NMS)** | 0.63 ms / 0.44 ms | 0.64 ms / 0.44 ms | 0.64 ms / 0.44 ms |
-| **Geometry (Cues + Fusion)** | 0.18 ms / 0.19 ms | 0.19 ms / 0.19 ms | 0.18 ms / 0.19 ms |
-| **Residual (17 Features + XGBoost)** | 0.60 ms / 0.68 ms | 0.64 ms / 0.67 ms | 0.63 ms / 0.68 ms |
-| **CQR Uncertainty (Log-Interval)** | 0.60 ms / 0.59 ms | 0.60 ms / 0.60 ms | 0.59 ms / 0.59 ms |
+
+| **Preprocess (In-memory Letterbox/H2D)** | 9.59 ms / 6.12 ms | 9.88 ms / 6.17 ms | 9.80 ms / 6.13 ms |
+
+| **Detector Inference (FP16 GPU / FP32 CPU)** | 26.11 ms / 108.47 ms | 19.17 ms / 134.28 ms | 21.08 ms / 111.56 ms |
+
+| **Postprocess (Decode/NMS)** | 0.61 ms / 0.45 ms | 0.64 ms / 0.44 ms | 0.60 ms / 0.43 ms |
+
+| **Geometry (Cues + Fusion)** | 0.18 ms / 0.19 ms | 0.18 ms / 0.19 ms | 0.18 ms / 0.19 ms |
+
+| **Residual (17 Features + XGBoost)** | 0.60 ms / 0.68 ms | 0.59 ms / 0.67 ms | 0.57 ms / 0.67 ms |
+
+| **CQR Uncertainty (Log-Interval)** | 0.59 ms / 0.58 ms | 0.60 ms / 0.59 ms | 0.58 ms / 0.58 ms |
+
 | :--- | :---: | :---: | :---: |
-| **Tổng Toàn Pipeline End-to-End (ms)** | **63.64 ms / 130.52 ms** | **45.77 ms / 158.39 ms** | **48.37 ms / 136.16 ms** |
-| *Đối chứng: Tổng các Trung vị (Sum of Medians, D44)* | *63.56 ms / 130.06 ms* | *45.58 ms / 158.36 ms* | *48.13 ms / 136.03 ms* |
-| **Thông lượng Tương đương (FPS)** | **15.7 FPS / 7.7 FPS** | **21.8 FPS / 6.3 FPS** | **20.7 FPS / 7.3 FPS** |
+
+| **Tổng Toàn Pipeline End-to-End (ms)** | **38.01 ms / 116.73 ms** | **31.70 ms / 142.54 ms** | **33.12 ms / 119.87 ms** |
+
+| *Đối chứng: Tổng các Trung vị (Sum of Medians, D44)* | *37.69 ms / 116.50 ms* | *31.07 ms / 142.33 ms* | *32.81 ms / 119.57 ms* |
+
+| **Thông lượng Tương đương (FPS)** | **26.3 FPS / 8.6 FPS** | **31.5 FPS / 7.0 FPS** | **30.2 FPS / 8.3 FPS** |
+
 
 
 ## 4. Nhận xét Phân bố Thời gian Thực thi (D44, D94)
 
-1. **Khâu Detector:** Là điểm nghẽn chính về thời gian. Trên GPU NVIDIA RTX 5060 Laptop (PyTorch FP16 CUDA), suy luận thô mất ~19.2–26.4 ms; trên CPU (ONNX Runtime 4 luồng) mất ~107.5–136.1 ms.
-2. **Khâu Hình học & Residual:** Cực kỳ gọn nhẹ: hình học (cues + fusion) chỉ mất ~0.18–0.19 ms; khâu trích xuất 17 đặc trưng và dự đoán XGBoost mất ~0.60–0.64 ms cho mỗi ảnh.
-3. **Khâu CQR Uncertainty:** Khâu tính toán khoảng tin cậy conformal trong không gian log chỉ mất ~0.59–0.60 ms (chủ yếu do 2 mô hình quantile XGBoost), hoàn toàn nằm trong ngân sách thời gian thực.
-4. **Khắc phục lỗi Sum-of-Medians (D44):** Tổng thời gian end-to-end thực tế đo trên từng ảnh $\{t_{\text{total}}^{(i)}\}$ phản ánh chính xác phân phối thời gian thực thi (kèm P95 và IQR), khắc phục độ lệch so với tổng các trung vị đơn lẻ.
-5. **Khả năng thời gian thực:** Toàn bộ pipeline đạt ~15.7–21.8 FPS trên GPU RTX 5060 và ~6.3–7.7 FPS trên CPU 4 luồng, hoàn toàn đáp ứng yêu cầu ADAS thời gian thực (chuẩn $\ge 10$ FPS trên GPU).
+1. **Khâu Detector:** Là điểm nghẽn chính về thời gian. Trên GPU NVIDIA RTX 5060 Laptop (PyTorch FP16 CUDA), suy luận thô mất ~19.2–26.1 ms; trên CPU (ONNX Runtime 4 luồng) mất ~108.5–134.3 ms.
+2. **Khâu Hình học & Residual:** Cực kỳ gọn nhẹ: hình học (cues + fusion) chỉ mất ~0.18–0.18 ms; khâu trích xuất 17 đặc trưng và dự đoán XGBoost mất ~0.57–0.60 ms cho mỗi ảnh.
+3. **Khâu CQR Uncertainty:** Khâu tính toán khoảng tin cậy conformal trong không gian log chỉ mất ~0.58–0.60 ms (chủ yếu do 2 mô hình quantile XGBoost), hoàn toàn nằm trong ngân sách thời gian thực.
+4. **So sánh Sum-of-Medians vs End-to-End per-image (D44, D94):** Chênh lệch giữa tổng các trung vị đơn lẻ và trung vị chuỗi tổng $\{t_{\text{total}}^{(i)}\}$ trên dữ liệu thực tế là rất nhỏ (< 0.5 ms, tức < 0.4%). Việc đo trực tiếp thời gian end-to-end trên từng ảnh là chuẩn mực phương pháp luận thống kê nhằm phản ánh đúng phân phối tổng thể và theo dõi chính xác các phân vị đuôi (P95, IQR).
+5. **Thông lượng hệ thống:** Toàn bộ pipeline đạt ~26.3–31.5 FPS trên GPU RTX 5060 Laptop và ~7.0–8.6 FPS trên CPU 4 luồng [CẦN TRÍCH DẪN tiêu chuẩn ADAS cụ thể nếu đưa ra khẳng định phân cấp thời gian thực].

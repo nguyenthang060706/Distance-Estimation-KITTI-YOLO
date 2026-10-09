@@ -12,6 +12,7 @@ Zero-Touch Guarantee for Split T (Decision D90):
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,10 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.evaluation.eval import append_jsonl, make_log_record
 IMAGE_DIR = PROJECT_ROOT / "data" / "kitti" / "image_2"
 PRED_PATH = PROJECT_ROOT / "results" / "final" / "yolo11s_640_T_predictions.parquet"
 MANIFEST_PATH = PROJECT_ROOT / "results" / "final" / "top_failures_manifest.json"
@@ -32,11 +37,11 @@ OUT_DIR = PROJECT_ROOT / "results" / "figures"
 QUALITATIVE_CASES = [
     {
         "id": "qualitative_01_side_view_d19",
-        "title": "(a) Side View (theta = 8.6 deg, D19)",
+        "title": "(a) Side Aspect Angle (theta = 8.6 deg, D19)",
         "frame_id": "000006",
         "pred_idx": 0,
         "category": "Viewing Angle Degradation & Compensation",
-        "description": "Side aspect dilates bbox width to vehicle length (~4.5m), causing Zw to degenerate to 9.8m. Zh (18.4m) and Residual model (20.6m) accurately recover Z_gt (19.7m), covered by CQR [17.4, 23.6]m.",
+        "description": "Side aspect angle (theta=8.6 deg): Width dilates to vehicle length; Zw under-predicts; Residual model compensates.",
         "box_color": (0, 220, 255),  # Yellow/Gold BGR
     },
     {
@@ -45,7 +50,7 @@ QUALITATIVE_CASES = [
         "frame_id": "000385",
         "pred_idx": 0,
         "category": "Near Distance Physical Offset",
-        "description": "Uncut vehicle at 7.9m exhibits systematic negative bias (-11.2%) in Zd (7.0m) due to surface vs center offset. Residual model eliminates bias (7.99m, AbsRel 0.96%), covered by CQR [6.8, 9.0]m.",
+        "description": "Near physical bias (Pattern 111): Negative bias in Zd from 3D box center vs nearest surface; Residual eliminates offset.",
         "box_color": (255, 180, 0),  # Cyan/Blue BGR
     },
     {
@@ -54,25 +59,25 @@ QUALITATIVE_CASES = [
         "frame_id": "000152",
         "pred_idx": 0,
         "category": "Border Truncation Handling",
-        "description": "Vehicle touching bottom edge (truncation 0.35) loses height and ground cues. CQR interval adaptively widens to [4.08, 7.07]m to conservatively contain Z_gt (6.37m) with z_hat (6.14m).",
+        "description": "Boundary truncation: Bottom edge contact loses height/ground cues; adaptive CQR expands interval to safely contain Z_gt.",
         "box_color": (0, 165, 255),  # Orange BGR
     },
     {
         "id": "qualitative_04_fallback_pattern000_d74",
-        "title": "(d) Successful Fallback Pattern 000 (D74)",
+        "title": "(d) Robust Fallback on Pattern 000 (D74)",
         "frame_id": "000211",
         "pred_idx": 0,
         "category": "Fallback Model (e) Robustness",
-        "description": "All 3 geometric cues invalid (cut on multiple borders). Direct model (e) estimates Ze = 7.75m; residual & CQR [7.22, 10.33]m reliably cover Z_gt = 7.91m (AbsRel 4.0%).",
+        "description": "Fallback Pattern 000: All geometric cues invalid; direct Model (e) provides baseline; CQR interval successfully covers target.",
         "box_color": (180, 105, 255), # Purple/Pink BGR
     },
     {
         "id": "qualitative_05_top1_failure",
-        "title": "(e) Top-1 Outlier Failure (Rank 1 Manifest)",
+        "title": "(e) Boundary Extrapolation Failure (Rank 1 Manifest)",
         "frame_id": "001414",
         "pred_idx": 0,
         "category": "Failure Analysis & Limitations",
-        "description": "Extreme perspective distortion at image corner (x1=1.3, y2=373.3, truncated). Predicted 8.46m vs Z_gt 5.92m (AbsRel 42.92%). Demonstrates edge limitation documented in Section 6.",
+        "description": "Corner truncation (x1=1.3, y2=373.3); fallback direct model suffers perspective extrapolation error (AbsRel 42.9%).",
         "box_color": (0, 0, 255),    # Red BGR
     },
     {
@@ -81,25 +86,25 @@ QUALITATIVE_CASES = [
         "frame_id": "003811",
         "pred_idx": 0,
         "category": "High-Precision Estimation",
-        "description": "Representative success from frozen manifest (seed=42). Ground truth Z_gt = 11.19m, predicted z_hat = 11.19m (AbsRel 0.04%). Tight CQR interval [9.73, 12.87]m.",
+        "description": "Sharp Success (10-20m Range): Representative Easy target from frozen manifest (AbsRel 0.04%); tight CQR interval.",
         "box_color": (0, 255, 128),  # Green BGR
     },
     {
         "id": "qualitative_07_success_20_30m",
         "title": "(g) Sharp Success: 20-30m Range",
-        "frame_id": "004233",
+        "frame_id": "003314",
         "pred_idx": 0,
         "category": "Mid-Range Estimation",
-        "description": "Representative success from frozen manifest. Ground truth Z_gt = 19.81m, predicted z_hat = 20.14m (AbsRel 1.69%). CQR interval [17.84, 23.40]m snugly bounds target.",
+        "description": "Sharp Success (20-30m Range): Representative Easy target from frozen manifest (AbsRel 0.59%); tight CQR interval.",
         "box_color": (0, 255, 128),  # Green BGR
     },
     {
         "id": "qualitative_08_success_hard",
-        "title": "(h) Hard-Filtered Object Success",
+        "title": "(h) KITTI Hard Difficulty Target",
         "frame_id": "004401",
-        "pred_idx": 0,
+        "pred_idx": 5,
         "category": "Challenging Occluded Target",
-        "description": "Car under KITTI Hard difficulty criteria. Ground truth Z_gt = 20.19m, predicted z_hat = 19.67m (AbsRel 2.59%). CQR interval [17.26, 22.85]m covers object safely.",
+        "description": "Challenging Target: Car under KITTI Hard criteria accurately bounded by conformal prediction (AbsRel 2.59%).",
         "box_color": (0, 255, 128),  # Green BGR
     },
 ]
@@ -356,6 +361,29 @@ def main():
             "figures": manifest_records,
         }, f, indent=2)
     print(f"[Saved] Qualitative Manifest JSON: {meta_json_path.name}")
+
+    # Log record (AGENT_RULES §5)
+    with open(PROJECT_ROOT / "splits" / "split_metadata.json", "r", encoding="utf-8") as f:
+        split_meta = json.load(f)
+    split_t_hash = split_meta.get("splits", {}).get("T", {}).get("hash", "")
+
+    log_rec = make_log_record(
+        split="T",
+        split_hash=split_t_hash,
+        seed=42,
+        n_boot=0,
+        tag="T16-Qualitative-Official",
+        extra={
+            "detector": "yolo11s_640",
+            "n_figures": len(manifest_records),
+            "manifest_file": str(meta_json_path.relative_to(PROJECT_ROOT)),
+            "grid_file": str(grid_path.relative_to(PROJECT_ROOT)),
+            "cases": [rec["id"] for rec in manifest_records],
+        },
+    )
+    append_jsonl(PROJECT_ROOT / "runs" / "pipeline_log.jsonl", log_rec)
+    print("[Logged] Qualitative visualization recorded to runs/pipeline_log.jsonl")
+
     print("=" * 78)
     print("  QUALITATIVE VISUALIZATION GENERATOR - COMPLETED SUCCESSFULLY")
     print("=" * 78)

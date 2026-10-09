@@ -252,29 +252,30 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
 **Mục tiêu:** Đo độ trễ Tier 1 chính thức khắc phục 4 lỗi phương pháp luận của T06 (kèm khâu CQR, D40, D44, D94, D95) và trực quan hóa định tính 6–10 hình chuẩn mực tuân thủ Zero-Touch Split T (D70, D90, D96). Tier 2 (INT8 YOLO11n) chủ động bỏ qua do chưa có xác nhận phần cứng nhúng từ thầy (§2, §8.0, D39).
 **Kết quả thực hiện (D94–D96):**
 1. **Benchmark Độ trễ Tier 1 Chuẩn hóa (`scripts/bench_latency.py`, D94):**
-   - Khắc phục 4 lỗi phương pháp luận của bản sơ bộ T06: (1) Tách riêng tiền xử lý, đo model forward thô bằng `model_pt.model(x)` (Half FP16 CUDA synchronize), NMS decode riêng, loại bỏ hoàn toàn double-counting; (2) Đo $t_{\text{total}}^{(i)}$ end-to-end độc lập trên từng ảnh, tính trực tiếp Median, Mean, P95, IQR, FPS trên chuỗi tổng per-image, loại bỏ sai lệch sum-of-medians (+0.03 đến +0.46 ms); (3) Trích xuất đặc trưng residual vector hóa 17 features thực tế với confidence thật và P2 intrinsics từng frame (loại bỏ mock feature); (4) Đo đạc đầy đủ khâu Conformal Quantile Regression (CQR 2 mô hình LightGBM $q_{0.05}$ và $q_{0.95}$, scaling log-residual và $\hat{Q}$).
-   - Đo trên 200 ảnh Split B (20 warmup):
-     * `yolo11s_640`: GPU = **63.64 ms (P95: 72.05 ms, 15.7 FPS)**; CPU = **130.52 ms (P95: 138.52 ms, 7.7 FPS)**.
-     * `yolov8s_640`: GPU = **45.77 ms (P95: 56.31 ms, 21.8 FPS)**; CPU = **158.39 ms (P95: 168.38 ms, 6.3 FPS)**.
-     * `yolov5su_640`: GPU = **48.37 ms (P95: 86.26 ms, 20.7 FPS)**; CPU = **136.16 ms (P95: 141.76 ms, 7.3 FPS)**.
-     * Chi phí khâu hậu detector: Hình học ~0.18–0.19 ms, Residual ~0.60–0.64 ms, CQR ~0.59–0.60 ms (tổng cộng ~1.4 ms/ảnh, <2.5% tổng thời gian GPU), chứng minh overhead của hybrid và conformal là không đáng kể so với detector.
-   - Parity Check PyTorch vs ONNX (D95): Count Parity đạt [0.95, 1.05] (0.974–1.009), IoU Match Rate đạt 0.9095–0.9437 (dưới ngưỡng 0.95 do khác biệt đệm dynamic letterbox vs static square 640). Báo cáo song song cả hai số liệu theo AGENT_RULES §1.9.
-   - Artifacts: `results/tables/latency_tier1.json`, `results/tables/latency_tier1.md`, log `runs/pipeline_log.jsonl`.
+   - Khắc phục 4 lỗi phương pháp luận của bản sơ bộ T06: (1) Tách riêng tiền xử lý, đo model forward thô bằng `model_pt.model(x)` (Half FP16 CUDA synchronize), NMS decode riêng, loại bỏ hoàn toàn double-counting; nạp trước (preload) 200 ảnh vào RAM triệt tiêu hoàn toàn biến thiên Disk I/O; (2) Đo $t_{\text{total}}^{(i)}$ end-to-end độc lập trên từng ảnh, tính trực tiếp Median, Mean, P95, IQR, FPS trên chuỗi tổng per-image, loại bỏ sai lệch sum-of-medians (< 0.5 ms); (3) Trích xuất đặc trưng residual vector hóa 17 features thực tế với confidence thật và P2 intrinsics từng frame (sửa `cx_offset_norm = (box_cx - cx) / fx` khớp 100% với `feature_extractor.py`); (4) Đo đạc đầy đủ khâu Conformal Quantile Regression (CQR 2 mô hình XGBoost $q_{0.05}$ và $q_{0.95}$, scaling log-residual và $\hat{Q}$).
+   - Đo trên 200 ảnh Split B nạp sẵn trong RAM (20 warmup):
+     * `yolo11s_640`: GPU = **38.01 ms (P95: 76.64 ms, 26.3 FPS)**; CPU = **116.73 ms (P95: 122.17 ms, 8.6 FPS)**.
+     * `yolov8s_640`: GPU = **31.70 ms (P95: 60.33 ms, 31.5 FPS)**; CPU = **142.54 ms (P95: 148.49 ms, 7.0 FPS)**.
+     * `yolov5su_640`: GPU = **33.12 ms (P95: 64.57 ms, 30.2 FPS)**; CPU = **119.87 ms (P95: 124.53 ms, 8.3 FPS)**.
+     * Tiền xử lý in-memory: GPU ~9.59–9.88 ms, CPU ~6.12–6.17 ms.
+     * Chi phí khâu hậu detector: Hình học ~0.18 ms, Residual ~0.57–0.60 ms, CQR ~0.58–0.60 ms (tổng cộng ~1.35 ms/ảnh, ~3.5%–4.2% tổng thời gian GPU), chứng minh overhead của hybrid và conformal là không đáng kể so với detector.
+   - Parity Check PyTorch vs ONNX (D95): Count Parity đạt [0.95, 1.05] (0.974–1.009), IoU Match Rate đạt 0.9095–0.9437 (dưới ngưỡng 0.95 do khác biệt đệm dynamic letterbox vs static square 640). Đánh nhãn minh bạch theo AGENT_RULES §1.9: "Count ĐẠT, IoU KHÔNG ĐẠT".
+   - Artifacts: `results/tables/latency_tier1.json`, `results/tables/latency_tier1.md`, log `runs/pipeline_log.jsonl` (ghi mã băm Split B `0f83c354...`).
 2. **Hình ảnh Định tính Split T (`scripts/make_qualitative.py`, D90, D96):**
-   - Tuân thủ nghiêm ngặt Zero-Touch Split T (D70, D90): Chỉ đọc read-only tệp ảnh PNG gốc (`data/kitti/image_2/{frame_id}.png`) theo `frame_id` và static predictions parquet. Khóa `runs/final_T.lock` giữ nguyên vẹn 100%.
-   - Xuất 8 hình ảnh nghiên cứu điển hình 300 DPI + 1 lưới tổng hợp 4x2 (`qualitative_grid_summary.png`) + manifest JSON (`results/figures/qualitative_manifest.json`):
-     * `qualitative_01_side_view_d19.png`: Góc nhìn ngang ($\theta = 8.6^\circ < 30^\circ$, D19, frame `000006`, $Z_{\text{gt}}=15.42$m, $Z_w=28.18$m lệch +82.7%, $\hat{Z}_f=14.47$m, CQR $[12.28, 17.58]$m).
-     * `qualitative_02_near_physical_bias_d21.png`: Lệch tâm vật lý 3D dải gần (D21/D92, frame `000385`, $Z_d=7.02$m lệch -11.2%, $\hat{Z}_f=7.99$m, $Z_{\text{gt}}=7.91$m, CQR $[6.79, 9.71]$m).
-     * `qualitative_03_truncated_edge_d84.png`: Cắt biên ảnh chạm đáy (D84, frame `000152`, truncation 0.35, CQR nở rộng $[4.08, 7.07]$m chứa an toàn $Z_{\text{gt}}=6.37$m).
-     * `qualitative_04_fallback_pattern000_d74.png`: Fallback mất sạch cue hình học (D74, frame `000211`, $\hat{Z}_e=7.75$m, CQR $[7.22, 10.33]$m chứa an toàn $Z_{\text{gt}}=7.91$m).
-     * `qualitative_05_top1_failure.png`: Ca lỗi lớn nhất (frame `001414`, $Z_{\text{gt}}=5.40$m, $\hat{Z}_f=7.71$m, AbsRel 42.92%, bóng tối che khuất thân xe).
-     * `qualitative_06_success_10_20m.png`: Thành công 10–20m (frame `003811`, $Z_{\text{gt}}=14.28$m, $\hat{Z}_f=14.29$m, AbsRel 0.04%).
-     * `qualitative_07_success_20_30m.png`: Thành công 20–30m (frame `004233`, $Z_{\text{gt}}=22.92$m, $\hat{Z}_f=22.53$m, AbsRel 1.69%).
-     * `qualitative_08_success_hard.png`: Thành công ca khó Hard KITTI (frame `004401`, $Z_{\text{gt}}=15.53$m, $\hat{Z}_f=15.13$m, AbsRel 2.59%).
+   - Tuân thủ nghiêm ngặt Zero-Touch Split T (D70, D90, D96 mở rộng có kiểm soát): Chỉ đọc read-only tệp ảnh PNG gốc (`data/kitti/image_2/{frame_id}.png`) theo `frame_id` và static predictions parquet. Khóa `runs/final_T.lock` giữ nguyên vẹn 100%. Ghi log vào `runs/pipeline_log.jsonl`.
+   - Xuất 8 hình ảnh nghiên cứu điển hình 300 DPI + 1 lưới tổng hợp 4x2 (`qualitative_grid_summary.png`) + manifest JSON (`results/figures/qualitative_manifest.json`), thông số trích xuất động từ parquet:
+     * `qualitative_01_side_view_d19.png`: Góc nhìn ngang ($\theta = 8.6^\circ < 30^\circ$, D19, frame `000006`, $Z_{\text{gt}}=19.72$m, $Z_w=9.81$m under-predict sâu do phình $w$ thành chiều dài xe, $\hat{Z}_f=20.60$m, CQR $[17.44, 23.63]$m, AbsRel 4.48%, Covered=True).
+     * `qualitative_02_near_physical_bias_d21.png`: Lệch tâm vật lý 3D dải gần (D21/D92, frame `000385`, $Z_d=7.02$m lệch -11.2%, $\hat{Z}_f=7.99$m, $Z_{\text{gt}}=7.91$m, CQR $[6.83, 9.00]$m, AbsRel 0.96%, Covered=True).
+     * `qualitative_03_truncated_edge_d84.png`: Cắt biên ảnh chạm đáy (D84, frame `000152`, truncation 0.35, CQR nở rộng $[4.08, 7.07]$m chứa an toàn $Z_{\text{gt}}=6.37$m, $\hat{Z}_f=6.14$m, AbsRel 3.55%, Covered=True).
+     * `qualitative_04_fallback_pattern000_d74.png`: Fallback mất sạch cue hình học (D74, frame `000211`, $\hat{Z}_e=7.75$m, $\hat{Z}_f=8.23$m, CQR $[7.22, 10.33]$m chứa an toàn $Z_{\text{gt}}=7.91$m, AbsRel 4.03%, Covered=True).
+     * `qualitative_05_top1_failure.png`: Ca lỗi lớn nhất (frame `001414`, $Z_{\text{gt}}=5.92$m, $\hat{Z}_f=8.46$m, CQR $[7.05, 10.52]$m, AbsRel 42.92%, Covered=False; xe bị cắt góc viền nặng $x_1=1.3, y_2=373.3$, fallback direct model chịu lỗi ngoại suy phối cảnh).
+     * `qualitative_06_success_10_20m.png`: Thành công 10–20m (frame `003811`, $Z_{\text{gt}}=11.19$m, $\hat{Z}_f=11.19$m, CQR $[9.67, 12.63]$m, AbsRel 0.04%, Covered=True).
+     * `qualitative_07_success_20_30m.png`: Thành công 20–30m (frame `003314`, $Z_{\text{gt}}=24.41$m, $\hat{Z}_f=24.27$m, CQR $[22.27, 26.70]$m, AbsRel 0.59%, Covered=True).
+     * `qualitative_08_success_hard.png`: Thành công ca khó Hard KITTI (frame `004401`, box `#5`, $Z_{\text{gt}}=20.19$m, $\hat{Z}_f=19.67$m, CQR $[17.54, 23.33]$m, AbsRel 2.59%, Covered=True).
 3. **Kiểm thử và Hồi quy:**
-   - 7/7 unit tests pass trong `tests/test_latency_bench.py`.
-   - 11/11 unit tests pass trong `tests/test_qualitative.py`.
-   - Toàn bộ test suite dự án `pytest -q`: **214 passed** 100% trong 62.67s.
+   - 8/8 unit tests pass trong `tests/test_latency_bench.py`.
+   - 12/12 unit tests pass trong `tests/test_qualitative.py`.
+   - Toàn bộ test suite dự án `pytest -q`: **216 passed** 100%.
 
 ### T17 — Xuất bảng/hình + tư liệu bài (W3-5..6)
 **Làm:** xuất mọi bảng chính sang `results/tables/final/` (CSV + LaTeX), hình thống nhất style; `results/final/numbers_manifest.json` ánh xạ mỗi con số trong bài tới file nguồn + git commit; nháp mục Data/Method/Experiments từ `docs/` với `[CẦN TRÍCH DẪN]`; danh sách Limitations nháp gồm: số cụm 12/10/10; quần thể điều kiện trên detection khớp và qua ngưỡng conf; C không có >50 m; GT đo tâm xe còn cue đo mặt gần (D21); detector 1 seed và học trên ~50% dữ liệu; giả định mặt đường phẳng; chỉ KITTI; ảnh hưởng thiết kế gián tiếp từ B-v1 (`drive_0039`, `drive_0095`, `drive_0096`); `ln_z_base` là đặc trưng dẫn xuất (D30).

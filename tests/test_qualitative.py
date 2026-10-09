@@ -90,3 +90,30 @@ def test_qualitative_grid_summary_exists_and_readable():
         w, h = img.size
         # 20x16 inches at 300 DPI is approx 6000x4800, bbox_inches='tight' may be slightly smaller
         assert w > 3000 and h > 2000, f"Grid dimensions too small for paper-ready 300 DPI: {w}x{h}"
+
+
+def test_qualitative_manifest_matches_parquet_predictions_exact():
+    """Verify that every metric in qualitative_manifest.json strictly matches the static predictions parquet."""
+    import pandas as pd
+    pred_path = PROJECT_ROOT / "results" / "final" / "yolo11s_640_T_predictions.parquet"
+    assert pred_path.is_file(), f"Missing predictions parquet: {pred_path}"
+
+    df_preds = pd.read_parquet(pred_path)
+    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+
+    for case in meta["figures"]:
+        fid = case["frame_id"]
+        pidx = case["pred_idx"]
+        sub = df_preds[(df_preds["frame_id"] == fid) & (df_preds["pred_idx"] == pidx)]
+        assert len(sub) == 1, f"Expected 1 matching prediction for {fid} #{pidx}, got {len(sub)}"
+        row = sub.iloc[0]
+
+        assert case["z_gt"] == pytest.approx(round(float(row["z_gt"]), 2))
+        assert case["z_hat_f"] == pytest.approx(round(float(row["z_hat_f"]), 2))
+        assert case["z_lo_cqr"] == pytest.approx(round(float(row["z_lo_cqr"]), 2))
+        assert case["z_hi_cqr"] == pytest.approx(round(float(row["z_hi_cqr"]), 2))
+        expected_absrel = round(float(abs(row["z_hat_f"] - row["z_gt"]) / row["z_gt"]), 4)
+        assert case["absrel"] == pytest.approx(expected_absrel)
+        assert case["covered"] == bool((row["z_gt"] >= row["z_lo_cqr"]) and (row["z_gt"] <= row["z_hi_cqr"]))
+        assert case["fallback_flag"] == bool(row["fallback_flag"])
