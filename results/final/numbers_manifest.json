@@ -467,14 +467,14 @@
       "display_str": "3,740",
       "source_file": "splits/split_metadata.json",
       "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
-      "data_path": "splits.A.frame_count"
+      "data_path": "splits.A.n_frames"
     },
     "split_t_frames": {
       "value": 1102,
       "display_str": "1,102",
       "source_file": "splits/split_metadata.json",
       "source_sha256": "086e64e7eb6f6e4db7762f09eedb076a6cc9799188a1608e8d4b4136cbfa321d",
-      "data_path": "splits.T.frame_count"
+      "data_path": "splits.T.n_frames"
     },
     "split_t_car_hard_count": {
       "value": 3212,

@@ -263,22 +263,22 @@ def build_manifest() -> dict:
     split_meta_sha = compute_sha256(split_meta_path)
     splits = split_meta.get("splits", {})
     manifest["numbers"]["split_a_frames"] = {
-        "value": int(splits.get("A", {}).get("frame_count", 3740)),
-        "display_str": f"{int(splits.get('A', {}).get('frame_count', 3740)):,}",
+        "value": int(splits["A"]["n_frames"]),
+        "display_str": f"{int(splits['A']['n_frames']):,}",
         "source_file": str(split_meta_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "source_sha256": split_meta_sha,
-        "data_path": "splits.A.frame_count"
+        "data_path": "splits.A.n_frames"
     }
     manifest["numbers"]["split_t_frames"] = {
-        "value": int(splits.get("T", {}).get("frame_count", 1102)),
-        "display_str": f"{int(splits.get('T', {}).get('frame_count', 1102)):,}",
+        "value": int(splits["T"]["n_frames"]),
+        "display_str": f"{int(splits['T']['n_frames']):,}",
         "source_file": str(split_meta_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "source_sha256": split_meta_sha,
-        "data_path": "splits.T.frame_count"
+        "data_path": "splits.T.n_frames"
     }
     manifest["numbers"]["split_t_car_hard_count"] = {
-        "value": 3212,
-        "display_str": "3,212",
+        "value": int(main_df["n_gt"].iloc[0]),
+        "display_str": f"{int(main_df['n_gt'].iloc[0]):,}",
         "source_file": str(main_csv_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "source_sha256": main_csv_sha,
         "data_path": "n_gt.iloc[0]"

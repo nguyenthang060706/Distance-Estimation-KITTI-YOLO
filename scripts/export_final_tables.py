@@ -172,13 +172,23 @@ def export_table_2():
         "f": ("Full Residual $\\hat{Z}_f$ (f)", cs["f"]["pooled"])
     }
     
-    # Single cue baselines from Day 4 GT bbox
+    # Single cue baselines dynamically loaded from geometry_on_detector_bbox.json (Split B eval_split_B)
+    geom_b_path = REPO_ROOT / "results" / "tables" / "geometry_on_detector_bbox.json"
+    with open(geom_b_path, "r", encoding="utf-8") as f:
+        geom_b_data = json.load(f)
+    det_b = geom_b_data["detectors"]["yolo11s_640"]["eval_split_B"]
+    
     single_cues = [
-        ("Width Cue $Z_w$ (a)", 0.2769, 0.2458, 7.73, 0.3416),
-        ("Height Cue $Z_h$ (b)", 0.0688, 0.0645, 1.74, 0.9831),
-        ("Ground Cue $Z_g$ (c*)", 0.1062, 0.1362, 2.90, 0.9124)
+        ("Width Cue $Z_w$ (a)", det_b["a_zw_det"]),
+        ("Height Cue $Z_h$ (b)", det_b["b_zh_det"]),
+        ("Ground Cue $Z_g$ (c*)", det_b["c_zg_det"])
     ]
-    for c_name, p_abs, m_abs, mae, d1 in single_cues:
+    for c_name, c_data in single_cues:
+        p_abs = round(float(c_data["pooled_absrel"]), 4)
+        m_abs = round(float(c_data["macro_absrel"]), 4)
+        mae = round(float(c_data["pooled_mae"]), 2)
+        d1 = round(float(c_data["pooled_delta1"]), 4)
+        
         csv_rows.append({
             "model_type": "Single Cue",
             "variant": c_name,
@@ -289,6 +299,7 @@ def export_table_3():
         
         fd_ci_str = f"[{fd_row['ci_low']:.4f}, {fd_row['ci_high']:.4f}]"
         fe_ci_str = f"[{fe_row['ci_low']:.4f}, {fe_row['ci_high']:.4f}]"
+        fe_est = float(fe_row['estimate'])
         
         for v_key, v_name in var_map.items():
             row = main_df[(main_df["detector"] == det_key) & (main_df["variant"] == v_key)].iloc[0]
@@ -303,10 +314,13 @@ def export_table_3():
             # Cột Paired CI chỉ hiện ở dòng (f) và (e)
             if v_key == "z_hat_f":
                 ci_col = f"vs (d): {fd_ci_str}"
+                ci_latex = escape_latex(ci_col)
             elif v_key == "z_hat_e":
-                ci_col = f"vs (f): {fe_ci_str}"
+                ci_col = f"Delta(f - e): {fe_est:+.4f} {fe_ci_str}"
+                ci_latex = f"$\\Delta(f - e)$: {fe_est:+.4f} {escape_latex(fe_ci_str)}"
             else:
                 ci_col = "---"
+                ci_latex = "---"
                 
             csv_rows.append({
                 "detector": det_key,
@@ -332,7 +346,7 @@ def export_table_3():
                 f"{mae:.2f}",
                 f"{rmse:.2f}",
                 f"{d1*100:.1f}\\%",
-                escape_latex(ci_col)
+                ci_latex
             ])
             
     df_raw = pd.DataFrame(csv_rows)
@@ -430,7 +444,12 @@ def export_table_5():
         for v_name, v_data in variants:
             p_cov = float(v_data["pooled_coverage"])
             m_cov = float(v_data.get("macro_coverage", 0.0))
-            m_ge30 = float(v_data.get("macro_coverage_ge30", m_cov))
+            if "macro_coverage_ge30" in v_data:
+                m_ge30 = float(v_data["macro_coverage_ge30"])
+                m_ge30_str = f"{m_ge30*100:.1f}\\%"
+            else:
+                m_ge30 = None
+                m_ge30_str = "---"
             w_ratio = float(v_data["mean_width_ratio"])
             winkler = float(v_data.get("mean_winkler", 0.0))
             crossings = int(v_data.get("n_crossings", 0))
@@ -440,7 +459,7 @@ def export_table_5():
                 "variant": v_name,
                 "pooled_coverage": round(p_cov, 4),
                 "macro_coverage": round(m_cov, 4),
-                "macro_coverage_ge30": round(m_ge30, 4),
+                "macro_coverage_ge30": round(m_ge30, 4) if m_ge30 is not None else None,
                 "mean_width_ratio": round(w_ratio, 3),
                 "mean_winkler": round(winkler, 4) if winkler > 0 else None,
                 "crossing_count": crossings
@@ -451,7 +470,7 @@ def export_table_5():
                 escape_latex(v_name),
                 f"{p_cov*100:.1f}\\%",
                 f"{m_cov*100:.1f}\\%",
-                f"{m_ge30*100:.1f}\\%",
+                m_ge30_str,
                 f"{w_ratio:.3f}x",
                 f"{winkler:.4f}" if winkler > 0 else "---",
                 str(crossings)

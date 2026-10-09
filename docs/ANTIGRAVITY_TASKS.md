@@ -278,28 +278,33 @@ Khung đánh giá cho `evaluate_report` cần các cột `z_gt, z_pred, cls, dif
    - 13/13 unit tests pass trong `tests/test_qualitative.py` (bao gồm test D97 kiểm tra zero hardcode floats).
    - Toàn bộ test suite dự án `pytest -q`: **217 passed** 100%.
 
-### T17 — Xuất bảng/hình + tư liệu bài (W3-5..6) — [x] HOÀN THÀNH TOÀN DIỆN (PHA 1 & PHA 2) (D108–D113)
-**Mục tiêu:** Xuất toàn bộ 7 cặp bảng chính thức sang `results/tables/final/` (CSV + LaTeX booktabs); xây dựng `results/final/numbers_manifest.json` ánh xạ 100% con số trong bài tới file nguồn và SHA-256; đồng bộ hóa 5 hình vẽ khoa học $\ge 300$ DPI vào `results/figures/final/` kèm `figures_manifest.json`; xây dựng tệp trích dẫn BibTeX chuẩn `docs/paper/references.bib`; hoàn thiện bản thảo `docs/paper/MANUSCRIPT_DRAFT.md` không còn placeholder số ảo và bao quát đủ 14 Hạn chế cốt lõi.
-**Kết quả thực hiện (D108–D113):**
+### T17 — Xuất bảng/hình + tư liệu bài (W3-5..6) — [x] HOÀN THÀNH TOÀN DIỆN (PHA 1, PHA 2 & T17b) (D108–D118)
+**Mục tiêu:** Xuất toàn bộ 7 cặp bảng chính thức sang `results/tables/final/` (CSV + LaTeX booktabs); xây dựng `results/final/numbers_manifest.json` ánh xạ 100% con số trong bài tới file nguồn và SHA-256; đồng bộ hóa 5 hình vẽ khoa học $\ge 300$ DPI vào `results/figures/final/` kèm `figures_manifest.json`; xây dựng tệp trích dẫn BibTeX chuẩn `docs/paper/references.bib`; hoàn thiện bản thảo `docs/paper/MANUSCRIPT_DRAFT.md` không còn placeholder số ảo và bao quát đủ 14 Hạn chế cốt lõi. Khắc phục triệt để mọi lỗi P0 và P1 từ đánh giá phản biện độc lập qua tác vụ T17b.
+**Kết quả thực hiện (D108–D118):**
 1. **Numbers Manifest (`scripts/build_numbers_manifest.py`, D108):**
-   - Sinh `results/final/numbers_manifest.json` gồm **81 metrics chuẩn hóa** trích xuất từ 7 artifact nguồn đã kiểm định.
+   - Sinh `results/final/numbers_manifest.json` gồm **81 metrics chuẩn hóa** trích xuất động 100% từ 7 artifact nguồn đã kiểm định (đọc động `n_frames` và `n_gt`).
    - 100% metrics có `source_file`, `source_sha256`, `data_path` kiểm chứng bit-by-bit.
-2. **7 Bảng xuất bản CSV & LaTeX booktabs (`scripts/export_final_tables.py`, D109, D111):**
+2. **7 Bảng xuất bản CSV & LaTeX booktabs (`scripts/export_final_tables.py`, D109, D111, D114, D118):**
    - 14 tệp trong `results/tables/final/` (`tab_01` đến `tab_07`).
    - 100% tuân thủ booktabs (không kẻ dọc `|`, không double `\hline`, escape `%` và `_` triệt để).
-   - Tích hợp Paired Cluster Bootstrap 95% CI có sẵn từ `final_eval_bootstrap_T.csv`, gắn cờ `*` cảnh báo phân nhóm $n_{\text{TP}} < 100$.
+   - Bảng 2 đọc động single cues từ `geometry_on_detector_bbox.json` (Split B eval_split_B).
+   - Bảng 3 ghi rõ $\Delta(f - e)$ với ước lượng âm $-0.0002\ [-0.0012, 0.0023]$, loại bỏ khả năng nhầm chiều hiệu số.
+   - Bảng 5 hiển thị `---` cho cột `Macro (n >= 30)` của Split Conformal và Mondrian CQR (không fallback nhầm sang macro 10 cụm).
    - Bảng 7 (Latency Tier 1) mang nhãn bắt buộc `PRELIMINARY-v2`, phân rã khâu hậu xử lý chỉ tốn $\approx 1.35$ ms/ảnh ($< 4.2\%$ GPU pipeline).
-3. **5 Hình vẽ khoa học xuất bản (`scripts/export_final_figures.py`, D112):**
-   - Xuất bản 5 hình vẽ đạt chuẩn $\ge 300$ DPI, palette colorblind-safe vào `results/figures/final/`: `fig_01` (Kiến trúc tổng thể), `fig_02` (Phân bổ split A/V/B/C/T), `fig_03` (Sai số AbsRel theo 5 dải khoảng cách), `fig_04` (Độ phủ CQR và độ rộng khoảng tin cậy theo ODD), và `fig_05` (Lưới 8 trường hợp định tính kèm Disclaimer).
+3. **5 Hình vẽ khoa học xuất bản (`scripts/export_final_figures.py`, D112, D114):**
+   - Xuất bản 5 hình vẽ đạt chuẩn $\ge 300$ DPI, palette colorblind-safe vào `results/figures/final/`: `fig_01` (Kiến trúc tổng thể không trọng số gõ tay), `fig_02` (Phân bổ split A/V/B/C/T đồng bộ 100% Car Hard), `fig_03` (Sai số AbsRel theo 5 dải khoảng cách tính động từ parquet, dải $>50$m gắn cờ `*`), `fig_04` (Độ phủ CQR và độ rộng khoảng tin cậy theo ODD tính động từ json), và `fig_05` (Lưới 8 trường hợp định tính fail-loud nếu thiếu file, kèm Disclaimer).
    - Tích hợp bản đồ đồ họa `results/figures/final/figures_manifest.json` có mã băm SHA-256 đối chiếu 100%.
-4. **Hệ thống trích dẫn BibTeX & Bản thảo hoàn thiện (`scripts/render_manuscript.py`, D108, D110, D113):**
-   - Tạo tệp `docs/paper/references.bib` với 8 mục trích dẫn chuẩn mực.
-   - Loại bỏ 100% nhãn trích dẫn thô `[CẦN TRÍCH DẪN]` trong `docs/paper/MANUSCRIPT_TEMPLATE.md`, bổ sung Section 5.4 và Full Bibliography, biên dịch ra `docs/paper/MANUSCRIPT_DRAFT.md` hoàn chỉnh, 0 placeholder sót lại.
-   - Thể chế hóa đầy đủ 14 Hạn chế cốt lõi (Limitations & Threats to Validity).
-5. **Kiểm thử và An toàn:**
+4. **Hệ thống trích dẫn BibTeX & Bản thảo hoàn thiện (`scripts/render_manuscript.py`, D108, D110, D113, D115, D116, D117):**
+   - Tạo tệp `docs/paper/references.bib` với đầy đủ 12 mục trích dẫn chuẩn mực theo Kế hoạch v4 §12, không tự chế metadata (D115).
+   - Bổ sung Section 5.1 Error Decomposition & Geometric Baseline Analysis (kết nối Table 2, T02, D19, D21, D31).
+   - Loại bỏ 100% mã quyết định nội bộ (Dxx) trong `MANUSCRIPT_TEMPLATE.md` và `MANUSCRIPT_DRAFT.md` (D116).
+   - Chuẩn hóa văn phong khoa học (D117): cấm claim "equivalence", "finite-sample coverage guarantees", "fail-safe", "comfortably", "fails catastrophically"; hạ giọng giải thích IoU parity thành giả thuyết kỹ thuật.
+   - Tiêu đề mục Limitation 8 đổi thành "Empirical Indistinguishability of Residual and Direct Regression under 10-Cluster Sample".
+5. **Kiểm thử và An toàn (D118):**
    - `runs/final_T.lock` giữ nguyên vẹn 100% (Zero-Touch Split T).
-   - 10/10 unit tests pass trong `tests/test_final_tables_and_manifest.py`.
-   - Toàn bộ test suite dự án `pytest -q`: **228 passed** 100%.
+   - Triệt tiêu hoàn toàn vacuous tests: `test_csv_tex_value_consistency` kiểm tra đúng tên cột số liệu thực tế (`absrel_pooled`, `pooled_coverage`) và assert $\ge 15$ dòng (Tab 3) và $\ge 9$ dòng (Tab 5).
+   - 11/11 unit tests pass trong `tests/test_final_tables_and_manifest.py`.
+   - Toàn bộ test suite dự án `pytest -q`: **229 passed** 100%.
 
 ### T18 — Audit checklist §11 (W3-6..7)
 **Làm:** `docs/CHECKLIST_AUDIT.md`: với từng mục §11 của v4, ghi bằng chứng (lệnh + kết quả, file, test) hoặc FAIL. Tối thiểu có các kiểm tra tự động: (1) không cột GT trong mọi `*_features.parquet`; (2) hash A/V/B/C/T khớp metadata; (3) T chỉ được chạm một lần (một cặp sự kiện START/COMPLETED trong `runs/final_T_log.jsonl`, có lock, tag khớp); (4) `grep` toàn repo: không đường code nào ngoài `run_final_T.py` mở T; (5) mọi bảng chính có n, n_valid, k cụm; (6) không còn cụm "có ý nghĩa thống kê"/"đầu tiên" trong tài liệu bài.

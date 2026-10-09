@@ -42,14 +42,18 @@ EXPECTED_FIGURE_NAMES = [
 ]
 
 EXPECTED_BIBTEX_KEYS = [
-    "ni2026calibrated",
+    "ni2026realtime",
     "vajgl2022distyolo",
     "haseeb2023disnet",
     "decade2024monocular",
+    "agl2026lightweight",
     "bertoni2019monoloco",
     "romano2019cqr",
     "bhatt2021fcal",
+    "dagan2004forward",
     "geiger2012kitti",
+    "chen2010oas",
+    "chen2016xgboost",
 ]
 
 
@@ -135,18 +139,21 @@ def test_manifest_provenance_and_hash() -> None:
 
 
 def test_csv_tex_value_consistency() -> None:
-    """Verify that numerical values rendered in CSV correspond directly to LaTeX tables."""
+    """Verify that numerical values rendered in CSV correspond directly to LaTeX tables without vacuous checks."""
     # Test Tab 3 consistency
     tab3_csv = TABLES_DIR / "tab_03_main_benchmark_split_t.csv"
     tab3_tex = TABLES_DIR / "tab_03_main_benchmark_split_t.tex"
     csv_rows = list(csv.DictReader(tab3_csv.open(encoding="utf-8")))
     tex_text = tab3_tex.read_text(encoding="utf-8")
 
+    checked_tab3 = 0
     for row in csv_rows:
-        absrel = row.get("AbsRel")
+        absrel = row.get("absrel_pooled")
         if absrel and absrel != "-":
             float_val = f"{float(absrel):.4f}"
             assert float_val in tex_text, f"AbsRel {float_val} from CSV not found in Tab 3 TEX"
+            checked_tab3 += 1
+    assert checked_tab3 >= 15, f"Vacuous check prevented: only checked {checked_tab3} rows in Tab 3"
 
     # Test Tab 5 consistency
     tab5_csv = TABLES_DIR / "tab_05_conformal_coverage_t.csv"
@@ -154,11 +161,14 @@ def test_csv_tex_value_consistency() -> None:
     csv_rows_5 = list(csv.DictReader(tab5_csv.open(encoding="utf-8")))
     tex_text_5 = tab5_tex.read_text(encoding="utf-8")
 
+    checked_tab5 = 0
     for row in csv_rows_5:
-        cov = row.get("Coverage (%)")
+        cov = row.get("pooled_coverage")
         if cov:
-            float_cov = f"{float(cov):.1f}"
+            float_cov = f"{float(cov) * 100:.1f}"
             assert float_cov in tex_text_5, f"Coverage {float_cov}% from CSV not found in Tab 5 TEX"
+            checked_tab5 += 1
+    assert checked_tab5 >= 9, f"Vacuous check prevented: only checked {checked_tab5} rows in Tab 5"
 
 
 def test_final_figures_and_manifest() -> None:
@@ -198,6 +208,14 @@ def test_bibtex_and_citations() -> None:
     assert "CẦN TRÍCH DẪN" not in draft_text, "Found raw [CẦN TRÍCH DẪN] in MANUSCRIPT_DRAFT.md"
 
 
+def test_no_internal_decision_codes_in_draft() -> None:
+    """Verify that manuscript draft contains zero internal project decision codes (Dxx)."""
+    assert MANUSCRIPT_DRAFT_PATH.exists()
+    content = MANUSCRIPT_DRAFT_PATH.read_text(encoding="utf-8")
+    matches = re.findall(r"\bD\d{1,3}\b", content)
+    assert not matches, f"Found internal decision codes in manuscript draft: {matches}"
+
+
 def test_manuscript_draft_completeness_and_no_placeholders() -> None:
     """Verify the manuscript draft has zero unresolved placeholders and contains all 14 limitations."""
     assert MANUSCRIPT_DRAFT_PATH.exists(), f"Manuscript draft missing: {MANUSCRIPT_DRAFT_PATH}"
@@ -219,7 +237,7 @@ def test_manuscript_draft_completeness_and_no_placeholders() -> None:
         "Detector Training Checkpoint Reproducibility",
         "KITTI Neighbor Class Matching Protocols",
         "Indirect Qualitative Design Leakage",
-        "Empirical Equivalence of Residual and Direct Regression",
+        "Empirical Indistinguishability of Residual and Direct Regression",
         "Post-Hoc Verification Transparency",
         "Exchangeability Shift and Conservative Over-Coverage",
         "Optimism of 10-Cluster Bootstrap CIs",
@@ -250,6 +268,12 @@ def test_language_guard() -> None:
         r"\bsuperior\s+to\b",
         r"\bvượt\s+trội\b",
         r"\bchứng\s+minh\s+rằng\b",
+        r"\bequivalence\b",
+        r"\brigorous\b",
+        r"\bfail-safe\b",
+        r"\bcomfortably\b",
+        r"\bfails\s+catastrophically\b",
+        r"\bfinite-sample\s+coverage\s+guarantees\b",
     ]
 
     for pattern in banned_regexes:

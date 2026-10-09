@@ -3,32 +3,33 @@
     "project": "Distance-Estimation-KITTI-YOLO",
     "dpi": 300,
     "palette": "colorblind-safe",
-    "format": "PNG (high-resolution publication standard)"
+    "format": "PNG (high-resolution publication standard)",
+    "verified_dynamic": true
   },
   "figures": {
     "fig_01_hybrid_architecture.png": {
       "path": "results/figures/final/fig_01_hybrid_architecture.png",
-      "sha256": "e94b61125f79c6b10750a5a2ec22b4a10b1b582532f88ddfcda0f8f1dc0d5ef3",
-      "size_bytes": 302271,
+      "sha256": "b240f95565e373237a6736afd3aef1eec64451eac3d71ea5a168989634098d53",
+      "size_bytes": 304325,
       "description": "Overall architectural block diagram of the Calibrated Hybrid Monocular Framework illustrating 2D detection, 3 pinhole cues, covariance fusion, fallback path, residual learning, and conformal uncertainty quantification."
     },
     "fig_02_splits_spatial_distribution.png": {
       "path": "results/figures/final/fig_02_splits_spatial_distribution.png",
-      "sha256": "284542a225378badad5f4425e899e9dc6dfe63a39b5e652e8821aab6fae316ee",
-      "size_bytes": 170534,
+      "sha256": "2bdf43aa22328fbf728763f93fba2fd2f836454edddf35b9d055339734192754",
+      "size_bytes": 163214,
       "description": "Distribution of frames and Car Hard ground-truth objects across the 5 drive-clustered splits A, V, B, C, and T, preserving zero drive leakage."
     },
     "fig_03_ranging_error_by_distance.png": {
       "path": "results/figures/final/fig_03_ranging_error_by_distance.png",
-      "sha256": "fd6de820593ad1de7cf231e1900326db7ff47fc05f48f5b23a1014859fd5537a",
-      "size_bytes": 266034,
-      "description": "Mean Absolute Relative Error (AbsRel) across 5 distance bins comparing isolated pinhole cues, fused baseline, direct regression, and hybrid residual model on Split T."
+      "sha256": "ce7da28f15f5fdf00cb1ad84db35192238530beecbd5953443dc622afdf25f15",
+      "size_bytes": 336760,
+      "description": "Empirical Mean Absolute Relative Error (AbsRel) dynamically evaluated across 5 distance bins on Split T comparing isolated pinhole cues, fused baseline, direct regression, and hybrid residual model. Asterisk (*) denotes n < 100."
     },
     "fig_04_conformal_intervals_and_coverage.png": {
       "path": "results/figures/final/fig_04_conformal_intervals_and_coverage.png",
-      "sha256": "f6a87bb6d5879d004705695d853bf28669da716287e9eb48bbb05fcb7fea66f7",
-      "size_bytes": 228642,
-      "description": "Empirical coverage and interval width ratios of Conformal Quantile Regression (CQR) across operational design domains (ODDs) on Split T."
+      "sha256": "73eaf06d3bf1186f64c286dbe381e2ef8415b208dc06b936368e1afc24797205",
+      "size_bytes": 123559,
+      "description": "Empirical coverage and interval width ratios of Conformal Quantile Regression (CQR) dynamically extracted across operational design domains (ODDs) on Split T. Asterisk (*) denotes n < 100."
     },
     "fig_05_qualitative_case_studies.png": {
       "path": "results/figures/final/fig_05_qualitative_case_studies.png",

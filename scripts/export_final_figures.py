@@ -1,6 +1,10 @@
 """
 scripts/export_final_figures.py — Sinh và đồng bộ hóa 5 hình vẽ khoa học chuẩn xuất bản cho bài báo.
-Tuân thủ tiêu chuẩn: >= 300 DPI, palette colorblind-safe, kiểu dáng thống nhất, zero data hallucination.
+Tuân thủ nghiêm ngặt D114:
+1. 100% số liệu đọc động từ artifact tĩnh có sẵn (parquet, json, metadata). Zero data hallucination.
+2. Dải/nhóm mẫu nhỏ n < 100 gắn cờ sao (*) rõ ràng (D3, D54).
+3. Đồ họa đạt chuẩn >= 300 DPI, palette colorblind-safe.
+4. Fail-loud (raise FileNotFoundError) nếu thiếu file nguồn, tuyệt đối cấm vẽ placeholder giả tạo.
 """
 
 from __future__ import annotations
@@ -60,7 +64,7 @@ def compute_sha256(filepath: Path) -> str:
 
 
 def generate_figure_1_architecture() -> Path:
-    """Hình 1: Sơ đồ khối kiến trúc kết hợp Calibrated Hybrid Monocular Framework."""
+    """Hình 1: Sơ đồ khối kiến trúc kết hợp Calibrated Hybrid Monocular Framework (không hardcode số)."""
     out_path = OUTPUT_DIR / "fig_01_hybrid_architecture.png"
     fig, ax = plt.subplots(figsize=(13, 6.5))
     ax.set_xlim(0, 13)
@@ -102,7 +106,8 @@ def generate_figure_1_architecture() -> Path:
     draw_arrow(5.2, 3.25, 5.7, 3.55)
     draw_arrow(5.2, 3.1, 5.7, 2.25)
 
-    draw_box(8.4, 3.1, 1.8, 1.3, "Covariance\nFusion (Zd)", "#00684A", "w_h=66%, w_g=26%, w_w=8%")
+    # OAS shrinkage fusion - không gõ cứng số phần trăm
+    draw_box(8.4, 3.1, 1.8, 1.3, "Covariance\nFusion (Zd)", "#00684A", "OAS Shrinkage (w_k >= 0)")
     draw_arrow(7.9, 4.85, 8.4, 3.9)
     draw_arrow(7.9, 3.55, 8.4, 3.75)
     draw_arrow(7.9, 2.25, 8.4, 3.5)
@@ -136,24 +141,41 @@ def generate_figure_1_architecture() -> Path:
 
 
 def generate_figure_2_splits_distribution() -> Path:
-    """Hình 2: Phân bổ dữ liệu 5 tập A, V, B, C, T theo số frame, drive và đối tượng Car Hard."""
+    """Hình 2: Phân bổ dữ liệu 5 tập A, V, B, C, T đọc động từ metadata và Bảng 1 (khớp số 100%)."""
     out_path = OUTPUT_DIR / "fig_02_splits_spatial_distribution.png"
     split_meta_path = REPO_ROOT / "splits" / "split_metadata.json"
-    
+    tab1_csv_path = REPO_ROOT / "results" / "tables" / "final" / "tab_01_dataset_split.csv"
+
+    if not split_meta_path.exists():
+        raise FileNotFoundError(f"Missing split metadata: {split_meta_path}")
+    if not tab1_csv_path.exists():
+        raise FileNotFoundError(f"Missing Table 1 CSV: {tab1_csv_path}")
+
     with open(split_meta_path, "r", encoding="utf-8") as f:
         meta = json.load(f)
     splits = meta.get("splits", {})
-    
-    labels = ["Split A\n(Train)", "Split V\n(Val)", "Split B\n(Fit B)", "Split C\n(Calib C)", "Split T\n(Held-out T)"]
+    df_tab1 = pd.read_csv(tab1_csv_path)
+
+    # Khớp thứ tự A, V, B, C, T
     keys = ["A", "V", "B", "C", "T"]
-    frames = [splits[k].get("n_frames", splits[k].get("frame_count", 0)) for k in keys]
-    drives = [splits[k].get("n_drives", splits[k].get("drive_count", 0)) for k in keys]
-    car_counts = [10214, 611, 4776, 1762, 3212]  # Ground truth verified Car Hard
+    labels = ["Split A\n(Train)", "Split V\n(Val)", "Split B\n(Fit B)", "Split C\n(Calib C)", "Split T\n(Held-out T)"]
+
+    frames = [int(splits[k].get("n_frames", splits[k].get("frame_count", 0))) for k in keys]
+    drives = [int(splits[k].get("n_drives", splits[k].get("drive_count", 0))) for k in keys]
     
+    # Đọc số Car Hard trực tiếp từ Table 1 CSV đã verified
+    car_counts = []
+    for k in keys:
+        row = df_tab1[df_tab1["split"] == k]
+        if not row.empty:
+            car_counts.append(int(row["car_hard_count"].iloc[0]))
+        else:
+            car_counts.append(0)
+
     x = np.arange(len(labels))
     width = 0.35
 
-    fig, ax1 = plt.subplots(figsize=(9.5, 5.2))
+    fig, ax1 = plt.subplots(figsize=(9.8, 5.4))
     ax2 = ax1.twinx()
 
     b1 = ax1.bar(x - width/2, frames, width, label="Frame Count", color=CB_BLUE, alpha=0.85, edgecolor=CB_DARK)
@@ -169,15 +191,15 @@ def generate_figure_2_splits_distribution() -> Path:
     for rect in b1:
         h = rect.get_height()
         ax1.annotate(f"{h:,}", xy=(rect.get_x() + rect.get_width() / 2, h),
-                     xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=8.5)
+                     xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontsize=8.5)
     for rect in b2:
         h = rect.get_height()
         ax2.annotate(f"{h:,}", xy=(rect.get_x() + rect.get_width() / 2, h),
-                     xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=8.5)
+                     xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontsize=8.5)
 
-    # Drive count markers below
+    # Ghi chú drive count bên trong biểu đồ (không để tọa độ âm đè lên nhãn trục)
     for i, d in enumerate(drives):
-        ax1.text(x[i], -950, f"k = {d} drives", ha="center", va="top", fontsize=9, color=CB_DARK, style="italic")
+        ax1.text(x[i] - width/2, 200, f"k={d}", ha="center", va="bottom", fontsize=8.5, color="white", weight="bold")
 
     plt.title("KITTI Benchmark Partition Scheme (Drive-Clustered Splits A, V, B, C, T)", pad=15)
     fig.tight_layout()
@@ -187,39 +209,72 @@ def generate_figure_2_splits_distribution() -> Path:
 
 
 def generate_figure_3_error_by_distance() -> Path:
-    """Hình 3: Sai số AbsRel theo 5 dải khoảng cách: so sánh các cue đơn lẻ, Fused (d), Direct (e), Residual (f)."""
+    """Hình 3: Sai số AbsRel theo 5 dải khoảng cách tính ĐỘNG trực tiếp từ predictions parquet (có cờ *)."""
     out_path = OUTPUT_DIR / "fig_03_ranging_error_by_distance.png"
+    parquet_path = REPO_ROOT / "results" / "final" / "yolo11s_640_T_predictions.parquet"
 
-    # Exact verified AbsRel data from Tab 2 and Tab 6 evaluations
-    bins = ["0-10 m", "10-20 m", "20-30 m", "30-50 m", ">50 m"]
-    
-    # Representative benchmark performance on Split T (YOLO11s)
-    absrel_width = [0.2280, 0.1740, 0.1380, 0.1190, 0.1250]
-    absrel_height = [0.0510, 0.0460, 0.0520, 0.0590, 0.0710]
-    absrel_ground = [0.0720, 0.0630, 0.0710, 0.0820, 0.1180]
-    absrel_fused_d = [0.0680, 0.0490, 0.0540, 0.0620, 0.0780]
-    absrel_direct_e = [0.0465, 0.0435, 0.0482, 0.0530, 0.0750]
-    absrel_residual_f = [0.0463, 0.0430, 0.0478, 0.0522, 0.0735]
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Missing predictions parquet: {parquet_path}")
 
-    fig, ax = plt.subplots(figsize=(9.5, 5.2))
-    
-    ax.plot(bins, absrel_width, marker="s", ls="--", color=CB_GRAY, lw=1.5, label="Width Cue (Zw)")
-    ax.plot(bins, absrel_ground, marker="^", ls="--", color=CB_PURPLE, lw=1.5, label="Ground Cue (Zg)")
-    ax.plot(bins, absrel_height, marker="o", ls="-", color=CB_GREEN, lw=1.8, label="Height Cue (Zh)")
-    ax.plot(bins, absrel_fused_d, marker="D", ls="-", color="#00684A", lw=2.2, label="Fused Geometry (Zd)")
-    ax.plot(bins, absrel_direct_e, marker="v", ls="-.", color=CB_RED, lw=2.0, label="Direct Regression (Ze)")
-    ax.plot(bins, absrel_residual_f, marker="*", ls="-", color=CB_ORANGE, lw=2.8, markersize=10, label="Learned Residual (Z_hat_f)")
+    # Đọc read-only predictions tĩnh
+    df = pd.read_parquet(parquet_path)
 
-    ax.set_xlabel("Distance Range Bins (m)", weight="bold")
+    bins = [(0, 10), (10, 20), (20, 30), (30, 50), (50, 150)]
+    bin_labels = []
+
+    absrel_width = []
+    absrel_height = []
+    absrel_ground = []
+    absrel_fused_d = []
+    absrel_direct_e = []
+    absrel_residual_f = []
+
+    for lo, hi in bins:
+        sub = df[(df["z_gt"] >= lo) & (df["z_gt"] < hi)]
+        n = len(sub)
+        flag = "*" if n < 100 else ""
+        label = f"{lo}-{hi} m{flag}\n(n={n})" if hi < 100 else f">50 m{flag}\n(n={n})"
+        bin_labels.append(label)
+
+        # Vectorized calculation on verified subsets
+        w_sub = sub[sub["valid_w"]]
+        h_sub = sub[sub["valid_h"]]
+        g_sub = sub[sub["valid_g"]]
+        d_sub = sub[~sub["fallback_flag"]]
+
+        rel_w = float(np.mean(np.abs(w_sub["z_w"] - w_sub["z_gt"]) / w_sub["z_gt"])) if len(w_sub) > 0 else np.nan
+        rel_h = float(np.mean(np.abs(h_sub["z_h"] - h_sub["z_gt"]) / h_sub["z_gt"])) if len(h_sub) > 0 else np.nan
+        rel_g = float(np.mean(np.abs(g_sub["z_g"] - g_sub["z_gt"]) / g_sub["z_gt"])) if len(g_sub) > 0 else np.nan
+        rel_d = float(np.mean(np.abs(d_sub["z_d"] - d_sub["z_gt"]) / d_sub["z_gt"])) if len(d_sub) > 0 else np.nan
+        rel_e = float(np.mean(np.abs(sub["z_hat_e"] - sub["z_gt"]) / sub["z_gt"])) if n > 0 else np.nan
+        rel_f = float(np.mean(np.abs(sub["z_hat_f"] - sub["z_gt"]) / sub["z_gt"])) if n > 0 else np.nan
+
+        absrel_width.append(rel_w)
+        absrel_height.append(rel_h)
+        absrel_ground.append(rel_g)
+        absrel_fused_d.append(rel_d)
+        absrel_direct_e.append(rel_e)
+        absrel_residual_f.append(rel_f)
+
+    fig, ax = plt.subplots(figsize=(10.2, 5.4))
+
+    ax.plot(bin_labels, absrel_width, marker="s", ls="--", color=CB_GRAY, lw=1.5, label="Width Cue (Zw)")
+    ax.plot(bin_labels, absrel_ground, marker="^", ls="--", color=CB_PURPLE, lw=1.5, label="Ground Cue (Zg)")
+    ax.plot(bin_labels, absrel_height, marker="o", ls="-", color=CB_GREEN, lw=1.8, label="Height Cue (Zh)")
+    ax.plot(bin_labels, absrel_fused_d, marker="D", ls="-", color="#00684A", lw=2.2, label="Fused Geometry (Zd)")
+    ax.plot(bin_labels, absrel_direct_e, marker="v", ls="-.", color=CB_RED, lw=2.0, label="Direct Regression (Ze)")
+    ax.plot(bin_labels, absrel_residual_f, marker="*", ls="-", color=CB_ORANGE, lw=2.8, markersize=10, label="Learned Residual (Z_hat_f)")
+
+    ax.set_xlabel("Distance Range Bins [Asterisk (*) indicates n < 100]", weight="bold")
     ax.set_ylabel("Mean Absolute Relative Error (AbsRel)", weight="bold")
-    ax.set_title("Ranging Error Across Distance Ranges (YOLO11s on Split T)", pad=12)
-    ax.set_ylim(0.02, 0.25)
+    ax.set_title("Empirical Ranging Error Across Distance Ranges (YOLO11s on Split T)", pad=12)
+    ax.set_ylim(0.02, 0.32)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="upper right", framealpha=0.95)
 
-    # Highlight indistinguishability of (f) and (e)
-    ax.annotate("Model (f) ≈ Model (e)\n[95% CI contains 0, Decision D78]",
-                xy=(1, 0.043), xytext=(1.2, 0.085),
+    # Ghi chú khách quan về (f) và (e)
+    ax.annotate("Model (f) and Model (e) closely track\n[Cluster Bootstrap 95% CI contains 0]",
+                xy=(1, absrel_residual_f[1]), xytext=(1.2, 0.10),
                 arrowprops=dict(arrowstyle="->", color=CB_DARK, lw=1.2),
                 fontsize=8.5, backgroundcolor="#FFF8DC", weight="bold")
 
@@ -230,34 +285,77 @@ def generate_figure_3_error_by_distance() -> Path:
 
 
 def generate_figure_4_conformal_coverage() -> Path:
-    """Hình 4: Trực quan hóa độ phủ thực nghiệm CQR và độ rộng khoảng tin cậy theo miền ODD."""
+    """Hình 4: Trực quan hóa độ phủ thực nghiệm CQR đọc ĐỘNG 100% từ coverage_conditional_T.json."""
     out_path = OUTPUT_DIR / "fig_04_conformal_intervals_and_coverage.png"
-    
-    # Verified conditional coverage metrics from tab_06
-    subsets = [
-        "Overall Pooled",
-        "Range: 0-10 m",
-        "Range: 10-20 m",
-        "Range: 20-30 m",
-        "Range: 30-50 m",
-        "Truncation > 0",
-        "Touch Edge",
-        "Fallback (000)*"
-    ]
-    coverage = [96.39, 91.80, 96.80, 97.40, 96.60, 91.50, 88.00, 77.80]
-    widths = [1.32, 1.45, 1.30, 1.28, 1.35, 1.48, 1.52, 1.62]
+    json_path = REPO_ROOT / "results" / "tables" / "coverage_conditional_T.json"
 
-    y = np.arange(len(subsets))
+    if not json_path.exists():
+        raise FileNotFoundError(f"Missing conditional coverage JSON: {json_path}")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    yolo11s_data = data.get("yolo11s_640", {})
+    if not yolo11s_data:
+        raise ValueError("yolo11s_640 key not found in coverage_conditional_T.json")
+
+    # Trích xuất động các subset đại diện từ JSON thật
+    subsets_to_plot = []
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.5, 5.2), sharey=True)
+    # 1. Overall Hard
+    for diff in yolo11s_data.get("difficulty", []):
+        if diff.get("subgroup") == "Hard (nested)":
+            cqr = diff["cqr"]
+            subsets_to_plot.append(("Overall Pooled (Hard)", cqr["coverage"] * 100, cqr["mean_width"], diff.get("low_n", False)))
+            break
+
+    # 2. Distance ranges
+    for r in yolo11s_data.get("range_z_gt", []):
+        sg = r.get("subgroup", "")
+        if sg in ["0-10 m", "10-20 m", "20-30 m", "30-50 m"]:
+            cqr = r["cqr"]
+            subsets_to_plot.append((f"Range: {sg}", cqr["coverage"] * 100, cqr["mean_width"], r.get("low_n", False)))
+
+    # 3. Truncation and Edge
+    for tr in yolo11s_data.get("truncation_and_edges", []):
+        sg = tr.get("subgroup", "")
+        if "Severe" in sg:
+            cqr = tr["cqr"]
+            subsets_to_plot.append(("Severe Truncation", cqr["coverage"] * 100, cqr["mean_width"], tr.get("low_n", True)))
+            break
+
+    # 4. Touch Multi-edge
+    for te in yolo11s_data.get("touch_edge", []):
+        sg = te.get("subgroup", "")
+        if "Touch Multi-edge" in sg:
+            cqr = te["cqr"]
+            subsets_to_plot.append(("Touch Multi-edge (000)", cqr["coverage"] * 100, cqr["mean_width"], te.get("low_n", True)))
+            break
+
+    # 5. Fallback 000
+    for fb in yolo11s_data.get("fallback_pattern_000", []):
+        sg = fb.get("subgroup", "")
+        if "Fallback" in sg:
+            cqr = fb["cqr"]
+            subsets_to_plot.append(("Fallback (Pattern 000)", cqr["coverage"] * 100, cqr["mean_width"], fb.get("low_n", True)))
+            break
+
+    # Đưa vào mảng vẽ
+    labels = [f"{name}{'*' if low else ''}" for name, _, _, low in subsets_to_plot]
+    coverages = [cov for _, cov, _, _ in subsets_to_plot]
+    widths = [w for _, _, w, _ in subsets_to_plot]
+
+    y = np.arange(len(labels))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.0, 5.2), sharey=True)
 
     # Panel 1: Empirical Coverage
-    bars1 = ax1.barh(y, coverage, color=CB_BLUE, alpha=0.85, edgecolor=CB_DARK, height=0.6)
-    ax1.axvline(90.0, color=CB_RED, ls="--", lw=2.0, label="Nominal 90% Level")
+    bars1 = ax1.barh(y, coverages, color=CB_BLUE, alpha=0.85, edgecolor=CB_DARK, height=0.6)
+    ax1.axvline(90.0, color=CB_RED, ls="--", lw=2.0, label="Nominal 90% Target")
     ax1.set_xlabel("Empirical Coverage (%)", weight="bold")
-    ax1.set_xlim(60, 102)
+    ax1.set_xlim(65, 102)
     ax1.set_yticks(y)
-    ax1.set_yticklabels(subsets, weight="bold")
+    ax1.set_yticklabels(labels, weight="bold")
     ax1.invert_yaxis()
     ax1.grid(axis="x", linestyle=":", alpha=0.6)
     ax1.legend(loc="lower left")
@@ -270,7 +368,7 @@ def generate_figure_4_conformal_coverage() -> Path:
     # Panel 2: Mean Width Ratio
     bars2 = ax2.barh(y, widths, color=CB_ORANGE, alpha=0.85, edgecolor=CB_DARK, height=0.6)
     ax2.set_xlabel("Mean Interval Width Ratio (Z_hi / Z_lo)", weight="bold")
-    ax2.set_xlim(1.0, 1.8)
+    ax2.set_xlim(1.1, 1.8)
     ax2.grid(axis="x", linestyle=":", alpha=0.6)
 
     for rect in bars2:
@@ -286,21 +384,17 @@ def generate_figure_4_conformal_coverage() -> Path:
 
 
 def sync_figure_5_qualitative() -> Path:
-    """Hình 5: Bức tranh nghiên cứu tình huống định tính kèm disclaimer (D102, D105)."""
+    """Hình 5: Đóng gói hình định tính kèm banner Disclaimer (fail-loud nếu thiếu)."""
     src_grid = REPO_ROOT / "results" / "figures" / "qualitative_grid_summary.png"
     out_path = OUTPUT_DIR / "fig_05_qualitative_case_studies.png"
-    
-    if src_grid.exists():
-        shutil.copy2(src_grid, out_path)
-    else:
-        # Fallback if grid missing: create placeholder
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.text(0.5, 0.5, "Qualitative Case Studies Grid Summary\n(See results/figures/qualitative_grid_summary.png)",
-                ha="center", va="center", fontsize=12)
-        ax.axis("off")
-        plt.savefig(out_path)
-        plt.close()
-        
+
+    if not src_grid.exists():
+        raise FileNotFoundError(
+            f"CRITICAL ERROR: qualitative_grid_summary.png missing at {src_grid}. "
+            f"Do not create dummy placeholder per Decision D114."
+        )
+
+    shutil.copy2(src_grid, out_path)
     return out_path
 
 
@@ -311,19 +405,20 @@ def build_figures_manifest(fig_paths: list[Path]) -> None:
             "project": "Distance-Estimation-KITTI-YOLO",
             "dpi": 300,
             "palette": "colorblind-safe",
-            "format": "PNG (high-resolution publication standard)"
+            "format": "PNG (high-resolution publication standard)",
+            "verified_dynamic": True
         },
         "figures": {}
     }
-    
+
     descriptions = {
         "fig_01_hybrid_architecture.png": "Overall architectural block diagram of the Calibrated Hybrid Monocular Framework illustrating 2D detection, 3 pinhole cues, covariance fusion, fallback path, residual learning, and conformal uncertainty quantification.",
         "fig_02_splits_spatial_distribution.png": "Distribution of frames and Car Hard ground-truth objects across the 5 drive-clustered splits A, V, B, C, and T, preserving zero drive leakage.",
-        "fig_03_ranging_error_by_distance.png": "Mean Absolute Relative Error (AbsRel) across 5 distance bins comparing isolated pinhole cues, fused baseline, direct regression, and hybrid residual model on Split T.",
-        "fig_04_conformal_intervals_and_coverage.png": "Empirical coverage and interval width ratios of Conformal Quantile Regression (CQR) across operational design domains (ODDs) on Split T.",
+        "fig_03_ranging_error_by_distance.png": "Empirical Mean Absolute Relative Error (AbsRel) dynamically evaluated across 5 distance bins on Split T comparing isolated pinhole cues, fused baseline, direct regression, and hybrid residual model. Asterisk (*) denotes n < 100.",
+        "fig_04_conformal_intervals_and_coverage.png": "Empirical coverage and interval width ratios of Conformal Quantile Regression (CQR) dynamically extracted across operational design domains (ODDs) on Split T. Asterisk (*) denotes n < 100.",
         "fig_05_qualitative_case_studies.png": "Qualitative case study panel showing 8 real KITTI camera frames representing diverse challenges (side-view, near-range 3D bias, border cut, pattern 000 fallback, failure case, and successes) with mandatory disclaimer banner."
     }
-    
+
     for p in fig_paths:
         sha = compute_sha256(p)
         manifest["figures"][p.name] = {
@@ -332,25 +427,25 @@ def build_figures_manifest(fig_paths: list[Path]) -> None:
             "size_bytes": p.stat().st_size,
             "description": descriptions.get(p.name, "Publication figure.")
         }
-        
+
     manifest_path = OUTPUT_DIR / "figures_manifest.json"
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
-        
-    print(f"Generated figures manifest: {manifest_path} ({len(fig_paths)} figures).")
+
+    print(f"Generated dynamic figures manifest: {manifest_path} ({len(fig_paths)} figures).")
 
 
 def main():
-    print("Generating 5 publication-ready scientific figures in results/figures/final/...")
+    print("Generating 5 dynamic, publication-ready scientific figures in results/figures/final/...")
     p1 = generate_figure_1_architecture()
     p2 = generate_figure_2_splits_distribution()
     p3 = generate_figure_3_error_by_distance()
     p4 = generate_figure_4_conformal_coverage()
     p5 = sync_figure_5_qualitative()
-    
+
     fig_paths = [p1, p2, p3, p4, p5]
     build_figures_manifest(fig_paths)
-    print("All 5 figures generated successfully at >= 300 DPI!")
+    print("All 5 figures dynamically generated successfully at >= 300 DPI!")
 
 
 if __name__ == "__main__":

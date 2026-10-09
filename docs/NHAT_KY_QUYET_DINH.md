@@ -291,6 +291,22 @@ Chưa có trả lời từ thầy. Trong lúc chờ, chạy theo mặc định c
 - ✅ **Chuẩn hóa hệ thống trích dẫn học thuật BibTeX (D113):**
   * Xây dựng `docs/paper/references.bib` chứa 8 mục thư mục học thuật chuẩn mực (Ni et al. 2026, Dist-YOLO 2022, DisNet 2023, DECADE 2024, MonoLoco 2019, CQR 2019, f-Cal 2021, KITTI 2012).
   * Loại bỏ 100% nhãn trích dẫn thô `[CẦN TRÍCH DẪN]` khỏi bản thảo bài báo khoa học.
+- ✅ **Cấm mảng số gõ tay trong hình/bảng & Fail-loud khi thiếu artifact (D114):**
+  * Mọi số liệu hiển thị trên 5 hình vẽ xuất bản (`export_final_figures.py`) và 7 bảng khoa học (`export_final_tables.py`) bắt buộc phải tính toán động hoặc trích xuất trực tiếp từ artifact tĩnh đã khóa (`predictions.parquet`, `coverage_conditional_T.json`, `geometry_on_detector_bbox.json`, `split_metadata.json`, `numbers_manifest.json`).
+  * Tuyệt đối cấm gõ cứng (hardcode) các mảng số liệu. Nếu thiếu tệp artifact hoặc dữ liệu đầu vào, script bắt buộc phải fail-loud (ném ngoại lệ `FileNotFoundError` ngắt thực thi), nghiêm cấm tự động vẽ ảnh giả (placeholder/dummy data).
+  * Mọi biểu đồ/bảng có dải cự ly $>50$ m bắt buộc gắn cờ `*` cảnh báo cỡ mẫu nhỏ ($n_{\text{TP}} \le 9$) theo đúng D3/D54.
+- ✅ **Chuẩn hóa 12 trích dẫn BibTeX theo Kế hoạch v4 §12 & Cấm bịa đặt metadata (D115):**
+  * Đồng bộ hóa đầy đủ 12 mục trích dẫn trong `docs/paper/references.bib` khớp 100% với Kế hoạch v4 §12 (bổ sung: AGL Sensors 2026, Dagan et al. IV 2004, Chen et al. OAS IEEE TSP 2010, Chen & Guestrin XGBoost KDD 2016).
+  * Tuyệt đối cấm tự chế hoặc suy đoán metadata (DOI, volume, issue, page range) khi chưa có nguồn công khai chính thức; các bài workshop/preprint ghi rõ `arXiv preprint` hoặc `Workshop proceedings`.
+- ✅ **Loại bỏ 100% mã quyết định nội bộ (Dxx) khỏi bài báo khoa học (D116):**
+  * Các mã quyết định dạng `Dxx` (ví dụ `D14`, `D78`, `D82`, `D104`) là mã quản trị nội bộ phục vụ audit và điều phối agent; tuyệt đối không xuất hiện trong bản thảo bài báo khoa học (`MANUSCRIPT_TEMPLATE.md` và `MANUSCRIPT_DRAFT.md`).
+  * Bổ sung unit test tĩnh `test_no_internal_decision_codes_in_draft` kiểm tra tự động trước khi xuất bản.
+- ✅ **Chuẩn mực văn phong học thuật: Cấm tuyệt đối ngôn ngữ võ đoán và quá đà (D117):**
+  * Mọi diễn giải thực nghiệm mang tính hậu nghiệm (post-hoc) phải được trình bày dưới dạng giả thuyết kỹ thuật hoặc quan sát mô tả (ví dụ: đệm ảnh tĩnh $640 \times 640$ làm giảm IoU parity; Split C khó hơn T làm nới rộng $\hat{Q}$).
+  * Nghiêm cấm các từ ngữ khẳng định võ đoán: cấm claim *"tương đương"* (equivalence) khi chưa chạy kiểm định TOST; cấm claim *"bảo đảm hữu hạn mẫu"* (finite-sample coverage guarantees) khi tính khả hoán bị vi phạm do dịch chuyển cụm drive; cấm claim *"fail-safe"*; cấm các trạng từ phóng đại (*"comfortably"*, *"demonstrates that"*).
+  * Tiêu đề mục Limitation 8 đổi thành *"Empirical Indistinguishability of Residual and Direct Regression under 10-Cluster Sample"*.
+- ✅ **Cấm kiểm thử hình thức (Vacuous Tests) trong đối soát dữ liệu (D118):**
+  * Mọi bài test kiểm tra tính nhất quán giữa CSV và LaTeX booktabs (`test_csv_tex_value_consistency`) bắt buộc phải trỏ đúng tên cột số liệu thực tế trong DataFrame (`absrel_pooled`, `pooled_coverage`) và có câu lệnh assert số lượng hàng đã kiểm tra $> 0$ (tối thiểu 15 hàng cho Bảng 3 và 9 hàng cho Bảng 5), triệt tiêu hoàn toàn rủi ro test rỗng/hình thức lọt qua CI.
 
 ---
 
