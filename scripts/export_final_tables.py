@@ -554,7 +554,7 @@ def export_table_6():
             # Cờ mẫu nhỏ D54
             low_n_flag = "*" if ntp < 100 else ""
             
-            rec_str = f"{rec*100:.1f}%" if rec is not None else "---"
+            rec_str = f"{rec*100:.1f}\\%" if rec is not None else "---"
             ngt_str = f"{int(ngt):,}" if ngt is not None else "---"
             nfn_str = f"{int(nfn):,}" if nfn is not None else "---"
             

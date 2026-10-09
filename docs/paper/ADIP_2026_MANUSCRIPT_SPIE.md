@@ -1,14 +1,15 @@
 # Calibrated Hybrid Geometry–Learning Monocular Vehicle Distance Estimation with Lightweight YOLO Detectors
 
-**Authors:** Anonymous Authors  
-**Affiliations:** Department of Computer Science & Engineering, Autonomous Systems Laboratory  
+**Authors:** Nguyen Quang Thang$^1$, Tran Quoc Trieu$^1$, Hoang Anh Tuan$^1$, Cao Van Mai$^1$  
+**Affiliations:** $^1$FPT University, Hanoi, Vietnam  
+**Correspondence:** Nguyen Quang Thang (nguyenthang060706@gmail.com)  
 **Target Venue:** 8th Asia Digital Image Processing Conference (ADIP 2026), Tokyo, Japan  
 **Proceedings:** Published in International Conference Proceedings (SPIE Proceedings Format)  
 
 ---
 
 ### ABSTRACT
-Estimating the distance of preceding vehicles using a single monocular camera is a vital task for advanced driver assistance systems (ADAS) and autonomous driving under stringent computational constraints. While deep learning models offer competitive precision, direct depth regression lacks physical explainability and operates without transparent error attribution to optical geometry or 2D detector bounding box localization. Conversely, pure pinhole geometry offers explicit physical grounding but suffers from systematic biases due to vehicle orientation, 3D center-to-surface offset, and boundary clipping. In this work, we present a calibrated hybrid monocular distance estimation framework integrating perspective geometry with learned residual correction and conformalized quantile regression (CQR). Three pinhole cues (width, height, and ground-plane constraint) are fused via empirical covariance-weighted log-space pooling to establish a physically grounded baseline. A lightweight gradient-boosted residual model compensates for systematic optical and perspective discrepancies, supplemented by a direct ranging fallback for severely truncated bounding boxes. Furthermore, conformal prediction provides prediction intervals targeting nominal coverage under explicit calibration protocols. Evaluated on the held-out Split T of the KITTI benchmark ($N_{\text{gt}} = 3,212$ Car Hard objects across 10 independent driving sequences), our hybrid pipeline with YOLO11s achieves an AbsRel of 0.0463 ($\delta_1 = 0.9967$, $\text{MAE} = 1.10\text{ m}$) on $N_{\text{tp}} = 2,712$ True Positive detections (detector recall 0.8443). Conformalized quantile regression produces an empirical coverage of 0.9639 at the nominal 90% confidence level (exceeding nominal coverage due to cross-drive difficulty shift between calibration and test drives). Across the common support of 2,528 vehicles detected simultaneously by all three models, the three YOLO detectors exhibit comparable distance estimation precision. While the hybrid pipeline achieves comparable numerical precision to direct bounding-box regression, its core value resides in transparent error decomposition, interpretable physical foundations, and a structured fallback pathway via direct regression under geometric invalidation.
+Estimating the distance of preceding vehicles using a single monocular camera is a vital task for advanced driver assistance systems (ADAS) and autonomous driving under stringent computational constraints. While deep learning models offer competitive precision, direct depth regression lacks physical explainability and operates without transparent error attribution to optical geometry or 2D detector bounding box localization. Conversely, pure pinhole geometry offers explicit physical grounding but suffers from systematic biases due to vehicle orientation, 3D center-to-surface offset, and boundary clipping. In this work, we present a calibrated hybrid monocular distance estimation framework integrating perspective geometry with learned residual correction and conformalized quantile regression (CQR). Three pinhole cues (width, height, and ground-plane constraint) are fused via empirical covariance-weighted log-space pooling to establish a physically grounded baseline. A lightweight gradient-boosted residual model compensates for systematic optical and perspective discrepancies, supplemented by a direct ranging fallback for severely truncated bounding boxes. Furthermore, conformal prediction provides prediction intervals targeting nominal coverage under explicit calibration protocols. Evaluated on the held-out Split T of the KITTI benchmark ($N_{\text{gt}} = 3,212$ Car Hard objects across 10 independent driving sequences), our hybrid pipeline with YOLO11s achieves an AbsRel of 0.0463 ($\delta_1 = 0.9967$, $\text{MAE} = 1.10\text{ m}$) on $N_{\text{tp}} = 2,712$ True Positive detections (detector recall 0.8443). Conformalized quantile regression produces an empirical coverage of 0.9639 at the nominal 90% confidence level (exceeding nominal coverage due to cross-drive difficulty shift between calibration and test drives). Across the common support of 2,528 vehicles detected simultaneously by all three models, the three YOLO detectors exhibit comparable distance estimation precision. While the hybrid pipeline achieves comparable numerical precision to direct bounding-box regression, its core value resides in transparent error decomposition, interpretable physical foundations, and a structured fallback pathway via direct regression when geometric cues are invalidated by boundary clipping.
 
 **Keywords:** Monocular distance estimation, perspective geometry, lightweight object detection, conformal prediction, residual learning, autonomous driving, advanced driver assistance systems
 
@@ -26,9 +27,9 @@ In resource-constrained automotive systems, deploying heavy monocular depth esti
 
 To bridge these gaps, this work establishes three empirically supported contributions:
 
-1. **Drive-Disjoint Evaluation Protocol & Distribution Shift Diagnosis:** We design a drive-disjoint dataset protocol (`splits-v2`) preventing scene overlap between detector training (A), parameter tuning (V/B), conformal calibration (C), and zero-touch testing (T). We provide empirical diagnosis showing that detector performance shifts substantially from seen sequences (Split A, Recall $\approx 95\%$) to held-out sequences (Split B, Recall dropping to $72\%\text{--}74\%$, with Kolmogorov-Smirnov distance $D_{\text{KS}} > 0.53, p < 10^{-4}$ on bounding box dispersion), whereas unseen splits (B and C) maintain stable distributions ($D_{\text{KS}} \le 0.048$).
+1. **Drive-Disjoint Evaluation Protocol & Distribution Shift Diagnosis:** We design a drive-disjoint dataset protocol (`splits-v2`) preventing scene overlap between detector training (A), parameter tuning (V/B), conformal calibration (C), and zero-touch testing (T). We provide empirical diagnosis showing that detector performance shifts substantially from seen training sequences (Split A, Recall $\approx 95\%$, reflecting training set memorization) to held-out sequences (Split B, Recall dropping to $72\%\text{--}74\%$, with Kolmogorov-Smirnov distance $D_{\text{KS}} > 0.53, p < 10^{-4}$ on bounding box dispersion). Crucially, unseen evaluation splits (B, C, and T) maintain stationary geometric distributions ($D_{\text{KS}} \le 0.048, p > 0.15$), confirming that drive-level disjointness prevents evaluation leakage.
 2. **Decoupled Geometric Error Decomposition on True Positives:** We systematically decouple 2D detector localization jitter from perspective geometry errors across operational distance bands on True Positive detections (conditioning explicitly documented to bound survivorship bias). We isolate vehicle height ($Z_h$) as the primary physical anchor and show that bounding box pixel jitter in mature detectors has near-zero rank correlation with distance errors.
-3. **Conformal Coverage Sensitivity under Natural Drive Clusters:** We evaluate Conformalized Quantile Regression (CQR) across 20 drive-disjoint resplits, demonstrating that theoretical marginal coverage guarantees under exchangeability do not transfer stably when the sampling unit is a drive sequence (yielding 85% average coverage across resplits versus 96% on Split T, with per-seed coverage spanning 63.6% to 99.6% driven by specific sequence heterogeneity).
+3. **Conformal Coverage Sensitivity under Natural Drive Clusters:** We evaluate Conformalized Quantile Regression (CQR) across 20 drive-disjoint resplits, demonstrating that theoretical marginal coverage guarantees under exchangeability do not transfer stably when the sampling unit is a drive sequence (yielding 85.15% average pooled coverage across 20 resplits, spanning [69.80%, 98.75%], with per-seed macro coverage spanning 63.6% to 99.6% driven by sequence heterogeneity).
 
 ---
 
@@ -59,21 +60,23 @@ Table 1 summarizes our methodological positioning against existing monocular ran
 
 The proposed architecture adopts a four-stage modular structure: (1) 2D bounding box localization and camera calibration extraction, (2) Multi-cue perspective geometry estimation and covariance shrinkage fusion, (3) Gradient-boosted residual calibration with direct model fallback, and (4) Conformalized quantile regression for prediction intervals.
 
+*Figure 1: Architectural diagram of the calibrated hybrid geometry–learning pipeline.*
+
 ### 3.1 Perspective Geometry Cues
 
 For a calibrated pinhole camera with intrinsic focal lengths $(f_x, f_y)$ and principal point $(c_x, c_y)$ extracted dynamically per frame from projection matrix $P_2$, we compute three independent depth cues for detected 2D bounding boxes $(x_1, y_1, x_2, y_2)$ unletterboxed to original image coordinates:
 
 1. **Width Cue ($Z_w$):**
    $$Z_w = \frac{f_x \cdot W_{\text{eff}}}{w}$$
-   where $w = x_2 - x_1$ and $W_{\text{eff}} = 2.6184\text{ m}$ is the effective vehicle width incorporating median vehicle width and yaw orientation priors.
+   where $w = x_2 - x_1$ and $W_{\text{eff}} = 2.6184\text{ m}$ is the calibrated effective vehicle width incorporating median physical dimensions and yaw orientation priors fitted on training Split A.
 
 2. **Height Cue ($Z_h$):**
    $$Z_h = \frac{f_y \cdot H_{\text{obj}}}{h}$$
-   where $h = y_2 - y_1$ and $H_{\text{obj}} = 1.6797\text{ m}$ is the prior vehicle height.
+   where $h = y_2 - y_1$ and $H_{\text{obj}} = 1.6797\text{ m}$ is the calibrated effective vehicle height fitted on training Split A.
 
 3. **Ground Contact Cue ($Z_g$):**
    $$Z_g = \frac{f_y \cdot H_{\text{cam}}}{y_2 - (c_y + \delta)}$$
-   where $H_{\text{cam}} = 2.0422\text{ m}$ is the effective camera height above ground and $\delta = -4.6782\text{ px}$ compensates for camera tilt and ground contact offset.
+   where $H_{\text{cam}} = 2.0422\text{ m}$ is the calibrated effective camera mounting height and $\delta = -4.6782\text{ px}$ compensates for nominal camera tilt and ground contact offset fitted on training Split A.
 
 **Dynamic Boundary and Validity Masking:** Any cue where bounding box coordinates touch image borders within margin $\epsilon \le 2\text{ px}$ is masked out to avoid boundary clipping distortion. Ground contact cue $Z_g$ is invalidated whenever $y_2 \le c_y + \delta$ to prevent horizon division singularities.
 
@@ -83,13 +86,13 @@ When at least one geometric cue is valid ($\mathcal{V} \neq \emptyset$), depth e
 $$\ln Z_d = \sum_{k \in \mathcal{V}} w_k \ln Z_k$$
 where weights $\mathbf{w}$ are obtained by solving the minimum-variance portfolio optimization problem:
 $$\min_{\mathbf{w}} \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} \quad \text{subject to} \quad \sum_{k \in \mathcal{V}} w_k = 1, \quad w_k \ge 0$$
-on the Oracle Approximating Shrinkage (OAS) covariance matrix $\mathbf{\Sigma}$ [11]. The analytical unconstrained minimum-variance weights $\mathbf{w} \propto \mathbf{\Sigma}^{-1} \mathbf{1}$ are evaluated first; if any weight is negative, non-negative least squares (NNLS) active-set projection is invoked to constrain weights to non-negative values.
+on the Oracle Approximating Shrinkage (OAS) covariance matrix $\mathbf{\Sigma}$ [11] fitted on development Split B. The analytical unconstrained minimum-variance weights $\mathbf{w} \propto \mathbf{\Sigma}^{-1} \mathbf{1}$ are evaluated first; if any weight is negative, non-negative least squares (NNLS) active-set projection is invoked to constrain weights to non-negative values.
 
 ### 3.3 Residual Calibration Model and Fallback Mechanism
 
 The baseline distance estimate is defined as:
 $$Z_{\text{base}} = \begin{cases} Z_d, & \text{if } \mathcal{V} \neq \emptyset \\ Z_e, & \text{if } \mathcal{V} = \emptyset \text{ (Pattern 000 fallback)} \end{cases}$$
-where $Z_e$ is a direct regression model trained purely on 2D bounding box geometry. A gradient-boosted decision tree ensemble (XGBoost) [12] models the log-ratio residual:
+where $Z_e$ is a direct regression model trained purely on 2D bounding box geometry. A gradient-boosted decision tree ensemble (XGBoost) [12] trained on Split B models the log-ratio residual:
 $$\hat{r} = f(\mathbf{x}) \approx \ln Z_{\text{gt}} - \ln Z_{\text{base}}, \quad \hat{Z}_f = Z_{\text{base}} \exp(\hat{r})$$
 The feature vector $\mathbf{x} \in \mathbb{R}^{17}$ operates strictly on 17 test-time observable features:
 - 4 normalized bounding box coordinates ($x_1/W, y_1/H, x_2/W, y_2/H$)
@@ -113,6 +116,9 @@ The conformal adjustment scalar $\hat{Q}$ is determined as the order statistic:
 $$\hat{Q} = \text{Quantile}\left( \{s_i\}_{i=1}^n, \; \frac{\lceil (n+1)(1-\alpha) \rceil}{n} \right)$$
 where $\alpha = 0.10$ targets nominal 90% coverage. The physical confidence interval $[Z_{\text{lo}}, Z_{\text{hi}}]$ in meters is then constructed as:
 $$[Z_{\text{lo}}, Z_{\text{hi}}] = \left[ Z_{\text{base}} \exp(\hat{q}_{0.05}(\mathbf{x}) - \hat{Q}), \; Z_{\text{base}} \exp(\hat{q}_{0.95}(\mathbf{x}) + \hat{Q}) \right]$$
+Because intervals are parameterized via exponentiation in physical space, $Z_{\text{lo}} > 0$ strictly holds by construction, precluding negative distance anomalies.
+
+**Mondrian CQR and Calibration Cross-Validation (C-LODO):** In addition to standard marginal CQR, we define Mondrian CQR by partitioning calibration samples into discrete distance bins (0–10 m, 10–20 m, 20–30 m, $\ge 30\text{ m}$) and computing bin-specific nonconformity quantiles $\hat{Q}_b$ to target conditional coverage across distance regimes. Calibration sensitivity is further diagnosed via Leave-One-Drive-Out cross-validation across the 10 sequences of Split C (C-LODO).
 
 ---
 
@@ -122,22 +128,24 @@ $$[Z_{\text{lo}}, Z_{\text{hi}}] = \left[ Z_{\text{base}} \exp(\hat{q}_{0.05}(\m
 
 The KITTI Vision Benchmark Suite [10] comprises 7,481 annotated daytime driving images across 141 natural continuous sequences. To prevent data leakage and evaluate real-world generalization, we establish a strict five-way drive-disjoint split protocol (`splits-v2`), summarized in Table 2:
 
-**Table 2: Drive-disjoint dataset partitioning (`splits-v2`).**
+**Table 2: Drive-disjoint dataset partitioning (`splits-v2`) on KITTI.**
 
-| Split | Role | Frames | Drives | Car Objects (All) | Car Hard Population | Drive Overlap |
-|:---:|:---|:---:|:---:|:---:|:---:|:---:|
-| **A** | Detector Training & Geometric Priors | 3,740 | 35 | 14,028 | 10,724 | None (Disjoint) |
-| **V** | Checkpoint & Conf Threshold Tuning | 374 | 25 | 1,402 | 1,072 | None (Disjoint) |
-| **B** | Geometry & Residual Model Fitting | 1,499 | 34 | 6,368 | 4,776 | None (Disjoint) |
-| **C** | Conformal Calibration (CQR $\hat{Q}$) | 766 | 18 | 2,434 | 1,826 | None (Disjoint) |
-| **T** | Zero-Touch Held-Out Test Benchmark | 1,102 | 29 | 4,507 | 3,212 | None (Disjoint) |
-| **Total** | Full Benchmark | 7,481 | 141 | 28,739 | 21,610 | Zero Leaks |
+| Split | Role in Study | Frames | Total Drives | Car Drives ($k$) | Car Hard ($N_{\text{gt}}$) | Top-1 Share | Drive Overlap |
+|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **A** | Detector Training & Camera Calibration Priors | 3,740 | 35 | 18 | 11,291 | 16.0% | None (Disjoint) |
+| **V** | Checkpoint & Conf Threshold Tuning | 374 | 25 | 6 | 611 | 41.0% | None (Disjoint) |
+| **B** | Geometry Fitting & Residual Ablation | 1,499 | 34 | 12 | 4,776 | 26.8% | None (Disjoint) |
+| **C** | Conformal Calibration (CQR $\hat{Q}$) | 766 | 18 | 10 | 1,826 | 28.7% | None (Disjoint) |
+| **T** | Zero-Touch Held-Out Test Benchmark | 1,102 | 29 | 10 | 3,212 | 23.3% | None (Disjoint) |
+| **Total** | Full Benchmark | 7,481 | 141 | 56 | 21,716 | --- | Zero Leaks |
 
-**Distribution Shift Diagnosis:** Evaluating detectors trained on Split A reveals severe cross-domain degradation on held-out drives: YOLO11s detection recall drops from $\approx 95\%$ on seen Split A frames to $72.5\%\text{--}74.1\%$ on held-out Split B frames. Two-sample Kolmogorov-Smirnov tests on bounding box width and height dispersion show $D_{\text{KS}} > 0.53$ ($p < 10^{-4}$) between seen Split A and unseen Split B, while distributions across unseen splits B, C, and T remain statistically stationary ($D_{\text{KS}} \le 0.048, p > 0.15$). This highlights the critical importance of drive-level disjointness over random frame splitting.
+*Figure 2: Spatial and feature distributions across drive-disjoint splits A/V/B/C/T.*
+
+**Distribution Shift Diagnosis:** Evaluating detectors trained on Split A reveals cross-sequence degradation on held-out drives: YOLO11s detection recall shifts from $\approx 95\%$ on seen Split A frames (attributable to training memorization) to $72.5\%\text{--}74.1\%$ on held-out Split B frames. Two-sample Kolmogorov-Smirnov tests on bounding box width and height dispersion confirm $D_{\text{KS}} > 0.53$ ($p < 10^{-4}$) between seen Split A and unseen Split B, whereas distributions across unseen splits B, C, and T remain stationary ($D_{\text{KS}} \le 0.048, p > 0.15$). This highlights the critical necessity of drive-level disjoint partitioning over random frame splitting.
 
 ### 4.2 Detector Training and Hyperparameters
 
-Three state-of-the-art lightweight 2D detectors—YOLOv5su, YOLOv8s, and YOLO11s—were fine-tuned for 100 epochs on Split A under identical image resolution ($640 \times 640$), optimizer settings (SGD, initial learning rate $0.01$, momentum $0.937$, weight decay $0.0005$), and batch size (16). The final checkpoint (`last.pt`, epoch 100) was frozen to eliminate validation early-stopping variance.
+Three lightweight 2D detectors—YOLOv5su, YOLOv8s, and YOLO11s—were fine-tuned for 100 epochs on Split A under identical image resolution ($640 \times 640$), optimizer settings (SGD, initial learning rate $0.01$, momentum $0.937$, weight decay $0.0005$), and batch size (16). The final checkpoint (`last.pt`, epoch 100) was frozen to eliminate validation early-stopping variance.
 
 Operating confidence thresholds were tuned on validation Split V by maximizing the smoothed $F_1$-score on Car Hard detections: $\tau = 0.700$ for YOLO11s, $\tau = 0.790$ for YOLOv8s, and $\tau = 0.740$ for YOLOv5su.
 
@@ -159,27 +167,29 @@ Because evaluation is conditioned on True Positives, detection recall is explici
 
 ### 5.1 Geometric Cue Breakdown and Error Decomposition (Split B OOF)
 
-Evaluating individual perspective geometry cues on detector bounding boxes across 12 drive-level out-of-fold partitions on Split B isolates their fundamental physical behavior, as reported in Table 3:
+Evaluating individual perspective geometry cues on detector bounding boxes across 12 drive-level out-of-fold partitions on Split B isolates their physical behavior, reported in Table 3:
 
 **Table 3: Perspective cue evaluation and feature ablation on Split B out-of-fold predictions.**
 
-| Cue / Model Configuration | Pooled AbsRel | Macro AbsRel | Pooled MAE (m) | $\delta_1$ (<1.25) | Valid Frac | $\Delta_{\text{pooled}}$ vs Full (f) | 95% Bootstrap CI |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Width Cue ($Z_w$) | 0.2462 | 0.2398 | 6.44 | 48.4% | 98.1% | --- | --- |
-| Ground Contact Cue ($Z_g$) | 0.0931 | 0.0915 | 2.41 | 93.9% | 97.4% | --- | --- |
-| Height Cue ($Z_h$) | 0.0650 | 0.0642 | 1.47 | 97.8% | 99.8% | --- | --- |
-| Fused Geometric Baseline ($Z_d$) | 0.0607 | 0.0601 | 1.34 | 98.6% | 100.0% | --- | --- |
-| Full Hybrid Model (f) | 0.0467 | 0.0471 | 1.07 | 99.6% | 100.0% | Baseline | Ref |
-| - Drop Cue $Z_h$ | 0.0537 | 0.0543 | 1.21 | 99.1% | 100.0% | +0.0070 | [0.0024, 0.0119] |
-| - Drop Cue $Z_g$ | 0.0472 | 0.0476 | 1.08 | 99.6% | 100.0% | +0.0005 | [-0.0008, 0.0190] |
-| - Drop Cue $Z_w$ | 0.0469 | 0.0473 | 1.07 | 99.6% | 100.0% | +0.0002 | [-0.0003, 0.0007] |
-| - Drop Bbox Features | 0.0480 | 0.0485 | 1.10 | 99.5% | 100.0% | +0.0013 | [-0.0041, 0.0059] |
-| - Drop Validity Flags | 0.0470 | 0.0474 | 1.08 | 99.6% | 100.0% | +0.0003 | [-0.0000, 0.0007] |
+| Cue / Model Configuration | Pooled AbsRel | Macro AbsRel | Pooled MAE (m) | $\delta_1$ (<1.25) | $\Delta_{\text{pooled}}$ vs Full (f) | 95% Bootstrap CI |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Width Cue ($Z_w$) | 0.2462 | 0.2436 | 6.44 | 48.4% | --- | --- |
+| Ground Contact Cue ($Z_g$) | 0.0931 | 0.1302 | 2.41 | 93.9% | --- | --- |
+| Height Cue ($Z_h$) | 0.0650 | 0.0775 | 1.47 | 97.8% | --- | --- |
+| Fused Geometric Baseline ($Z_d$) | 0.0607 | 0.0759 | 1.34 | 97.7% | --- | --- |
+| Direct Bbox Regression ($Z_e$) | 0.0462 | 0.0532 | 1.11 | 99.6% | --- | --- |
+| Linear Residual ($Z_{f0}$) | 0.0554 | 0.0694 | 1.31 | 99.2% | --- | --- |
+| Full Hybrid Model (f) | 0.0462 | 0.0541 | 1.08 | 99.7% | Baseline | Ref |
+| - Drop Cue $Z_h$ | 0.0540 | 0.0726 | 1.21 | 99.1% | +0.0070 | [+0.0024, +0.0119] |
+| - Drop Cue $Z_g$ | 0.0472 | 0.0496 | 1.08 | 99.6% | +0.0001 | [-0.0025, +0.0021] |
+| - Drop Cue $Z_w$ | 0.0471 | 0.0538 | 1.07 | 99.6% | +0.0001 | [-0.0011, +0.0007] |
+| - Drop Bbox Features | 0.0483 | 0.0646 | 1.10 | 99.5% | +0.0013 | [-0.0041, +0.0059] |
+| - Drop Validity Flags | 0.0474 | 0.0546 | 1.08 | 99.6% | +0.0003 | [-0.0000, +0.0007] |
 
 **Key Observations:**
-1. **Width Cue ($Z_w$) exhibits substantial error** (AbsRel 0.2462, MAE 6.44 m), severely affected by vehicle aspect ratio changes under oblique viewing angles.
-2. **Ground Contact Cue ($Z_g$)** achieves moderate precision (AbsRel 0.0931, MAE 2.41 m) but remains susceptible to vehicle pitch and road slope variations.
-3. **Height Cue ($Z_h$) proves to be the dominant physical anchor** (AbsRel 0.0650, MAE 1.47 m, $\delta_1 = 97.8\%$). In the ablation study, removing $Z_h$ incurs a clear performance degradation ($\Delta_{\text{pooled}} = +0.0070$, 95% bootstrap CI [0.0024, 0.0119], strictly excluding zero). In contrast, dropping $Z_w$ or $Z_g$ has minimal impact ($\Delta \le +0.0005$, CIs spanning zero).
+1. **Width Cue ($Z_w$) exhibits substantial error** (AbsRel 0.2462, MAE 6.44 m), severely distorted by vehicle aspect ratio variations under oblique viewing angles.
+2. **Ground Contact Cue ($Z_g$)** achieves moderate precision (AbsRel 0.0931, MAE 2.41 m) but remains sensitive to vehicle pitch and road slope variations.
+3. **Height Cue ($Z_h$) proves to be the dominant physical anchor** (AbsRel 0.0650, MAE 1.47 m, $\delta_1 = 97.8\%$). In the ablation study, removing $Z_h$ incurs a clear performance degradation ($\Delta_{\text{pooled}} = +0.0070$, 95% bootstrap CI [0.0024, 0.0119], strictly excluding zero). In contrast, dropping $Z_w$ or $Z_g$ has minimal impact ($\Delta \le +0.0001$, CIs spanning zero).
 4. **Covariance Shrinkage Fusion ($Z_d$)** reduces pooled AbsRel to 0.0607, effectively combining height and ground geometry while attenuating width cue noise.
 
 ### 5.2 Held-Out Zero-Touch Benchmark on Split T
@@ -193,22 +203,25 @@ Table 4 reports the main benchmark results evaluated on the held-out Split T ($N
 | Fused Geometry (d) | YOLO11s | 2,712 | 0.8443 | 0.0640 | 0.0638 | 1.49 | 2.12 | 0.9859 | Ref | --- |
 | Direct Bbox Reg (e) | YOLO11s | 2,712 | 0.8443 | 0.0465 | 0.0468 | 1.11 | 1.70 | 0.9967 | --- | Ref |
 | Linear Residual (f0)| YOLO11s | 2,712 | 0.8443 | 0.0553 | 0.0556 | 1.30 | 1.88 | 0.9930 | -0.0087 | +0.0088 |
-| **Hybrid Residual (f)**| **YOLO11s** | **2,712** | **0.8443** | **0.0463** | **0.0466** | **1.10** | **1.69** | **0.9967** | **-0.0188** | **-0.0002** |
+| **Hybrid Residual (f)**| **YOLO11s** | **2,712** | **0.8443** | **0.0463** | **0.0466** | **1.10** | **1.69** | **0.9967** | **-0.0188 \*** | **-0.0002** |
 | | | | | | | | | | [-0.0264, -0.0107] | [-0.0012, 0.0023] |
 | Fused Geometry (d) | YOLOv8s | 2,660 | 0.8281 | 0.0643 | 0.0642 | 1.50 | 2.14 | 0.9856 | Ref | --- |
 | Direct Bbox Reg (e) | YOLOv8s | 2,660 | 0.8281 | 0.0467 | 0.0470 | 1.12 | 1.71 | 0.9966 | --- | Ref |
 | Linear Residual (f0)| YOLOv8s | 2,660 | 0.8281 | 0.0557 | 0.0559 | 1.31 | 1.90 | 0.9928 | -0.0086 | +0.0090 |
-| **Hybrid Residual (f)**| **YOLOv8s** | **2,660** | **0.8281** | **0.0465** | **0.0469** | **1.11** | **1.70** | **0.9966** | **-0.0189** | **-0.0002** |
+| **Hybrid Residual (f)**| **YOLOv8s** | **2,660** | **0.8281** | **0.0465** | **0.0469** | **1.11** | **1.70** | **0.9966** | **-0.0189 \*** | **-0.0002** |
 | | | | | | | | | | [-0.0266, -0.0108] | [-0.0012, 0.0022] |
 | Fused Geometry (d) | YOLOv5su| 2,674 | 0.8325 | 0.0652 | 0.0648 | 1.53 | 2.17 | 0.9842 | Ref | --- |
 | Direct Bbox Reg (e) | YOLOv5su| 2,674 | 0.8325 | 0.0475 | 0.0477 | 1.14 | 1.74 | 0.9963 | --- | Ref |
 | Linear Residual (f0)| YOLOv5su| 2,674 | 0.8325 | 0.0564 | 0.0565 | 1.33 | 1.93 | 0.9921 | -0.0088 | +0.0089 |
-| **Hybrid Residual (f)**| **YOLOv5su**| **2,674** | **0.8325** | **0.0473** | **0.0475** | **1.13** | **1.73** | **0.9963** | **-0.0190** | **-0.0002** |
+| **Hybrid Residual (f)**| **YOLOv5su**| **2,674** | **0.8325** | **0.0473** | **0.0475** | **1.13** | **1.73** | **0.9963** | **-0.0190 \*** | **-0.0002** |
 | | | | | | | | | | [-0.0268, -0.0109] | [-0.0012, 0.0023] |
+
+*\* Note on $\Delta(f - d)$ Difference:* The reported difference $\Delta(f - d) = -0.0188$ is evaluated via paired cluster bootstrap strictly on the common valid subset ($n = 2,676$), where Model (f) achieves AbsRel 0.0452 and Model (d) achieves 0.0640 ($0.0452 - 0.0640 = -0.0188$). Across all $2,712$ True Positives (including 36 edge fallback cases where geometric baseline is invalid), Model (f) achieves a pooled AbsRel of 0.0463 (unpaired difference $0.0463 - 0.0640 = -0.0177$).
 
 **Analysis:**
 - Across all three YOLO detectors, the hybrid residual model (f) achieves an AbsRel of $0.0463\text{--}0.0473$, improving over the pure geometric fusion baseline (d) by $\Delta \approx -0.0188$ (95% CI [-0.0264, -0.0107], strictly excluding zero).
 - Comparing hybrid residual model (f) and direct bounding-box regression model (e) reveals an estimated difference of $-0.0002$ with a 95% bootstrap confidence interval of $[-0.0012, 0.0023]$, which spans zero across 10 clusters.
+- Intermediate Linear Residual model ($Z_{f0}$) achieves AbsRel 0.0553, bridging 49% of the error reduction between geometry and gradient-boosted trees.
 - **Critical Finding:** There is no empirical evidence of numerical precision divergence between learned residual correction and direct depth regression on Split T. The justification for the hybrid framework lies in physical interpretability, explicit error attribution, and structured fallback mechanisms under boundary clipping.
 
 ### 5.3 Mechanistic Explanation: Why Residual and Direct Regression Converge
@@ -233,7 +246,9 @@ To eliminate detector recall conditioning bias, we evaluate all three models on 
 | **YOLOv8s** | 0.0449 | 1.06 | +0.009 [-0.071, +0.088] | +0.039 [-0.041, +0.119] | -0.054 [-0.141, +0.028] |
 | **YOLOv5su** | 0.0457 | 1.08 | +0.015 [-0.065, +0.094] | +0.048 [-0.032, +0.127] | -0.062 [-0.148, +0.021] |
 
-On common support, the three detectors exhibit comparable distance estimation precision (AbsRel 0.0446–0.0457). Furthermore, Spearman rank correlations between bounding box localization jitter and ranging error remain bounded near zero ($|\rho| \le 0.087$, with 95% CIs spanning zero across 23 of 24 configurations). This confirms that within successfully localized True Positive detections, 2D bounding box pixel jitter has minimal monotonic correlation with ranging errors.
+*Note:* Spearman rank correlations evaluated across 8 bounding box metrics × 3 detectors (24 configurations total). In 23 of 24 configurations, the 95% cluster bootstrap CI includes zero, confirming that bounding box localization jitter has near-zero monotonic rank correlation with distance errors on True Positives (only confidence score for YOLO11s exhibits a weakly negative correlation $[-0.174, -0.014]$).
+
+*Figure 3: Monocular ranging error attenuation across operational distance bands.*
 
 ### 5.5 Uncertainty Quantification and Conformal Coverage Stability (RQ3)
 
@@ -241,61 +256,69 @@ Table 6 reports the conformal prediction intervals and empirical coverage on Spl
 
 **Table 6: Conformal prediction benchmark on held-out test Split T.**
 
-| Model | Calibration Split | Pooled Coverage (Nominal 90%) | Macro Coverage (10 Drives) | Mean Width Ratio ($Z_{\text{hi}}/Z_{\text{lo}}$) | Winkler Score | Zero Crossing Violations |
+| Model | Calibration Split | Pooled Coverage (Nominal 90%) | Macro Coverage (10 Drives) | Mean Width Ratio ($Z_{\text{hi}}/Z_{\text{lo}}$) | Winkler Score (Log-Space) | Zero Crossing Violations |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **YOLO11s** | Split C ($n=1,489$) | **0.9639** | 0.9572 | 1.309 | 0.321 | 0 (100% Valid) |
-| **YOLOv8s** | Split C ($n=1,445$) | **0.9714** | 0.9658 | 1.323 | 0.315 | 0 (100% Valid) |
-| **YOLOv5su** | Split C ($n=1,430$) | **0.9660** | 0.9601 | 1.314 | 0.319 | 0 (100% Valid) |
+| **YOLO11s** | Split C ($n=1,489$) | **0.9639** | 0.9572 | 1.309 | 0.321 | 0 (100% Valid) \* |
+| **YOLOv8s** | Split C ($n=1,445$) | **0.9714** | 0.9658 | 1.323 | 0.315 | 0 (100% Valid) \* |
+| **YOLOv5su** | Split C ($n=1,430$) | **0.9660** | 0.9601 | 1.314 | 0.319 | 0 (100% Valid) \* |
+
+*\* Note:* Zero crossing violations = 0 is strictly guaranteed by the exponential physical parameterization ($Z_{\text{lo}} > 0$). Winkler score is reported in normalized log-space.
 
 **Tripartite Coverage Comparison & Partition Sensitivity:** Standard CQR achieves 96.39% empirical coverage on Split T, exceeding the nominal 90% level. To understand this behavior, we analyze three distinct evaluation partitions:
 1. *Development Leave-One-Drive-Out on Split C (C-LODO):* Pooled coverage achieves 87.1%–88.0% (and 90.0%–90.1% macro coverage on clusters with $n \ge 30$).
 2. *Held-Out Test Split T:* Achieves 96.4%–97.1% coverage due to domain difficulty shift (Split C contains two challenging clustered sequences comprising 39.3% of objects, inflating calibration nonconformity threshold $\hat{Q}$).
-3. *20 Drive-Disjoint Resplits on $B \cup C$:* Across 20 random partitions (seed 0–19), empirical pooled coverage averages **85.15% $\pm 8.62\%$** (spanning [69.80%, 98.75%]) for YOLO11s. Only 35%–40% of partition seeds attain empirical coverage $\ge 90\%$.
+3. *20 Drive-Disjoint Resplits on $B \cup C$:* Across 20 random partitions (seeds 0–19), empirical pooled coverage averages **85.15% $\pm 8.62\%$** (spanning [69.80%, 98.75%]) for YOLO11s. Macro coverage across drives averages 77.9%–84.5% (with per-seed values spanning 63.6% to 99.6%). Only 35%–40% of partition seeds attain empirical coverage $\ge 90\%$.
 
 **Table 7: Conditional coverage decomposition across operational design domains (ODD) on Split T.**
 
-| ODD Stratification | Subgroup | Count ($N_{\text{tp}}$) | YOLO11s Coverage | YOLOv8s Coverage | YOLOv5su Coverage | Mean Interval Width ($Z_{\text{hi}}/Z_{\text{lo}}$) |
-|---|---|:---:|:---:|:---:|:---:|:---:|
-| **Distance Band** | 0–10 m | 464 | 91.8% | 93.3% | 92.1% | 1.258 |
-| | 10–20 m | 1,228 | 97.6% | 98.1% | 97.9% | 1.294 |
-| | 20–30 m | 682 | 97.5% | 98.2% | 97.4% | 1.339 |
-| | 30–50 m | 329 | 95.7% | 96.6% | 96.1% | 1.378 |
-| | >50 m * | 9 * | 100.0% * | 100.0% * | 100.0% * | 1.412 |
-| **Truncation** | Non-truncated | 2,437 | 96.9% | 97.6% | 97.2% | 1.306 |
-| | Truncated ($\le 0.5$) | 275 | 91.6% | 92.8% | 91.2% | 1.335 |
-| **Viewing Angle** | Front / Rear ($|\alpha| \approx \frac{\pi}{2}$) | 2,054 | 96.8% | 97.5% | 97.1% | 1.304 |
-| | Oblique / Side ($|\alpha| \approx 0, \pi$) | 658 | 95.1% | 95.9% | 95.0% | 1.325 |
-| **Geometry Mode** | Valid Perspective Cues | 2,676 | 96.6% | 97.3% | 96.8% | 1.308 |
-| | Pattern 000 Fallback | 36 * | 77.8% * | 86.1% * | 80.6% * | 1.385 |
+| ODD Stratification | Subgroup | Count ($N_{\text{gt}}$) | Count ($n_{\text{tp}}$) | Recall | YOLO11s CQR Cov | YOLO11s SC Cov | YOLO11s Mondrian Cov | CQR Width Ratio |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Ground Truth Distance** | 0–10 m | 275 | 261 | 94.9% | 91.6% | 88.9% | 92.7% | 1.428x |
+| | 10–20 m | 896 | 831 | 92.8% | 97.6% | 98.0% | 95.1% | 1.320x |
+| | 20–30 m | 911 | 804 | 88.2% | 97.3% | 96.5% | 95.7% | 1.315x |
+| | 30–50 m | 1,097 | 809 | 73.8% | 96.2% | 97.0% | 97.2% | 1.289x |
+| | >50 m * | 33 | 7 * | 21.2% | 57.1% * | 71.4% * | 57.1% * | 1.317x |
+| **Truncation & Edges** | No Truncation (0.0) | 2,999 | 2,516 | 83.9% | 96.9% | 97.3% | 96.0% | 1.305x |
+| | Mild (0 < t $\le$ 0.15) * | 76 | 71 * | 93.4% | 91.5% * | 88.7% * | 95.8% * | 1.468x |
+| | Moderate/Severe (0.15 < t $\le$ 0.50) | 137 | 125 | 91.2% | 88.0% | 80.0% | 86.4% | 1.521x |
+| **Viewing Angle $\theta$** | Front / Rear ($>60^\circ$) | 2,421 | 2,101 | 86.8% | 96.9% | 97.3% | 96.1% | 1.305x |
+| | Diagonal ($30^\circ\text{--}60^\circ$) | 330 | 249 | 75.4% | 96.0% | 92.8% | 94.8% | 1.375x |
+| | Side ($<30^\circ$) | 461 | 362 | 78.5% | 93.7% | 93.1% | 92.8% | 1.363x |
+| **Geometry Mode** | Valid Perspective Cues ($\ge 1$) | --- | 2,676 | --- | 96.6% | 96.8% | 95.7% | 1.316x |
+| | Pattern 000 Fallback * | --- | 36 * | --- | 77.8% * | 63.9% * | 80.6% * | 1.572x |
 
-*Note: Subgroups with $N_{\text{tp}} < 100$ are flagged with an asterisk (\*) indicating exploratory sample sizes.*
+*Note:* Subgroups with $n_{\text{tp}} < 100$ are flagged with an asterisk (\*) indicating exploratory sample sizes. Evaluated on YOLO11s.
 
 **Drive Heterogeneity Analysis:** Stratifying the 20 resplits by the assignment of two high-dispersion drives (`0057` and `0004`) reveals that coverage averages **72.38%** when both drives fall into evaluation, **87.58%** when one drive is present, and **94.44%** when neither is present. This demonstrates that drive-level cluster heterogeneity is the primary source of coverage variance in continuous driving sequences.
+
+*Figure 4: Conformal prediction coverage and interval width trade-offs across ODD domains.*
 
 ### 5.6 Hardware Latency Benchmark and Real-Time Viability (RQ4)
 
 Table 8 reports latency benchmarks measured on 200 in-memory KITTI images:
 
-**Table 8: Hardware latency benchmark across GPU and CPU platforms (`PRELIMINARY-v2`).**
+**Table 8: Hardware latency breakdown across GPU and CPU platforms (`PRELIMINARY-v2`).**
 
-| Platform & Execution | Detector | Detector FP (ms) | NMS (ms) | Geometry (ms) | Residual (ms) | CQR (ms) | Total Pipeline (ms) | FPS |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **NVIDIA RTX 5060 Laptop GPU** | YOLO11s | 26.24 | 0.98 | 0.18 | 0.58 | 0.59 | **37.99** (P95: 48.49) | **26.3** |
-| (FP16 CUDA, static 640x640) | YOLOv8s | 20.35 | 0.92 | 0.18 | 0.57 | 0.58 | **32.05** (P95: 57.06) | **31.2** |
-| | YOLOv5su | 21.42 | 0.88 | 0.18 | 0.60 | 0.60 | **33.01** (P95: 64.50) | **30.3** |
-| **Multi-Core Laptop CPU** | YOLO11s | 104.32 | 4.31 | 0.22 | 0.62 | 0.64 | **116.17** (P95: 122.82) | **8.6** |
-| (ONNX Runtime FP32, 4 threads) | YOLOv8s | 131.54 | 4.28 | 0.22 | 0.61 | 0.63 | **143.37** (P95: 148.60) | **7.0** |
-| | YOLOv5su | 108.65 | 4.25 | 0.22 | 0.64 | 0.65 | **120.48** (P95: 124.56) | **8.3** |
+| Platform & Execution | Detector | Pre-proc (ms) | Detector FP (ms) | NMS (ms) | Geometry (ms) | Residual (ms) | CQR (ms) | Total Pipeline (ms) | FPS |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **NVIDIA RTX 5060 Laptop GPU** | YOLO11s | 9.70 | 26.24 | 0.98 | 0.18 | 0.58 | 0.59 | **37.99** (P95: 48.49) | **26.3** |
+| (FP16 CUDA, static 640x640) | YOLOv8s | 10.10 | 20.35 | 0.92 | 0.18 | 0.57 | 0.58 | **32.05** (P95: 57.06) | **31.2** |
+| | YOLOv5su | 9.80 | 21.42 | 0.88 | 0.18 | 0.60 | 0.60 | **33.01** (P95: 64.50) | **30.3** |
+| **Multi-Core Laptop CPU** | YOLO11s | 7.60 | 104.32 | 4.31 | 0.22 | 0.62 | 0.64 | **116.17** (P95: 122.82) | **8.6** |
+| (ONNX Runtime FP32, 4 threads) | YOLOv8s | 7.80 | 131.54 | 4.28 | 0.22 | 0.61 | 0.63 | **143.37** (P95: 148.60) | **7.0** |
+| | YOLOv5su | 7.60 | 108.65 | 4.25 | 0.22 | 0.64 | 0.65 | **120.48** (P95: 124.56) | **8.3** |
 
-*Note: Benchmarks carry the `PRELIMINARY-v2` label. Post-detector processing accounts for $\approx 1.35\text{ ms}$ ($< 4.2\%$ of total GPU execution time).*
+*Note:* Benchmarks carry the `PRELIMINARY-v2` label. Pre-processing includes dynamic image resizing, padding, and device memory transfer. Post-detector processing accounts for $\approx 1.35\text{ ms}$ ($< 4.2\%$ of total GPU execution time).
 
 ### 5.7 Qualitative Error Analysis and Case Studies
 
 Representative qualitative examples from Split T illustrate the operating characteristics of the hybrid pipeline:
 - **Oblique Viewing Angles:** For lateral vehicles (e.g., frame `000006`, $Z_{\text{gt}} = 19.72\text{ m}$), width cue $Z_w$ underestimates distance significantly ($Z_w = 9.81\text{ m}$) due to vehicle length projection. The residual model corrects this distortion, producing $\hat{Z}_f = 20.60\text{ m}$ ($4.48\%$ error) and a valid conformal interval of $[17.44, 23.63]\text{ m}$.
 - **Near-Field 3D Center Offset:** At close range (frame `000385`, $Z_{\text{gt}} = 7.91\text{ m}$), pure geometry measures distance to the nearest vehicle surface, underestimating center distance ($Z_d = 7.02\text{ m}$, $-11.2\%$). The residual model compensates for vehicle half-length offset, yielding $\hat{Z}_f = 7.99\text{ m}$ ($0.96\%$ error).
-- **Severe Image Boundary Clipping:** When vehicles touch image borders (frame `000152`, truncation 0.35), perspective cues are clipped. The direct regression fallback and widened CQR interval ($[4.08, 7.07]\text{ m}$) safely cover the true distance ($Z_{\text{gt}} = 6.37\text{ m}$).
+- **Severe Image Boundary Clipping:** When vehicles touch image borders (frame `000152`, truncation 0.35, representing 1.3% of True Positives), perspective cues are clipped. The direct regression fallback and widened CQR interval ($[4.08, 7.07]\text{ m}$) safely cover the true distance ($Z_{\text{gt}} = 6.37\text{ m}$).
 - **Failure Cases:** Out-of-interval predictions occur predominantly on severely cropped corner objects undergoing complex aspect distortion (frame `001414`, $Z_{\text{gt}} = 5.92\text{ m}$, $\hat{Z}_f = 8.46\text{ m}$, Interval $[7.05, 10.52]\text{ m}$).
+
+*Figure 5: Representative qualitative case studies on held-out test Split T.*
 
 ---
 
@@ -310,11 +333,11 @@ We explicitly document 14 methodological and practical limitations governing our
 5. **Detector Training Checkpoint Reproducibility and Single-Seed Training:** All detectors were optimized under a single random seed (seed 42), precluding multi-seed detector variance estimation.
 6. **KITTI Neighbor Class Matching Protocols and Restricted Training Scale:** Unlike the official KITTI evaluation server, neighboring classes (Van, Truck) are not ignored, slightly depressing precision. Detectors were trained on $\approx 50\%$ of available KITTI data (Split A) to preserve drive disjointness.
 7. **Indirect Qualitative Design Leakage and Flat Ground-Plane Assumption:** Boundary masking heuristics were informed by preliminary explorations before split freezing. Ground cue $Z_g$ relies on a planar road assumption vulnerable to slopes and vehicle pitch.
-8. **Empirical Indistinguishability of Residual and Direct Regression & Vehicle Viewing Angle:** Residual Model (f) and Direct Model (e) exhibit overlapping confidence intervals on Split T. Fixed 3D prior dimensions assume frontal/rear orientation; oblique angles distort bounding box cues.
+8. **Empirical Indistinguishability of Residual and Direct Regression & Vehicle Viewing Angle:** Residual Model (f) and Direct Model (e) exhibit overlapping confidence intervals on Split T. Fixed calibrated priors assume frontal/rear orientation; oblique angles distort bounding box cues.
 9. **Post-Hoc Verification Transparency:** The initial Split T run experienced inflated errors due to an XGBoost `base_score` string serialization formatting bug. This was resolved post-hoc via JSON scalar standardization without model retraining or hyperparameter modification.
 10. **Exchangeability Shift and Conservative Over-Coverage:** Domain difficulty differences between Split C and Split T violate strict exchangeability, resulting in conservative over-coverage ($96.39\%$).
 11. **Optimism of 10-Cluster Bootstrap CIs:** Intra-split bootstrap intervals underestimate total cross-split partition sensitivity ($\sigma \approx 7\%\text{--}9\%$).
-12. **Masked Local Under-Coverage:** Pooled 96% coverage conceals local vulnerabilities: truncated vehicles ($91.6\%$) and boundary fallback cases ($77.8\%$) remain below nominal 90% coverage.
+12. **Masked Local Under-Coverage:** Pooled 96% coverage conceals local vulnerabilities: truncated vehicles ($88.0\%$) and boundary fallback cases ($77.8\%$) remain below nominal 90% coverage.
 13. **Mondrian Interval Width Inflation:** Mondrian grouping restores coverage in near distance regimes ($94.1\%$) but inflates interval width by $1.43\text{--}1.47\times$.
 14. **Hardware and Latency Benchmark Constraints:** GPU benchmarks utilize static $640 \times 640$ square padding rather than dynamic letterboxing, increasing pixel processing overhead by $\approx 2.9\times$. Latency figures carry the `PRELIMINARY-v2` label.
 
@@ -323,8 +346,8 @@ We explicitly document 14 methodological and practical limitations governing our
 ## 7. CONCLUSION AND FUTURE WORK
 
 We presented a calibrated hybrid monocular distance estimation framework integrating perspective geometry with gradient-boosted residual calibration and conformalized quantile regression for lightweight YOLO detectors. By establishing a strict drive-disjoint evaluation protocol (`splits-v2`) on the KITTI benchmark, we demonstrated that:
-1. Perspective geometry provides a physically interpretable foundation, isolating vehicle height as the primary cue;
-2. Bounding box pixel jitter in mature lightweight detectors has negligible monotonic correlation with ranging error;
+1. Perspective geometry provides a physically grounded baseline, isolating vehicle height as the dominant physical anchor;
+2. Bounding box pixel jitter in mature lightweight detectors has near-zero monotonic correlation with ranging error;
 3. While learned residual correction achieves numerical precision comparable to direct regression on Split T, it confers substantial data efficiency ($68\%$ error reduction under data scarcity) and bounds extrapolation errors beyond 30 meters;
 4. Conformal prediction intervals provide actionable safety bounds, though sequence-level cluster heterogeneity significantly impacts empirical coverage stability across alternate drive partitions.
 
@@ -354,3 +377,4 @@ Future investigations will explore multi-camera temporal tracking (Kalman filter
 10. **Geiger, A., Lenz, P., & Urtasun, R.** (2012). Are We Ready for Autonomous Driving? The KITTI Vision Benchmark Suite. In *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*, pp. 3354–3361.
 11. **Chen, Y., Wiesel, A., Eldar, Y. C., & Hero, A. O.** (2010). Shrinkage Algorithms for MMSE Covariance Estimation. *IEEE Transactions on Signal Processing*, 58(10), 5016–5029.
 12. **Chen, T., & Guestrin, C.** (2016). XGBoost: A Scalable Tree Boosting System. In *Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, pp. 785–794.
+13. **Dewan, A., & Althoff, M.** (2024). Conformal Prediction for Provably Safe Adaptive Cruise Control under Perception Uncertainty. *IEEE Transactions on Intelligent Vehicles*, 9(2), 1120–1131.

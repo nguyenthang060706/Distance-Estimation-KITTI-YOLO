@@ -1,0 +1,73 @@
+\begin{thebibliography}{10}
+
+\bibitem{ni2026realtime}
+Ni, Z., Shi, J., Li, L., and Ni, C., ``Real-time vehicle detection and distance
+  estimation: Soft-sensor approach using optimized {YOLOv5} and perspective
+  geometry,'' {\em Sensors and Materials}~{\bf 38}(1) (2026).
+
+\bibitem{vajgl2022distyolo}
+Vajgl, M., Hurtik, P., and Nejezchleba, T., ``Dist-{YOLO}: Fast object
+  detection with distance estimation,'' {\em Applied Sciences}~{\bf 12}(3),
+  1354 (2022).
+
+\bibitem{haseeb2018disnet}
+Haseeb, M.~A., Guan, J., Risti{\'c}-Durrant, D., and Gr{\"a}ser, A., ``Disnet:
+  A novel method for distance estimation from monocular camera,'' in [{\em
+  Workshop on Planning, Perception and Navigation for Intelligent Vehicles
+  (PPNIV), IEEE/RSJ International Conference on Intelligent Robots and
+  Systems (IROS)}{\nolinebreak\hspace{0.1em}]}, (2018).
+
+\bibitem{decade2024monocular}
+Shahzad, M.~Z., Hanif, M.~A., and Shafique, M., ``{DECADE}: Towards designing
+  efficient-yet-accurate distance estimation modules for collision avoidance in
+  mobile {ADAS},'' {\em arXiv preprint arXiv:2410.19336} (2024).
+
+\bibitem{agl2026lightweight}
+Christanto, R. and Miaou, S.-G., ``Lightweight monocular distance estimation via
+  anisotropic geometry loss for low-light driving environments,'' {\em
+  Sensors}~{\bf 26}(1) (2026).
+
+\bibitem{bertoni2019monoloco}
+Bertoni, L., Kreiss, S., and Alahi, A., ``{MonoLoco}: Monocular {3D}
+  pedestrian localization and uncertainty estimation,'' in [{\em Proceedings of
+  the IEEE/CVF International Conference on Computer Vision
+  (ICCV)}{\nolinebreak\hspace{0.1em}]},  6861--6871 (2019).
+
+\bibitem{romano2019cqr}
+Romano, Y., Patterson, E., and Cand{\`e}s, E., ``Conformalized quantile
+  regression,'' in [{\em Advances in Neural Information Processing Systems
+  (NeurIPS)}{\nolinebreak\hspace{0.1em}]}, {\bf 32},  3543--3553 (2019).
+
+\bibitem{bhatt2021fcal}
+Bhatt, D., Mani, K., Bansal, D., Murthy, K., Lee, H., and Paull, L., ``f-cal:
+  Calibrated aleatoric uncertainty estimation from neural networks for robot
+  perception,'' {\em arXiv preprint arXiv:2109.13913} (2021).
+
+\bibitem{dagan2004forward}
+Dagan, E., Mano, O., Stein, G.~P., and Shashua, A., ``Forward collision warning
+  with a single camera,'' in [{\em IEEE Intelligent Vehicles
+  Symposium}{\nolinebreak\hspace{0.1em}]},  37--42 (2004).
+
+\bibitem{geiger2012kitti}
+Geiger, A., Lenz, P., and Urtasun, R., ``Are we ready for autonomous driving?
+  the {KITTI} vision benchmark suite,'' in [{\em Proceedings of the IEEE
+  Conference on Computer Vision and Pattern Recognition
+  (CVPR)}{\nolinebreak\hspace{0.1em}]},  3354--3361 (2012).
+
+\bibitem{chen2010oas}
+Chen, Y., Wiesel, A., Eldar, Y.~C., and Hero, A.~O., ``Shrinkage algorithms for
+  {MMSE} covariance estimation,'' {\em IEEE Transactions on Signal
+  Processing}~{\bf 58}(10),  5016--5029 (2010).
+
+\bibitem{chen2016xgboost}
+Chen, T. and Guestrin, C., ``{XGBoost}: A scalable tree boosting system,'' in
+  [{\em Proceedings of the 22nd ACM SIGKDD International Conference on
+  Knowledge Discovery and Data Mining}{\nolinebreak\hspace{0.1em}]},  785--794
+  (2016).
+
+\bibitem{dewan2024conformal}
+Dewan, A. and Althoff, M., ``Conformal prediction for provably safe adaptive
+  cruise control under perception uncertainty,'' {\em IEEE Transactions on
+  Intelligent Vehicles}~{\bf 9}(2),  1120--1131 (2024).
+
+\end{thebibliography}
