@@ -1,7 +1,8 @@
 {
   "metadata": {
     "timestamp": "2026-10-09T09:10:51.489035",
-    "status": "OFFICIAL_TIER1_BENCHMARK",
+    "status": "PRELIMINARY-v2",
+    "notes": "Single-run 200-image benchmark on workstation; no detector throughput ranking intended (Decision D98).",
     "hardware": {
       "cpu": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
       "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",

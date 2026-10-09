@@ -117,3 +117,16 @@ def test_qualitative_manifest_matches_parquet_predictions_exact():
         assert case["absrel"] == pytest.approx(expected_absrel)
         assert case["covered"] == bool((row["z_gt"] >= row["z_lo_cqr"]) and (row["z_gt"] <= row["z_hi_cqr"]))
         assert case["fallback_flag"] == bool(row["fallback_flag"])
+
+
+def test_manifest_descriptions_contain_no_hardcoded_float_numbers():
+    """Enforce Decision D97: zero hardcoded float numbers in qualitative titles/descriptions."""
+    import re
+    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+    for fig in meta["figures"]:
+        desc = fig["description"]
+        title = fig["title"]
+        float_matches = re.findall(r"\b\d+\.\d+\b", desc + " " + title)
+        assert not float_matches, f"Found hardcoded float numbers in {fig['id']}: {float_matches}"
+

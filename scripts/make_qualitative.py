@@ -33,15 +33,15 @@ MANIFEST_PATH = PROJECT_ROOT / "results" / "final" / "top_failures_manifest.json
 OUT_DIR = PROJECT_ROOT / "results" / "figures"
 
 
-# Definition of the 8 canonical qualitative cases
+# Definition of the 8 canonical qualitative cases (Decision D97: zero hardcoded numbers in text descriptions)
 QUALITATIVE_CASES = [
     {
         "id": "qualitative_01_side_view_d19",
-        "title": "(a) Side Aspect Angle (theta = 8.6 deg, D19)",
+        "title": "(a) Side Aspect Angle Effect (D19)",
         "frame_id": "000006",
         "pred_idx": 0,
         "category": "Viewing Angle Degradation & Compensation",
-        "description": "Side aspect angle (theta=8.6 deg): Width dilates to vehicle length; Zw under-predicts; Residual model compensates.",
+        "description": "Side aspect angle: Width dilates to vehicle length; Zw under-predicts; Residual model compensates.",
         "box_color": (0, 220, 255),  # Yellow/Gold BGR
     },
     {
@@ -50,7 +50,7 @@ QUALITATIVE_CASES = [
         "frame_id": "000385",
         "pred_idx": 0,
         "category": "Near Distance Physical Offset",
-        "description": "Near physical bias (Pattern 111): Negative bias in Zd from 3D box center vs nearest surface; Residual eliminates offset.",
+        "description": "Near physical bias: Negative bias in Zd from 3D box center vs nearest surface; Residual eliminates offset.",
         "box_color": (255, 180, 0),  # Cyan/Blue BGR
     },
     {
@@ -59,7 +59,7 @@ QUALITATIVE_CASES = [
         "frame_id": "000152",
         "pred_idx": 0,
         "category": "Border Truncation Handling",
-        "description": "Boundary truncation: Bottom edge contact loses height/ground cues; adaptive CQR expands interval to safely contain Z_gt.",
+        "description": "Boundary truncation: Bottom edge contact loses height/ground cues; adaptive CQR expands interval to safely contain target.",
         "box_color": (0, 165, 255),  # Orange BGR
     },
     {
@@ -68,7 +68,7 @@ QUALITATIVE_CASES = [
         "frame_id": "000211",
         "pred_idx": 0,
         "category": "Fallback Model (e) Robustness",
-        "description": "Fallback Pattern 000: All geometric cues invalid; direct Model (e) provides baseline; CQR interval successfully covers target.",
+        "description": "Fallback Pattern 000: All geometric cues invalid; direct baseline model provides anchor; CQR interval covers target.",
         "box_color": (180, 105, 255), # Purple/Pink BGR
     },
     {
@@ -77,25 +77,25 @@ QUALITATIVE_CASES = [
         "frame_id": "001414",
         "pred_idx": 0,
         "category": "Failure Analysis & Limitations",
-        "description": "Corner truncation (x1=1.3, y2=373.3); fallback direct model suffers perspective extrapolation error (AbsRel 42.9%).",
+        "description": "Corner truncation: vehicle truncated at image boundary; direct baseline model suffers extrapolation error (observational hypothesis).",
         "box_color": (0, 0, 255),    # Red BGR
     },
     {
         "id": "qualitative_06_success_10_20m",
-        "title": "(f) Sharp Success: 10-20m Range",
+        "title": "(f) Nominal Success: Near-Mid Range",
         "frame_id": "003811",
         "pred_idx": 0,
         "category": "High-Precision Estimation",
-        "description": "Sharp Success (10-20m Range): Representative Easy target from frozen manifest (AbsRel 0.04%); tight CQR interval.",
+        "description": "Nominal Success: Representative target from frozen manifest; sharp point estimate and tight CQR interval.",
         "box_color": (0, 255, 128),  # Green BGR
     },
     {
         "id": "qualitative_07_success_20_30m",
-        "title": "(g) Sharp Success: 20-30m Range",
+        "title": "(g) Nominal Success: Mid Range",
         "frame_id": "003314",
         "pred_idx": 0,
         "category": "Mid-Range Estimation",
-        "description": "Sharp Success (20-30m Range): Representative Easy target from frozen manifest (AbsRel 0.59%); tight CQR interval.",
+        "description": "Nominal Success: Representative target from frozen manifest; sharp point estimate and tight CQR interval.",
         "box_color": (0, 255, 128),  # Green BGR
     },
     {
@@ -104,7 +104,7 @@ QUALITATIVE_CASES = [
         "frame_id": "004401",
         "pred_idx": 5,
         "category": "Challenging Occluded Target",
-        "description": "Challenging Target: Car under KITTI Hard criteria accurately bounded by conformal prediction (AbsRel 2.59%).",
+        "description": "KITTI Hard Target: Challenging occluded vehicle accurately bounded by conformal prediction interval.",
         "box_color": (0, 255, 128),  # Green BGR
     },
 ]

@@ -341,12 +341,13 @@ def generate_latency_markdown(data: dict[str, Any]) -> str:
     params = data["metadata"]["parameters"]
 
     md = []
-    md.append("# Bảng Đo Độ Trễ Từng Khâu (Latency Tier 1 Benchmark, T16 Nghiệm Thu Chính Thức)\n")
+    md.append("# Bảng Đo Độ Trễ Từng Khâu (Latency Tier 1 Benchmark, PRELIMINARY-v2, D98)\n")
     md.append("> [!IMPORTANT]")
-    md.append("> - Tuân thủ đặc tả Kế hoạch v4 §5.6 và **Quyết định D40, D44, D94, D95**.")
+    md.append("> - Tuân thủ đặc tả Kế hoạch v4 §5.6 và **Quyết định D40, D44, D94, D95, D98, D99**.")
+    md.append("> - **Nhãn trạng thái (D98):** `PRELIMINARY-v2` (kết quả một lượt đo trên laptop; không dùng để xếp hạng throughput giữa các detector).")
     md.append("> - **GPU Line:** PyTorch `.pt` FP16 trên CUDA GPU (`torch.cuda.synchronize()`).")
     md.append("> - **CPU Line:** ONNX Runtime CPU FP32 (cố định `intra_op_num_threads=4`).")
-    md.append(r"> - **Khắc phục 4 lỗi D44:** Triệt tiêu double-count tiền xử lý; đo mảng $\{t_{\text{total}}^{(i)}\}$ từng ảnh thay cho sum of medians; chạy đủ 17 đặc trưng XGBoost; bổ sung đo khâu CQR uncertainty.")
+    md.append(r"> - **Khắc phục 4 lỗi D44:** Loại bỏ Disk I/O khỏi vòng lặp đo (In-memory benchmark); đo mảng $\{t_{\text{total}}^{(i)}\}$ từng ảnh thay cho sum of medians; chạy đủ 17 đặc trưng XGBoost; bổ sung đo khâu CQR uncertainty.")
     md.append("> - **Cấm:** Không suy diễn kết luận về độ chính xác từ mô hình ONNX.\n")
 
     md.append("## 1. Cấu hình Phần cứng & Thư viện Thử nghiệm\n")
@@ -355,7 +356,7 @@ def generate_latency_markdown(data: dict[str, Any]) -> str:
     md.append(f"- **Thư viện:** PyTorch `{vers['torch']}`, ONNX Runtime `{vers['onnxruntime']}`, XGBoost `{vers['xgboost']}`")
     md.append(f"- **Tập dữ liệu:** `{params['n_images']}` ảnh ngẫu nhiên từ Split B (sau `{params['n_warmup']}` ảnh khởi động warmup).\n")
 
-    md.append("## 2. Kết quả Kiểm tra Tính Tương đồng (Parity Check: PyTorch .pt vs ONNX, D44, D95)\n")
+    md.append("## 2. Kết quả Kiểm tra Tính Tương đồng (Parity Check: PyTorch .pt vs ONNX, D44, D95, D99)\n")
     md.append("| Detector | Ảnh kiểm thử | Detections (.pt) | Detections (ONNX) | Tỉ lệ Số lượng (ORT/PT) | Tỉ lệ Khớp IoU ≥ 0.90 | Parity Check |\n")
     md.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |\n")
 
@@ -372,7 +373,7 @@ def generate_latency_markdown(data: dict[str, Any]) -> str:
             f"{par['count_ratio']:.4f} | {par['high_iou_match_rate']:.4f} | {gate_status} |\n"
         )
     md.append("\n> [!NOTE]\n")
-    md.append("> **Giải trình Parity (AGENT_RULES §1.9, D95):** Count Parity đạt chuẩn [0.95, 1.05]. IoU Match Rate đạt 0.9095–0.9437 (< 0.95, KHÔNG ĐẠT theo ngưỡng đăng ký). Các nguyên nhân có thể gồm: khác biệt dynamic letterbox PyTorch vs fixed square 640 ONNX, model.half() FP16 vs ORT FP32, và sự khác biệt giữa NMS numpy vs NMS Ultralytics torch (đây là các giả thuyết chưa kiểm chứng độc lập). Tuyệt đối không làm mềm kết quả không đạt.\n\n")
+    md.append("> **Giải trình Parity (D95, D99):** Count Parity đạt chuẩn [0.95, 1.05]. IoU Match Rate đạt 0.9095–0.9437 (< 0.95, KHÔNG ĐẠT theo ngưỡng đăng ký). Các nguyên nhân có thể gồm: khác biệt dynamic letterbox PyTorch vs fixed square 640 ONNX, model.half() FP16 vs ORT FP32, và sự khác biệt giữa NMS numpy vs NMS Ultralytics torch (đây là các giả thuyết kỹ thuật chưa kiểm chứng độc lập). Tuyệt đối không làm mềm kết quả không đạt.\n\n")
 
     md.append("## 3. Bảng Độ Trễ Từng Khâu (Median / P95 theo ms)\n")
     md.append("| Khâu Pipeline | `yolo11s_640` (GPU / CPU) | `yolov8s_640` (GPU / CPU) | `yolov5su_640` (GPU / CPU) |\n")
@@ -425,7 +426,7 @@ def generate_latency_markdown(data: dict[str, Any]) -> str:
     md.append(row_fps)
     md.append("\n")
 
-    md.append("## 4. Nhận xét Phân bố Thời gian Thực thi (D44, D94)\n")
+    md.append("## 4. Nhận xét Phân bố Thời gian Thực thi (D44, D94, D98)\n")
     det_f_gpu = [data["detectors"][d]["latency"]["detector_gpu_fp16"]["median_ms"] for d in DETECTORS]
     det_f_cpu = [data["detectors"][d]["latency"]["detector_cpu_ort_fp32"]["median_ms"] for d in DETECTORS]
     geom_all = [data["detectors"][d]["latency"]["geometry_gpu"]["median_ms"] for d in DETECTORS]
@@ -437,8 +438,8 @@ def generate_latency_markdown(data: dict[str, Any]) -> str:
     md.append(f"1. **Khâu Detector:** Là điểm nghẽn chính về thời gian. Trên GPU NVIDIA RTX 5060 Laptop (PyTorch FP16 CUDA), suy luận thô mất ~{min(det_f_gpu):.1f}–{max(det_f_gpu):.1f} ms; trên CPU (ONNX Runtime 4 luồng) mất ~{min(det_f_cpu):.1f}–{max(det_f_cpu):.1f} ms.")
     md.append(f"2. **Khâu Hình học & Residual:** Cực kỳ gọn nhẹ: hình học (cues + fusion) chỉ mất ~{min(geom_all):.2f}–{max(geom_all):.2f} ms; khâu trích xuất 17 đặc trưng và dự đoán XGBoost mất ~{min(res_all):.2f}–{max(res_all):.2f} ms cho mỗi ảnh.")
     md.append(f"3. **Khâu CQR Uncertainty:** Khâu tính toán khoảng tin cậy conformal trong không gian log chỉ mất ~{min(cqr_all):.2f}–{max(cqr_all):.2f} ms (chủ yếu do 2 mô hình quantile XGBoost), hoàn toàn nằm trong ngân sách thời gian thực.")
-    md.append(r"4. **So sánh Sum-of-Medians vs End-to-End per-image (D44, D94):** Chênh lệch giữa tổng các trung vị đơn lẻ và trung vị chuỗi tổng $\{t_{\text{total}}^{(i)}\}$ trên dữ liệu thực tế là rất nhỏ (< 0.5 ms, tức < 0.4%). Việc đo trực tiếp thời gian end-to-end trên từng ảnh là chuẩn mực phương pháp luận thống kê nhằm phản ánh đúng phân phối tổng thể và theo dõi chính xác các phân vị đuôi (P95, IQR).")
-    md.append(f"5. **Thông lượng hệ thống:** Toàn bộ pipeline đạt ~{min(fps_gpu_all):.1f}–{max(fps_gpu_all):.1f} FPS trên GPU RTX 5060 Laptop và ~{min(fps_cpu_all):.1f}–{max(fps_cpu_all):.1f} FPS trên CPU 4 luồng [CẦN TRÍCH DẪN tiêu chuẩn ADAS cụ thể nếu đưa ra khẳng định phân cấp thời gian thực].\n")
+    md.append(r"4. **So sánh Sum-of-Medians vs End-to-End per-image (D44, D94):** Chênh lệch giữa tổng các trung vị đơn lẻ và trung vị chuỗi tổng $\{t_{\text{total}}^{(i)}\}$ trên dữ liệu thực tế là 0.20–0.63 ms (≤ 2.0%). Việc đo trực tiếp thời gian end-to-end trên từng ảnh là chuẩn mực phương pháp luận thống kê nhằm phản ánh đúng phân phối tổng thể và theo dõi chính xác các phân vị đuôi (P95, IQR).")
+    md.append(f"5. **Thông lượng hệ thống (D98):** Toàn bộ pipeline đạt ~{min(fps_gpu_all):.1f}–{max(fps_gpu_all):.1f} FPS trên GPU RTX 5060 Laptop và ~{min(fps_cpu_all):.1f}–{max(fps_cpu_all):.1f} FPS trên CPU 4 luồng trong lượt đo này. Kết quả thuộc diện PRELIMINARY-v2, không dùng để xếp hạng throughput giữa các detector. [CẦN TRÍCH DẪN tiêu chuẩn thời gian thực cụ thể nếu đưa vào bài báo].\n")
 
     return "\n".join(md)
 
@@ -499,7 +500,8 @@ def main():
     benchmark_results: dict[str, Any] = {
         "metadata": {
             "timestamp": datetime.now().isoformat(),
-            "status": "OFFICIAL_TIER1_BENCHMARK",
+            "status": "PRELIMINARY-v2",
+            "notes": "Single-run 200-image benchmark on workstation; no detector throughput ranking intended (Decision D98).",
             "hardware": {
                 "cpu": cpu_name,
                 "gpu": gpu_name,
@@ -880,9 +882,10 @@ def main():
         split_hash=split_b_hash,
         seed=42,
         n_boot=0,
-        tag="T16-Latency-Official",
+        tag="T16-Latency-PrelimV2",
         extra={
-            "status": "OFFICIAL_TIER1_BENCHMARK",
+            "status": "PRELIMINARY-v2",
+            "notes": "Decision D98: Preliminary Tier 1 benchmark, single run, no ranking",
             "hardware": benchmark_results["metadata"]["hardware"],
             "detectors": DETECTORS,
             "fps_gpu": {d: benchmark_results["detectors"][d]["latency"]["total_pipeline_gpu"]["fps_median"] for d in DETECTORS},

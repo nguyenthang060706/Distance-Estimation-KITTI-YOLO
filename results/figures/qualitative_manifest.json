@@ -8,7 +8,7 @@
   "figures": [
     {
       "id": "qualitative_01_side_view_d19",
-      "title": "(a) Side Aspect Angle (theta = 8.6 deg, D19)",
+      "title": "(a) Side Aspect Angle Effect (D19)",
       "category": "Viewing Angle Degradation & Compensation",
       "frame_id": "000006",
       "pred_idx": 0,
@@ -20,7 +20,7 @@
       "absrel": 0.0448,
       "covered": true,
       "fallback_flag": false,
-      "description": "Side aspect angle (theta=8.6 deg): Width dilates to vehicle length; Zw under-predicts; Residual model compensates."
+      "description": "Side aspect angle: Width dilates to vehicle length; Zw under-predicts; Residual model compensates."
     },
     {
       "id": "qualitative_02_near_physical_bias_d21",
@@ -36,7 +36,7 @@
       "absrel": 0.0096,
       "covered": true,
       "fallback_flag": false,
-      "description": "Near physical bias (Pattern 111): Negative bias in Zd from 3D box center vs nearest surface; Residual eliminates offset."
+      "description": "Near physical bias: Negative bias in Zd from 3D box center vs nearest surface; Residual eliminates offset."
     },
     {
       "id": "qualitative_03_truncated_edge_d84",
@@ -52,7 +52,7 @@
       "absrel": 0.0355,
       "covered": true,
       "fallback_flag": false,
-      "description": "Boundary truncation: Bottom edge contact loses height/ground cues; adaptive CQR expands interval to safely contain Z_gt."
+      "description": "Boundary truncation: Bottom edge contact loses height/ground cues; adaptive CQR expands interval to safely contain target."
     },
     {
       "id": "qualitative_04_fallback_pattern000_d74",
@@ -68,7 +68,7 @@
       "absrel": 0.0403,
       "covered": true,
       "fallback_flag": true,
-      "description": "Fallback Pattern 000: All geometric cues invalid; direct Model (e) provides baseline; CQR interval successfully covers target."
+      "description": "Fallback Pattern 000: All geometric cues invalid; direct baseline model provides anchor; CQR interval covers target."
     },
     {
       "id": "qualitative_05_top1_failure",
@@ -84,11 +84,11 @@
       "absrel": 0.4292,
       "covered": false,
       "fallback_flag": true,
-      "description": "Corner truncation (x1=1.3, y2=373.3); fallback direct model suffers perspective extrapolation error (AbsRel 42.9%)."
+      "description": "Corner truncation: vehicle truncated at image boundary; direct baseline model suffers extrapolation error (observational hypothesis)."
     },
     {
       "id": "qualitative_06_success_10_20m",
-      "title": "(f) Sharp Success: 10-20m Range",
+      "title": "(f) Nominal Success: Near-Mid Range",
       "category": "High-Precision Estimation",
       "frame_id": "003811",
       "pred_idx": 0,
@@ -100,11 +100,11 @@
       "absrel": 0.0004,
       "covered": true,
       "fallback_flag": false,
-      "description": "Sharp Success (10-20m Range): Representative Easy target from frozen manifest (AbsRel 0.04%); tight CQR interval."
+      "description": "Nominal Success: Representative target from frozen manifest; sharp point estimate and tight CQR interval."
     },
     {
       "id": "qualitative_07_success_20_30m",
-      "title": "(g) Sharp Success: 20-30m Range",
+      "title": "(g) Nominal Success: Mid Range",
       "category": "Mid-Range Estimation",
       "frame_id": "003314",
       "pred_idx": 0,
@@ -116,7 +116,7 @@
       "absrel": 0.0059,
       "covered": true,
       "fallback_flag": false,
-      "description": "Sharp Success (20-30m Range): Representative Easy target from frozen manifest (AbsRel 0.59%); tight CQR interval."
+      "description": "Nominal Success: Representative target from frozen manifest; sharp point estimate and tight CQR interval."
     },
     {
       "id": "qualitative_08_success_hard",
@@ -132,7 +132,7 @@
       "absrel": 0.0259,
       "covered": true,
       "fallback_flag": false,
-      "description": "Challenging Target: Car under KITTI Hard criteria accurately bounded by conformal prediction (AbsRel 2.59%)."
+      "description": "KITTI Hard Target: Challenging occluded vehicle accurately bounded by conformal prediction interval."
     }
   ]
 }
